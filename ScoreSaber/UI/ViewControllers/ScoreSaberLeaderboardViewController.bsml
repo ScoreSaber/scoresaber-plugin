@@ -1,0 +1,60 @@
+﻿<bg id="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd">
+
+  <!-- Leaderboard scrollers -->
+  <bg anchor-pos-x="-40" anchor-pos-y="-20">
+    <page-button on-click="up-button-click" id="up-button" dir="Up" anchor-pos-y="17" interactable="false" />
+    <page-button on-click="down-button-click" id="down-button" dir="Down" anchor-pos-y="-20" />
+  </bg>
+
+
+  <button-with-icon icon="ScoreSaber.Resources.replay.png" id="buttonPPv3Replay" active="false" on-click="PPv3-replay-click" hover-hint="Watch PPv3 Replay" pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="17" anchor-pos-y="36"/>
+  <!-- Leaderboard info buttons -->
+  <macro.as-host host="info-buttons-view">
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button1"  on-click="b-1-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="26"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button2"  on-click="b-2-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="20"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button3"  on-click="b-3-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="14"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button4"  on-click="b-4-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="8"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button5"  on-click="b-5-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="2"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button6"  on-click="b-6-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="-4"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button7"  on-click="b-7-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="-10"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button8"  on-click="b-8-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="-16"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button9"  on-click="b-9-click"  pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="-22"/>
+    <button-with-icon icon="ScoreSaber.Resources.info.png" id="button10" on-click="b-10-click" pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="45" anchor-pos-y="-28"/>
+  </macro.as-host>
+
+  <!-- Score info modal -->
+  <modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="50">
+    <macro.as-host host="score-detail-view">
+      <vertical pref-width="55" pad="3" vertical-fit="PreferredSize" spacing="0.8">
+        <horizontal pref-width="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+          <vertical pref-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+            <horizontal preferred-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" child-align="MiddleLeft" child-expand-width="false" spacing="1">
+              <img id="prefix-image" preserve-aspect="true" preferred-width="5.5" pref-height="5.5" size-delta-y="5.5" hover-hint="" />
+              <text id="name-text" text="" font-size="4"  align="Left" overflow-mode="Ellipsis" />
+            </horizontal>
+          </vertical>
+          <horizontal pref-width="12" pref-height="5.5">
+            <button-with-icon icon="ScoreSaber.Resources.user.png" id="show-profile-button" hover-hint="View Profile" pref-width="15" pref-height="13" on-click="show-profile-click" />
+            <button-with-icon icon="ScoreSaber.Resources.replay.png" id="watch-replay-button" hover-hint="Watch Replay" pref-width="15" pref-height="13" interactable="false" on-click="replay-click" />
+          </horizontal>
+        </horizontal>
+        <image src="ScoreSaber.Resources.pixel.png" size-delta-x="48" pref-height="0.4" />
+        <vertical pref-width="50" pref-height="40">
+          <text id="device-text" text="" font-size="3.5" />
+          <text id="score-text" text="" font-size="3.5" />
+          <text id="pp-text" text="" font-size="3.5" />
+          <text id="max-combo-text" text="" font-size="3.5" />
+          <text id="full-combo-text" text="" font-size="3.5" />
+          <text id="bad-cuts-text" text="" font-size="3.5" />
+          <text id="missed-notes-text" text="" font-size="3.5" />
+          <text id="modifiers-text" text="" font-size="3.5" />
+          <text id="time-text" text="" font-size="3.5" />
+        </vertical>
+      </vertical>
+    </macro.as-host>
+  </modal>
+
+  <!-- Profile modal -->
+  <ss-profile id="profile-detail-view" show-event="show-profile" loading="false" />
+
+</bg>
