@@ -24,7 +24,6 @@ namespace ScoreSaber {
 
         internal static ReplayState ReplayState { get; set; }
         internal static Recorder ReplayRecorder { get; set; }
-
         internal static IPALogger Log { get; private set; }
         internal static Plugin Instance { get; private set; }
 
