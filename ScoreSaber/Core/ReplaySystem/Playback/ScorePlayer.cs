@@ -1,13 +1,11 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.Utils;
-using SiraUtil.Logging;
 using System;
 using System.Linq;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem.Playback
-{
+namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class ScorePlayer : TimeSynchronizer, ITickable, IScroller
     {
         private int _lastIndex;

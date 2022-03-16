@@ -11,7 +11,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
     internal class LegacyReplayPlayer : IInitializable, ITickable, IDisposable {
 
-        private readonly ScoreController _scoreController;
+        private ScoreController _scoreController;
         private readonly ScoreUIController _scoreUIController;
         private readonly RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
         private readonly AudioTimeSyncController _audioTimeSyncController;
@@ -20,6 +20,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         private readonly MainSettingsModelSO _mainSettingsModelSO;
         private PlayerTransforms _playerTransforms;
         private readonly IFPFCSettings _fpfcSettings;
+        private ComboController _comboController;
 
         private Camera _spectatorCamera;
         private Camera _desktopCamera;
@@ -36,9 +37,10 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
         internal LegacyReplayPlayer(List<Z.Keyframe> keyframes, ScoreController scoreController,
             RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter, AudioTimeSyncController audioTimeSyncController,
-            MainCamera mainCamera, SaberManager saberManager, PlayerTransforms playerTransforms, IFPFCSettings fpfcSettings) {
+            MainCamera mainCamera, SaberManager saberManager, PlayerTransforms playerTransforms, IFPFCSettings fpfcSettings, ComboController comboController) {
 
             _fpfcSettings = fpfcSettings;
+            _comboController = comboController;
             _initialFPFCState = fpfcSettings.Enabled;
             _fpfcSettings.Enabled = false;
 
@@ -166,7 +168,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
             if (_playbackPreviousCombo != keyframe.combo) {
                 comboChanged = true;
-                _scoreController?.SetField("_combo", keyframe.combo);
+                Accessors.Combo(ref _comboController) = keyframe.combo;
             }
 
             if (_playbackPreviousScore != keyframe.score) {
@@ -184,8 +186,14 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             _playbackPreviousCombo = keyframe.combo;
             _playbackPreviousScore = keyframe.score;
 
-            if (comboChanged || multiplierChanged) {
-                _scoreController?.InvokeMethod<object, ScoreController>("NotifyForChange", comboChanged, multiplierChanged);
+            if (comboChanged) {
+                FieldAccessor<ScoreController, Action<int, int>>.Get(_scoreController, "scoreDidChangeEvent").Invoke(keyframe.score,
+                    ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(keyframe.score, Accessors.GameplayMultiplier(ref _scoreController)));
+            }
+
+            if (multiplierChanged) {
+
+                FieldAccessor<ScoreController, Action<int, float>>.Get(_scoreController, "multiplierDidChangeEvent").Invoke(_multiplier, _multiplierIncreaseProgress);
             }
         }
 
@@ -193,18 +201,24 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
             if (keyframe.combo > _playbackPreviousCombo) {
                 if (_multiplier < 8) {
+
+                    var counter = Accessors.MultiplierCounter(ref _scoreController);
+
                     if (_multiplierIncreaseProgress < _multiplierIncreaseMaxProgress) {
                         _multiplierIncreaseProgress++;
-                        _scoreController.SetField("_multiplierIncreaseProgress", _multiplierIncreaseProgress);
+
+                        Accessors.Progress(ref counter) = _multiplierIncreaseProgress;
                         multiplierChanged = true;
                     }
                     if (_multiplierIncreaseProgress >= _multiplierIncreaseMaxProgress) {
                         _multiplier *= 2;
                         _multiplierIncreaseProgress = 0;
                         _multiplierIncreaseMaxProgress = _multiplier * 2;
-                        _scoreController.SetField("_multiplier", _multiplier);
-                        _scoreController.SetField("_multiplierIncreaseProgress", _multiplierIncreaseProgress);
-                        _scoreController.SetField("_multiplierIncreaseMaxProgress", _multiplierIncreaseMaxProgress);
+
+                        Accessors.Multiplier(ref counter) = _multiplier;
+                        Accessors.Progress(ref counter) = _multiplierIncreaseProgress;
+                        Accessors.MaxProgress(ref counter) = _multiplierIncreaseMaxProgress;
+
                         multiplierChanged = true;
                     }
                 }
@@ -218,7 +232,10 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
                     _multiplierIncreaseMaxProgress = _multiplier * 2;
                     multiplierChanged = true;
                 }
-                _scoreController?.InvokeMethod<object, ScoreController>("LoseMultiplier", comboChanged, multiplierChanged);
+
+                var counter = Accessors.MultiplierCounter(ref _scoreController);
+                counter.ProcessMultiplierEvent(ScoreMultiplierCounter.MultiplierEventType.Negative);
+                FieldAccessor<ScoreController, Action<int, float>>.Get(_scoreController, "multiplierDidChangeEvent").Invoke(_multiplier, _multiplierIncreaseProgress);
             }
         }
 
