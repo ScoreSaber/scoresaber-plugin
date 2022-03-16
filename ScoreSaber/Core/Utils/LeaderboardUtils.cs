@@ -143,10 +143,28 @@ namespace ScoreSaber.Core.Utils {
                         break;
                 }
             }
-            GameplayModifiers gameplayModifiers = new GameplayModifiers(false, false, energyType, NF, IF, false, obstacleType, NB, false, SA, DA, songSpeed, NA, GN, PM, false, SC);
+            GameplayModifiers gameplayModifiers = new GameplayModifiers(energyType, NF, IF, false, obstacleType, NB, false, SA, DA, songSpeed, NA, GN, PM, false, SC);
             GameplayModifiersMap gameplayModifiersWrapper = new GameplayModifiersMap(gameplayModifiers);
             gameplayModifiersWrapper.totalMultiplier = totalMultiplier;
             return gameplayModifiersWrapper;
+        }
+
+        public static int OldMaxRawScoreForNumberOfNotes(int noteCount) {
+            int num = 0;
+            int num2 = 1;
+            while (num2 < 8) {
+                if (noteCount >= num2 * 2) {
+                    num += num2 * num2 * 2 + num2;
+                    noteCount -= num2 * 2;
+                    num2 *= 2;
+                    continue;
+                }
+                num += num2 * noteCount;
+                noteCount = 0;
+                break;
+            }
+            num += noteCount * num2;
+            return num * 115;
         }
 
         [Obfuscation(Feature = "virtualization", Exclude = false)]

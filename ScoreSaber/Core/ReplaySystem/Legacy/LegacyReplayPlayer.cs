@@ -5,6 +5,7 @@ using Zenject;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using IPA.Utilities;
+using ScoreSaber.Core.Utils;
 
 namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
@@ -56,7 +57,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         public void Initialize() {
             SetupCameras();
             _fpfcSettings.Changed += fpfcSettings_Changed;
-            ScoreUIController.InitData data = new ScoreUIController.InitData(scoreDisplayType: ScoreUIController.ScoreDisplayType.RawScore);
+            ScoreUIController.InitData data = new ScoreUIController.InitData(scoreDisplayType: ScoreUIController.ScoreDisplayType.MultipliedScore);
             _scoreUIController.SetField("_initData", data);
         }
 
@@ -170,7 +171,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
             if (_playbackPreviousScore != keyframe.score) {
 
-                int maxPossibleRawScore = ScoreModel.MaxRawScoreForNumberOfNotes(cutOrMissedNotes);
+                int maxPossibleRawScore = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(cutOrMissedNotes);
 
                 _relativeScoreAndImmediateRankCounter?.InvokeMethod<object, RelativeScoreAndImmediateRankCounter>("UpdateRelativeScoreAndImmediateRank", keyframe.score, keyframe.score, maxPossibleRawScore, maxPossibleRawScore);
 

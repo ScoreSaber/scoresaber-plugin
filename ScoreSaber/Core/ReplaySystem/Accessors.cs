@@ -10,10 +10,10 @@ namespace ScoreSaber.Core.ReplaySystem
 #pragma warning disable IDE1006 // Naming Styles
     internal static class Accessors
     {
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor Combo = FieldAccessor<ScoreController, int>.GetAccessor("_combo");
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor MaxCombo = FieldAccessor<ScoreController, int>.GetAccessor("_maxCombo");
-        internal static readonly FieldAccessor<ComboUIController, int>.Accessor TriggerID = FieldAccessor<ComboUIController, int>.GetAccessor("_comboLostID");
-        internal static readonly FieldAccessor<ComboUIController, bool>.Accessor ComboWasLost = FieldAccessor<ComboUIController, bool>.GetAccessor("_comboLost");
+        internal static readonly FieldAccessor<ComboController, int>.Accessor Combo = FieldAccessor<ComboController, int>.GetAccessor("_combo");
+        internal static readonly FieldAccessor<ComboController, int>.Accessor MaxCombo = FieldAccessor<ComboController, int>.GetAccessor("_maxCombo");
+        internal static readonly FieldAccessor<ComboUIController, int>.Accessor TriggerID = FieldAccessor<ComboUIController, int>.GetAccessor("_comboLostId");
+        internal static readonly FieldAccessor<ComboUIController, bool>.Accessor ComboWasLost = FieldAccessor<ComboUIController, bool>.GetAccessor("_fullComboLost");
         internal static readonly FieldAccessor<ComboUIController, Animator>.Accessor ComboAnimator = FieldAccessor<ComboUIController, Animator>.GetAccessor("_animator");
 
         internal static readonly FieldAccessor<GameEnergyUIPanel, Image>.Accessor EnergyBar = FieldAccessor<GameEnergyUIPanel, Image>.GetAccessor("_energyBar");
@@ -23,21 +23,19 @@ namespace ScoreSaber.Core.ReplaySystem
         internal static readonly FieldAccessor<GameEnergyCounter, float>.Accessor NextEnergyChange = FieldAccessor<GameEnergyCounter, float>.GetAccessor("_nextFrameEnergyChange");
         internal static readonly FieldAccessor<GameEnergyUIPanel, PlayableDirector>.Accessor Director = FieldAccessor<GameEnergyUIPanel, PlayableDirector>.GetAccessor("_playableDirector");
 
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor Multiplier = FieldAccessor<ScoreController, int>.GetAccessor("_multiplier");
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor Progress = FieldAccessor<ScoreController, int>.GetAccessor("_multiplierIncreaseProgress");
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor MaxProgress = FieldAccessor<ScoreController, int>.GetAccessor("_multiplierIncreaseMaxProgress");
+        internal static readonly FieldAccessor<ScoreMultiplierCounter, int>.Accessor Multiplier = FieldAccessor<ScoreMultiplierCounter, int>.GetAccessor("_multiplier");
+        internal static readonly FieldAccessor<ScoreMultiplierCounter, int>.Accessor Progress = FieldAccessor<ScoreMultiplierCounter, int>.GetAccessor("_multiplierIncreaseProgress");
+        internal static readonly FieldAccessor<ScoreMultiplierCounter, int>.Accessor MaxProgress = FieldAccessor<ScoreMultiplierCounter, int>.GetAccessor("_multiplierIncreaseMaxProgress");
+        internal static readonly FieldAccessor<ScoreController, ScoreMultiplierCounter>.Accessor MultiplierCounter = FieldAccessor<ScoreController, ScoreMultiplierCounter>.GetAccessor("_scoreMultiplierCounter");
 
         internal static readonly FieldAccessor<SaberSwingRatingCounter, float>.Accessor AfterCutRating = FieldAccessor<SaberSwingRatingCounter, float>.GetAccessor("_afterCutRating");
         internal static readonly FieldAccessor<SaberSwingRatingCounter, float>.Accessor BeforeCutRating = FieldAccessor<SaberSwingRatingCounter, float>.GetAccessor("_beforeCutRating");
-        internal static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.Accessor GameNotePool = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.GetAccessor("_gameNotePoolContainer");
         internal static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.Accessor BombNotePool = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.GetAccessor("_bombNotePoolContainer");
+        internal static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.Accessor GameNotePool = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.GetAccessor("_basicGameNotePoolContainer");
         internal static readonly FieldAccessor<SaberSwingRatingCounter, LazyCopyHashSet<ISaberSwingRatingCounterDidChangeReceiver>>.Accessor ChangeReceivers = FieldAccessor<SaberSwingRatingCounter, LazyCopyHashSet<ISaberSwingRatingCounterDidChangeReceiver>>.GetAccessor("_didChangeReceivers");
 
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor RawScore = FieldAccessor<ScoreController, int>.GetAccessor("_baseRawScore");
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor PrevRawScore = FieldAccessor<ScoreController, int>.GetAccessor("_prevFrameRawScore");
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor CutOrMissedNotes = FieldAccessor<ScoreController, int>.GetAccessor("_cutOrMissedNotes");
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor ImmediatePossible = FieldAccessor<ScoreController, int>.GetAccessor("_immediateMaxPossibleRawScore");
-        internal static readonly FieldAccessor<ScoreController, float>.Accessor PrevModifierScore = FieldAccessor<ScoreController, float>.GetAccessor("_prevFrameGameplayModifiersScoreMultiplier");
+        internal static readonly FieldAccessor<ScoreController, int>.Accessor MultipliedScore = FieldAccessor<ScoreController, int>.GetAccessor("_multipliedScore");
+        internal static readonly FieldAccessor<ScoreController, int>.Accessor ImmediatePossible = FieldAccessor<ScoreController, int>.GetAccessor("_immediateMaxPossibleMultipliedScore");
         internal static readonly FieldAccessor<ScoreController, GameplayModifiersModelSO>.Accessor ModifiersModelSO = FieldAccessor<ScoreController, GameplayModifiersModelSO>.GetAccessor("_gameplayModifiersModel");
         internal static readonly FieldAccessor<ScoreController, List<GameplayModifierParamsSO>>.Accessor ModifierPanelsSO = FieldAccessor<ScoreController, List<GameplayModifierParamsSO>>.GetAccessor("_gameplayModifierParams");
 
@@ -46,10 +44,9 @@ namespace ScoreSaber.Core.ReplaySystem
 
         internal static readonly FieldAccessor<MenuTransitionsHelper, StandardLevelScenesTransitionSetupDataSO>.Accessor StandardLevelScenesTransitionSetupData = FieldAccessor<MenuTransitionsHelper, StandardLevelScenesTransitionSetupDataSO>.GetAccessor("_standardLevelScenesTransitionSetupData");
 
-
-        internal static readonly FieldAccessor<BeatmapObjectCallbackController, int>.Accessor NextEventIndex = FieldAccessor<BeatmapObjectCallbackController, int>.GetAccessor("_nextEventIndex");
-        internal static readonly FieldAccessor<BeatmapObjectCallbackController.InitData, float>.Accessor SpawnStart = FieldAccessor<BeatmapObjectCallbackController.InitData, float>.GetAccessor("spawningStartTime");
-        internal static readonly FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.Accessor NoteCutPool = FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.GetAccessor("_noteCutSoundEffectPoolContainer");
+        //internal static readonly FieldAccessor<BeatmapObjectCallbackController, int>.Accessor NextEventIndex = FieldAccessor<BeatmapObjectCallbackController, int>.GetAccessor("_nextEventIndex");
+        //internal static readonly FieldAccessor<BeatmapObjectCallbackController.InitData, float>.Accessor SpawnStart = FieldAccessor<BeatmapObjectCallbackController.InitData, float>.GetAccessor("spawningStartTime");
+        //internal static readonly FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.Accessor NoteCutPool = FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.GetAccessor("_noteCutSoundEffectPoolContainer");
 
         internal static readonly FieldAccessor<NoteCutSoundEffectManager, AudioManagerSO>.Accessor AudioManager = FieldAccessor<NoteCutSoundEffectManager, AudioManagerSO>.GetAccessor("_audioManager");
         internal static readonly FieldAccessor<AudioTimeSyncController, float>.Accessor AudioStartOffset = FieldAccessor<AudioTimeSyncController, float>.GetAccessor("_audioStartTimeOffsetSinceStart");

@@ -20,7 +20,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private Tween _statusTween = null;
         private bool _despawned = false;
 
-        public SpectateAreaController(TimeTweeningManager timeTweeningManager, GameNoteController.Pool gameNoteControllerPool) {
+        public SpectateAreaController(TimeTweeningManager timeTweeningManager, [Inject(Id = NoteData.GameplayType.Normal)] GameNoteController.Pool gameNoteControllerPool) {
 
             _timeTweeningManager = timeTweeningManager;
             _gameNoteControllerPool = gameNoteControllerPool;

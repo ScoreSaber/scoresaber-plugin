@@ -1,9 +1,11 @@
 ﻿
+using ScoreSaber.Core.ReplaySystem.HarmonyPatches;
 using ScoreSaber.Core.ReplaySystem.Legacy;
 using ScoreSaber.Core.ReplaySystem.Legacy.UI;
 using ScoreSaber.Core.ReplaySystem.Playback;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Patches;
+using SiraUtil.Affinity;
 using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Installers {
@@ -31,6 +33,8 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
                         Container.BindInterfacesTo<HeightPlayer>().AsSingle();
                     Container.BindInterfacesAndSelfTo<ReplayTimeSyncController>().AsSingle();
                     Container.Bind<NonVRReplayUI>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                    Container.Bind<IAffinity>().To<CancelScoreControllerBufferFinisher>().AsSingle();
+                    Container.Bind<IAffinity>().To<CancelSaberCuttingPatch>().AsSingle();
                 } else {
                     Container.BindInstance(Plugin.ReplayState.legacyKeyframes).AsSingle();
                     Container.BindInterfacesAndSelfTo<LegacyReplayPlayer>().AsSingle();

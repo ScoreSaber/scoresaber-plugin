@@ -7,14 +7,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 {
     internal class ComboPlayer : TimeSynchronizer, IScroller
     {
-        private ScoreController _scoreController;
+        private ComboController _comboController;
         private ComboUIController _comboUIController;
         private readonly NoteEvent[] _sortedNoteEvents;
         private readonly ComboEvent[] _sortedComboEvents;
 
-        public ComboPlayer(ReplayFile file, ScoreController scoreController, ComboUIController comboUIController) {
+        public ComboPlayer(ReplayFile file, ComboController comboController, ComboUIController comboUIController) {
             
-            _scoreController = scoreController;
+            _comboController = comboController;
             _comboUIController = comboUIController;
             _sortedNoteEvents = file.noteKeyframes.ToArray();
             _sortedComboEvents = file.comboKeyframes.ToArray();
@@ -36,9 +36,9 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             var previousComboEvents = _sortedNoteEvents.Where(ne => ne.EventType != NoteEventType.None && time > ne.Time);
             int cutOrMissRecorded = previousComboEvents.Count(ne => ne.EventType == NoteEventType.BadCut || ne.EventType == NoteEventType.GoodCut || ne.EventType == NoteEventType.Miss);
 
-            Accessors.Combo(ref _scoreController) = combo;
-            Accessors.MaxCombo(ref _scoreController) = cutOrMissRecorded;
-            FieldAccessor<ScoreController, Action<int>>.Get(_scoreController, "comboDidChangeEvent").Invoke(combo);
+            Accessors.Combo(ref _comboController) = combo;
+            Accessors.MaxCombo(ref _comboController) = cutOrMissRecorded;
+            FieldAccessor<ComboController, Action<int>>.Get(ref _comboController, "comboDidChangeEvent").Invoke(combo);
 
             bool didLoseCombo = _sortedComboEvents.Any(sce => time > sce.Time && sce.Combo == 0);
             if ((combo == 0 && cutOrMissRecorded == 0) || !didLoseCombo) {

@@ -6,7 +6,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches
     internal class PatchPrepareLevelCompletionResults { 
         internal static void Prefix(ref LevelCompletionResults.LevelEndStateType levelEndStateType) {
             if (Plugin.ReplayState.isPlaybackEnabled) {
-                levelEndStateType = LevelCompletionResults.LevelEndStateType.None;
+                levelEndStateType = LevelCompletionResults.LevelEndStateType.Incomplete;
             }
         }
     }

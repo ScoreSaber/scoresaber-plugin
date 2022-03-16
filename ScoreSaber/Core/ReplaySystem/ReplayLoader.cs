@@ -64,7 +64,7 @@ namespace ScoreSaber.Core.ReplaySystem
                 if (gameplayModifiers == null) {
                     gameplayModifiers = new GameplayModifiers();
                 }
-                _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), gameplayModifiers, playerSettings, null, "Exit Replay", false, null, null, ReplayEnd);
+                _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd);
             });
         }
 
@@ -113,7 +113,7 @@ namespace ScoreSaber.Core.ReplaySystem
                 PlayerSpecificSettings playerSettings = new PlayerSpecificSettings(replay.metadata.LeftHanded, localPlayerSettings.playerHeight, localPlayerSettings.automaticPlayerHeight, localPlayerSettings.sfxVolume, localPlayerSettings.reduceDebris, localPlayerSettings.noTextsAndHuds, localPlayerSettings.noFailEffects, localPlayerSettings.advancedHud, localPlayerSettings.autoRestart, localPlayerSettings.saberTrailIntensity, localPlayerSettings.noteJumpDurationTypeSettings, localPlayerSettings.noteJumpFixedDuration, localPlayerSettings.noteJumpStartBeatOffset, localPlayerSettings.hideNoteSpawnEffect, localPlayerSettings.adaptiveSfx, localPlayerSettings.environmentEffectsFilterDefaultPreset, localPlayerSettings.environmentEffectsFilterExpertPlusPreset);
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.FiveInstance;
-                UnityMainThreadTaskScheduler.Factory.StartNew(() =>  _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers, playerSettings, null, "Exit Replay", false, null, null, ReplayEnd));
+                UnityMainThreadTaskScheduler.Factory.StartNew(() =>  _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd));
             });
         }
 

@@ -23,7 +23,10 @@ namespace ScoreSaber.Core.Services {
             string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, scope, page, filterAroundCountry);
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
             Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
-            currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, difficultyBeatmap);
+
+            var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.GetEnvironmentInfo());
+
+            currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, difficultyBeatmap, beatmapData);
             return currentLoadedLeaderboard;
         }
       

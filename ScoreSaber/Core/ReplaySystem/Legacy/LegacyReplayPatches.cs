@@ -91,7 +91,7 @@ namespace ScoreSaber.Patches {
         }
     }
 
-    [HarmonyPatch(typeof(RelativeScoreAndImmediateRankCounter), nameof(RelativeScoreAndImmediateRankCounter.HandleScoreControllerImmediateMaxPossibleScoreDidChange))]
+    [HarmonyPatch(typeof(RelativeScoreAndImmediateRankCounter), nameof(RelativeScoreAndImmediateRankCounter.HandleScoreDidChange))]
     internal class PatchRelativeScoreAndImmediateRankCounter {
         static bool Prefix() {
             if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {

@@ -32,9 +32,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private void UpdateMultiplier(int multiplier, float progress) {
 
-            Accessors.Multiplier(ref _scoreController) = multiplier;
-            Accessors.MaxProgress(ref _scoreController) = multiplier * 2;
-            Accessors.Progress(ref _scoreController) = (int)(progress * (multiplier * 2));
+            var counter = Accessors.MultiplierCounter(ref _scoreController);
+            Accessors.Multiplier(ref counter) = multiplier;
+            Accessors.MaxProgress(ref counter) = multiplier * 2;
+            Accessors.Progress(ref counter) = (int)(progress * (multiplier * 2));
             FieldAccessor<ScoreController, Action<int, float>>.Get(_scoreController, "multiplierDidChangeEvent").Invoke(multiplier, progress);
         }
     }

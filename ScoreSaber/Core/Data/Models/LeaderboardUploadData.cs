@@ -72,7 +72,7 @@ namespace ScoreSaber.Core.Data.Models {
             data.maxCombo = results.maxCombo;
             data.fullCombo = results.fullCombo;
 
-            data.score = results.rawScore;
+            data.score = results.multipliedScore;
             data.modifiers = LeaderboardUtils.GetModifierList(rType);
             data.hmd = HMD.Get();
             return data;

@@ -45,8 +45,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         public void Initialize() {
 
             SetupCameras();
-            _saberManager.leftSaber.disableCutting = true;
-            _saberManager.rightSaber.disableCutting = true;
+            //_saberManager.leftSaber.disableCutting = true;
+            //_saberManager.rightSaber.disableCutting = true;
             _saberManager.leftSaber.transform.GetComponentInParent<VRController>().enabled = false;
             _saberManager.rightSaber.transform.GetComponentInParent<VRController>().enabled = false;
             _fpfcSettings.Changed += fpfcSettings_Changed;

@@ -30,7 +30,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             while (audioTimeSyncController.songTime >= _sortedScoreEvents[_lastIndex].Time) {
 
                 ScoreEvent activeEvent = _sortedScoreEvents[_lastIndex++];
-                Accessors.RawScore(ref _scoreController) = activeEvent.Score;
+                Accessors.MultipliedScore(ref _scoreController) = activeEvent.Score;
 
                 if (_lastIndex >= _sortedScoreEvents.Length)
                     break;
@@ -52,20 +52,25 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private void UpdateScore(int newScore, float time) {
 
+            // TODO: Deal with ScoreModel.MaxRawScoreForNumberOfNotes. Doesn't exist now and the max multiplied score is computed on the fly. We'll need to reimplement the old method for replays that use beatmap v2.
+            /*
             int cutOrMissRecorded = _sortedNoteEvents.Count(ne => (ne.EventType == NoteEventType.GoodCut || ne.EventType == NoteEventType.BadCut || ne.EventType == NoteEventType.Miss) && time > ne.Time);
             Accessors.CutOrMissedNotes(ref _scoreController) = cutOrMissRecorded;
-            Accessors.PrevModifierScore(ref _scoreController) = Accessors.ModifiersModelSO(ref _scoreController).GetTotalMultiplier(Accessors.ModifierPanelsSO(ref _scoreController), _gameEnergyCounter.energy);
 
+            var totalMultiplier = Accessors.ModifiersModelSO(ref _scoreController).GetTotalMultiplier(Accessors.ModifierPanelsSO(ref _scoreController), _gameEnergyCounter.energy);
+
+            Accessors.PrevModifierScore(ref _scoreController) = totalMultiplier;
+            
             var immediate = Accessors.ImmediatePossible(ref _scoreController) = ScoreModel.MaxRawScoreForNumberOfNotes(cutOrMissRecorded);
             var earlyScore = newScore;
             Accessors.PrevRawScore(ref _scoreController) = earlyScore;
             Accessors.RawScore(ref _scoreController) = earlyScore;
 
             FieldAccessor<ScoreController, Action<int, int>>.Get(_scoreController, "immediateMaxPossibleScoreDidChangeEvent").Invoke(immediate,
-                ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(immediate, _scoreController.gameplayModifiersScoreMultiplier));
+                ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(immediate, totalMultiplier));
 
             FieldAccessor<ScoreController, Action<int, int>>.Get(_scoreController, "scoreDidChangeEvent").Invoke(earlyScore,
-                ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(earlyScore, _scoreController.gameplayModifiersScoreMultiplier));
+                ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(earlyScore, totalMultiplier));*/
         }
     }
 }

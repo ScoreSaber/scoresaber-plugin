@@ -10,11 +10,13 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
         private readonly ScoreController _scoreController;
         private readonly List<ScoreEvent> _scoreKeyframes;
         private readonly List<ComboEvent> _comboKeyframes;
+        private readonly IComboController _comboController;
         private readonly List<MultiplierEvent> _multiplierKeyframes;
 
-        public ScoreEventRecorder(ScoreController scoreController) {
+        public ScoreEventRecorder(ScoreController scoreController, IComboController comboController) {
 
             _scoreController = scoreController;
+            _comboController = comboController;
             _scoreKeyframes = new List<ScoreEvent>();
             _comboKeyframes = new List<ComboEvent>();
             _multiplierKeyframes = new List<MultiplierEvent>();
@@ -22,14 +24,14 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
 
         public void Initialize() {
 
-            _scoreController.comboDidChangeEvent += ScoreController_comboDidChangeEvent;
+            _comboController.comboDidChangeEvent += ComboController_comboDidChangeEvent;
             _scoreController.scoreDidChangeEvent += ScoreController_scoreDidChangeEvent;
             _scoreController.multiplierDidChangeEvent += ScoreController_multiplierDidChangeEvent;
         }
 
         public void Dispose() {
 
-            _scoreController.comboDidChangeEvent -= ScoreController_comboDidChangeEvent;
+            _comboController.comboDidChangeEvent -= ComboController_comboDidChangeEvent;
             _scoreController.scoreDidChangeEvent -= ScoreController_scoreDidChangeEvent;
             _scoreController.multiplierDidChangeEvent -= ScoreController_multiplierDidChangeEvent;
         }
@@ -39,7 +41,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
             _scoreKeyframes.Add(new ScoreEvent() { Score = rawScore, Time = audioTimeSyncController.songTime });
         }
 
-        private void ScoreController_comboDidChangeEvent(int combo) {
+        private void ComboController_comboDidChangeEvent(int combo) {
 
             _comboKeyframes.Add(new ComboEvent() { Combo = combo, Time = audioTimeSyncController.songTime });
         }

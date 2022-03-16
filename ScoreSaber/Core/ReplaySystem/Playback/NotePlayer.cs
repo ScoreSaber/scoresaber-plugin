@@ -11,14 +11,12 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private int _lastIndex = 0;
         private readonly SaberManager _saberManager;
         private readonly NoteEvent[] _sortedNoteEvents;
-        private readonly SaberSwingRatingCounter.Pool _swingCounterPool;
         private readonly MemoryPoolContainer<GameNoteController> _gameNotePool;
         private readonly MemoryPoolContainer<BombNoteController> _bombNotePool;
 
-        public NotePlayer(ReplayFile file, SaberManager saberManager, SaberSwingRatingCounter.Pool swingCounterPool, BasicBeatmapObjectManager basicBeatmapObjectManager) {
+        public NotePlayer(ReplayFile file, SaberManager saberManager, BasicBeatmapObjectManager basicBeatmapObjectManager) {
 
             _saberManager = saberManager;
-            _swingCounterPool = swingCounterPool;
             _gameNotePool = Accessors.GameNotePool(ref basicBeatmapObjectManager);
             _bombNotePool = Accessors.BombNotePool(ref basicBeatmapObjectManager);
             _sortedNoteEvents = file.noteKeyframes.OrderBy(nk => nk.Time).ToArray();
@@ -65,15 +63,17 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 Saber correctSaber = noteController.noteData.colorType == ColorType.ColorA ? _saberManager.leftSaber : _saberManager.rightSaber;
 
                 SaberSwingRatingCounter swingCounter = null;
-                if (noteController is GameNoteController gameNote) {
+                /*if (noteController is GameNoteController gameNote) {
                     swingCounter = _swingCounterPool.Spawn();
                     swingCounter.Init(correctSaber.movementData, noteController.noteTransform, true, true);
                     Accessors.BeforeCutRating(ref swingCounter) = activeEvent.BeforeCutRating;
                     Accessors.AfterCutRating(ref swingCounter) = activeEvent.AfterCutRating;
                     swingCounter.RegisterDidFinishReceiver(gameNote);
-                }
+                }*/
 
-                NoteCutInfo noteCutInfo = new NoteCutInfo(
+                var noteTransform = noteController.noteTransform;
+
+                NoteCutInfo noteCutInfo = new NoteCutInfo(noteController.noteData,
                     activeEvent.SaberSpeed > 2f,
                     activeEvent.DirectionOK,
                     activeEvent.SaberType == (int)correctSaber.saberType,
@@ -87,7 +87,13 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                     activeEvent.CutNormal.Convert(),
                     activeEvent.CutDistanceToCenter,
                     activeEvent.CutAngle,
-                    swingCounter
+                    
+                    noteController.worldRotation,
+                    noteController.inverseWorldRotation,
+                    noteTransform.rotation,
+                    noteTransform.position,
+
+                    correctSaber.movementData
                 );
 
                 noteController.InvokeMethod<object, NoteController>("SendNoteWasCutEvent", noteCutInfo);
