@@ -1,5 +1,7 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.Data;
+using ScoreSaber.Core.Utils;
+using SiraUtil.Logging;
 using System;
 using System.Linq;
 using Zenject;
@@ -9,13 +11,15 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
     internal class ScorePlayer : TimeSynchronizer, ITickable, IScroller
     {
         private int _lastIndex;
+        private readonly SiraLog _siraLog;
         private ScoreController _scoreController;
         private readonly NoteEvent[] _sortedNoteEvents;
         private readonly ScoreEvent[] _sortedScoreEvents;
         private readonly IGameEnergyCounter _gameEnergyCounter;
 
-        public ScorePlayer(ReplayFile file, ScoreController scoreController, IGameEnergyCounter gameEnergyCounter) {
-
+        public ScorePlayer(SiraLog siraLog, ReplayFile file, ScoreController scoreController, IGameEnergyCounter gameEnergyCounter) {
+            
+            _siraLog = siraLog;
             _scoreController = scoreController;
             _gameEnergyCounter = gameEnergyCounter;
             _sortedScoreEvents = file.scoreKeyframes.ToArray();
@@ -27,13 +31,22 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             if (_lastIndex >= _sortedScoreEvents.Length)
                 return;
 
+            int? recentMultipliedScore = null;
             while (audioTimeSyncController.songTime >= _sortedScoreEvents[_lastIndex].Time) {
 
                 ScoreEvent activeEvent = _sortedScoreEvents[_lastIndex++];
-                Accessors.MultipliedScore(ref _scoreController) = activeEvent.Score;
-
+                recentMultipliedScore = Accessors.MultipliedScore(ref _scoreController) = activeEvent.Score;
+                _siraLog.Info("New Score Event Received: " + activeEvent.Score);
+                
                 if (_lastIndex >= _sortedScoreEvents.Length)
                     break;
+            }
+
+            if (recentMultipliedScore.HasValue) {
+
+                Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(_lastIndex);
+                FieldAccessor<ScoreController, Action<int, int>>.Get(_scoreController, "scoreDidChangeEvent").Invoke(recentMultipliedScore.Value,
+                    ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(recentMultipliedScore.Value, Accessors.GameplayMultiplier(ref _scoreController)));
             }
         }
 
