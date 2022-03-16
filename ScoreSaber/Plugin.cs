@@ -43,6 +43,7 @@ namespace ScoreSaber {
             Log = logger;
             Instance = this;
 
+            zenjector.UseLogger(logger);
             zenjector.Expose<ComboUIController>("Environment");
             zenjector.Expose<GameEnergyUIPanel>("Environment");
             zenjector.Install<MainInstaller>(Location.Menu);

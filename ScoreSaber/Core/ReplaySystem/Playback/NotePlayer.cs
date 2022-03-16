@@ -4,8 +4,7 @@ using ScoreSaber.Extensions;
 using System.Linq;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem.Playback
-{
+namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class NotePlayer : TimeSynchronizer, ITickable, IScroller
     {
         private int _lastIndex = 0;
@@ -15,7 +14,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private readonly MemoryPoolContainer<BombNoteController> _bombNotePool;
 
         public NotePlayer(ReplayFile file, SaberManager saberManager, BasicBeatmapObjectManager basicBeatmapObjectManager) {
-
+            
             _saberManager = saberManager;
             _gameNotePool = Accessors.GameNotePool(ref basicBeatmapObjectManager);
             _bombNotePool = Accessors.BombNotePool(ref basicBeatmapObjectManager);
@@ -28,6 +27,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 return;
 
             while (audioTimeSyncController.songTime >= _sortedNoteEvents[_lastIndex].Time) {
+                
                 NoteEvent activeEvent = _sortedNoteEvents[_lastIndex++];
                 ProcessEvent(activeEvent);
 
@@ -60,17 +60,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private bool HandleEvent(NoteEvent activeEvent, NoteController noteController) {
 
             if (DoesNoteMatchID(activeEvent.NoteID, noteController.noteData)) {
+
                 Saber correctSaber = noteController.noteData.colorType == ColorType.ColorA ? _saberManager.leftSaber : _saberManager.rightSaber;
-
-                SaberSwingRatingCounter swingCounter = null;
-                /*if (noteController is GameNoteController gameNote) {
-                    swingCounter = _swingCounterPool.Spawn();
-                    swingCounter.Init(correctSaber.movementData, noteController.noteTransform, true, true);
-                    Accessors.BeforeCutRating(ref swingCounter) = activeEvent.BeforeCutRating;
-                    Accessors.AfterCutRating(ref swingCounter) = activeEvent.AfterCutRating;
-                    swingCounter.RegisterDidFinishReceiver(gameNote);
-                }*/
-
                 var noteTransform = noteController.noteTransform;
 
                 NoteCutInfo noteCutInfo = new NoteCutInfo(noteController.noteData,
@@ -97,14 +88,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 );
 
                 noteController.InvokeMethod<object, NoteController>("SendNoteWasCutEvent", noteCutInfo);
-
-                if (swingCounter != null) {
-                    var receivers = Accessors.ChangeReceivers(ref swingCounter);
-                    for (int i = receivers.items.Count - 1; i >= 0; i--) {
-                        receivers.items[i].HandleSaberSwingRatingCounterDidChange(swingCounter, swingCounter.afterCutRating);
-                    }
-                    swingCounter.Finish();
-                }
                 return true;
             }
             return false;

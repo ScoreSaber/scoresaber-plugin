@@ -16,7 +16,6 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
                 Container.BindInterfacesAndSelfTo<PoseRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<ScoreEventRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<EnergyEventRecorder>().AsSingle();
-                Container.BindMemoryPool<SwingFinisher, MemoryPool<SwingFinisher>>().WithInitialSize(64);
             }
         }
     }

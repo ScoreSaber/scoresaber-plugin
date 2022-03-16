@@ -1,4 +1,5 @@
 ﻿using SiraUtil.Affinity;
+using SiraUtil.Logging;
 
 namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
     internal class CancelSaberCuttingPatch : IAffinity {
@@ -6,14 +7,14 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
         private readonly SaberManager _saberManager;
 
         public CancelSaberCuttingPatch(SaberManager saberManager) {
-            
+
             _saberManager = saberManager;
         }
 
         [AffinityPrefix, AffinityPatch(typeof(NoteCutter), nameof(NoteCutter.Cut))]
-        private bool CancelCut(ref Saber __instance) {
+        private bool CancelCut(Saber saber) {
 
-            return !(__instance == _saberManager.leftSaber || __instance == _saberManager.rightSaber);
+            return !(saber == _saberManager.leftSaber || saber == _saberManager.rightSaber);
         }
     }
 }
