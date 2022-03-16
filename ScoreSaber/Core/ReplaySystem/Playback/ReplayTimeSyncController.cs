@@ -12,19 +12,19 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private AudioTimeSyncController.InitData _audioInitData;
         private BasicBeatmapObjectManager _basicBeatmapObjectManager;
         private NoteCutSoundEffectManager _noteCutSoundEffectManager;
-        //private BeatmapObjectCallbackController.InitData _callbackInitData;
-        //private BeatmapObjectCallbackController _beatmapObjectCallbackController;
+        private BeatmapCallbacksController.InitData _callbackInitData;
+        private BeatmapCallbacksController _beatmapObjectCallbackController;
         private readonly BeatmapObjectSpawnController _beatmapObjectSpawnController;
         private bool _paused;
 
-        public ReplayTimeSyncController(List<IScroller> scrollers, BasicBeatmapObjectManager basicBeatmapObjectManager, NoteCutSoundEffectManager noteCutSoundEffectManager, BeatmapObjectSpawnController beatmapObjectSpawnController, AudioTimeSyncController.InitData audioInitData/*, BeatmapObjectCallbackController.InitData initData, BeatmapObjectCallbackController beatmapObjectCallbackController*/) {
+        public ReplayTimeSyncController(List<IScroller> scrollers, BasicBeatmapObjectManager basicBeatmapObjectManager, NoteCutSoundEffectManager noteCutSoundEffectManager, BeatmapObjectSpawnController beatmapObjectSpawnController, AudioTimeSyncController.InitData audioInitData, BeatmapCallbacksController.InitData initData, BeatmapCallbacksController beatmapObjectCallbackController) {
             _scrollers = scrollers;
-            //_callbackInitData = initData;
+            _callbackInitData = initData;
             _audioInitData = audioInitData;
             _basicBeatmapObjectManager = basicBeatmapObjectManager;
             _noteCutSoundEffectManager = noteCutSoundEffectManager;
             _beatmapObjectSpawnController = beatmapObjectSpawnController;
-            //_beatmapObjectCallbackController = beatmapObjectCallbackController;
+            _beatmapObjectCallbackController = beatmapObjectCallbackController;
             _audioManagerSO = Accessors.AudioManager(ref noteCutSoundEffectManager);
         }
 
@@ -91,12 +91,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
             if (Mathf.Abs(time - audioTimeSyncController.songTime) <= 0.25f)
                 return;
-            /*var _audioTimeSyncController = audioTimeSyncController; // UMBRAMEGALUL
+
+            var _audioTimeSyncController = audioTimeSyncController; // UMBRAMEGALUL
             HarmonyPatches.CutSoundEffectOverride.Buffer = true;
             CancelAllHitSounds();
 
             // Forcibly enabling all the note/obstacle components to ensure their dissolve coroutine executes (it no likey when game pausey).
             foreach (var item in Accessors.GameNotePool(ref _basicBeatmapObjectManager).activeItems) {
+
                 item.Hide(false);
                 item.Pause(false);
                 item.enabled = true;
@@ -104,6 +106,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 item.Dissolve(0f);
             }
             foreach (var item in Accessors.BombNotePool(ref _basicBeatmapObjectManager).activeItems) {
+
                 item.Hide(false);
                 item.Pause(false);
                 item.enabled = true;
@@ -111,6 +114,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 item.Dissolve(0f);
             }
             foreach (var item in _basicBeatmapObjectManager.activeObstacleControllers) {
+
                 item.Hide(false);
                 item.Pause(false);
                 item.enabled = true;
@@ -126,16 +130,18 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             if (previousState == AudioTimeSyncController.State.Playing)
                 audioTimeSyncController.Resume();
 
-            Accessors.SpawnStart(ref _callbackInitData) = time;
+            Accessors.InitialStartFilterTime(ref _callbackInitData) = time;
+            Accessors.CallbackStartFilterTime(ref _beatmapObjectCallbackController) = time;
 
-            _beatmapObjectSpawnController.Start();
-            _beatmapObjectCallbackController.Start();
+            foreach (var callback in Accessors.CallbacksInTime(ref _beatmapObjectCallbackController).Values) {
 
-            Accessors.NextEventIndex(ref _beatmapObjectCallbackController) = 0;
+                callback.lastProcessedNode = null;
+            }
+
             Accessors.AudioSongTime(ref _audioTimeSyncController) = time;
 
             audioTimeSyncController.Update();
-            UpdateTimes();*/
+            UpdateTimes();
         }
 
         public void OverrideTimeScale(float newScale) {
@@ -154,14 +160,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         public void CancelAllHitSounds() {
 
-            /*var activeItems = Accessors.NoteCutPool(ref _noteCutSoundEffectManager).activeItems;
+            var activeItems = Accessors.NoteCutPool(ref _noteCutSoundEffectManager).activeItems;
             for (int i = 0; i < activeItems.Count; i++) {
                 var effect = activeItems[i];
                 if (effect.isActiveAndEnabled)
                     effect.StopPlayingAndFinish();
             }
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
-            _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);*/
+            _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);
         }
     }
 }

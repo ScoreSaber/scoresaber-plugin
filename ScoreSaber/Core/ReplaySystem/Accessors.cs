@@ -45,9 +45,10 @@ namespace ScoreSaber.Core.ReplaySystem
 
         internal static readonly FieldAccessor<MenuTransitionsHelper, StandardLevelScenesTransitionSetupDataSO>.Accessor StandardLevelScenesTransitionSetupData = FieldAccessor<MenuTransitionsHelper, StandardLevelScenesTransitionSetupDataSO>.GetAccessor("_standardLevelScenesTransitionSetupData");
 
-        //internal static readonly FieldAccessor<BeatmapObjectCallbackController, int>.Accessor NextEventIndex = FieldAccessor<BeatmapObjectCallbackController, int>.GetAccessor("_nextEventIndex");
-        //internal static readonly FieldAccessor<BeatmapObjectCallbackController.InitData, float>.Accessor SpawnStart = FieldAccessor<BeatmapObjectCallbackController.InitData, float>.GetAccessor("spawningStartTime");
-        //internal static readonly FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.Accessor NoteCutPool = FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.GetAccessor("_noteCutSoundEffectPoolContainer");
+        internal static readonly FieldAccessor<BeatmapCallbacksController, Dictionary<float, CallbacksInTime>>.Accessor CallbacksInTime = FieldAccessor<BeatmapCallbacksController, Dictionary<float, CallbacksInTime>>.GetAccessor("_callbacksInTimes");
+        internal static readonly FieldAccessor<BeatmapCallbacksController, float>.Accessor CallbackStartFilterTime = FieldAccessor<BeatmapCallbacksController, float>.GetAccessor("_startFilterTime");
+        internal static readonly FieldAccessor<BeatmapCallbacksController.InitData, float>.Accessor InitialStartFilterTime = FieldAccessor<BeatmapCallbacksController.InitData, float>.GetAccessor("startFilterTime");
+        internal static readonly FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.Accessor NoteCutPool = FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.GetAccessor("_noteCutSoundEffectPoolContainer");
 
         internal static readonly FieldAccessor<NoteCutSoundEffectManager, AudioManagerSO>.Accessor AudioManager = FieldAccessor<NoteCutSoundEffectManager, AudioManagerSO>.GetAccessor("_audioManager");
         internal static readonly FieldAccessor<AudioTimeSyncController, float>.Accessor AudioStartOffset = FieldAccessor<AudioTimeSyncController, float>.GetAccessor("_audioStartTimeOffsetSinceStart");
