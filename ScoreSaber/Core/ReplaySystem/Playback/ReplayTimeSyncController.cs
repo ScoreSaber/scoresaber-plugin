@@ -133,9 +133,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             Accessors.InitialStartFilterTime(ref _callbackInitData) = time;
             Accessors.CallbackStartFilterTime(ref _beatmapObjectCallbackController) = time;
 
-            foreach (var callback in Accessors.CallbacksInTime(ref _beatmapObjectCallbackController).Values) {
+            foreach (var callback in Accessors.CallbacksInTime(ref _beatmapObjectCallbackController)) {
 
-                callback.lastProcessedNode = null;
+                if (callback.Value.lastProcessedNode != null && callback.Value.lastProcessedNode.Value.time > time)
+                    callback.Value.lastProcessedNode = null;
             }
 
             Accessors.AudioSongTime(ref _audioTimeSyncController) = time;
