@@ -24,8 +24,8 @@ namespace ScoreSaber.Core.Services {
             string url = BuildUrl(scope, page);
 
             var response = await Plugin.HttpInstance.GetAsync(url);
-            var globalLeaderboardData = JsonConvert.DeserializeObject<PlayerInfo[]>(response);
-            return globalLeaderboardData;
+            var globalLeaderboardData = JsonConvert.DeserializeObject<PlayerCollection>(response);
+            return globalLeaderboardData.players;
         }
 
         private string BuildUrl(GlobalPlayerScope scope, int page) {

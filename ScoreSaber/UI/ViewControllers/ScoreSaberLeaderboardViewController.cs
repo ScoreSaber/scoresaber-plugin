@@ -52,7 +52,6 @@ namespace ScoreSaber.UI.ViewControllers {
 
         private bool _filterAroundCountry;
         private bool _replayDownloading;
-        private readonly Button _playButton = null;
         private string _currentLeaderboardRefreshId = string.Empty;
 
         private readonly PanelView _panelView;
@@ -97,9 +96,6 @@ namespace ScoreSaber.UI.ViewControllers {
 
             _infoButtons = new InfoButtonsView();
             _scoreDetailView = new ScoreDetailView();
-
-            StandardLevelDetailView standardLevelDetailView = standardLevelDetailViewController.GetField<StandardLevelDetailView, StandardLevelDetailViewController>("_standardLevelDetailView");
-            _playButton = standardLevelDetailView.actionButton;
         }
 
         public void Initialize() {
@@ -117,7 +113,6 @@ namespace ScoreSaber.UI.ViewControllers {
             _upButton.transform.localScale *= .5f;
             _downButton.transform.localScale *= .5f;
             _root.name = "ScoreSaberLeaderboardElements";
-            _playButton.gameObject.SetActive(false);
             _infoButtons.HideInfoButtons();
             activated = true;
         }
@@ -180,7 +175,6 @@ namespace ScoreSaber.UI.ViewControllers {
                     break;
                 case PlayerService.LoginStatus.Error:
                     _panelView.SetPromptError(status, false);
-                    _playButton.gameObject.SetActive(true);
                     break;
                 case PlayerService.LoginStatus.Success:
                     _panelView.SetPromptSuccess(status, false, 3f);
@@ -222,17 +216,14 @@ namespace ScoreSaber.UI.ViewControllers {
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
 
-                _playButton.gameObject.SetActive(false);
                 _infoButtons.HideInfoButtons();
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
-                    _playButton.gameObject.SetActive(true);
                     return;
                 }
 
                 if (_playerService.loginStatus != PlayerService.LoginStatus.Success) { return; }
-
 
                 _currentLeaderboardRefreshId = refreshId;
 
@@ -264,13 +255,10 @@ namespace ScoreSaber.UI.ViewControllers {
                         }
                     }
                 }
-                _playButton.gameObject.SetActive(true);
             } catch (HttpErrorException httpError) {
                 SetErrorState(loadingControl, httpError);
-                _playButton.gameObject.SetActive(true);
             } catch (Exception exception) {
                 SetErrorState(loadingControl, null, exception);
-                _playButton.gameObject.SetActive(true);
             }
         }
 
@@ -307,8 +295,10 @@ namespace ScoreSaber.UI.ViewControllers {
 
             if (httpErrorException != null) {
                 if (httpErrorException.scoreSaberError != null) {
-                    errorText = httpErrorException.scoreSaberError.error.message;
-                    _panelView.SetRankedStatus("Unranked");
+                    if (httpErrorException.scoreSaberError.errorMessage != null) {
+                        errorText = httpErrorException.scoreSaberError.errorMessage;
+                        _panelView.SetRankedStatus("Unranked");
+                    }
                 }
             }
             if (exception != null) {
@@ -316,7 +306,6 @@ namespace ScoreSaber.UI.ViewControllers {
             }
             loadingControl.Hide();
             loadingControl.ShowText(errorText, showRefreshButton);
-            _playButton.gameObject.SetActive(true);
         }
 
         public void DirectionalButtonClicked(bool down) {
