@@ -64,8 +64,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             // TODO: Deal with ScoreModel.MaxRawScoreForNumberOfNotes. Doesn't exist now and the max multiplied score is computed on the fly. We'll need to reimplement the old method for replays that use beatmap v2.
 
             int postNoteCount = CalculatePostNoteCountForTime(time);
-
-
             var totalMultiplier = Accessors.ModifiersModelSO(ref _scoreController).GetTotalMultiplier(Accessors.ModifierPanelsSO(ref _scoreController), _gameEnergyCounter.energy);
 
             Accessors.GameplayMultiplier(ref _scoreController) = totalMultiplier;
