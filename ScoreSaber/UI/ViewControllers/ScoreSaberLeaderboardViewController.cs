@@ -295,8 +295,10 @@ namespace ScoreSaber.UI.ViewControllers {
 
             if (httpErrorException != null) {
                 if (httpErrorException.scoreSaberError != null) {
-                    errorText = httpErrorException.scoreSaberError.error.message;
-                    _panelView.SetRankedStatus("Unranked");
+                    if (httpErrorException.scoreSaberError.errorMessage != null) {
+                        errorText = httpErrorException.scoreSaberError.errorMessage;
+                        _panelView.SetRankedStatus("Unranked");
+                    }
                 }
             }
             if (exception != null) {

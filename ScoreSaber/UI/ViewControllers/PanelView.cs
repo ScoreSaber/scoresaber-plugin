@@ -383,7 +383,7 @@ namespace ScoreSaber.UI.ViewControllers
                 }
                 Loaded(true);
             } catch (HttpErrorException ex) {
-                if (ex.scoreSaberError.error.message == "Player not found") {
+                if (ex.scoreSaberError.errorMessage == "Player not found") {
                     SetGlobalRanking("Welcome to ScoreSaber! Set a score to create a profile", false);
                 } else {
                     SetGlobalRanking("", false);
