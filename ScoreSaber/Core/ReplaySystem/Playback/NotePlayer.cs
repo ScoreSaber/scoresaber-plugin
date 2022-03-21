@@ -124,10 +124,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                 ScoringElement element = __instance;
                 Accessors.ScoringElementFinisher(ref element, true);
             }
-
-            //Accessors.ScoringElementFinisher(ref scoringElement, true);
-
-            
         }
 
         private static bool DoesNoteMatchID(NoteID id, NoteData note) {
