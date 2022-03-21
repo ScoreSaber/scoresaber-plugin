@@ -1,6 +1,7 @@
 ﻿using Zenject;
 using ScoreSaber.Core.ReplaySystem.Recorders;
 using SiraUtil.Logging;
+using ScoreSaber.Core.Utils;
 
 namespace ScoreSaber.Core.ReplaySystem.Installers
 {
@@ -16,7 +17,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
         }
         public override void InstallBindings() {
 
-            bool hasV3Stuff = ContainsV3Stuff();
+            bool hasV3Stuff = LeaderboardUtils.ContainsV3Stuff(_gameplayCoreSceneSetupData.transformedBeatmapData);
 
             if (hasV3Stuff) {
 
@@ -34,14 +35,6 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
                 Container.BindInterfacesAndSelfTo<ScoreEventRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<EnergyEventRecorder>().AsSingle();
             }
-        }
-
-        private bool ContainsV3Stuff() {
-
-            foreach (var item in _gameplayCoreSceneSetupData.transformedBeatmapData.allBeatmapDataItems)
-                if (item.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && item is SliderData)
-                    return true;
-            return false;
         }
     }
 }

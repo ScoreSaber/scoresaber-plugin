@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using ScoreSaber.Core.Utils;
 
 namespace ScoreSaber.UI.ViewControllers {
 
@@ -218,12 +219,21 @@ namespace ScoreSaber.UI.ViewControllers {
 
                 _infoButtons.HideInfoButtons();
 
+                var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo);
+
+                if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
+                    SetErrorState(loadingControl, null, null, "Maps with new note types currently not supported", false);
+                    return;
+                }
+
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
                     return;
                 }
 
-                if (_playerService.loginStatus != PlayerService.LoginStatus.Success) { return; }
+                if (_playerService.loginStatus != PlayerService.LoginStatus.Success) {
+                    return; 
+                }
 
                 _currentLeaderboardRefreshId = refreshId;
 
