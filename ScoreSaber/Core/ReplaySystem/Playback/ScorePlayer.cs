@@ -39,7 +39,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
             if (recentMultipliedScore.HasValue) {
 
-                Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(_lastIndex);
+                var postNoteCount = CalculatePostNoteCountForTime(audioTimeSyncController.songTime);
+                Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(postNoteCount);
                 FieldAccessor<ScoreController, Action<int, int>>.Get(_scoreController, "scoreDidChangeEvent").Invoke(recentMultipliedScore.Value,
                     ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(recentMultipliedScore.Value, Accessors.GameplayMultiplier(ref _scoreController)));
             }
@@ -61,19 +62,36 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         private void UpdateScore(int newScore, float time) {
 
             // TODO: Deal with ScoreModel.MaxRawScoreForNumberOfNotes. Doesn't exist now and the max multiplied score is computed on the fly. We'll need to reimplement the old method for replays that use beatmap v2.
-            
-            int cutOrMissRecorded = _sortedNoteEvents.Count(ne => (ne.EventType == NoteEventType.GoodCut || ne.EventType == NoteEventType.BadCut || ne.EventType == NoteEventType.Miss) && time > ne.Time);
-          
+
+            int postNoteCount = CalculatePostNoteCountForTime(time);
+
+
             var totalMultiplier = Accessors.ModifiersModelSO(ref _scoreController).GetTotalMultiplier(Accessors.ModifierPanelsSO(ref _scoreController), _gameEnergyCounter.energy);
 
             Accessors.GameplayMultiplier(ref _scoreController) = totalMultiplier;
             
-            var immediate = Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(cutOrMissRecorded);
+            var immediate = Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(postNoteCount);
             var earlyScore = newScore;
             Accessors.MultipliedScore(ref _scoreController) = earlyScore;
 
             FieldAccessor<ScoreController, Action<int, int>>.Get(_scoreController, "scoreDidChangeEvent").Invoke(earlyScore,
                 ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(earlyScore, totalMultiplier));
+        }
+
+        private int CalculatePostNoteCountForTime(float time) {
+
+            int count = 0;
+            foreach (var noteEvent in _sortedNoteEvents) {
+
+                if (noteEvent.Time > time)
+                    break;
+
+                var eventType = noteEvent.EventType;
+                if (eventType == NoteEventType.GoodCut || eventType == NoteEventType.BadCut || eventType == NoteEventType.Miss)
+                    count++;
+
+            }
+            return count;
         }
     }
 }
