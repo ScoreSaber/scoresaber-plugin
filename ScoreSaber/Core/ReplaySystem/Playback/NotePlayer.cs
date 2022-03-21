@@ -1,20 +1,27 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Extensions;
+using SiraUtil.Affinity;
+using SiraUtil.Logging;
+using System.Collections.Generic;
 using System.Linq;
 using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback {
-    internal class NotePlayer : TimeSynchronizer, ITickable, IScroller
+    internal class NotePlayer : TimeSynchronizer, ITickable, IScroller, IAffinity
     {
         private int _lastIndex = 0;
+        private readonly SiraLog _siraLog;
         private readonly SaberManager _saberManager;
         private readonly NoteEvent[] _sortedNoteEvents;
         private readonly MemoryPoolContainer<GameNoteController> _gameNotePool;
         private readonly MemoryPoolContainer<BombNoteController> _bombNotePool;
 
-        public NotePlayer(ReplayFile file, SaberManager saberManager, BasicBeatmapObjectManager basicBeatmapObjectManager) {
-            
+        private readonly Dictionary<NoteCutInfo, NoteEvent> _recognizedNoteCutInfos = new Dictionary<NoteCutInfo, NoteEvent>();
+
+        public NotePlayer(SiraLog siraLog, ReplayFile file, SaberManager saberManager, BasicBeatmapObjectManager basicBeatmapObjectManager) {
+
+            _siraLog = siraLog;
             _saberManager = saberManager;
             _gameNotePool = Accessors.GameNotePool(ref basicBeatmapObjectManager);
             _bombNotePool = Accessors.BombNotePool(ref basicBeatmapObjectManager);
@@ -87,10 +94,40 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                     correctSaber.movementData
                 );
 
+                _recognizedNoteCutInfos.Add(noteCutInfo, activeEvent);
                 noteController.InvokeMethod<object, NoteController>("SendNoteWasCutEvent", noteCutInfo);
                 return true;
             }
             return false;
+        }
+
+        [AffinityPostfix, AffinityPatch(typeof(GoodCutScoringElement), nameof(GoodCutScoringElement.Init))]
+        protected void ForceCompleteGoodScoringElements(GoodCutScoringElement __instance, NoteCutInfo noteCutInfo, CutScoreBuffer ____cutScoreBuffer) {
+
+            // Just in case someone else is creating their own scoring elements, we want to ensure that we're only force completing ones we know we've created
+            if (!_recognizedNoteCutInfos.TryGetValue(noteCutInfo, out var activeEvent))
+                return;
+
+            _recognizedNoteCutInfos.Remove(noteCutInfo);
+
+            if (!__instance.isFinished) {
+
+                var ratingCounter = Accessors.RatingCounter(ref ____cutScoreBuffer);
+
+                // Supply the rating counter with the proper cut ratings
+                Accessors.AfterCutRating(ref ratingCounter) = activeEvent.AfterCutRating;
+                Accessors.BeforeCutRating(ref ratingCounter) = activeEvent.BeforeCutRating;
+
+                // Then immediately finish it
+                ____cutScoreBuffer.HandleSaberSwingRatingCounterDidFinish(ratingCounter);
+
+                ScoringElement element = __instance;
+                Accessors.ScoringElementFinisher(ref element, true);
+            }
+
+            //Accessors.ScoringElementFinisher(ref scoringElement, true);
+
+            
         }
 
         private static bool DoesNoteMatchID(NoteID id, NoteData note) {

@@ -56,7 +56,6 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches
 
             if (startIndex.HasValue && endIndex.HasValue) {
 
-                _siraLog.Info(count);
                 codes.RemoveRange(startIndex.Value, count);
             } else {
 

@@ -67,5 +67,8 @@ namespace ScoreSaber.Core.ReplaySystem
 
         internal static readonly FieldAccessor<ModalView, bool>.Accessor animateParentCanvas = FieldAccessor<ModalView, bool>.GetAccessor("_animateParentCanvas");
         internal static readonly FieldAccessor<PlayerTransforms, Transform>.Accessor HeadTransform = FieldAccessor<PlayerTransforms, Transform>.GetAccessor("_headTransform");
+
+        internal static readonly FieldAccessor<CutScoreBuffer, SaberSwingRatingCounter>.Accessor RatingCounter = FieldAccessor<CutScoreBuffer, SaberSwingRatingCounter>.GetAccessor("_saberSwingRatingCounter");
+        internal static readonly PropertyAccessor<ScoringElement, bool>.Setter ScoringElementFinisher = PropertyAccessor<ScoringElement, bool>.GetSetter("isFinished");
     }
 }
