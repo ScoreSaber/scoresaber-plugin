@@ -5,6 +5,7 @@ using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback {
@@ -101,6 +102,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             return false;
         }
 
+        [Obfuscation(Feature = "parameters renaming", Exclude = true)]
         [AffinityPostfix, AffinityPatch(typeof(GoodCutScoringElement), nameof(GoodCutScoringElement.Init))]
         protected void ForceCompleteGoodScoringElements(GoodCutScoringElement __instance, NoteCutInfo noteCutInfo, CutScoreBuffer ____cutScoreBuffer) {
 

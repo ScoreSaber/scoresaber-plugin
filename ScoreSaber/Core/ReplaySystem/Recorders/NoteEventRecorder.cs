@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Zenject;
 using ScoreSaber.Core.ReplaySystem.Data;
 using SiraUtil.Affinity;
+using System.Reflection;
 
 namespace ScoreSaber.Core.ReplaySystem.Recorders
 {
@@ -114,6 +115,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
             }
         }
 
+        [Obfuscation(Feature = "parameters renaming", Exclude = true)]
         [AffinityPrefix, AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasCut))]
         protected void BadCutInfoCollector(NoteController noteController, in NoteCutInfo noteCutInfo) {
 
