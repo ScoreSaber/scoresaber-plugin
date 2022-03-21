@@ -1,6 +1,23 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ScoreSaber.Core.Data.Models {
+
+    internal class Metadata {
+        [JsonProperty("total")]
+        internal int total { get; set; }
+        [JsonProperty("page")]
+        internal int page{ get; set; }
+        [JsonProperty("itemsPerPage")]
+        internal int itemsPerPage { get; set; }
+    }
+
+    internal class PlayerCollection {
+        [JsonProperty("players")]
+        internal PlayerInfo[] players { get; set; }
+        [JsonProperty("metadata")]
+        internal Metadata metdata { get; set; }
+    }
 
     internal class PlayerInfo {
         [JsonProperty("id")]
