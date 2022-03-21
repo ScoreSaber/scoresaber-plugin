@@ -89,19 +89,23 @@ namespace ScoreSaber.Core.Services {
                 if (!loggedInMessage.IsError) {
                     Oculus.Platform.Users.GetLoggedInUserFriends().OnComplete(delegate (Oculus.Platform.Message<Oculus.Platform.Models.UserList> friendsMessage) {
                         if (!friendsMessage.IsError) {
-                            Oculus.Platform.Users.GetUserProof().OnComplete(async delegate (Oculus.Platform.Message<Oculus.Platform.Models.UserProof> message) {
-                                if (!message.IsError) {
-                                    string playerId = loggedInMessage.Data.ID.ToString();
-                                    string playerName = loggedInMessage.Data.OculusID;
-                                    string friends = playerId + ",";
-                                    LocalPlayerInfo oculusInfo = new LocalPlayerInfo(playerId, playerName, friends, "1", message.Data.Value);
-                                    bool authenticated = await AuthenticateWithScoreSaber(oculusInfo);
-                                    if (authenticated) {
-                                        localPlayerInfo = oculusInfo;
-                                        ChangeLoginStatus(LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
-                                    } else {
-                                        ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
-                                    }
+                            Oculus.Platform.Users.GetUserProof().OnComplete(delegate (Oculus.Platform.Message<Oculus.Platform.Models.UserProof> userProofMessage) {
+                                if (!userProofMessage.IsError) {
+                                    Oculus.Platform.Users.GetAccessToken().OnComplete(async delegate (Oculus.Platform.Message<string> authTokenMessage) {
+                                        string playerId = loggedInMessage.Data.ID.ToString();
+                                        string playerName = loggedInMessage.Data.OculusID;
+                                        string friends = playerId + ",";
+                                        string nonce = userProofMessage.Data.Value + "," + authTokenMessage.Data;
+                                        LocalPlayerInfo oculusInfo = new LocalPlayerInfo(playerId, playerName, friends, "1", nonce);
+                                        bool authenticated = await AuthenticateWithScoreSaber(oculusInfo);
+                                        if (authenticated) {
+                                            localPlayerInfo = oculusInfo;
+                                            ChangeLoginStatus(LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
+                                        } else {
+                                            ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
+                                        }
+                                    });
+                                   
                                 } else {
                                     ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
                                 }
