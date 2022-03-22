@@ -154,7 +154,7 @@ namespace ScoreSaber.Core.Services {
 
 
             if (Plugin.HttpInstance.PersistentRequestHeaders.ContainsKey("Cookies")) {
-                return true;
+                Plugin.HttpInstance.PersistentRequestHeaders.Remove("Cookies");
             }
 
             WWWForm form = new WWWForm();
