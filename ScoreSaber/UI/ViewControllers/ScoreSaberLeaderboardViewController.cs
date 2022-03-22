@@ -217,6 +217,14 @@ namespace ScoreSaber.UI.ViewControllers {
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
 
+                if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer) {
+                    _upButton.interactable = false;
+                    _downButton.interactable = false;
+                } else {
+                    _upButton.interactable = true;
+                    _downButton.interactable = true;
+                }
+
                 _infoButtons.HideInfoButtons();
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo);
