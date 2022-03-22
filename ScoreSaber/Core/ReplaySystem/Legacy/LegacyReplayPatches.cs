@@ -18,17 +18,14 @@ namespace ScoreSaber.Patches {
 
         [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasCut))]
         [AffinityPrefix]
-        bool PatchNoteWasCut(NoteController noteController) {
+        void PatchNoteWasCut(NoteController noteController) {
 
             if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
                 NoteData noteData = noteController.noteData;
                 if (noteData.colorType != ColorType.None) {
                     _legacyReplayPlayer.cutOrMissedNotes++;
                 }
-                return false;
             }
-
-            return true;
         }
 
         [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasMissed))]

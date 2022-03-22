@@ -39,6 +39,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
                     Container.Bind<IAffinity>().To<CancelScoreControllerBufferFinisher>().AsSingle();
                     Container.Bind<IAffinity>().To<CancelSaberCuttingPatch>().AsSingle();
                 } else {
+                    Container.Bind<IAffinity>().To<CancelScoreControllerBufferFinisher>().AsSingle();
                     Container.BindInstance(Plugin.ReplayState.legacyKeyframes).AsSingle();
                     Container.BindInterfacesAndSelfTo<LegacyReplayPlayer>().AsSingle();
                     Container.BindInterfacesTo<LegacyReplayPatches>().AsSingle();
