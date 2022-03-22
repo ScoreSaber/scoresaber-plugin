@@ -6,9 +6,11 @@ using ScoreSaber.Core.ReplaySystem.Playback;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Patches;
 using SiraUtil.Affinity;
+using System.Reflection;
 using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Installers {
+
     internal class PlaybackInstaller : Installer {
         private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
 
@@ -17,6 +19,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
         }
 
+        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public override void InstallBindings() {
 
             if (Plugin.ReplayState.isPlaybackEnabled) {

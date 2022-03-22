@@ -2,6 +2,7 @@
 using ScoreSaber.Core.ReplaySystem.Recorders;
 using SiraUtil.Logging;
 using ScoreSaber.Core.Utils;
+using System.Reflection;
 
 namespace ScoreSaber.Core.ReplaySystem.Installers
 {
@@ -15,6 +16,8 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
             _siraLog = siraLog;
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
         }
+
+        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public override void InstallBindings() {
 
             bool hasV3Stuff = LeaderboardUtils.ContainsV3Stuff(_gameplayCoreSceneSetupData.transformedBeatmapData);

@@ -1,7 +1,7 @@
-﻿using ScoreSaber.Core.Data;
+﻿#if DEV
+using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
-using ScoreSaber.UI.ViewControllers;
 using System;
 using System.IO;
 using System.Linq;
@@ -29,6 +29,7 @@ namespace ScoreSaber.Core.Daemons {
                 transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
                 transitionSetup.didFinishEvent += UploadDaemonHelper.FiveInstance;
             }
+
             Plugin.Log.Debug("MockUpload service setup!");
         }
 
@@ -77,3 +78,4 @@ namespace ScoreSaber.Core.Daemons {
         }
     }
 }
+#endif
