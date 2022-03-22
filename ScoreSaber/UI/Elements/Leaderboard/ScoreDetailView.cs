@@ -92,7 +92,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             _deviceText.SetFancyText("Device", HMD.GetFriendlyName(score.hmd));
             _scoreText.SetFancyText("Score", $"{string.Format("{0:n0}", score.modifiedScore)} (<color=#FFD42A>{scoreMap.accuracy}%</color>)");
             _ppText.SetFancyText("Performance Points", $"<color=#6772E5>{score.pp}pp</color>");
-            _maxComboText.SetFancyText("Combo", score.maxCombo != 0 ? score.badCuts > 0 ? $"<color=#FF0000>{score.badCuts}</color>" : score.badCuts.ToString() : "N/A");
+            _maxComboText.SetFancyText("Combo", score.maxCombo != 0 ? score.maxCombo.ToString() : "N/A");
             _fullComboText.SetFancyText("Full Combo", score.maxCombo != 0 ? score.fullCombo ? "<color=#9EDBB1>Yes</color>" : "<color=#FF0000>No</color>" : "N/A");
             _badCutsText.SetFancyText("Bad Cuts", score.maxCombo != 0 ? score.badCuts > 0 ? $"<color=#FF0000>{score.badCuts}</color>" : score.badCuts.ToString() : "N/A");
             _missedNotesText.SetFancyText("Missed Notes", score.maxCombo != 0 ? score.missedNotes > 0 ? $"<color=#FF0000>{score.missedNotes}</color>" : score.missedNotes.ToString() : "N/A");
