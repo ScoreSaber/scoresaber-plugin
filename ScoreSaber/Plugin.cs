@@ -109,14 +109,16 @@ namespace ScoreSaber {
                     }
                 }
                 if (canSet) {
-                    var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-                    if (value) {
-                        transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
-                        transitionSetup.didFinishEvent += UploadDaemonHelper.FiveInstance;
-                    } else {
-                        transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
+                    if (!ReplayState.isPlaybackEnabled) {
+                        var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+                        if (value) {
+                            transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
+                            transitionSetup.didFinishEvent += UploadDaemonHelper.FiveInstance;
+                        } else {
+                            transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
+                        }
+                        _scoreSubmission = value;
                     }
-                    _scoreSubmission = value;
                 }
             }
         }

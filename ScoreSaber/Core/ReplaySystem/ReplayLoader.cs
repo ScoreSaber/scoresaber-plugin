@@ -12,10 +12,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace ScoreSaber.Core.ReplaySystem
-{
-    internal class ReplayLoader
-    {
+namespace ScoreSaber.Core.ReplaySystem {
+    internal class ReplayLoader {
         private readonly PlayerDataModel _playerDataModel;
         private readonly MenuTransitionsHelper _menuTransitionsHelper;
         private readonly StandardLevelScenesTransitionSetupDataSO _standardLevelScenesTransitionSetupDataSO;
@@ -94,7 +92,7 @@ namespace ScoreSaber.Core.ReplaySystem
 
         private async Task<ReplayFile> LoadReplay(byte[] replay) {
 
-            var replayFile =  await Task.Run(() => {
+            var replayFile = await Task.Run(() => {
                 return _replayFileReader.Read(replay);
             });
             return replayFile;
@@ -113,7 +111,7 @@ namespace ScoreSaber.Core.ReplaySystem
                 PlayerSpecificSettings playerSettings = new PlayerSpecificSettings(replay.metadata.LeftHanded, localPlayerSettings.playerHeight, localPlayerSettings.automaticPlayerHeight, localPlayerSettings.sfxVolume, localPlayerSettings.reduceDebris, localPlayerSettings.noTextsAndHuds, localPlayerSettings.noFailEffects, localPlayerSettings.advancedHud, localPlayerSettings.autoRestart, localPlayerSettings.saberTrailIntensity, localPlayerSettings.noteJumpDurationTypeSettings, localPlayerSettings.noteJumpFixedDuration, localPlayerSettings.noteJumpStartBeatOffset, localPlayerSettings.hideNoteSpawnEffect, localPlayerSettings.adaptiveSfx, localPlayerSettings.environmentEffectsFilterDefaultPreset, localPlayerSettings.environmentEffectsFilterExpertPlusPreset);
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.FiveInstance;
-                UnityMainThreadTaskScheduler.Factory.StartNew(() =>  _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd));
+                UnityMainThreadTaskScheduler.Factory.StartNew(() => _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd));
             });
         }
 
@@ -122,7 +120,7 @@ namespace ScoreSaber.Core.ReplaySystem
 
             Plugin.ReplayState.isPlaybackEnabled = false;
             if (Plugin.ScoreSubmission) {
-               _standardLevelScenesTransitionSetupDataSO.didFinishEvent += UploadDaemonHelper.FiveInstance;
+                _standardLevelScenesTransitionSetupDataSO.didFinishEvent += UploadDaemonHelper.FiveInstance;
             }
         }
     }

@@ -214,8 +214,11 @@ namespace ScoreSaber.UI.ViewControllers {
         public async Task RefreshLeaderboard(IDifficultyBeatmap difficultyBeatmap, LeaderboardTableView tableView, PlatformLeaderboardsModel.ScoresScope scope, LoadingControl loadingControl, string refreshId) {
 
             try {
+                _currentLeaderboardRefreshId = refreshId;
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
+
+      
 
                 if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer) {
                     _upButton.interactable = false;
@@ -243,7 +246,7 @@ namespace ScoreSaber.UI.ViewControllers {
                     return; 
                 }
 
-                _currentLeaderboardRefreshId = refreshId;
+            
 
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
