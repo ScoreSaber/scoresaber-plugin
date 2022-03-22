@@ -304,6 +304,9 @@ namespace ScoreSaber.UI.ViewControllers {
         private void SetErrorState(LoadingControl loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
 
             if (httpErrorException != null) {
+                if (httpErrorException.isNetworkError) {
+                    _leaderboardService.currentLoadedLeaderboard = null;
+                }
                 if (httpErrorException.scoreSaberError != null) {
                     if (httpErrorException.scoreSaberError.errorMessage != null) {
                         errorText = httpErrorException.scoreSaberError.errorMessage;
