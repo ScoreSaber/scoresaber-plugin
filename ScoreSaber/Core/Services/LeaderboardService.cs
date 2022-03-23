@@ -20,6 +20,7 @@ namespace ScoreSaber.Core.Services {
         }
 
         public async Task<LeaderboardMap> GetLeaderboardData(IDifficultyBeatmap difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope scope, int page, bool filterAroundCountry = false) {
+            currentLoadedLeaderboard = null;
             string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, scope, page, filterAroundCountry);
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
             Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);

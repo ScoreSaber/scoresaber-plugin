@@ -233,12 +233,12 @@ namespace ScoreSaber.UI.ViewControllers {
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo);
 
                 if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
-                    SetErrorState(loadingControl, null, null, "Maps with new note types currently not supported", false);
+                    SetErrorState(tableView,loadingControl, null, null, "Maps with new note types currently not supported", false);
                     return;
                 }
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
-                    SetErrorState(loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
+                    SetErrorState(tableView,loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
                     return;
                 }
 
@@ -258,7 +258,7 @@ namespace ScoreSaber.UI.ViewControllers {
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
                         if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer && playerScoreIndex == -1) {
-                            SetErrorState(loadingControl, null, null, "You haven't set a score on this leaderboard");
+                            SetErrorState(tableView, loadingControl, null, null, "You haven't set a score on this leaderboard");
                         } else {
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
                             loadingControl.ShowText("", false);
@@ -270,16 +270,16 @@ namespace ScoreSaber.UI.ViewControllers {
                         }
                     } else {
                         if (leaderboardPage > 1) {
-                            SetErrorState(loadingControl, null, null, "No scores on this page");
+                            SetErrorState(tableView, loadingControl, null, null, "No scores on this page");
                         } else {
-                            SetErrorState(loadingControl, null, null, "No scores on this leaderboard, be the first!");
+                            SetErrorState(tableView, loadingControl, null, null, "No scores on this leaderboard, be the first!");
                         }
                     }
                 }
             } catch (HttpErrorException httpError) {
-                SetErrorState(loadingControl, httpError);
+                SetErrorState(tableView,loadingControl, httpError);
             } catch (Exception exception) {
-                SetErrorState(loadingControl, null, exception);
+                SetErrorState(tableView, loadingControl, null, exception);
             }
         }
 
@@ -312,24 +312,31 @@ namespace ScoreSaber.UI.ViewControllers {
             return -1;
         }
 
-        private void SetErrorState(LoadingControl loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
+        private void SetErrorState(LeaderboardTableView tableView, LoadingControl loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
 
+            _panelView.SetRankedStatus("");
+            Plugin.LogNull(httpErrorException);
             if (httpErrorException != null) {
                 if (httpErrorException.isNetworkError) {
+                    errorText = "Failed to load leaderboard due to a network error, score won't upload";
                     _leaderboardService.currentLoadedLeaderboard = null;
                 }
                 if (httpErrorException.scoreSaberError != null) {
                     if (httpErrorException.scoreSaberError.errorMessage != null) {
                         errorText = httpErrorException.scoreSaberError.errorMessage;
-                        _panelView.SetRankedStatus("Unranked");
+                        if (errorText == "Leaderboard not found") {
+                            _leaderboardService.currentLoadedLeaderboard = null;
+                        }
                     }
                 }
             }
             if (exception != null) {
                 Plugin.Log.Error(exception.ToString());
             }
+            Plugin.Log.Info(errorText);
             loadingControl.Hide();
             loadingControl.ShowText(errorText, showRefreshButton);
+            tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
         }
 
         public void DirectionalButtonClicked(bool down) {

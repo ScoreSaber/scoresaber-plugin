@@ -129,25 +129,23 @@ namespace ScoreSaber
 
         internal HttpErrorException ThrowHttpException(UnityWebRequest request) {
             if (request.downloadHandler.data != null) {
-                return new HttpErrorException(request.error, request.isNetworkError, Encoding.UTF8.GetString(request.downloadHandler.data)); // Epic
+                return new HttpErrorException(request.isNetworkError, request.isHttpError, Encoding.UTF8.GetString(request.downloadHandler.data)); // Epic
             } else {
-                return new HttpErrorException(request.error, request.isNetworkError); // Epic
+                return new HttpErrorException(request.isNetworkError, request.isHttpError); // Epic
             }
         }
     }
 
     internal class HttpErrorException : Exception {
-        internal string error { get; set; }
-        internal string scoreSaberMessage { get; set; }
         internal bool isNetworkError { get; set; }
+        internal bool isHttpError { get; set; }
         internal ScoreSaberError scoreSaberError { get; set; }
-        internal HttpErrorException(string error, bool isNetworkError, string customMessage = "") {
-            this.error = error;
-            this.isNetworkError = isNetworkError;
-            this.scoreSaberMessage = customMessage;
-            if (customMessage != string.Empty) {
+        internal HttpErrorException(bool _isNetworkError, bool _isHttpError, string _scoreSaberErrorMessage = "") {
+            isNetworkError = _isNetworkError;
+            isHttpError = _isHttpError;
+            if (_scoreSaberErrorMessage != string.Empty) {
                 try {
-                    scoreSaberError = JsonConvert.DeserializeObject<ScoreSaberError>(customMessage);
+                    scoreSaberError = JsonConvert.DeserializeObject<ScoreSaberError>(_scoreSaberErrorMessage);
                 } catch (Exception) { }
             }
         }
