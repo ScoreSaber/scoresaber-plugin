@@ -5,17 +5,17 @@ namespace ScoreSaber.Core.ReplaySystem
 {
     internal class ReplayState
     {
-        internal string currentRequestId;
+        // State management
+        internal IDifficultyBeatmap CurrentLevel;
+        internal GameplayModifiers CurrentModifiers;
+        internal string CurrentPlayerName;
 
-        internal bool isLegacyReplay;
-        internal bool isPlaybackEnabled;
+        // Legacy 
+        internal bool IsLegacyReplay;
+        internal bool IsPlaybackEnabled;
+        internal List<Z.Keyframe> LoadedLegacyKeyframes;
 
-        internal byte[] serializedReplay;
-        internal ReplayFile file;
-        internal List<Z.Keyframe> legacyKeyframes;
-
-        internal IDifficultyBeatmap currentLevel;
-        internal GameplayModifiers currentModifiers;
-        internal string currentPlayerName;
+        // New
+        internal ReplayFile LoadedReplayFile;
     }
 }

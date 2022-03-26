@@ -8,7 +8,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches
     {
         internal static bool Prefix(RelativeScoreAndImmediateRankCounter __instance, int score, int maxPossibleScore, ref Action ___relativeScoreOrImmediateRankDidChangeEvent) {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && !Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && !Plugin.ReplayState.IsLegacyReplay) {
                 if (score == 0 && maxPossibleScore == 0) {
                     Accessors.RelativeScore(ref __instance, 1f);
                     Accessors.ImmediateRank(ref __instance, RankModel.Rank.SS);

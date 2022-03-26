@@ -3,6 +3,7 @@ using ScoreSaber.Core.ReplaySystem.Recorders;
 using SiraUtil.Logging;
 using ScoreSaber.Core.Utils;
 using System.Reflection;
+using ScoreSaber.Core.Daemons;
 
 namespace ScoreSaber.Core.ReplaySystem.Installers
 {
@@ -23,13 +24,12 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
             bool hasV3Stuff = LeaderboardUtils.ContainsV3Stuff(_gameplayCoreSceneSetupData.transformedBeatmapData);
 
             if (hasV3Stuff) {
-
                 _siraLog.Warn("This map contains Beatmap V3 sliders! Not recording...");
                 return;
             }
 
-            if (!Plugin.ReplayState.isPlaybackEnabled) {
-
+            if (!Plugin.ReplayState.IsPlaybackEnabled) {
+                Plugin.Log.Debug("Installing replay recorders");
                 Container.BindInterfacesAndSelfTo<Recorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<MetadataRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<HeightEventRecorder>().AsSingle();
@@ -37,6 +37,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
                 Container.BindInterfacesAndSelfTo<PoseRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<ScoreEventRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<EnergyEventRecorder>().AsSingle();
+                Plugin.Log.Debug("Replay recorders installed");
             }
         }
     }

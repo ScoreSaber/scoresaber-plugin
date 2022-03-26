@@ -1,5 +1,4 @@
-﻿
-using ScoreSaber.Core.ReplaySystem.HarmonyPatches;
+﻿using ScoreSaber.Core.ReplaySystem.HarmonyPatches;
 using ScoreSaber.Core.ReplaySystem.Legacy;
 using ScoreSaber.Core.ReplaySystem.Legacy.UI;
 using ScoreSaber.Core.ReplaySystem.Playback;
@@ -22,10 +21,10 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
         [Obfuscation(Feature = "virtualization", Exclude = false)]
         public override void InstallBindings() {
 
-            if (Plugin.ReplayState.isPlaybackEnabled) {
+            if (Plugin.ReplayState.IsPlaybackEnabled) {
                 Container.BindInstance(new object()).WithId("ScoreSaberReplay").AsCached();
-                if (!Plugin.ReplayState.isLegacyReplay) {
-                    Container.BindInstance(Plugin.ReplayState.file).AsSingle();
+                if (!Plugin.ReplayState.IsLegacyReplay) {
+                    Container.BindInstance(Plugin.ReplayState.LoadedReplayFile).AsSingle();
                     Container.BindInterfacesAndSelfTo<PosePlayer>().AsSingle();
                     Container.BindInterfacesTo<NotePlayer>().AsSingle();
                     Container.BindInterfacesTo<ScorePlayer>().AsSingle();
@@ -40,7 +39,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
                     Container.Bind<IAffinity>().To<CancelSaberCuttingPatch>().AsSingle();
                 } else {
                     Container.Bind<IAffinity>().To<CancelScoreControllerBufferFinisher>().AsSingle();
-                    Container.BindInstance(Plugin.ReplayState.legacyKeyframes).AsSingle();
+                    Container.BindInstance(Plugin.ReplayState.LoadedLegacyKeyframes).AsSingle();
                     Container.BindInterfacesAndSelfTo<LegacyReplayPlayer>().AsSingle();
                     Container.BindInterfacesTo<LegacyReplayPatches>().AsSingle();
                 }

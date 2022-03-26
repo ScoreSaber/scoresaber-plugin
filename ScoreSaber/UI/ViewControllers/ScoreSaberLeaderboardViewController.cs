@@ -183,7 +183,7 @@ namespace ScoreSaber.UI.ViewControllers {
                     RefreshLeaderboard();
                     break;
             }
-            Plugin.Log.Info(status);
+            Plugin.Log.Debug(status);
         }
 
         private void uploadDaemon_UploadStatusChanged(UploadStatus status, string statusText) {
@@ -314,8 +314,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
         private void SetErrorState(LeaderboardTableView tableView, LoadingControl loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
 
-            _panelView.SetRankedStatus("");
-            Plugin.LogNull(httpErrorException);
+           
             if (httpErrorException != null) {
                 if (httpErrorException.isNetworkError) {
                     errorText = "Failed to load leaderboard due to a network error, score won't upload";
@@ -326,6 +325,7 @@ namespace ScoreSaber.UI.ViewControllers {
                         errorText = httpErrorException.scoreSaberError.errorMessage;
                         if (errorText == "Leaderboard not found") {
                             _leaderboardService.currentLoadedLeaderboard = null;
+                            _panelView.SetRankedStatus("");
                         }
                     }
                 }
@@ -333,7 +333,6 @@ namespace ScoreSaber.UI.ViewControllers {
             if (exception != null) {
                 Plugin.Log.Error(exception.ToString());
             }
-            Plugin.Log.Info(errorText);
             loadingControl.Hide();
             loadingControl.ShowText(errorText, showRefreshButton);
             tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);

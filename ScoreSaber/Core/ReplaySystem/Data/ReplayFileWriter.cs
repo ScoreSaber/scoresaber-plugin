@@ -57,8 +57,9 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                 result.AddRange(GetFileHeader());
                 result.AddRange(compressed);
                 return result.ToArray();
-            } catch (Exception) {
+            } catch (Exception ex) {
                 //File.WriteAllText("replay.json", Newtonsoft.Json.JsonConvert.SerializeObject(file));
+                Plugin.Log.Debug($"Failed to write replay: {ex.ToString()}");
                 return null;
             }
         }

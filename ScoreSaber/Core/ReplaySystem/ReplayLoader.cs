@@ -1,7 +1,6 @@
 ﻿using IPA.Utilities.Async;
 using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.ReplaySystem.Data;
-using ScoreSaber.Core.ReplaySystem.Legacy;
 using ScoreSaber.Core.Utils;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using UnityEngine;
 
 namespace ScoreSaber.Core.ReplaySystem {
     internal class ReplayLoader {
+
         private readonly PlayerDataModel _playerDataModel;
         private readonly MenuTransitionsHelper _menuTransitionsHelper;
         private readonly StandardLevelScenesTransitionSetupDataSO _standardLevelScenesTransitionSetupDataSO;
@@ -28,9 +28,9 @@ namespace ScoreSaber.Core.ReplaySystem {
 
         public async Task Load(byte[] replay, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers modifiers, string playerName) {
 
-            Plugin.ReplayState.currentLevel = difficultyBeatmap;
-            Plugin.ReplayState.currentModifiers = modifiers;
-            Plugin.ReplayState.currentPlayerName = playerName;
+            Plugin.ReplayState.CurrentLevel = difficultyBeatmap;
+            Plugin.ReplayState.CurrentModifiers = modifiers;
+            Plugin.ReplayState.CurrentPlayerName = playerName;
             if (replay[0] == 93 && replay[1] == 0 && replay[2] == 0 && replay[3] == 128) {
                 await LoadLegacyReplay(replay, difficultyBeatmap, modifiers);
             } else {
@@ -53,9 +53,9 @@ namespace ScoreSaber.Core.ReplaySystem {
                     throw new Exception("Failed to deserialize replay!");
                 }
 
-                Plugin.ReplayState.legacyKeyframes = await AddFrames(replayData);
-                Plugin.ReplayState.isPlaybackEnabled = true;
-                Plugin.ReplayState.isLegacyReplay = true;
+                Plugin.ReplayState.LoadedLegacyKeyframes = await AddFrames(replayData);
+                Plugin.ReplayState.IsPlaybackEnabled = true;
+                Plugin.ReplayState.IsLegacyReplay = true;
                 PlayerData playerData = _playerDataModel.playerData;
                 PlayerSpecificSettings playerSettings = playerData.playerSpecificSettings;
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.FiveInstance;
@@ -103,9 +103,9 @@ namespace ScoreSaber.Core.ReplaySystem {
         private async Task StartReplay(ReplayFile replay, IDifficultyBeatmap difficultyBeatmap) {
 
             await Task.Run(() => {
-                Plugin.ReplayState.isLegacyReplay = false;
-                Plugin.ReplayState.isPlaybackEnabled = true;
-                Plugin.ReplayState.file = replay;
+                Plugin.ReplayState.IsLegacyReplay = false;
+                Plugin.ReplayState.IsPlaybackEnabled = true;
+                Plugin.ReplayState.LoadedReplayFile = replay;
                 PlayerData playerData = _playerDataModel.playerData;
                 PlayerSpecificSettings localPlayerSettings = playerData.playerSpecificSettings;
                 PlayerSpecificSettings playerSettings = new PlayerSpecificSettings(replay.metadata.LeftHanded, localPlayerSettings.playerHeight, localPlayerSettings.automaticPlayerHeight, localPlayerSettings.sfxVolume, localPlayerSettings.reduceDebris, localPlayerSettings.noTextsAndHuds, localPlayerSettings.noFailEffects, localPlayerSettings.advancedHud, localPlayerSettings.autoRestart, localPlayerSettings.saberTrailIntensity, localPlayerSettings.noteJumpDurationTypeSettings, localPlayerSettings.noteJumpFixedDuration, localPlayerSettings.noteJumpStartBeatOffset, localPlayerSettings.hideNoteSpawnEffect, localPlayerSettings.adaptiveSfx, localPlayerSettings.environmentEffectsFilterDefaultPreset, localPlayerSettings.environmentEffectsFilterExpertPlusPreset);
@@ -118,7 +118,7 @@ namespace ScoreSaber.Core.ReplaySystem {
         [Obfuscation(Feature = "virtualization", Exclude = false)]
         private void ReplayEnd(StandardLevelScenesTransitionSetupDataSO standardLevelSceneSetupData, LevelCompletionResults levelCompletionResults) {
 
-            Plugin.ReplayState.isPlaybackEnabled = false;
+            Plugin.ReplayState.IsPlaybackEnabled = false;
             if (Plugin.ScoreSubmission) {
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent += UploadDaemonHelper.FiveInstance;
             }

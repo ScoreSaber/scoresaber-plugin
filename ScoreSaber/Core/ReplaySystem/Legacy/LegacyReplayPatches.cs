@@ -20,7 +20,7 @@ namespace ScoreSaber.Patches {
         [AffinityPrefix]
         void PatchNoteWasCut(NoteController noteController) {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 NoteData noteData = noteController.noteData;
                 if (noteData.colorType != ColorType.None) {
                     _legacyReplayPlayer.cutOrMissedNotes++;
@@ -32,7 +32,7 @@ namespace ScoreSaber.Patches {
         [AffinityPrefix]
         bool PatchNoteWasMissed(NoteController noteController) {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 NoteData noteData = noteController.noteData;
                 if (noteData.colorType != ColorType.None) {
                     _legacyReplayPlayer.cutOrMissedNotes++;
@@ -46,7 +46,7 @@ namespace ScoreSaber.Patches {
         [AffinityPrefix]
         bool PatchMissedNoteEffectSpawnerHandleNoteWasMissed() {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 return _legacyReplayPlayer.IsRealMiss();
             }
 
@@ -57,7 +57,7 @@ namespace ScoreSaber.Patches {
         [AffinityPrefix]
         bool PatchSpawnFlyingSprite() {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 return _legacyReplayPlayer.IsRealMiss();
             }
 
@@ -70,7 +70,7 @@ namespace ScoreSaber.Patches {
     internal class PatchBombNoteControllerWasCutBySaber {
         static bool Prefix() {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 return false;
             }
 
@@ -81,7 +81,7 @@ namespace ScoreSaber.Patches {
     [HarmonyPatch(typeof(ScoreUIController), nameof(ScoreUIController.HandleScoreDidChangeRealtime))]
     internal class PatchScoreUIController {
         static bool Prefix() {
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 return false;
             }
             return true;
@@ -91,7 +91,7 @@ namespace ScoreSaber.Patches {
     [HarmonyPatch(typeof(RelativeScoreAndImmediateRankCounter), nameof(RelativeScoreAndImmediateRankCounter.HandleScoreDidChange))]
     internal class PatchRelativeScoreAndImmediateRankCounter {
         static bool Prefix() {
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 return false;
             }
             return true;
@@ -101,7 +101,7 @@ namespace ScoreSaber.Patches {
     [HarmonyPatch(typeof(StandardLevelGameplayManager), nameof(StandardLevelGameplayManager.HandleGameEnergyDidReach0))]
     internal class PatchStandardLevelGameplayManagerHandleGameEnergyDidReach0 {
         static bool Prefix() {
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 return false;
             }
             return true;
@@ -112,7 +112,7 @@ namespace ScoreSaber.Patches {
     internal class PatchNoteCutSoundEffect {
         static bool Prefix(NoteController noteController, in NoteCutInfo noteCutInfo, ref AudioSource ____audioSource, ref bool ____goodCut, float ____goodCutVolume, ref bool ____noteWasCut, ref NoteController ____noteController, ref NoteCutSoundEffect __instance) {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
                 if (____noteController != noteController) {
                     return false;
                 }

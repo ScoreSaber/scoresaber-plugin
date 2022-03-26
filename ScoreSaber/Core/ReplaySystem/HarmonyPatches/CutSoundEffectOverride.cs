@@ -15,7 +15,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches
 
         internal static bool Prefix(NoteCutSoundEffectManager __instance, NoteController noteController) {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && !Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && !Plugin.ReplayState.IsLegacyReplay) {
                 if (_spawnEffectManager == null || _spawnEffectManager != __instance) {
                     _spawnEffectManager = __instance;
                     _effects.Clear();

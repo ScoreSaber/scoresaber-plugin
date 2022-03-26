@@ -15,7 +15,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
 
         [AffinityPatch(typeof(OculusVRHelper), nameof(OculusVRHelper.hasInputFocus), AffinityMethodType.Getter)]
         protected void ForceInputFocus(ref bool __result) {
-            if (_isOculus && Plugin.ReplayState.isPlaybackEnabled)
+            if (_isOculus && Plugin.ReplayState.IsPlaybackEnabled)
                 __result = true;
         }
     }

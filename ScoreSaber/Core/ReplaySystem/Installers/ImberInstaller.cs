@@ -7,7 +7,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
     {
         public override void InstallBindings() {
 
-            if (Plugin.ReplayState.isPlaybackEnabled && !Plugin.ReplayState.isLegacyReplay) {
+            if (Plugin.ReplayState.IsPlaybackEnabled && !Plugin.ReplayState.IsLegacyReplay) {
                 Container.Bind<VRControllerAccessor>().AsSingle();
                 Container.BindInterfacesTo<ImberManager>().AsSingle();
                 Container.BindInterfacesAndSelfTo<ImberScrubber>().AsSingle();

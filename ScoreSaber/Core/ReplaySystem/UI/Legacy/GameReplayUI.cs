@@ -21,19 +21,20 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
         [Obfuscation(Feature = "virtualization", Exclude = false)]
         private void CreateReplayUI() {
 
-            string replayText = string.Format("REPLAY MODE - Watching {0} play {1} - {2} ({3})", Plugin.ReplayState.currentPlayerName, Plugin.ReplayState.currentLevel.level.songAuthorName,
-              Plugin.ReplayState.currentLevel.level.songName,
-              Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.currentLevel.difficulty).Replace("ExpertPlus", "Expert+"));
+            string replayText = string.Format("REPLAY MODE - Watching {0} play {1} - {2} ({3})", Plugin.ReplayState.CurrentPlayerName, 
+                Plugin.ReplayState.CurrentLevel.level.songAuthorName, Plugin.ReplayState.CurrentLevel.level.songName,
+              Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentLevel.difficulty).Replace("ExpertPlus", "Expert+"));
             float timeScale = 1f;
-            if (!Plugin.ReplayState.isLegacyReplay) {
-                if (Plugin.ReplayState.file.noteKeyframes.Count > 0) {
-                    timeScale = Plugin.ReplayState.file.noteKeyframes[0].TimeSyncTimescale;
+
+            if (!Plugin.ReplayState.IsLegacyReplay) {
+                if (Plugin.ReplayState.LoadedReplayFile.noteKeyframes.Count > 0) {
+                    timeScale = Plugin.ReplayState.LoadedReplayFile.noteKeyframes[0].TimeSyncTimescale;
                 }
             }
             if (timeScale != 1f) {
                 replayText += $" [{timeScale:P1}]";
             }
-            string friendlyMods = GetFriendlyModifiers(Plugin.ReplayState.currentModifiers);
+            string friendlyMods = GetFriendlyModifiers(Plugin.ReplayState.CurrentModifiers);
             if (friendlyMods != string.Empty) {
                 replayText += string.Format(" [{0}]", friendlyMods);
             }

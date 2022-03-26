@@ -35,7 +35,7 @@ namespace ScoreSaber.Core.Daemons {
 
         public void FakeUpload(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO, LevelCompletionResults levelCompletionResults) {
             uploading = true;
-            if (!Plugin.ReplayState.isPlaybackEnabled) {
+            if (!Plugin.ReplayState.IsPlaybackEnabled) {
                 Plugin.ReplayRecorder?.Write();
                 var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
                 if (!practiceViewController.isInViewControllerHierarchy) {

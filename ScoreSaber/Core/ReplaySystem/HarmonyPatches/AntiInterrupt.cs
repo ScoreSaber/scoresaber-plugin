@@ -7,7 +7,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches
     {
         internal static bool Prefix() {
 
-            if (Plugin.ReplayState.isPlaybackEnabled) {
+            if (Plugin.ReplayState.IsPlaybackEnabled) {
                 return false;
             }
             return true;
