@@ -61,6 +61,7 @@ namespace ScoreSaber.UI.ViewControllers {
         private readonly ReplayLoader _replayLoader;
         private readonly PlayerService _playerService;
         private readonly LeaderboardService _leaderboardService;
+        private readonly PlayerDataModel _playerDataModel;
         private readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         // TODO: Put this somewhere nicer?
@@ -85,14 +86,16 @@ namespace ScoreSaber.UI.ViewControllers {
             }
         }
 
-        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlatformLeaderboardViewController platformLeaderboardViewController, StandardLevelDetailViewController standardLevelDetailViewController) {
+        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlayerDataModel playerDataModel, PlatformLeaderboardViewController platformLeaderboardViewController, StandardLevelDetailViewController standardLevelDetailViewController) {
 
             _container = container;
             _panelView = panelView;
             _uploadDaemon = uploadDaemon;
             _replayLoader = replayLoader;
             _playerService = playerService;
+            _playerDataModel = playerDataModel;
             _leaderboardService = leaderboardService;
+
             _platformLeaderboardViewController = platformLeaderboardViewController;
 
             _infoButtons = new InfoButtonsView();
@@ -230,7 +233,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
                 _infoButtons.HideInfoButtons();
 
-                var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo);
+                var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
                 if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
                     SetErrorState(tableView,loadingControl, null, null, "Maps with new note types currently not supported", false);
@@ -252,7 +255,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
 
                 if (_currentLeaderboardRefreshId == refreshId) {
-                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, leaderboardPage, _filterAroundCountry);
+                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
                     SetRankedStatus(leaderboardData.leaderboardInfoMap.leaderboardInfo);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
