@@ -190,7 +190,9 @@ namespace ScoreSaber.UI.ViewControllers {
         }
 
         private void uploadDaemon_UploadStatusChanged(UploadStatus status, string statusText) {
-            Plugin.Log.Debug($"Upload Status Changed: {statusText}");
+            if (statusText != string.Empty) {
+                Plugin.Log.Debug($"{statusText}");
+            }
             switch (status) {
                 case UploadStatus.Packaging:
                     _panelView.Loaded(false);
