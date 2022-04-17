@@ -7,11 +7,13 @@ namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
 
         public LeaderboardMap currentLoadedLeaderboard = null;
+        public LeaderboardMap lastLoadedLeaderboard = null;
+
 
         public bool isRanked {
             get {
-                if (currentLoadedLeaderboard == null) { return false; }
-                return currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.ranked;
+                if (lastLoadedLeaderboard == null) { return false; }
+                return lastLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.ranked;
             }
         }
 
@@ -30,6 +32,7 @@ namespace ScoreSaber.Core.Services {
 
             Plugin.Log.Debug($"Current leaderboard set to: {difficultyBeatmap.level.levelID}:{difficultyBeatmap.level.songName}");
             currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, difficultyBeatmap, beatmapData);
+            lastLoadedLeaderboard = currentLoadedLeaderboard;
             return currentLoadedLeaderboard;
         }
       
