@@ -139,6 +139,7 @@ namespace ScoreSaber
     internal class HttpErrorException : Exception {
         internal bool isNetworkError { get; set; }
         internal bool isHttpError { get; set; }
+        internal bool isScoreSaberError { get; set; }
         internal ScoreSaberError scoreSaberError { get; set; }
         internal HttpErrorException(bool _isNetworkError, bool _isHttpError, string _scoreSaberErrorMessage = "") {
             isNetworkError = _isNetworkError;
@@ -146,6 +147,7 @@ namespace ScoreSaber
             if (_scoreSaberErrorMessage != string.Empty) {
                 try {
                     scoreSaberError = JsonConvert.DeserializeObject<ScoreSaberError>(_scoreSaberErrorMessage);
+                    isScoreSaberError = true;
                 } catch (Exception) { }
             }
         }

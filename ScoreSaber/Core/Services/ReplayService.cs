@@ -21,9 +21,11 @@ namespace ScoreSaber.Core.Daemons {
         public async Task<byte[]> WriteSerializedReplay() {
             ReplayFileWriter writer = new ReplayFileWriter();
             byte[] serializedReplay = null;
+            Plugin.Log.Debug($"Writing replay with id: ${_currentPlayId}");
             await Task.Run(() => {
                 serializedReplay = writer.Write(_replayRecorder.Export());
             });
+            Plugin.Log.Debug($"Replay written: ${_currentPlayId}");
             ReplaySerialized?.Invoke(serializedReplay);
             return serializedReplay;
         }

@@ -20,6 +20,7 @@ namespace ScoreSaber.Core.Services {
         }
 
         public async Task<LeaderboardMap> GetLeaderboardData(IDifficultyBeatmap difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings, bool filterAroundCountry = false) {
+
             currentLoadedLeaderboard = null;
             string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, scope, page, filterAroundCountry);
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
@@ -27,6 +28,7 @@ namespace ScoreSaber.Core.Services {
 
             var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.GetEnvironmentInfo(), playerSpecificSettings);
 
+            Plugin.Log.Debug($"Current leaderboard set to: {difficultyBeatmap.level.levelID}:{difficultyBeatmap.level.songName}");
             currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, difficultyBeatmap, beatmapData);
             return currentLoadedLeaderboard;
         }

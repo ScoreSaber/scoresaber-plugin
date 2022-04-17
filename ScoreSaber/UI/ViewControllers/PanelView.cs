@@ -16,11 +16,9 @@ using Tweening;
 using UnityEngine;
 using Zenject;
 
-namespace ScoreSaber.UI.ViewControllers
-{
+namespace ScoreSaber.UI.ViewControllers {
     [HotReload]
-    internal class PanelView : BSMLAutomaticViewController 
-    {
+    internal class PanelView : BSMLAutomaticViewController {
 
         #region BSML Components
         [UIComponent("scoresaber-logo")]
@@ -97,7 +95,7 @@ namespace ScoreSaber.UI.ViewControllers
         private PlayerInfo _currentPlayerInfo;
         private CanvasGroup _promptCanvasGroup;
         private FloatingScreen _floatingScreen;
-       
+
         public Action disabling;
         public Action statusWasSelected;
         public Action rankingWasSelected;
@@ -107,7 +105,7 @@ namespace ScoreSaber.UI.ViewControllers
         private PlatformLeaderboardViewController _platformLeaderboardViewController = null;
 
         private Color _scoreSaberBlue;
-        private  Gradient _theWilliamGradient;
+        private Gradient _theWilliamGradient;
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
         internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
 
@@ -169,7 +167,7 @@ namespace ScoreSaber.UI.ViewControllers
             _floatingScreen.gameObject.SetActive(true);
         }
 
-     
+
         [UIAction("#post-parse")]
         protected void Parsed() {
 
@@ -302,12 +300,12 @@ namespace ScoreSaber.UI.ViewControllers
                 _promptText.text = status ?? _promptText.text;
                 _timeTweeningManager.KillAllTweens(_promptRoot);
 
-             
+
                 if (!_promptRoot.gameObject.activeInHierarchy) {
                     _promptRoot.gameObject.SetActive(true);
                     _timeTweeningManager.AddTween(new FloatTween(0f, 1f, ChangePromptState, tweenTime, _gayMode ? EaseType.OutBounce : EaseType.InSine), _promptRoot);
                 }
-             
+
                 if (_promptRoot.gameObject.activeInHierarchy && dismissTime != -1) {
                     DismissPrompt(dismissTime);
                 }
@@ -375,7 +373,7 @@ namespace ScoreSaber.UI.ViewControllers
 
             try {
                 Loaded(false);
-               _currentPlayerInfo = await _playerService.GetPlayerInfo(_playerService.localPlayerInfo.playerId, full: false);
+                _currentPlayerInfo = await _playerService.GetPlayerInfo(_playerService.localPlayerInfo.playerId, full: false);
                 if (Plugin.Settings.showLocalPlayerRank) {
                     SetGlobalRanking($"#{string.Format("{0:n0}", _currentPlayerInfo.rank)}<size=75%> (<color=#6772E5>{string.Format("{0:n0}", _currentPlayerInfo.pp)}pp</color>)");
                 } else {
@@ -383,17 +381,17 @@ namespace ScoreSaber.UI.ViewControllers
                 }
                 Loaded(true);
             } catch (HttpErrorException ex) {
-                if (ex.scoreSaberError.errorMessage == "Player not found") {
-                    SetGlobalRanking("Welcome to ScoreSaber! Set a score to create a profile", false);
+                if (ex.isScoreSaberError) {
+                    if (ex.scoreSaberError.errorMessage == "Player not found") {
+                        SetGlobalRanking("Welcome to ScoreSaber! Set a score to create a profile", false);
+                    } else {
+                        SetGlobalRanking($"Failed to load player ranking: {ex.scoreSaberError.errorMessage}", false);
+                    }
                 } else {
                     SetGlobalRanking("", false);
                     SetPromptError("Failed to update local player ranking", false, 1.5f);
-                    Plugin.Log.Error("Failed to update local player ranking "+ ex.ToString());
+                    Plugin.Log.Error("Failed to update local player ranking " + ex.ToString());
                 }
-            } catch (Exception ex) {
-                SetGlobalRanking("", false);
-                SetPromptError("Failed to update local player ranking", false, 1.5f);
-                Plugin.Log.Error("Failed to update local player ranking " + ex.ToString());
             }
             Loaded(true);
         }

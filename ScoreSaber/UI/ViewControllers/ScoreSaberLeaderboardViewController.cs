@@ -190,6 +190,7 @@ namespace ScoreSaber.UI.ViewControllers {
         }
 
         private void uploadDaemon_UploadStatusChanged(UploadStatus status, string statusText) {
+            Plugin.Log.Debug($"Upload Status Changed: {statusText}");
             switch (status) {
                 case UploadStatus.Packaging:
                     _panelView.Loaded(false);
@@ -217,6 +218,7 @@ namespace ScoreSaber.UI.ViewControllers {
         public async Task RefreshLeaderboard(IDifficultyBeatmap difficultyBeatmap, LeaderboardTableView tableView, PlatformLeaderboardsModel.ScoresScope scope, LoadingControl loadingControl, string refreshId) {
 
             try {
+
                 _currentLeaderboardRefreshId = refreshId;
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
@@ -241,7 +243,7 @@ namespace ScoreSaber.UI.ViewControllers {
                 }
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
-                    SetErrorState(tableView,loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
+                    SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
                     return;
                 }
 
@@ -323,13 +325,11 @@ namespace ScoreSaber.UI.ViewControllers {
                     errorText = "Failed to load leaderboard due to a network error, score won't upload";
                     _leaderboardService.currentLoadedLeaderboard = null;
                 }
-                if (httpErrorException.scoreSaberError != null) {
-                    if (httpErrorException.scoreSaberError.errorMessage != null) {
-                        errorText = httpErrorException.scoreSaberError.errorMessage;
-                        if (errorText == "Leaderboard not found") {
-                            _leaderboardService.currentLoadedLeaderboard = null;
-                            _panelView.SetRankedStatus("");
-                        }
+                if (httpErrorException.isScoreSaberError) {
+                    errorText = httpErrorException.scoreSaberError.errorMessage;
+                    if (errorText == "Leaderboard not found") {
+                        _leaderboardService.currentLoadedLeaderboard = null;
+                        _panelView.SetRankedStatus("");
                     }
                 }
             }
