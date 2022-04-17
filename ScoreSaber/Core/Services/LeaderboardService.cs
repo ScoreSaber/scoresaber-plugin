@@ -2,20 +2,12 @@
 using System.Threading.Tasks;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Core.Data.Models;
+using System;
 
 namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
 
         public LeaderboardMap currentLoadedLeaderboard = null;
-        public LeaderboardMap lastLoadedLeaderboard = null;
-
-
-        public bool isRanked {
-            get {
-                if (lastLoadedLeaderboard == null) { return false; }
-                return lastLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.ranked;
-            }
-        }
 
         public LeaderboardService() {
             Plugin.Log.Debug("LeaderboardService Setup");
@@ -23,7 +15,6 @@ namespace ScoreSaber.Core.Services {
 
         public async Task<LeaderboardMap> GetLeaderboardData(IDifficultyBeatmap difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings, bool filterAroundCountry = false) {
 
-            currentLoadedLeaderboard = null;
             string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, scope, page, filterAroundCountry);
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
             Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
@@ -32,8 +23,24 @@ namespace ScoreSaber.Core.Services {
 
             Plugin.Log.Debug($"Current leaderboard set to: {difficultyBeatmap.level.levelID}:{difficultyBeatmap.level.songName}");
             currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, difficultyBeatmap, beatmapData);
-            lastLoadedLeaderboard = currentLoadedLeaderboard;
             return currentLoadedLeaderboard;
+        }
+
+        public async Task<Leaderboard> GetCurrentLeaderboard(IDifficultyBeatmap difficultyBeatmap) {
+            string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope.Global, 1, false);
+
+            int attempts = 0;
+            while (attempts < 4) {
+                try {
+                    string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
+                    Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
+                    return leaderboardData;
+                } catch (Exception) {
+                }
+                attempts++;
+                await Task.Delay(1000);
+            }
+            return null;
         }
       
         private string GetLeaderboardUrl(IDifficultyBeatmap difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope scope, int page, bool filterAroundCountry) {
