@@ -27,6 +27,7 @@ namespace ScoreSaber.Core.Services {
         }
 
         public async Task<Leaderboard> GetCurrentLeaderboard(IDifficultyBeatmap difficultyBeatmap) {
+
             string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope.Global, 1, false);
 
             int attempts = 0;

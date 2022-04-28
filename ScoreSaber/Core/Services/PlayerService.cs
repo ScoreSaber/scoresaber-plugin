@@ -205,6 +205,7 @@ namespace ScoreSaber.Core.Services {
             }
 
             byte[] response = await Plugin.HttpInstance.DownloadAsync($"/game/telemetry/downloadReplay?playerId={scoreMap.score.leaderboardPlayerInfo.id}&leaderboardId={leaderboardId}");
+
             if (response != null) {
                 return response;
             } else {
