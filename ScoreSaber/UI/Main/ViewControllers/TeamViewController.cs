@@ -8,7 +8,7 @@ using ScoreSaber.UI.Elements.Team;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ScoreSaber.UI.ViewControllers
+namespace ScoreSaber.UI.Main.ViewControllers
 {
     [HotReload]
     internal class TeamViewController : BSMLAutomaticViewController

@@ -19,7 +19,7 @@ using UnityEngine.UI;
 using Zenject;
 using ScoreSaber.Core.Utils;
 
-namespace ScoreSaber.UI.ViewControllers {
+namespace ScoreSaber.UI.Leaderboard {
 
     internal class ScoreSaberLeaderboardViewController : IInitializable, IDisposable {
 
@@ -125,7 +125,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
             if (!firstActivation) { return; }
 
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "ScoreSaber.UI.ViewControllers.ScoreSaberLeaderboardViewController.bsml"), _platformLeaderboardViewController.gameObject, this);
+            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.bsml"), _platformLeaderboardViewController.gameObject, this);
 
             _panelView.Show();
 

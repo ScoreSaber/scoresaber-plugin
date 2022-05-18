@@ -1,6 +1,5 @@
-﻿using ScoreSaber.Core.ReplaySystem;
-using System;
-using static ScoreSaber.UI.ViewControllers.ScoreSaberLeaderboardViewController;
+﻿using System;
+using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
 
 namespace ScoreSaber.Core.Daemons {
     internal interface IUploadDaemon {

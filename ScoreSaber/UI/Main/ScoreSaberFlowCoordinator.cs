@@ -1,11 +1,11 @@
 ﻿using BeatSaberMarkupLanguage;
 using HMUI;
-using ScoreSaber.UI.ViewControllers;
+using ScoreSaber.UI.Main.ViewControllers;
 using System.Linq;
 using UnityEngine;
 using Zenject; 
 
-namespace ScoreSaber.UI.FlowCoordinators
+namespace ScoreSaber.UI.Main
 {
     internal class ScoreSaberFlowCoordinator : FlowCoordinator, IInitializable {
 

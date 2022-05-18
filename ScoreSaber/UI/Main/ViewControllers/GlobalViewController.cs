@@ -7,6 +7,7 @@ using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
 using ScoreSaber.UI.Elements.Profile;
+using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Other;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ using UnityEngine.UI;
 using Zenject;
 using static ScoreSaber.Core.Services.GlobalLeaderboardService;
 
-namespace ScoreSaber.UI.ViewControllers
+namespace ScoreSaber.UI.Main.ViewControllers
 {
     [HotReload]
     internal class GlobalViewController : BSMLAutomaticViewController

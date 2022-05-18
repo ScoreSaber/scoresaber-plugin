@@ -2,7 +2,7 @@
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Extensions;
-using ScoreSaber.UI.ViewControllers;
+using ScoreSaber.UI.Leaderboard;
 using SiraUtil.Affinity;
 using System;
 using System.Collections.Generic;

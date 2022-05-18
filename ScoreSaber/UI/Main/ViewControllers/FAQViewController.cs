@@ -3,7 +3,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using UnityEngine;
 
-namespace ScoreSaber.UI.ViewControllers
+namespace ScoreSaber.UI.Main.ViewControllers
 {
     [HotReload]
     internal class FAQViewController : BSMLAutomaticViewController

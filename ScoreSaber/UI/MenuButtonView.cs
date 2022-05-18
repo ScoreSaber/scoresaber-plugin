@@ -2,10 +2,11 @@
 using BeatSaberMarkupLanguage.MenuButtons;
 using HMUI;
 using ScoreSaber.Core.Services;
-using ScoreSaber.UI.FlowCoordinators;
+using ScoreSaber.UI.Main;
 using System;
 using Zenject;
 
+// Unused
 namespace ScoreSaber.UI.ViewControllers {
     internal class MenuButtonView : IInitializable, IDisposable {
 

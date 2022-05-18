@@ -15,8 +15,9 @@ using System.Threading.Tasks;
 using Tweening;
 using UnityEngine;
 using Zenject;
+using ScoreSaber.UI.Main;
 
-namespace ScoreSaber.UI.ViewControllers {
+namespace ScoreSaber.UI.Leaderboard {
     [HotReload]
     internal class PanelView : BSMLAutomaticViewController {
 
@@ -207,7 +208,7 @@ namespace ScoreSaber.UI.ViewControllers {
                 Settings.SaveSettings(Plugin.Settings);
             }
             if (_playerService.loginStatus == PlayerService.LoginStatus.Success) {
-                FlowCoordinators.ScoreSaberFlowCoordinator.ShowMainFlowCoordinator();
+                ScoreSaberFlowCoordinator.ShowMainFlowCoordinator();
             }
         }
 

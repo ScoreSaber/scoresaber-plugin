@@ -203,11 +203,11 @@
 
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-    <EmbeddedResource Include="UI\ViewControllers\ScoreSaberLeaderboardViewController.bsml" />
-    <EmbeddedResource Include="UI\ViewControllers\GlobalViewController.bsml" />
-    <EmbeddedResource Include="UI\ViewControllers\TeamViewController.bsml" />
-    <EmbeddedResource Include="UI\ViewControllers\FAQViewController.bsml" />
-    <EmbeddedResource Include="UI\ViewControllers\PanelView.bsml" />
+    <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
+    <EmbeddedResource Include="UI\Main\ViewControllers\GlobalViewController.bsml" />
+    <EmbeddedResource Include="UI\Main\ViewControllers\TeamViewController.bsml" />
+    <EmbeddedResource Include="UI\Main\ViewControllers\FAQViewController.bsml" />
+    <EmbeddedResource Include="UI\Leaderboard\PanelView.bsml" />
     <EmbeddedResource Include="UI\Elements\Profile\ProfileDetailView.bsml" />
     <EmbeddedResource Include="UI\Elements\Team\TeamHost.bsml" />
     <EmbeddedResource Include="Core\ReplaySystem\UI\imber-panel.bsml" />

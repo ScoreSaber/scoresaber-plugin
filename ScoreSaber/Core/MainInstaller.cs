@@ -3,8 +3,9 @@ using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Patches;
-using ScoreSaber.UI.FlowCoordinators;
-using ScoreSaber.UI.ViewControllers;
+using ScoreSaber.UI.Leaderboard;
+using ScoreSaber.UI.Main;
+using ScoreSaber.UI.Main.ViewControllers;
 using System.Reflection;
 using Zenject;
 
