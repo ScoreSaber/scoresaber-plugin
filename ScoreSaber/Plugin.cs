@@ -50,7 +50,8 @@ namespace ScoreSaber {
             zenjector.Install<MainInstaller>(Location.Menu);
             zenjector.Install<ImberInstaller>(Location.StandardPlayer);
             zenjector.Install<PlaybackInstaller>(Location.StandardPlayer);
-            zenjector.Install<RecordInstaller>(Location.StandardPlayer);
+            zenjector.Install<RecordInstaller, StandardGameplayInstaller>();
+            zenjector.Install<RecordInstaller, MultiplayerLocalActivePlayerInstaller>();
             zenjector.UseAutoBinder();
 
             var libVersion = Assembly.GetExecutingAssembly().GetName().Version;

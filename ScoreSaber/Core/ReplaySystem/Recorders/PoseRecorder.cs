@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem.Recorders
-{
+namespace ScoreSaber.Core.ReplaySystem.Recorders {
     internal class PoseRecorder : TimeSynchronizer, ITickable
     {
         private readonly MainCamera _mainCamera;
@@ -15,8 +14,8 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
         public PoseRecorder(MainCamera mainCamera, SaberManager saberManager) {
 
             _mainCamera = mainCamera;
-            _controllerLeft = saberManager.leftSaber.GetComponentInParent<VRController>();
-            _controllerRight = saberManager.rightSaber.GetComponentInParent<VRController>();
+            _controllerLeft = saberManager.leftSaber.transform.parent.GetComponent<VRController>();
+            _controllerRight = saberManager.rightSaber.transform.parent.GetComponent<VRController>();
             _vrPoseGroup = new List<VRPoseGroup>();
         }
 

@@ -2,6 +2,7 @@
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
+using SiraUtil.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -15,71 +16,102 @@ namespace ScoreSaber.Core.Daemons {
         public bool uploading { get; set; }
         public event Action<UploadStatus, string> UploadStatusChanged;
 
+        private readonly SiraLog _siraLog;
         private readonly PlayerService _playerService = null;
         private readonly LeaderboardService _leaderboardService = null;
         private readonly ReplayService _replayService = null;
 
-        public MockUploadDaemon(LeaderboardService leaderboardService, PlayerService playerService, ReplayService replayService) {
+        public MockUploadDaemon(SiraLog siraLog, LeaderboardService leaderboardService, PlayerService playerService, ReplayService replayService) {
 
+            _siraLog = siraLog;
             _playerService = playerService;
             _leaderboardService = leaderboardService;
             _replayService = replayService;
 
-            var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+            var standardtransitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+            var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
             if (Plugin.ScoreSubmission) {
 
-                transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
-                transitionSetup.didFinishEvent -= FakeUpload; // Just to be sure
+                standardtransitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
+                standardtransitionSetup.didFinishEvent -= FakeUpload; // Just to be sure
 
                 UploadDaemonHelper.FiveInstance = FakeUpload;
-                transitionSetup.didFinishEvent += FakeUpload;
+                standardtransitionSetup.didFinishEvent += FakeUpload;
+
+
+
+                multiTransitionSetup.didFinishEvent -= FakeMultiUpload;
+                multiTransitionSetup.didFinishEvent += FakeMultiUpload;
             }
 
             Plugin.Log.Debug("MockUpload service setup!");
         }
 
         public void FakeUpload(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO, LevelCompletionResults levelCompletionResults) {
+
+            ProcessUpload(standardLevelScenesTransitionSetupDataSO.gameMode, standardLevelScenesTransitionSetupDataSO.difficultyBeatmap, levelCompletionResults, standardLevelScenesTransitionSetupDataSO.practiceSettings != null);
+        }
+
+
+        private void FakeMultiUpload(MultiplayerLevelScenesTransitionSetupDataSO multiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData multiplayerResultsData) {
+
+            ProcessUpload(multiplayerLevelScenesTransitionSetupDataSO.gameMode, multiplayerLevelScenesTransitionSetupDataSO.difficultyBeatmap, multiplayerResultsData.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
+        }
+
+        private void ProcessUpload(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults, bool practicing) {
+
             uploading = true;
-            if (!Plugin.ReplayState.IsPlaybackEnabled) {
-                var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
-                if (!practiceViewController.isInViewControllerHierarchy) {
-
-                    if (standardLevelScenesTransitionSetupDataSO.gameMode == "Solo") {
-
-                        if (standardLevelScenesTransitionSetupDataSO.practiceSettings != null) {
-                            // We still want to write a replay to memory if in practice mode
-                            _replayService.WriteSerializedReplay().RunTask();
-                            return;
-                        }
-
-                        if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
-                            _replayService.WriteSerializedReplay().RunTask();
-                            return;
-                        }
-
-                        if (levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
-                            _replayService.WriteSerializedReplay().RunTask();
-                            return;
-                        }
+            bool doingAsynchronous = false;
+            void StopUploading() {
+                if (!doingAsynchronous)
+                    uploading = false;
+            }
 
 
-                        if (standardLevelScenesTransitionSetupDataSO.difficultyBeatmap.level is CustomBeatmapLevel) {
-                            if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore != null) {
-                                if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore.modifiedScore) {
-                                    UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
-                                    return;
-                                }
+            _siraLog.Notice(gameMode);
+            var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
+            if (!practiceViewController.isInViewControllerHierarchy) {
+                if (gameMode == "Solo" || gameMode == "Multiplayer") {
+
+                    if (practicing) {
+                        // We still want to write a replay to memory if in practice mode
+                        _replayService.WriteSerializedReplay().RunTask();
+                        StopUploading();
+                        return;
+                    }
+
+                    if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
+                        _replayService.WriteSerializedReplay().RunTask();
+                        StopUploading();
+                        return;
+                    }
+
+                    if (levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
+                        _replayService.WriteSerializedReplay().RunTask();
+                        StopUploading();
+                        return;
+                    }
+
+
+                    if (difficultyBeatmap.level is CustomBeatmapLevel) {
+                        if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore != null) {
+                            if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore.modifiedScore) {
+                                UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
+                                StopUploading();
+                                return;
                             }
                         }
-
-                        // We good, "upload" the score
-                        WriteReplay(standardLevelScenesTransitionSetupDataSO.difficultyBeatmap).RunTask();
                     }
-                } else {
-                    // We still want to write a replay to memory if in practice mode
-                    _replayService.WriteSerializedReplay().RunTask();
+
+                    // We good, "upload" the score
+                    doingAsynchronous = true;
+                    WriteReplay(difficultyBeatmap).RunTask();
                 }
+            } else {
+                // We still want to write a replay to memory if in practice mode
+                _replayService.WriteSerializedReplay().RunTask();
             }
+            StopUploading();
         }
 
         public async Task WriteReplay(IDifficultyBeatmap beatmap) {
