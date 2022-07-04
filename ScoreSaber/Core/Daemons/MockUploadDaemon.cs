@@ -2,7 +2,6 @@
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
-using SiraUtil.Logging;
 using System;
 using System.IO;
 using System.Linq;
