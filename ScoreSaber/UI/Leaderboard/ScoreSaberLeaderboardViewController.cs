@@ -378,6 +378,9 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void RefreshLeaderboard() {
 
+            if (!activated)
+                return;
+            
             _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
         }
 

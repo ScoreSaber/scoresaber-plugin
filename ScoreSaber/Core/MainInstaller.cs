@@ -6,6 +6,7 @@ using ScoreSaber.Patches;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main;
 using ScoreSaber.UI.Main.ViewControllers;
+using ScoreSaber.UI.Multiplayer;
 using System.Reflection;
 using Zenject;
 
@@ -27,6 +28,11 @@ namespace ScoreSaber.Core {
             Container.Bind<FAQViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<TeamViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<GlobalViewController>().FromNewComponentAsViewController().AsSingle();
+
+            Container.BindInterfacesTo<ScoreSaberMultiplayerInitializer>().AsSingle();
+            //Container.BindInterfacesTo<ScoreSaberMultiplayerLobbyLeaderboardFlowManager>().AsSingle();
+            Container.BindInterfacesTo<ScoreSaberMultiplayerResultsLeaderboardFlowManager>().AsSingle();
+            Container.BindInterfacesTo<ScoreSaberMultiplayerLevelSelectionLeaderboardFlowManager>().AsSingle();
 
             Container.BindInterfacesTo<ScoreSaberFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 

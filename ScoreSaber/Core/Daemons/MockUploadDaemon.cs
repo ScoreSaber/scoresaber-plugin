@@ -16,14 +16,12 @@ namespace ScoreSaber.Core.Daemons {
         public bool uploading { get; set; }
         public event Action<UploadStatus, string> UploadStatusChanged;
 
-        private readonly SiraLog _siraLog;
         private readonly PlayerService _playerService = null;
         private readonly LeaderboardService _leaderboardService = null;
         private readonly ReplayService _replayService = null;
 
-        public MockUploadDaemon(SiraLog siraLog, LeaderboardService leaderboardService, PlayerService playerService, ReplayService replayService) {
+        public MockUploadDaemon(LeaderboardService leaderboardService, PlayerService playerService, ReplayService replayService) {
 
-            _siraLog = siraLog;
             _playerService = playerService;
             _leaderboardService = leaderboardService;
             _replayService = replayService;
@@ -67,8 +65,6 @@ namespace ScoreSaber.Core.Daemons {
                     uploading = false;
             }
 
-
-            _siraLog.Notice(gameMode);
             var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
             if (!practiceViewController.isInViewControllerHierarchy) {
                 if (gameMode == "Solo" || gameMode == "Multiplayer") {
