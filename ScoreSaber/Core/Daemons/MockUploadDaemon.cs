@@ -54,15 +54,15 @@ namespace ScoreSaber.Core.Daemons {
 
                         if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
                             _replayService.WriteSerializedReplay().RunTask();
-                            return; 
+                            return;
                         }
 
                         if (levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
                             _replayService.WriteSerializedReplay().RunTask();
-                            return; 
+                            return;
                         }
 
-                        
+
                         if (standardLevelScenesTransitionSetupDataSO.difficultyBeatmap.level is CustomBeatmapLevel) {
                             if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore != null) {
                                 if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore.modifiedScore) {
@@ -86,7 +86,7 @@ namespace ScoreSaber.Core.Daemons {
 
             UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Packaging replay...");
 
-           byte[] serializedReplay = await _replayService.WriteSerializedReplay();
+            byte[] serializedReplay = await _replayService.WriteSerializedReplay();
 
             if (Plugin.Settings.saveLocalReplays) {
                 string replayPath = $@"{Settings.replayPath}\{_playerService.localPlayerInfo.playerId}-{beatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{beatmap.difficulty.SerializedName()}-{beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{beatmap.level.levelID}.dat";
