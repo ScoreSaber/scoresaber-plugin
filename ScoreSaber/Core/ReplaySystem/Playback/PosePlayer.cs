@@ -89,7 +89,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
             if (Plugin.Settings.enableReplayFrameRenderer) {
                 var ss = Resources.FindObjectsOfTypeAll<ScreenshotRecorder>().Last();
-                ss.SetField("_folder", Plugin.Settings.replayFramePath);
+                ss.SetField("_directory", Plugin.Settings.replayFramePath);
                 ss.enabled = true;
                 _desktopCamera.depth = 1;
                 var gc = Resources.FindObjectsOfTypeAll<DisableGCWhileEnabled>().Last();
