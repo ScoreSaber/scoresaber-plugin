@@ -36,6 +36,7 @@ namespace ScoreSaber.UI.Multiplayer {
 
             _platformLeaderboardViewController.SetData(_lastCompletedBeatmap);
             ReflectionUtil.InvokeMethod<object, FlowCoordinator>(currentFlowCoordinator, "SetRightScreenViewController", _platformLeaderboardViewController, ViewController.AnimationType.In);
+            _lastCompletedBeatmap = null;
         }
 
         private void LevelFinisher_MultiplayerLevelDidFinish(MultiplayerLevelScenesTransitionSetupDataSO transitionSetupData, MultiplayerResultsData _) {
