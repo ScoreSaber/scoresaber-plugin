@@ -57,13 +57,7 @@ namespace ScoreSaber.Core.Daemons {
 
         private void ProcessUpload(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults, bool practicing) {
 
-            uploading = true;
-            bool doingAsynchronous = false;
-            void StopUploading() {
-                if (!doingAsynchronous)
-                    uploading = false;
-            }
-
+        
             var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
             if (!practiceViewController.isInViewControllerHierarchy) {
                 if (gameMode == "Solo" || gameMode == "Multiplayer") {
@@ -71,19 +65,16 @@ namespace ScoreSaber.Core.Daemons {
                     if (practicing) {
                         // We still want to write a replay to memory if in practice mode
                         _replayService.WriteSerializedReplay().RunTask();
-                        StopUploading();
                         return;
                     }
 
                     if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
                         _replayService.WriteSerializedReplay().RunTask();
-                        StopUploading();
                         return;
                     }
 
                     if (levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
                         _replayService.WriteSerializedReplay().RunTask();
-                        StopUploading();
                         return;
                     }
 
@@ -92,25 +83,23 @@ namespace ScoreSaber.Core.Daemons {
                         if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore != null) {
                             if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore.modifiedScore) {
                                 UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
-                                StopUploading();
                                 return;
                             }
                         }
                     }
 
                     // We good, "upload" the score
-                    doingAsynchronous = true;
                     WriteReplay(difficultyBeatmap).RunTask();
                 }
             } else {
                 // We still want to write a replay to memory if in practice mode
                 _replayService.WriteSerializedReplay().RunTask();
             }
-            StopUploading();
         }
 
         public async Task WriteReplay(IDifficultyBeatmap beatmap) {
 
+            uploading = true;
             UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Packaging replay...");
 
             byte[] serializedReplay = await _replayService.WriteSerializedReplay();
