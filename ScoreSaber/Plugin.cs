@@ -113,11 +113,15 @@ namespace ScoreSaber {
                 if (canSet) {
                     if (!ReplayState.IsPlaybackEnabled) {
                         var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+                        var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
                         if (value) {
-                            transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
-                            transitionSetup.didFinishEvent += UploadDaemonHelper.FiveInstance;
+                            transitionSetup.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
+                            transitionSetup.didFinishEvent += UploadDaemonHelper.ThreeInstance;
+                            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.FourInstance;
+                            multiTransitionSetup.didFinishEvent += UploadDaemonHelper.FourInstance;
                         } else {
-                            transitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
+                            transitionSetup.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
+                            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.FourInstance;
                         }
                         _scoreSubmission = value;
                     }
