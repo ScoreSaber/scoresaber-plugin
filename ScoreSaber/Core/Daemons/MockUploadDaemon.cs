@@ -29,15 +29,14 @@ namespace ScoreSaber.Core.Daemons {
             var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
             if (Plugin.ScoreSubmission) {
 
-                standardtransitionSetup.didFinishEvent -= UploadDaemonHelper.FiveInstance;
+                standardtransitionSetup.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
                 standardtransitionSetup.didFinishEvent -= FakeUpload; // Just to be sure
-
-                UploadDaemonHelper.FiveInstance = FakeUpload;
+                UploadDaemonHelper.ThreeInstance = FakeUpload;
                 standardtransitionSetup.didFinishEvent += FakeUpload;
 
-
-
-                multiTransitionSetup.didFinishEvent -= FakeMultiUpload;
+                multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.FourInstance;
+                multiTransitionSetup.didFinishEvent -= FakeMultiUpload; // Just to be sure
+                UploadDaemonHelper.FourInstance = FakeMultiUpload;
                 multiTransitionSetup.didFinishEvent += FakeMultiUpload;
             }
 
