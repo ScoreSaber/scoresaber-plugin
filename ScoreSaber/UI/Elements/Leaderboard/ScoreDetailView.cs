@@ -68,9 +68,11 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         [UIAction("show-profile-click")] private void ShowProfileClicked() => showProfile?.Invoke(_currentScore.score.leaderboardPlayerInfo.id);
         [UIAction("replay-click")] private void ReplayClicked() => StartReplay();
         #endregion
-  
+
         public event Action<string> showProfile;
         public event Action<ScoreMap> startReplay;
+
+        private bool _allowReplayWatching = true;
 
         private ScoreMap _currentScore { get; set; }
 
@@ -101,13 +103,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
             if (score.maxCombo == 0) { _fullComboText.text = "N/A"; }
             if (!replayDownloading) {
-                if (score.hasReplay) {
-                    _watchReplayButton.interactable = true;
-                    _watchReplayButton.gameObject.GetComponent<HoverHint>().enabled = true;
-                } else {
-                    _watchReplayButton.interactable = false;
-                    _watchReplayButton.gameObject.GetComponent<HoverHint>().enabled = false;
-                }
+                SetButtonState(_watchReplayButton, score.hasReplay && _allowReplayWatching);
             }
         }
 
@@ -127,6 +123,21 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         private void StartReplay() {
             _watchReplayButton.interactable = false;
             startReplay?.Invoke(_currentScore);
+        }
+
+        public void AllowReplayWatching(bool value) {
+            _allowReplayWatching = value;
+
+            SetButtonState(_watchReplayButton, value);
+        }
+
+        private void SetButtonState(Button button, bool value) {
+            
+            if (button == null)
+                return;
+
+            button.interactable = value;
+            button.gameObject.GetComponent<HoverHint>().enabled = value;
         }
     }
 }
