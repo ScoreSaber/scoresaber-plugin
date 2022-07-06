@@ -55,8 +55,6 @@ namespace ScoreSaber.UI.Leaderboard {
         private bool _replayDownloading;
         private string _currentLeaderboardRefreshId = string.Empty;
 
-        private bool _initialReplayButtonPresentationValue = true;
-
         private readonly PanelView _panelView;
         private readonly DiContainer _container;
         private readonly IUploadDaemon _uploadDaemon;
@@ -121,15 +119,11 @@ namespace ScoreSaber.UI.Leaderboard {
             _root.name = "ScoreSaberLeaderboardElements";
             _infoButtons.HideInfoButtons();
             activated = true;
-
-            _scoreDetailView.AllowReplayWatching(_initialReplayButtonPresentationValue);
         }
 
         public void AllowReplayWatching(bool value) {
 
-            if (_scoreDetailView == null)
-                _initialReplayButtonPresentationValue = value;
-            _scoreDetailView?.AllowReplayWatching(value);
+            _scoreDetailView.AllowReplayWatching(value);
         }
 
         private void LeaderboardViewActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {

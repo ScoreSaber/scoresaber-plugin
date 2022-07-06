@@ -2,7 +2,7 @@
 
   <horizontal bg="panel-top" horizontal-fit="PreferredSize" pref-width="120">
     <clickable-text text="Global Leaderboards" on-click="global-click" hover-hint="Opens the global leaderboard in your browser" align="Center" font-size="7" />
-    <button id="faq-button" ignore-layout="true" text="?" pref-width="10" pref-height="8.5" event-click="show-faq" anchor-pos-x="0" anchor-pos-y="0" anchor-min-x="0.94" anchor-max-x="0.94" anchor-min-y="0.5" anchor-max-y="0.5" />
+    <button active="true" id="faq-button" ignore-layout="true" text="?" pref-width="10" pref-height="8.5" event-click="show-faq" anchor-pos-x="0" anchor-pos-y="0" anchor-min-x="0.94" anchor-max-x="0.94" anchor-min-y="0.5" anchor-max-y="0.5" />
   </horizontal>
 
   <horizontal pref-width="120" spacing="1" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
@@ -44,8 +44,8 @@
       <text text="How Does Ranking Work? " bold="true" word-wrapping="true" />
       <text text="Ranked maps are maps passed through a ranking system that judges maps to make sure they are objectively fair. The Ranking Team votes based on the Ranking Criteria, a document that goes over the rules a map must follow to be ranked. The Quality Assurance Team votes to either speed up or slow down maps in queue based on whether the map meets their quality standards, however they cannot fully block a map that meets the criteria from being ranked." font-size="2.5" word-wrapping="true" />
       <horizontal>
-        <button id="dismiss-button" text="Dismiss" italics="false" event-click="hide-faq" pref-width="35" pref-height="8" />
-        <button id="more-info-button" text="More Info" italics="false" hover-hint="Opens in browser" pref-width="35" pref-height="8" event-click="hide-faq" on-click="more-info-click" />
+        <button active="true" id="dismiss-button" text="Dismiss" italics="false" event-click="hide-faq" pref-width="35" pref-height="8" />
+        <button active="true" id="more-info-button" text="More Info" italics="false" hover-hint="Opens in browser" pref-width="35" pref-height="8" event-click="hide-faq" on-click="more-info-click" />
       </horizontal>
     </vertical>
   </modal>

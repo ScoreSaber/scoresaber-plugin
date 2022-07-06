@@ -34,8 +34,8 @@
             </horizontal>
           </vertical>
           <horizontal pref-width="12" pref-height="5.5">
-            <button-with-icon icon="ScoreSaber.Resources.user.png" id="show-profile-button" hover-hint="View Profile" pref-width="15" pref-height="13" on-click="show-profile-click" />
-            <button-with-icon icon="ScoreSaber.Resources.replay.png" id="watch-replay-button" hover-hint="Watch Replay" pref-width="15" pref-height="13" interactable="false" on-click="replay-click" />
+            <button-with-icon active="true" icon="ScoreSaber.Resources.user.png" id="show-profile-button" hover-hint="View Profile" pref-width="15" pref-height="13" on-click="show-profile-click" />
+            <button-with-icon active="true" icon="ScoreSaber.Resources.replay.png" id="watch-replay-button" hover-hint="Watch Replay" pref-width="15" pref-height="13" interactable="false" on-click="replay-click" />
           </horizontal>
         </horizontal>
         <image src="ScoreSaber.Resources.pixel.png" size-delta-x="48" pref-height="0.4" />
