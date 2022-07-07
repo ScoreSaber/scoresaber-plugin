@@ -26,6 +26,7 @@ namespace ScoreSaber.UI.Multiplayer {
 
             _levelFinisher.MultiplayerLevelDidFinish += LevelFinisher_MultiplayerLevelDidFinish;
             _multiplayerResultsViewController.didActivateEvent += MultiplayerResultsViewController_didActivateEvent;
+            _multiplayerResultsViewController.didDeactivateEvent += MultiplayerResultsViewController_didDeactivateEvent;
         }
 
         private void MultiplayerResultsViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
@@ -36,7 +37,12 @@ namespace ScoreSaber.UI.Multiplayer {
 
             _platformLeaderboardViewController.SetData(_lastCompletedBeatmap);
             ReflectionUtil.InvokeMethod<object, FlowCoordinator>(currentFlowCoordinator, "SetRightScreenViewController", _platformLeaderboardViewController, ViewController.AnimationType.In);
-            _lastCompletedBeatmap = null;
+        }
+
+        private void MultiplayerResultsViewController_didDeactivateEvent(bool removedFromHierarchy, bool screenSystemDisabling) {
+
+            if (removedFromHierarchy || screenSystemDisabling)
+                _lastCompletedBeatmap = null;
         }
 
         private void LevelFinisher_MultiplayerLevelDidFinish(MultiplayerLevelScenesTransitionSetupDataSO transitionSetupData, MultiplayerResultsData _) {
@@ -46,6 +52,7 @@ namespace ScoreSaber.UI.Multiplayer {
 
         public void Dispose() {
 
+            _multiplayerResultsViewController.didDeactivateEvent -= MultiplayerResultsViewController_didDeactivateEvent;
             _multiplayerResultsViewController.didActivateEvent -= MultiplayerResultsViewController_didActivateEvent;
             _levelFinisher.MultiplayerLevelDidFinish -= LevelFinisher_MultiplayerLevelDidFinish;
         }
