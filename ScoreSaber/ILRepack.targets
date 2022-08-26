@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <UsingTask TaskName="ILRepack"
+               AssemblyFile="ILRepack.MSBuild.Task.dll"/>
+    <Target Name="ILRepack"
+            AfterTargets="Build"
+            Condition="'$(NCrunch)' != '1'" >
+        <Message Text="Starting ILRepack..."
+                 Importance="high" />
+        <PropertyGroup>
+            <RepackPDB>false</RepackPDB>
+            <WorkingDirectory>$(ProjectDir)$(OutputPath)</WorkingDirectory>
+        </PropertyGroup>
+        <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
+            <RepackPDB>true</RepackPDB>
+        </PropertyGroup>
+        <ItemGroup>
+            <InputAssemblies Include="SevenZip.dll" />
+        </ItemGroup>
+        <ItemGroup>
+        </ItemGroup>
+        <ILRepack
+            Parallel="true"
+            Internalize="true"
+            InternalizeExcludeAssemblies="@(DoNotInternalizeAssemblies)"
+            MainAssembly="$(AssemblyName).dll"
+            OutputAssembly="$(WorkingDirectory)Merged\$(AssemblyName).dll"
+            InputAssemblies="@(InputAssemblies)"
+            OutputType="Dll"
+            Verbose="false"
+            DebugInfo="$(RepackPDB)"
+            WorkingDirectory="$(WorkingDirectory)"
+    />
+        <Copy SourceFiles="$(WorkingDirectory)Merged\$(AssemblyName).dll"
+              DestinationFiles="$(OutputPath)$(AssemblyName).dll" />
+        <Message Text="OS is $(OS), repacked PDB available: $(RepackPDB)"
+                 Importance="high"/>
+    </Target>
+</Project>
