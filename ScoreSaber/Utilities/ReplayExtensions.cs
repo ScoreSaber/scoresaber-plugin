@@ -2,10 +2,8 @@
 using System.IO;
 using UnityEngine;
 
-namespace ScoreSaber.Extensions
-{
-    internal static class ReplayExtensions
-    {
+namespace ScoreSaber.Utilities {
+    internal static class ReplayExtensions {
         internal static VRPosition Convert(this Vector3 vec) {
             return new VRPosition { X = vec.x, Y = vec.y, Z = vec.z };
         }

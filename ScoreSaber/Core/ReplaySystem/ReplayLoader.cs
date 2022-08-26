@@ -1,7 +1,7 @@
 ﻿using IPA.Utilities.Async;
 using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.ReplaySystem.Data;
-using ScoreSaber.Core.Utils;
+using ScoreSaber.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -111,7 +111,7 @@ namespace ScoreSaber.Core.ReplaySystem {
                 PlayerSpecificSettings playerSettings = new PlayerSpecificSettings(replay.metadata.LeftHanded, localPlayerSettings.playerHeight, localPlayerSettings.automaticPlayerHeight, localPlayerSettings.sfxVolume, localPlayerSettings.reduceDebris, localPlayerSettings.noTextsAndHuds, localPlayerSettings.noFailEffects, localPlayerSettings.advancedHud, localPlayerSettings.autoRestart, localPlayerSettings.saberTrailIntensity, localPlayerSettings.noteJumpDurationTypeSettings, localPlayerSettings.noteJumpFixedDuration, localPlayerSettings.noteJumpStartBeatOffset, localPlayerSettings.hideNoteSpawnEffect, localPlayerSettings.adaptiveSfx, localPlayerSettings.environmentEffectsFilterDefaultPreset, localPlayerSettings.environmentEffectsFilterExpertPlusPreset);
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
-                UnityMainThreadTaskScheduler.Factory.StartNew(() => _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd));
+                UnityMainThreadTaskScheduler.Factory.StartNew(() => _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), LeaderboardUtilities.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd));
             });
         }
 

@@ -1,13 +1,12 @@
-﻿using ScoreSaber.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Zenject;
 using ScoreSaber.Core.ReplaySystem.Data;
 using SiraUtil.Affinity;
 using System.Reflection;
+using ScoreSaber.Utilities;
 
-namespace ScoreSaber.Core.ReplaySystem.Recorders
-{
+namespace ScoreSaber.Core.ReplaySystem.Recorders {
     internal class NoteEventRecorder : TimeSynchronizer, IInitializable, IDisposable, IAffinity
     {
         private readonly List<NoteEvent> _noteKeyframes;

@@ -2,7 +2,7 @@
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
-using ScoreSaber.Extensions;
+using ScoreSaber.Utilities;
 using System;
 using System.IO;
 using System.Reflection;

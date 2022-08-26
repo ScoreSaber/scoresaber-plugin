@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace ScoreSaber.Extensions
-{
+namespace ScoreSaber.Utilities {
     internal static class TaskEx {
         /// <summary>
         /// Blocks while condition is true or timeout occurs.
@@ -13,8 +12,7 @@ namespace ScoreSaber.Extensions
         /// <exception cref="TimeoutException"></exception>
         /// <returns></returns>
         internal static async Task WaitWhile(Func<bool> condition, int frequency = 25, int timeout = -1) {
-            var waitTask = Task.Run(async () =>
-            {
+            var waitTask = Task.Run(async () => {
                 while (condition()) await Task.Delay(frequency);
             });
 
@@ -30,8 +28,7 @@ namespace ScoreSaber.Extensions
         /// <param name="timeout">The timeout in milliseconds.</param>
         /// <returns></returns>
         internal static async Task WaitUntil(Func<bool> condition, int frequency = 25, int timeout = -1) {
-            var waitTask = Task.Run(async () =>
-            {
+            var waitTask = Task.Run(async () => {
                 while (!condition()) await Task.Delay(frequency);
             });
 

@@ -1,14 +1,13 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.Data;
-using ScoreSaber.Extensions;
+using ScoreSaber.Utilities;
 using SiraUtil.Tools.FPFC;
 using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem.Playback
-{
+namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class PosePlayer : TimeSynchronizer, IInitializable, ITickable, IScroller, IDisposable
     {
         private int _lastIndex = 0;

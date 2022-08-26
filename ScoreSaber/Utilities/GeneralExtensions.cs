@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace ScoreSaber.Extensions {
+namespace ScoreSaber.Utilities {
     internal static class GeneralExtensions {
         private const BindingFlags _allBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
         internal static void SetStaticField(this object obj, string fieldName, object value) {

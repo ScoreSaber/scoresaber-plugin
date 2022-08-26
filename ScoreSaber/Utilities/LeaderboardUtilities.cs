@@ -1,13 +1,12 @@
 ﻿using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Wrappers;
-using ScoreSaber.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-namespace ScoreSaber.Core.Utils {
-    internal static class LeaderboardUtils {
+namespace ScoreSaber.Utilities {
+    internal static class LeaderboardUtilities {
 
         internal static bool LocalReplayExists(IDifficultyBeatmap difficultyBeatmap, ScoreMap score) {
 
@@ -28,7 +27,7 @@ namespace ScoreSaber.Core.Utils {
         internal static string GetLegacyReplayPath(IDifficultyBeatmap difficultyBeatmap, ScoreMap scoreMap) {
             return $@"{Settings.replayPath}\{scoreMap.score.leaderboardPlayerInfo.id}-{difficultyBeatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{scoreMap.parent.songHash}.dat";
         }
-         
+
         internal static string GetFormattedName(ScoreMap scoreMap) {
 
             bool hasMods = !string.IsNullOrEmpty(scoreMap.score.modifiers);
@@ -224,8 +223,8 @@ namespace ScoreSaber.Core.Utils {
         }
 
         public static bool ContainsV3Stuff(IReadonlyBeatmapData readonlyBeatmapData) {
-             
-    
+
+
             foreach (var item in readonlyBeatmapData.allBeatmapDataItems)
                 if (item.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && item is SliderData)
                     return true;

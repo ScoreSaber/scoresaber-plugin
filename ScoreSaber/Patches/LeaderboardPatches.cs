@@ -1,7 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using HMUI;
 using IPA.Utilities;
-using ScoreSaber.Extensions;
+using ScoreSaber.Utilities;
 using SiraUtil.Affinity;
 using System.Collections.Generic;
 using System.Reflection;
@@ -88,7 +88,7 @@ namespace ScoreSaber.Patches {
         private void SetupScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
 
             Texture2D countryTexture = new Texture2D(64, 64);
-            countryTexture.LoadImage(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png"));
+            countryTexture.LoadImage(BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png"));
             countryTexture.Apply();
 
             Sprite _countryIcon = Sprite.Create(countryTexture, new Rect(0, 0, countryTexture.width, countryTexture.height), Vector2.zero);

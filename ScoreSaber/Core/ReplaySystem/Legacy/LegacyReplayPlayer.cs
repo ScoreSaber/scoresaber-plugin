@@ -5,7 +5,7 @@ using Zenject;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using IPA.Utilities;
-using ScoreSaber.Core.Utils;
+using ScoreSaber.Utilities;
 
 namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
@@ -173,7 +173,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
             if (_playbackPreviousScore != keyframe.score) {
 
-                int maxPossibleRawScore = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(cutOrMissedNotes);
+                int maxPossibleRawScore = LeaderboardUtilities.OldMaxRawScoreForNumberOfNotes(cutOrMissedNotes);
 
                 _relativeScoreAndImmediateRankCounter?.InvokeMethod<object, RelativeScoreAndImmediateRankCounter>("UpdateRelativeScoreAndImmediateRank", keyframe.score, keyframe.score, maxPossibleRawScore, maxPossibleRawScore);
 

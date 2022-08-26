@@ -3,7 +3,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using IPA.Utilities.Async;
 using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.Services;
-using ScoreSaber.Extensions;
+using ScoreSaber.Utilities;
 using System;
 using System.Threading.Tasks;
 using UnityEngine;

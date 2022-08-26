@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ScoreSaber.Extensions
-{
-    internal static class TimeAgo
-    {
+namespace ScoreSaber.Utilities {
+    internal static class TimeAgo {
         public static TimeSpan Days(this int number) => TimeSpan.FromDays(number);
         public static TimeSpan Hours(this int number) => TimeSpan.FromHours(number);
         public static TimeSpan Minutes(this int number) => TimeSpan.FromMinutes(number);
@@ -31,7 +29,7 @@ namespace ScoreSaber.Extensions
             result = 0;
             return false;
         }
-        
+
         public static string ToNaturalTime(this TimeSpan @this, int precisionParts, bool longForm) {
 
             var names = new Dictionary<string, string> { { "year", "y" }, { "month", "M" }, { "week", "w" }, { "day", "d" }, { "hour", "h" }, { "minute", "m" }, { "second", "s" }, { " and ", " " }, { ", ", " " } };

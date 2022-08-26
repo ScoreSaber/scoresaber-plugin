@@ -1,7 +1,7 @@
 ﻿#if DEV
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Services;
-using ScoreSaber.Extensions;
+using ScoreSaber.Utilities;
 using System;
 using System.IO;
 using System.Linq;

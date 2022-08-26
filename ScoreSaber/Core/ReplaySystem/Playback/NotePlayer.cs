@@ -1,6 +1,6 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.Data;
-using ScoreSaber.Extensions;
+using ScoreSaber.Utilities;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System.Collections.Generic;

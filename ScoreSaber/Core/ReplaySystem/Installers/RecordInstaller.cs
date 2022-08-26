@@ -1,12 +1,11 @@
 ﻿using Zenject;
 using ScoreSaber.Core.ReplaySystem.Recorders;
 using SiraUtil.Logging;
-using ScoreSaber.Core.Utils;
 using System.Reflection;
 using ScoreSaber.Core.Daemons;
+using ScoreSaber.Utilities;
 
-namespace ScoreSaber.Core.ReplaySystem.Installers
-{
+namespace ScoreSaber.Core.ReplaySystem.Installers {
     internal class RecordInstaller : Installer
     {
         private readonly SiraLog _siraLog;
@@ -21,7 +20,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
         [Obfuscation(Feature = "virtualization", Exclude = false)]
         public override void InstallBindings() {
 
-            bool hasV3Stuff = LeaderboardUtils.ContainsV3Stuff(_gameplayCoreSceneSetupData.transformedBeatmapData);
+            bool hasV3Stuff = LeaderboardUtilities.ContainsV3Stuff(_gameplayCoreSceneSetupData.transformedBeatmapData);
 
             if (hasV3Stuff) {
                 _siraLog.Warn("This map contains Beatmap V3 sliders! Not recording...");

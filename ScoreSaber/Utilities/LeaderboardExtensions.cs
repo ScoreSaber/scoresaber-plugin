@@ -1,6 +1,6 @@
 ﻿using HMUI;
 
-namespace ScoreSaber.Extensions {
+namespace ScoreSaber.Utilities {
     internal static class LeaderboardExtensions {
 
         internal static void SetFancyText(this CurvedTextMeshPro curvedTextMeshPro, string title, string text) {

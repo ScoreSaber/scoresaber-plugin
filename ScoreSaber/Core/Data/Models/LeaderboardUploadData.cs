@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using ScoreSaber.Core.Utils;
+using ScoreSaber.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -73,7 +73,7 @@ namespace ScoreSaber.Core.Data.Models {
             data.fullCombo = results.fullCombo;
 
             data.score = results.multipliedScore;
-            data.modifiers = LeaderboardUtils.GetModifierList(rType);
+            data.modifiers = LeaderboardUtilities.GetModifierList(rType);
             data.hmd = HMD.Get();
             return data;
         }

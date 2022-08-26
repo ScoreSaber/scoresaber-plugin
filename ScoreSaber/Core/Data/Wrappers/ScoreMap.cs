@@ -1,5 +1,5 @@
 ﻿using ScoreSaber.Core.Data.Models;
-using ScoreSaber.Core.Utils;
+using ScoreSaber.Utilities;
 using System;
 
 namespace ScoreSaber.Core.Data.Wrappers {
@@ -20,16 +20,16 @@ namespace ScoreSaber.Core.Data.Wrappers {
             GameplayModifiersMap replayMods = new GameplayModifiersMap();
             if (!string.IsNullOrEmpty(score.modifiers)) {
                 if (score.modifiers.Contains(",")) {
-                    replayMods = LeaderboardUtils.GetModifierFromStrings(score.modifiers.Split(','), false);
+                    replayMods = LeaderboardUtilities.GetModifierFromStrings(score.modifiers.Split(','), false);
                 } else {
-                    replayMods = LeaderboardUtils.GetModifierFromStrings(new string[] { score.modifiers }, false);
+                    replayMods = LeaderboardUtilities.GetModifierFromStrings(new string[] { score.modifiers }, false);
                 }
             }
 
             double maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData) * replayMods.totalMultiplier;
 
             this.parent = customLeaderboardInfo;
-            this.hasLocalReplay = LeaderboardUtils.LocalReplayExists(customLeaderboardInfo.difficultyBeatmap, this);
+            this.hasLocalReplay = LeaderboardUtilities.LocalReplayExists(customLeaderboardInfo.difficultyBeatmap, this);
             this.score.weight = Math.Round(score.weight * 100, 2);
             this.score.pp = Math.Round(score.pp, 2);
             this.accuracy = Math.Round((score.modifiedScore / maxScore) * 100, 2);
@@ -37,7 +37,7 @@ namespace ScoreSaber.Core.Data.Wrappers {
             if (this.hasLocalReplay) {
                 this.score.hasReplay = true;
             }
-            this.formattedPlayerName = LeaderboardUtils.GetFormattedName(this);
+            this.formattedPlayerName = LeaderboardUtilities.GetFormattedName(this);
         }
       
     }

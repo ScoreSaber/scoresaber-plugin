@@ -223,8 +223,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI
 
             GameObject imageGameObject = new GameObject("ImberImage");
             ImageView image = imageGameObject.AddComponent<ImageView>();
-            image.material = Utilities.ImageResources.NoGlowMat;
-            image.sprite = Utilities.ImageResources.WhitePixel;
+            image.material = BeatSaberMarkupLanguage.Utilities.ImageResources.NoGlowMat;
+            image.sprite = BeatSaberMarkupLanguage.Utilities.ImageResources.WhitePixel;
             image.rectTransform.SetParent(transform, false);
             return image;
         }

@@ -1,6 +1,6 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.Data;
-using ScoreSaber.Core.Utils;
+using ScoreSaber.Utilities;
 using System;
 using System.Linq;
 using Zenject;
@@ -40,7 +40,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             if (recentMultipliedScore.HasValue) {
 
                 var postNoteCount = CalculatePostNoteCountForTime(audioTimeSyncController.songTime);
-                Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(postNoteCount);
+                Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtilities.OldMaxRawScoreForNumberOfNotes(postNoteCount);
                 FieldAccessor<ScoreController, Action<int, int>>.Get(_scoreController, "scoreDidChangeEvent").Invoke(recentMultipliedScore.Value,
                     ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(recentMultipliedScore.Value, Accessors.GameplayMultiplier(ref _scoreController)));
             }
@@ -68,7 +68,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
             Accessors.GameplayMultiplier(ref _scoreController) = totalMultiplier;
             
-            var immediate = Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(postNoteCount);
+            var immediate = Accessors.ImmediatePossible(ref _scoreController) = LeaderboardUtilities.OldMaxRawScoreForNumberOfNotes(postNoteCount);
             var earlyScore = newScore;
             Accessors.MultipliedScore(ref _scoreController) = earlyScore;
 

@@ -131,7 +131,7 @@ namespace ScoreSaber {
             if (Furry == null) {
                 AssetBundle bundle = null;
                 IEnumerator SeriouslyUnityMakeSomethingBetter() {
-                    var bundleContainer = AssetBundle.LoadFromMemoryAsync(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.cyanisa.furry"));
+                    var bundleContainer = AssetBundle.LoadFromMemoryAsync(BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.cyanisa.furry"));
                     yield return bundleContainer;
                     bundle = bundleContainer.assetBundle;
                 }
