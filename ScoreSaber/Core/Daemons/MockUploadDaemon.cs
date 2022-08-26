@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
 
 namespace ScoreSaber.Core.Daemons {
     internal class MockUploadDaemon : IUploadDaemon {

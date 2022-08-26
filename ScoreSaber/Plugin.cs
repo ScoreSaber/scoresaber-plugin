@@ -7,7 +7,6 @@ using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.Installers;
-using ScoreSaber.UI.Elements.Profile;
 using SiraUtil.Zenject;
 using System.Collections;
 using System.Diagnostics;
@@ -55,8 +54,6 @@ namespace ScoreSaber {
             zenjector.UseAutoBinder();
 
             var libVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            BSMLParser.instance.RegisterTypeHandler(new ProfileDetailViewTypeHandler());
-            BSMLParser.instance.RegisterTag(new ProfileDetailViewTag(metadata.Assembly));
             
             HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = libVersion });
         }

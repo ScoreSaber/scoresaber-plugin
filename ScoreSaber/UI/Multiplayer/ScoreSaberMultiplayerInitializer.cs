@@ -1,5 +1,4 @@
 ﻿using ScoreSaber.Core.Services;
-using ScoreSaber.UI.Leaderboard;
 using System;
 using Zenject;
 
@@ -8,12 +7,12 @@ namespace ScoreSaber.UI.Multiplayer {
 
         private readonly PlayerService _playerService;
         private readonly GameServerLobbyFlowCoordinator _gameServerLobbyFlowCoordinator;
-        private readonly ScoreSaberLeaderboardViewController _scoreSaberLeaderboardViewController;
+        //private readonly ScoreSaberLeaderboardViewController _scoreSaberLeaderboardViewController;
 
-        public ScoreSaberMultiplayerInitializer(PlayerService playerService, GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController) {
+        public ScoreSaberMultiplayerInitializer(PlayerService playerService, GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator/*, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController*/) {
             _playerService = playerService;
             _gameServerLobbyFlowCoordinator = gameServerLobbyFlowCoordinator;
-            _scoreSaberLeaderboardViewController = scoreSaberLeaderboardViewController;
+            //_scoreSaberLeaderboardViewController = scoreSaberLeaderboardViewController;
         }
 
         public void Initialize() {
@@ -25,12 +24,12 @@ namespace ScoreSaber.UI.Multiplayer {
         private void GameServerLobbyFlowCoordinator_didSetupEvent() {
 
             _playerService.GetLocalPlayerInfo();
-            _scoreSaberLeaderboardViewController.AllowReplayWatching(false);
+            //_scoreSaberLeaderboardViewController.AllowReplayWatching(false);
         }
 
         private void GameServerLobbyFlowCoordinator_didFinishEvent() {
 
-            _scoreSaberLeaderboardViewController.AllowReplayWatching(true);
+            //_scoreSaberLeaderboardViewController.AllowReplayWatching(true);
         }
 
         public void Dispose() {

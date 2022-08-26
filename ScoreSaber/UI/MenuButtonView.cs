@@ -1,8 +1,5 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.MenuButtons;
-using HMUI;
+﻿using BeatSaberMarkupLanguage.MenuButtons;
 using ScoreSaber.Core.Services;
-using ScoreSaber.UI.Main;
 using System;
 using Zenject;
 
@@ -13,12 +10,12 @@ namespace ScoreSaber.UI.ViewControllers {
 		private readonly MenuButton _menuButton;
 		private readonly PlayerService _playerService;
 		private readonly MainFlowCoordinator _mainFlowCoordinator;
-		private readonly ScoreSaberFlowCoordinator _scoreSaberFlowCoordinator;
+		//private readonly ScoreSaberFlowCoordinator _scoreSaberFlowCoordinator;
 
-		public MenuButtonView(PlayerService playerService, MainFlowCoordinator mainFlowCoordinator, ScoreSaberFlowCoordinator scoreSaberFlowCoordinator) {
+		public MenuButtonView(PlayerService playerService, MainFlowCoordinator mainFlowCoordinator/*, ScoreSaberFlowCoordinator scoreSaberFlowCoordinator*/) {
 			_playerService = playerService;
 			_mainFlowCoordinator = mainFlowCoordinator;
-			_scoreSaberFlowCoordinator = scoreSaberFlowCoordinator;
+			//_scoreSaberFlowCoordinator = scoreSaberFlowCoordinator;
 			_menuButton = new MenuButton("ScoreSaber", "View the ScoreSaber Global Leaderboards, team members & more!", new Action(this.PresentScoreSaberFlow), true);
 		}
 
@@ -35,7 +32,7 @@ namespace ScoreSaber.UI.ViewControllers {
         }
 		
 		private void PresentScoreSaberFlow() {
-			_mainFlowCoordinator.PresentFlowCoordinator(_scoreSaberFlowCoordinator, null, ViewController.AnimationDirection.Horizontal, false, false);
+			//_mainFlowCoordinator.PresentFlowCoordinator(_scoreSaberFlowCoordinator, null, ViewController.AnimationDirection.Horizontal, false, false);
 		}
 
 		public void Dispose() {

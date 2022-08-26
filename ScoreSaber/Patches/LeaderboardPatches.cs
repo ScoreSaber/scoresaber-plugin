@@ -2,9 +2,7 @@
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Extensions;
-using ScoreSaber.UI.Leaderboard;
 using SiraUtil.Affinity;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using TMPro;
@@ -15,14 +13,14 @@ using static HMUI.IconSegmentedControl;
 namespace ScoreSaber.Patches {
     internal class LeaderboardPatches : IInitializable, IAffinity {
 
-        private readonly ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
+        //private readonly ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
         private PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         private int _lastScopeIndex = -1;
 
-        public LeaderboardPatches(ScoreSaberLeaderboardViewController scoresaberLeaderboardViewController) {
+        /*public LeaderboardPatches(ScoreSaberLeaderboardViewController scoresaberLeaderboardViewController) {
             _scoresaberLeaderboardViewController = scoresaberLeaderboardViewController;
-        }
+        }*/
 
         public void Initialize() { }
 
@@ -31,7 +29,7 @@ namespace ScoreSaber.Patches {
         [Obfuscation(Feature = "virtualization", Exclude = false)]
         [Obfuscation(Feature = "renaming", Exclude = true)]
         bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
-            if (____difficultyBeatmap.level is CustomBeatmapLevel) {
+            /*if (____difficultyBeatmap.level is CustomBeatmapLevel) {
                 ____hasScoresData = false;
                 ____scores.Clear();
                 ____leaderboardTableView.SetScores(____scores, ____playerScorePos[(int)____scoresScope]);
@@ -41,9 +39,11 @@ namespace ScoreSaber.Patches {
                 _scoresaberLeaderboardViewController.RefreshLeaderboard(____difficultyBeatmap, ____leaderboardTableView, ____scoresScope, ____loadingControl, Guid.NewGuid().ToString()).RunTask();
                 return false;
             } else {
-                _scoresaberLeaderboardViewController.isOST = true;
+                //_scoresaberLeaderboardViewController.isOST = true;
                 return true;
-            }
+            }*/
+
+            return true;
         }
 
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
@@ -53,7 +53,7 @@ namespace ScoreSaber.Patches {
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
                 TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
 
-                if (_scoresaberLeaderboardViewController.isOST) {
+                if (tableCell != null) {
                     _playerNameText.richText = false;
                 } else {
                     _playerNameText.richText = true;
@@ -123,7 +123,8 @@ namespace ScoreSaber.Patches {
             }
 
             _lastScopeIndex = cellNumber;
-            _scoresaberLeaderboardViewController.ChangeScope(filterAroundCountry);
+            _ = filterAroundCountry;
+            //_scoresaberLeaderboardViewController.ChangeScope(filterAroundCountry);
         }
     }
 }
