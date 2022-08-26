@@ -1,4 +1,5 @@
-﻿using SevenZip.Compression.LZMA;
+﻿using ScoreSaber.Utilities;
+using SevenZip.Compression.LZMA;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,7 +52,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                     WriteInt(multiplierEventsPointer, outputStream);
                     WriteInt(energyEventsPointer, outputStream);
                     byte[] uncompressed = outputStream.ToArray();
-                    compressed = SevenZipHelper.Compress(uncompressed);
+                    compressed = uncompressed.Compress();
                 }
                 List<byte> result = new List<byte>();
                 result.AddRange(GetFileHeader());

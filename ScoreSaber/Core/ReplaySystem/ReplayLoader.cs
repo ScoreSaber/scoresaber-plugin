@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ScoreSaber.Core.ReplaySystem {
+
     internal class ReplayLoader {
 
         private readonly PlayerDataModel _playerDataModel;
@@ -42,13 +43,12 @@ namespace ScoreSaber.Core.ReplaySystem {
         [Obfuscation(Feature = "virtualization", Exclude = false)]
         private async Task LoadLegacyReplay(byte[] replay, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers) {
             await Task.Run(async () => {
-                byte[] decompressed = SevenZip.Compression.LZMA.SevenZipHelper.Decompress(replay);
+                byte[] decompressed = replay.Decompress();
                 BinaryFormatter formatter = new BinaryFormatter();
                 Z.SavedData replayData = null;
                 try {
-                    using (var dataStream = new MemoryStream(decompressed)) {
-                        replayData = (Z.SavedData)formatter.Deserialize(dataStream);
-                    }
+                    using var dataStream = new MemoryStream(decompressed);
+                    replayData = (Z.SavedData)formatter.Deserialize(dataStream);
                 } catch (Exception) {
                     throw new Exception("Failed to deserialize replay!");
                 }
@@ -59,9 +59,7 @@ namespace ScoreSaber.Core.ReplaySystem {
                 PlayerData playerData = _playerDataModel.playerData;
                 PlayerSpecificSettings playerSettings = playerData.playerSpecificSettings;
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
-                if (gameplayModifiers == null) {
-                    gameplayModifiers = new GameplayModifiers();
-                }
+                gameplayModifiers ??= new GameplayModifiers();
                 _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd);
             });
         }

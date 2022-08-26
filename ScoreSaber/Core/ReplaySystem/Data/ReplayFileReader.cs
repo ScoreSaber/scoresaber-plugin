@@ -1,4 +1,5 @@
-﻿using SevenZip.Compression.LZMA;
+﻿using ScoreSaber.Utilities;
+using SevenZip.Compression.LZMA;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -30,7 +31,8 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             temp.AddRange(input);
             temp.RemoveRange(0, 28);
             _input = temp.ToArray();
-            _input = SevenZipHelper.Decompress(_input);
+
+            _input = _input.Decompress();
             Pointers pointers = ReadPointers();
 
             var file = new ReplayFile() {

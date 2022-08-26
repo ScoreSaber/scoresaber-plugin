@@ -241,6 +241,7 @@
       <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="SevenZip" Version="19.0.0" />
   </ItemGroup>
 
   <ItemGroup>
