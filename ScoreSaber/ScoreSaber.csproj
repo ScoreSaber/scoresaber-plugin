@@ -5,7 +5,7 @@
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
     <LangVersion>10</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
     <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
@@ -15,7 +15,8 @@
     <BSMTProjectType>BSIPA</BSMTProjectType>
     <SignAssembly>false</SignAssembly>
     <ErrorReport>prompt</ErrorReport>
-    <Configurations>Debug;Release;Dev</Configurations>
+    <Configurations>Debug;Release;</Configurations>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -33,6 +34,10 @@
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="UI\Views\PlatformPanelView.bsml" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="BSML">
@@ -234,6 +239,7 @@
     <EmbeddedResource Include="Resources\crown-silver.png" />
     <EmbeddedResource Include="Resources\crown-umby.png" />
     <EmbeddedResource Include="Resources\crown-rain.png" />
+    <EmbeddedResource Include="UI\Views\PlatformPanelView.bsml" />
   </ItemGroup>
 
   <ItemGroup>

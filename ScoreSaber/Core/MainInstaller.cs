@@ -39,7 +39,7 @@ namespace ScoreSaber.Core {
 #if RELEASE
             Container.BindInterfacesAndSelfTo<UploadDaemon>().AsSingle().NonLazy();
 #else
-            Container.BindInterfacesAndSelfTo<MockUploadDaemon>().AsSingle().NonLazy();
+            //Container.BindInterfacesAndSelfTo<MockUploadDaemon>().AsSingle().NonLazy();
 #endif
         }
     }
