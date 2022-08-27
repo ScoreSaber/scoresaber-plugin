@@ -1,4 +1,5 @@
 ﻿using PropertyChanged.SourceGenerator;
+using ScoreSaber.Components;
 
 namespace ScoreSaber.UI
 {

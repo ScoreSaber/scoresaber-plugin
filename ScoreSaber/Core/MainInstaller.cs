@@ -2,8 +2,8 @@
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Core.Services;
+using ScoreSaber.Menu.Multiplayer;
 using ScoreSaber.Patches;
-using ScoreSaber.UI.Multiplayer;
 using System.Reflection;
 using Zenject;
 

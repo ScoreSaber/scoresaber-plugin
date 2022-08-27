@@ -1,4 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
+using ScoreSaber.Components;
 
 namespace ScoreSaber.UI.ViewControllers;
 

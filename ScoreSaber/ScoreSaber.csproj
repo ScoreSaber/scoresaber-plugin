@@ -36,7 +36,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="UI\Views\PlatformPanelView.bsml" />
+    <None Remove="Menu\Views\PlatformPanelView.bsml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -239,7 +239,7 @@
     <EmbeddedResource Include="Resources\crown-silver.png" />
     <EmbeddedResource Include="Resources\crown-umby.png" />
     <EmbeddedResource Include="Resources\crown-rain.png" />
-    <EmbeddedResource Include="UI\Views\PlatformPanelView.bsml" />
+    <EmbeddedResource Include="Menu\Views\PlatformPanelView.bsml" />
   </ItemGroup>
 
   <ItemGroup>
