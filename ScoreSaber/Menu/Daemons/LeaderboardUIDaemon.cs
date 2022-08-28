@@ -14,12 +14,14 @@ namespace ScoreSaber.UI.Daemons;
 internal class LeaderboardUIDaemon : IInitializable {
 
     private readonly SiraLog _siraLog;
+    private readonly PanelThemingManager _panelThemingManager;
     private readonly PanelNotificationManager _panelNotificationManager;
     private readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
 
-    public LeaderboardUIDaemon(SiraLog siraLog, PanelNotificationManager panelNotificationManager, PlatformLeaderboardViewController platformLeaderboardViewController) {
+    public LeaderboardUIDaemon(SiraLog siraLog, PanelThemingManager panelThemingManager, PanelNotificationManager panelNotificationManager, PlatformLeaderboardViewController platformLeaderboardViewController) {
 
         _siraLog = siraLog;
+        _panelThemingManager = panelThemingManager;
         _panelNotificationManager = panelNotificationManager;
         _platformLeaderboardViewController = platformLeaderboardViewController;
     }
@@ -68,7 +70,10 @@ internal class LeaderboardUIDaemon : IInitializable {
             var notificationTextTransform = notificationText.GetComponent<RectTransform>();
             notificationTextTransform.localPosition = new Vector3(17f, 3f);
 
+            _panelThemingManager.Setup(platformPanelGO.GetComponentInChildren<ImageView>());
             _panelNotificationManager.Setup(notificationText);
+
+            _panelThemingManager.SetColor(new Color(0f, 0.4705882f, 0.7254902f));
 
             stopwatch.Stop();
             _siraLog.Debug($"Sucessfully setup the {nameof(PlatformLeaderboardViewController)} in {stopwatch.Elapsed.TotalMilliseconds}ms");

@@ -11,6 +11,7 @@ internal class MenuInstaller : Installer {
         // UI Setup
         Container.BindInterfacesTo<LeaderboardUIDaemon>().AsSingle();
 
+        Container.BindInterfacesAndSelfTo<PanelThemingManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<PanelNotificationManager>().AsSingle();
     }
 }
