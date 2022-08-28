@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using HMUI;
 using Polyglot;
+using ScoreSaber.Menu.Managers;
 using ScoreSaber.UI.ViewControllers;
 using SiraUtil.Logging;
 using UnityEngine;
@@ -13,11 +14,13 @@ namespace ScoreSaber.UI.Daemons;
 internal class LeaderboardUIDaemon : IInitializable {
 
     private readonly SiraLog _siraLog;
+    private readonly PanelNotificationManager _panelNotificationManager;
     private readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
 
-    public LeaderboardUIDaemon(SiraLog siraLog, PlatformLeaderboardViewController platformLeaderboardViewController) {
+    public LeaderboardUIDaemon(SiraLog siraLog, PanelNotificationManager panelNotificationManager, PlatformLeaderboardViewController platformLeaderboardViewController) {
 
         _siraLog = siraLog;
+        _panelNotificationManager = panelNotificationManager;
         _platformLeaderboardViewController = platformLeaderboardViewController;
     }
 
@@ -65,7 +68,7 @@ internal class LeaderboardUIDaemon : IInitializable {
             var notificationTextTransform = notificationText.GetComponent<RectTransform>();
             notificationTextTransform.localPosition = new Vector3(17f, 3f);
 
-            notificationText.text = "hi";
+            _panelNotificationManager.Setup(notificationText);
 
             stopwatch.Stop();
             _siraLog.Debug($"Sucessfully setup the {nameof(PlatformLeaderboardViewController)} in {stopwatch.Elapsed.TotalMilliseconds}ms");
