@@ -18,7 +18,6 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
             CreateReplayUI();
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private void CreateReplayUI() {
 
             string replayText = string.Format("REPLAY MODE - Watching {0} play {1} - {2} ({3})", Plugin.ReplayState.CurrentPlayerName, 
@@ -58,7 +57,6 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
             _canvas.enabled = true;
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition, Vector2 sizeDelta, float fontSize) {
 
             GameObject gameObject = new GameObject("CustomUIText-ScoreSaber");

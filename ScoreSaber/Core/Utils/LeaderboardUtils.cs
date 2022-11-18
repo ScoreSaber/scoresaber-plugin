@@ -65,7 +65,6 @@ namespace ScoreSaber.Core.Utils {
             return new Tuple<string, string>("", "");
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal static GameplayModifiersMap GetModifierFromStrings(string[] modifiers, bool isPositiveModifiersEnabled) {
 
             double totalMultiplier = 1;
@@ -167,7 +166,6 @@ namespace ScoreSaber.Core.Utils {
             return num * 115;
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal static List<string> GetModifierList(object rType) {
 
             LevelCompletionResults results = (LevelCompletionResults)rType;

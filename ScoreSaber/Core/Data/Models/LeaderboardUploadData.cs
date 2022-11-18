@@ -44,7 +44,6 @@ namespace ScoreSaber.Core.Data.Models {
         [JsonProperty("hmd")]
         internal int hmd;
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal static ScoreSaberUploadData Create(object type, object rType, object lType, object iH) {
 
             ScoreSaberUploadData data = new ScoreSaberUploadData();

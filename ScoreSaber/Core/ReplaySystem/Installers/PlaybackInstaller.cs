@@ -18,7 +18,6 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public override void InstallBindings() {
 
             if (Plugin.ReplayState.IsPlaybackEnabled) {

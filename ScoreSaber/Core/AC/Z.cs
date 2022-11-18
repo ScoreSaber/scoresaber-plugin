@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 
+// Old replay "format"
 public class Z : MonoBehaviour {
 
     public class Keyframe {

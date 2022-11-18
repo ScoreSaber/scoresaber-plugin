@@ -352,7 +352,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 ScoreSaber/ObfuscationSettings.cs
-ScoreSaber/Core/AC/Internals.cs
-ScoreSaber/Core/Daemons/UploadDaemon.cs
 ScoreSaber/Core/ReplaySystem/Legacy/LegacyRecorder.cs
 ScoreSaber/Core/ReplaySystem/Legacy/OldLegacyReplayPlayer.cs

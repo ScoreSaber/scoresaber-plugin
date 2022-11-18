@@ -13,7 +13,6 @@ using Zenject;
 namespace ScoreSaber.Core {
     internal class MainInstaller : Installer {
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public override void InstallBindings() {
             Container.BindInstance(new object()).WithId("ScoreSaberUIBindings").AsCached();
             Container.Bind<ReplayLoader>().AsSingle().NonLazy();

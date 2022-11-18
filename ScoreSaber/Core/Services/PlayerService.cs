@@ -32,7 +32,6 @@ namespace ScoreSaber.Core.Services {
             LoginStatusChanged?.Invoke(loginStatus, status);
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public void GetLocalPlayerInfo() {
 
             if (localPlayerInfo == null) {
@@ -44,7 +43,6 @@ namespace ScoreSaber.Core.Services {
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private async Task GetLocalPlayerInfo1() {
 
             ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
@@ -80,7 +78,6 @@ namespace ScoreSaber.Core.Services {
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private void GetLocalPlayerInfo2() {
 
             ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
@@ -120,10 +117,11 @@ namespace ScoreSaber.Core.Services {
             });
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private async Task<LocalPlayerInfo> GetLocalSteamInfo() {
 
             await TaskEx.WaitUntil(() => SteamManager.Initialized);
+
+            string authToken = (await new SteamPlatformUserModel().GetUserAuthToken()).token;
 
             LocalPlayerInfo steamInfo = await Task.Run(() => {
                 Steamworks.CSteamID steamID = Steamworks.SteamUser.GetSteamID();
@@ -137,19 +135,13 @@ namespace ScoreSaber.Core.Services {
                     }
                 }
                 friends = friends.Remove(friends.Length - 1);
-                byte[] ticketByteArray = new byte[1024];
-                Steamworks.SteamUser.GetAuthSessionTicket(ticketByteArray, ticketByteArray.Length, out uint ticketSize);
-                Array.Resize(ref ticketByteArray, (int)ticketSize);
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < ticketSize; i++) {
-                    sb.AppendFormat("{0:x2}", ticketByteArray[i]);
-                }
-                return new LocalPlayerInfo(playerId, playerName, friends, "0", sb.ToString());
+                return new LocalPlayerInfo(playerId, playerName, friends, "0", authToken);
             });
+
+
             return steamInfo;
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private async Task<bool> AuthenticateWithScoreSaber(LocalPlayerInfo playerInfo) {
 
 
@@ -178,7 +170,6 @@ namespace ScoreSaber.Core.Services {
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public async Task<PlayerInfo> GetPlayerInfo(string playerId, bool full) {
 
             string url = $"/player/{playerId}";
@@ -194,7 +185,6 @@ namespace ScoreSaber.Core.Services {
             return playerStats;
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public async Task<byte[]> GetReplayData(IDifficultyBeatmap level, int leaderboardId, ScoreMap scoreMap) {
 
             if (scoreMap.hasLocalReplay) {
@@ -213,7 +203,6 @@ namespace ScoreSaber.Core.Services {
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private string GetReplayPath(string levelId, string difficultyName, string characteristic, string playerId, string songName) {
 
             songName = songName.ReplaceInvalidChars().Truncate(155);

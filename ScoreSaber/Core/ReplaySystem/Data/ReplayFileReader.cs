@@ -23,7 +23,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
     {
         private byte[] _input;
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal ReplayFile Read(byte[] input) {
 
             List<byte> temp = new List<byte>();

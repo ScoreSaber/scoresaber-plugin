@@ -18,7 +18,6 @@ namespace ScoreSaber.Core.Services {
             Plugin.Log.Debug("GlobalLeaderboardService Setup");
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public async Task<PlayerInfo[]> GetPlayerList(GlobalPlayerScope scope, int page) {
 
             string url = BuildUrl(scope, page);

@@ -140,7 +140,6 @@ namespace ScoreSaber.UI.Elements.Team {
 
         public int clickCounter = 0;
         [UIAction("username-click")]
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         public void UsernameClick() {
             if (usernameText == "Umbranox") {
                 if (clickCounter < 5) {

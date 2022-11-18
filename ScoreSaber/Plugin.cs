@@ -98,7 +98,6 @@ namespace ScoreSaber {
         private static bool _scoreSubmission = true;
         public static bool ScoreSubmission {
             get { return _scoreSubmission; }
-            [Obfuscation(Feature = "virtualization", Exclude = false)]
             set {
                 bool canSet = false;
                 foreach (StackFrame frame in new StackTrace().GetFrames()) {

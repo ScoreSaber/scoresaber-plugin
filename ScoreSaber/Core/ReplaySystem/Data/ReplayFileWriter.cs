@@ -10,7 +10,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
     internal class ReplayFileWriter
     {
         private const int _pointerSize = 38;
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal byte[] Write(ReplayFile file) {
 
             try {

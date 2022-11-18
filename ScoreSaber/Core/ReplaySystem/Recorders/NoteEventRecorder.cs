@@ -115,7 +115,6 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
             }
         }
 
-        [Obfuscation(Feature = "parameters renaming", Exclude = true)]
         [AffinityPrefix, AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasCut))]
         protected void BadCutInfoCollector(NoteController noteController, in NoteCutInfo noteCutInfo) {
 

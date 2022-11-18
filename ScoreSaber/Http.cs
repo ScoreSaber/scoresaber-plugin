@@ -56,7 +56,6 @@ namespace ScoreSaber
             PersistentRequestHeaders.Add("User-Agent", userAgent);
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal async Task SendHttpAsyncRequest(UnityWebRequest request) {
 
             foreach (var header in PersistentRequestHeaders) {
@@ -69,7 +68,6 @@ namespace ScoreSaber
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal async Task<string> GetRawAsync(string url) {
 
             using (UnityWebRequest request = UnityWebRequest.Get(url)) {
@@ -83,7 +81,6 @@ namespace ScoreSaber
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal async Task<string> GetAsync(string url) {
 
             url = $"{options.baseURL}{url}";
@@ -98,7 +95,6 @@ namespace ScoreSaber
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal async Task<byte[]> DownloadAsync(string url) {
 
             url = $"{options.baseURL}{url}";
@@ -112,7 +108,6 @@ namespace ScoreSaber
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         internal async Task<string> PostAsync(string url, WWWForm form) {
 
             url = $"{options.baseURL}{url}";

@@ -102,7 +102,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             return false;
         }
 
-        [Obfuscation(Feature = "parameters renaming", Exclude = true)]
         [AffinityPostfix, AffinityPatch(typeof(GoodCutScoringElement), nameof(GoodCutScoringElement.Init))]
         protected void ForceCompleteGoodScoringElements(GoodCutScoringElement __instance, NoteCutInfo noteCutInfo, CutScoreBuffer ____cutScoreBuffer) {
 

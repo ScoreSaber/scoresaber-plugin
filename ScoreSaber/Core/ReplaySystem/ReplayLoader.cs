@@ -39,7 +39,6 @@ namespace ScoreSaber.Core.ReplaySystem {
             }
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private async Task LoadLegacyReplay(byte[] replay, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers) {
             await Task.Run(async () => {
                 byte[] decompressed = SevenZip.Compression.LZMA.SevenZipHelper.Decompress(replay);
@@ -100,7 +99,6 @@ namespace ScoreSaber.Core.ReplaySystem {
         }
 
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private async Task StartReplay(ReplayFile replay, IDifficultyBeatmap difficultyBeatmap) {
 
             await Task.Run(() => {
@@ -119,7 +117,6 @@ namespace ScoreSaber.Core.ReplaySystem {
             });
         }
 
-        [Obfuscation(Feature = "virtualization", Exclude = false)]
         private void ReplayEnd(StandardLevelScenesTransitionSetupDataSO standardLevelSceneSetupData, LevelCompletionResults levelCompletionResults) {
 
             Plugin.ReplayState.IsPlaybackEnabled = false;
