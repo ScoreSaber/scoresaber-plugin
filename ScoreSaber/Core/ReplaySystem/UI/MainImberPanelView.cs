@@ -28,7 +28,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         public event Action DidPositionJump;
         public event Action DidClickLoop;
 
-        private int _lastTab = 0;
+        private int _lastTab;
         private int _targetFPS = 90;
         private float _initialTime = 1f;
         private static readonly Color _goodColor = Color.green;

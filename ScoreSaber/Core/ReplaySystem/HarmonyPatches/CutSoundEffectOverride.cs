@@ -16,30 +16,34 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
         internal static bool Buffer { get; set; }
 
         internal static bool Prefix(NoteCutSoundEffectManager __instance, NoteController noteController) {
-
-            if (Plugin.ReplayState.IsPlaybackEnabled && !Plugin.ReplayState.IsLegacyReplay) {
-                if (_spawnEffectManager == null || _spawnEffectManager != __instance) {
-                    _spawnEffectManager = __instance;
-                    _effects.Clear();
-                    _buffer = null;
-                    Buffer = false;
-                    return true;
-                }
-
-                if (!Buffer)
-                    return true;
-
-                if (!_effects.Contains(noteController)) {
-                    _effects.Enqueue(noteController);
-                    if (_buffer == null) {
-                        _buffer = BufferNoteSpawn(__instance);
-                        __instance.StartCoroutine(_buffer);
-                    }
-                    return false;
-                }
+            
+            if (!Plugin.ReplayState.IsPlaybackEnabled || Plugin.ReplayState.IsLegacyReplay) {
                 return true;
             }
-            return true;
+
+            if (_spawnEffectManager == null || _spawnEffectManager != __instance) {
+                _spawnEffectManager = __instance;
+                _effects.Clear();
+                _buffer = null;
+                Buffer = false;
+                return true;
+            }
+
+            if (!Buffer)
+                return true;
+
+            if (_effects.Contains(noteController)) {
+                return true;
+            }
+
+            _effects.Enqueue(noteController);
+            if (_buffer != null) {
+                return false;
+            }
+
+            _buffer = BufferNoteSpawn(__instance);
+            __instance.StartCoroutine(_buffer);
+            return false;
         }
 
         private static IEnumerator BufferNoteSpawn(NoteCutSoundEffectManager manager) {

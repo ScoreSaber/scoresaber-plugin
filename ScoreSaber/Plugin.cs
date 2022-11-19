@@ -6,7 +6,7 @@ using IPA;
 using IPA.Loader;
 using ScoreSaber.Core;
 using ScoreSaber.Core.Daemons;
-using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.Installers;
 using ScoreSaber.UI.Elements.Profile;
@@ -86,6 +86,7 @@ namespace ScoreSaber {
         }
 
         private IEnumerator WaitForLeaderboard() {
+            // TODO: This is an expensive operation, perhaps this is cacheable?
             yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<PlatformLeaderboardViewController>().Any());
             NoGlowMatRound = Resources.FindObjectsOfTypeAll<Material>()
                 .First(m => m.name == "UINoGlowRoundEdge");
@@ -107,22 +108,28 @@ namespace ScoreSaber {
                 bool canSet = new StackTrace().GetFrames().Select(frame => frame.GetMethod().ReflectedType.Namespace)
                     .Where(namespaceName => !string.IsNullOrEmpty(namespaceName)).Any(namespaceName =>
                         namespaceName.Contains("BS_Utils") || namespaceName.Contains("SiraUtil"));
-                if (canSet) {
-                    if (!ReplayState.IsPlaybackEnabled) { // Legacy replay?
-                        var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-                        var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-                        if (value) {
-                            transitionSetup.didFinishEvent -= UploadDaemonHelper.StandardSceneTransitionInstance;
-                            transitionSetup.didFinishEvent += UploadDaemonHelper.StandardSceneTransitionInstance;
-                            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.MultiplayerSceneTransitionInstance;
-                            multiTransitionSetup.didFinishEvent += UploadDaemonHelper.MultiplayerSceneTransitionInstance;
-                        } else {
-                            transitionSetup.didFinishEvent -= UploadDaemonHelper.StandardSceneTransitionInstance;
-                            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.MultiplayerSceneTransitionInstance;
-                        }
-                        _scoreSubmission = value;
-                    }
+                
+                if (!canSet) {
+                    return;
                 }
+
+                if (ReplayState.IsPlaybackEnabled) {
+                    return;
+                }  
+
+                // Legacy replay?
+                var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+                var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+                if (value) {
+                    transitionSetup.didFinishEvent -= UploadDaemonHelper.StandardSceneTransitionInstance;
+                    transitionSetup.didFinishEvent += UploadDaemonHelper.StandardSceneTransitionInstance;
+                    multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.MultiplayerSceneTransitionInstance;
+                    multiTransitionSetup.didFinishEvent += UploadDaemonHelper.MultiplayerSceneTransitionInstance;
+                } else {
+                    transitionSetup.didFinishEvent -= UploadDaemonHelper.StandardSceneTransitionInstance;
+                    multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.MultiplayerSceneTransitionInstance;
+                }
+                _scoreSubmission = value;
             }
         }
     }

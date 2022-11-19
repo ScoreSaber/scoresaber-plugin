@@ -5,15 +5,13 @@ using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.TypeHandlers;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 #endregion
 
 namespace ScoreSaber.UI.Elements.Profile {
     [ComponentHandler(typeof(ProfileDetailView))]
     internal class ProfileDetailViewTypeHandler : TypeHandler<ProfileDetailView> {
-        public override Dictionary<string, string[]> Props => new Dictionary<string, string[]>()
-        {
+        public override Dictionary<string, string[]> Props => new Dictionary<string, string[]> {
             { "name", new [] { "name" } },
             { "profileImageSource", new [] { "src" } },
             { "performancePoints", new [] { "pp" } },
@@ -26,15 +24,14 @@ namespace ScoreSaber.UI.Elements.Profile {
             { "hideEvent", new [] { "hide-event" } },
         };
 
-        public override Dictionary<string, Action<ProfileDetailView, string>> Setters => new Dictionary<string, Action<ProfileDetailView, string>>()
-        {
-            { "name", new Action<ProfileDetailView, string>((profile, value) => profile.playerNameText.text = value) },
-            { "profileImageSource", new Action<ProfileDetailView, string>((profile, value) => profile.profilePicture.SetImage(value)) },
-            { "rankedAccuracy", new Action<ProfileDetailView, string>((profile, value) => profile.rankedAccText.text = value) },
-            { "performancePoints", new Action<ProfileDetailView, string>((profile, value) => profile.ppText.text  = value) },
-            { "totalScore", new Action<ProfileDetailView, string>((profile, value) => profile.totalScoreText.text = value) },
-            { "loading", new Action<ProfileDetailView, string>((profile, value) => profile.SetLoadingState(bool.Parse(value))) },
-            { "rank", new Action<ProfileDetailView, string>((profile, value) => profile.rankText.text = value) }
+        public override Dictionary<string, Action<ProfileDetailView, string>> Setters => new Dictionary<string, Action<ProfileDetailView, string>> {
+            { "name", (profile, value) => profile.playerNameText.text = value },
+            { "profileImageSource", (profile, value) => profile.profilePicture.SetImage(value) },
+            { "rankedAccuracy", (profile, value) => profile.rankedAccText.text = value },
+            { "performancePoints", (profile, value) => profile.ppText.text  = value },
+            { "totalScore", (profile, value) => profile.totalScoreText.text = value },
+            { "loading", (profile, value) => profile.SetLoadingState(bool.Parse(value)) },
+            { "rank", (profile, value) => profile.rankText.text = value }
         };
 
         public override void HandleTypeAfterParse(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {

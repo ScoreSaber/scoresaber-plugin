@@ -10,7 +10,7 @@ using Zenject;
 
 #endregion
 
-namespace ScoreSaber.Core.ReplaySystem.Legacy.UI {
+namespace ScoreSaber.Core.ReplaySystem.UI.Legacy {
     internal class GameReplayUI : MonoBehaviour {
 
         [Inject] private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData = null;
@@ -22,9 +22,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI {
 
         private void CreateReplayUI() {
 
-            string replayText = string.Format("REPLAY MODE - Watching {0} play {1} - {2} ({3})", Plugin.ReplayState.CurrentPlayerName,
-                Plugin.ReplayState.CurrentLevel.level.songAuthorName, Plugin.ReplayState.CurrentLevel.level.songName,
-              Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentLevel.difficulty).Replace("ExpertPlus", "Expert+"));
+            string replayText =
+                $"REPLAY MODE - Watching {Plugin.ReplayState.CurrentPlayerName} play {Plugin.ReplayState.CurrentLevel.level.songAuthorName} - {Plugin.ReplayState.CurrentLevel.level.songName} ({Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentLevel.difficulty).Replace("ExpertPlus", "Expert+")})";
             float timeScale = 1f;
 
             if (!Plugin.ReplayState.IsLegacyReplay) {
@@ -32,20 +31,22 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI {
                     timeScale = Plugin.ReplayState.LoadedReplayFile.noteKeyframes[0].TimeSyncTimescale;
                 }
             }
-            if (timeScale != 1f) {
+            
+            if (Math.Abs(timeScale - 1f) > 0.001f) {
                 replayText += $" [{timeScale:P1}]";
             }
+            
             string friendlyMods = GetFriendlyModifiers(Plugin.ReplayState.CurrentModifiers);
             if (friendlyMods != string.Empty) {
-                replayText += string.Format(" [{0}]", friendlyMods);
+                replayText += $" [{friendlyMods}]";
             }
             var _watermarkCanvas = new GameObject("InGameReplayUI");
 
-            if (_gameplayCoreSceneSetupData.environmentInfo.environmentName == "Interscope") {
-                _watermarkCanvas.transform.position = new Vector3(0f, 3.5f, 12.0f);
-            } else {
-                _watermarkCanvas.transform.position = new Vector3(0f, 4f, 12.0f);
-            }
+            _watermarkCanvas.transform.position =
+                _gameplayCoreSceneSetupData.environmentInfo.environmentName == "Interscope"
+                    ? new Vector3(0f, 3.5f, 12.0f)
+                    : new Vector3(0f, 4f, 12.0f);
+            
             _watermarkCanvas.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 
             var _canvas = _watermarkCanvas.AddComponent<Canvas>();
@@ -64,7 +65,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI {
             var gameObject = new GameObject("CustomUIText-ScoreSaber");
             gameObject.SetActive(false);
             var textMeshProUGUI = gameObject.AddComponent<TextMeshProUGUI>();
-            textMeshProUGUI.font = Instantiate(Resources.FindObjectsOfTypeAll<TMP_FontAsset>().First((TMP_FontAsset t) => t.name == "Teko-Medium SDF"));
+            textMeshProUGUI.font = Instantiate(Resources.FindObjectsOfTypeAll<TMP_FontAsset>().First(t => t.name == "Teko-Medium SDF"));
             textMeshProUGUI.rectTransform.SetParent(parent, false);
             textMeshProUGUI.text = text;
             textMeshProUGUI.fontSize = fontSize;

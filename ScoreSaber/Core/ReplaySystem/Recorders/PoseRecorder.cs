@@ -24,22 +24,22 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
         public void Tick() {
 
-            _vrPoseGroup.Add(new VRPoseGroup() {
-                Head = new VRPose() {
-                    Position = new VRPosition() { X = _mainCamera.position.x, Y = _mainCamera.position.y, Z = _mainCamera.position.z },
-                    Rotation = new VRRotation() {
+            _vrPoseGroup.Add(new VRPoseGroup {
+                Head = new VRPose {
+                    Position = new VRPosition { X = _mainCamera.position.x, Y = _mainCamera.position.y, Z = _mainCamera.position.z },
+                    Rotation = new VRRotation {
                         X = _mainCamera.rotation.x, Y = _mainCamera.rotation.y, Z = _mainCamera.rotation.z, W = _mainCamera.rotation.w
                     }
                 },
-                Left = new VRPose() {
-                    Position = new VRPosition() { X = _controllerLeft.position.x, Y = _controllerLeft.position.y, Z = _controllerLeft.position.z },
-                    Rotation = new VRRotation() {
+                Left = new VRPose {
+                    Position = new VRPosition { X = _controllerLeft.position.x, Y = _controllerLeft.position.y, Z = _controllerLeft.position.z },
+                    Rotation = new VRRotation {
                         X = _controllerLeft.rotation.x, Y = _controllerLeft.rotation.y, Z = _controllerLeft.rotation.z, W = _controllerLeft.rotation.w
                     }
                 },
-                Right = new VRPose() {
-                    Position = new VRPosition() { X = _controllerRight.position.x, Y = _controllerRight.position.y, Z = _controllerRight.position.z },
-                    Rotation = new VRRotation() {
+                Right = new VRPose {
+                    Position = new VRPosition { X = _controllerRight.position.x, Y = _controllerRight.position.y, Z = _controllerRight.position.z },
+                    Rotation = new VRRotation {
                         X = _controllerRight.rotation.x, Y = _controllerRight.rotation.y, Z = _controllerRight.rotation.z, W = _controllerRight.rotation.w
                     }
                 },

@@ -8,7 +8,7 @@ using UnityEngine;
 
 #endregion
 
-namespace ScoreSaber.Core.Data {
+namespace ScoreSaber.Core.Data.Internal {
     internal class Settings {
         private static int _currentVersion => 6;
 
@@ -68,11 +68,12 @@ namespace ScoreSaber.Core.Data {
 
         public void SetDefaultSpectatorPositions() {
 
-            spectatorPositions = new List<SpectatorPoseRoot>();
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 0f, -2f)), "Main"));
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 4f, 0f)), "Bird's Eye"));
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(-3f, 0f, 0f)), "Left"));
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(3f, 0f, 0f)), "Right"));
+            spectatorPositions = new List<SpectatorPoseRoot> {
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 0f, -2f)), "Main"),
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 4f, 0f)), "Bird's Eye"),
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(-3f, 0f, 0f)), "Left"),
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(3f, 0f, 0f)), "Right")
+            };
         }
 
         internal static Settings LoadSettings() {
@@ -100,15 +101,17 @@ namespace ScoreSaber.Core.Data {
                 Settings decoded = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(configPath + @"\ScoreSaber.json"));
 
                 //Upgrade settings if old
-                if (decoded.fileVersion < _currentVersion) {
-                    if (decoded.spectatorPositions == null) {
-                        decoded.SetDefaultSpectatorPositions();
-                    }
-                    SaveSettings(decoded);
+                if (decoded.fileVersion >= _currentVersion) {
+                    return decoded;
                 }
+
+                if (decoded.spectatorPositions == null) {
+                    decoded.SetDefaultSpectatorPositions();
+                }
+                SaveSettings(decoded);
                 return decoded;
             } catch (Exception ex) {
-                Plugin.Log.Error("Failed to load settings " + ex.ToString());
+                Plugin.Log.Error("Failed to load settings " + ex);
                 return new Settings();
             }
         }
@@ -123,7 +126,7 @@ namespace ScoreSaber.Core.Data {
                 string serialized = JsonConvert.SerializeObject(settings, serializerSettings);
                 File.WriteAllText(configPath + @"\ScoreSaber.json", serialized);
             } catch (Exception ex) {
-                Plugin.Log.Error("Failed to save settings " + ex.ToString());
+                Plugin.Log.Error("Failed to save settings " + ex);
             }
         }
 

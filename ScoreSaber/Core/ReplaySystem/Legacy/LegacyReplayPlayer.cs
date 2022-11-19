@@ -63,6 +63,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         }
 
         public void Initialize() {
+            
             SetupCameras();
             _fpfcSettings.Changed += fpfcSettings_Changed;
             ScoreUIController.InitData data = new ScoreUIController.InitData(scoreDisplayType: ScoreUIController.ScoreDisplayType.MultipliedScore);
@@ -77,6 +78,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         }
 
         private void SetupCameras() {
+            
             _mainCamera.enabled = false;
             _mainCamera.gameObject.SetActive(false);
 
@@ -94,7 +96,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
             //InGame Camera
             var spectatorObject = new GameObject("SpectatorParent");
-            _spectatorCamera = UnityEngine.Object.Instantiate(_desktopCamera);
+            _spectatorCamera = Object.Instantiate(_desktopCamera);
             spectatorObject.transform.position = new Vector3(_mainSettingsModelSO.roomCenter.value.x, _mainSettingsModelSO.roomCenter.value.y, _mainSettingsModelSO.roomCenter.value.z);
             var rotation = new Quaternion {
                 eulerAngles = new Vector3(0.0f, _mainSettingsModelSO.roomRotation.value, 0.0f)
@@ -105,14 +107,16 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             _spectatorCamera.depth = 0;
             _spectatorCamera.transform.SetParent(spectatorObject.transform);
 
-            if (Plugin.Settings.enableReplayFrameRenderer) {
-                var ss = Resources.FindObjectsOfTypeAll<ScreenshotRecorder>().Last();
-                ss.SetField("_folder", Plugin.Settings.replayFramePath);
-                ss.enabled = true;
-                _desktopCamera.depth = 1;
-                var gc = Resources.FindObjectsOfTypeAll<DisableGCWhileEnabled>().Last();
-                gc.enabled = false;
+            if (!Plugin.Settings.enableReplayFrameRenderer) {
+                return;
             }
+
+            var ss = Resources.FindObjectsOfTypeAll<ScreenshotRecorder>().Last();
+            ss.SetField("_folder", Plugin.Settings.replayFramePath);
+            ss.enabled = true;
+            _desktopCamera.depth = 1;
+            var gc = Resources.FindObjectsOfTypeAll<DisableGCWhileEnabled>().Last();
+            gc.enabled = false;
         }
 
         public void Tick() {
@@ -149,7 +153,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             eulerAngles += headRotationOffset;
             rot.eulerAngles = eulerAngles;
 
-            float t2 = 4f == 0.0f ? 1.0f : Time.deltaTime * 6f;
+            float t2 = Time.deltaTime * 6f;
 
             pos.x += Plugin.Settings.replayCameraXOffset;
             pos.y += Plugin.Settings.replayCameraYOffset;
@@ -159,12 +163,16 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
                 _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
             }
 
-            if (_scoreController != null) {
-                if (cutOrMissedNotes >= 1) {
-                    UpdatePlaybackScore(keyframe1);
-                    _lastKeyframeIndex = keyframeIndex;
-                }
+            if (_scoreController == null) {
+                return;
             }
+
+            if (cutOrMissedNotes < 1) {
+                return;
+            }
+
+            UpdatePlaybackScore(keyframe1);
+            _lastKeyframeIndex = keyframeIndex;
         }
 
         private void UpdatePlaybackScore(LegacyReplayFile.Keyframe keyframe) {
@@ -206,28 +214,32 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         private void PlaybackMultiplierCheck(LegacyReplayFile.Keyframe keyframe, bool comboChanged, ref bool multiplierChanged) {
 
             if (keyframe.combo > _playbackPreviousCombo) {
-                if (_multiplier < 8) {
-
-                    var counter = Accessors.MultiplierCounter(ref _scoreController);
-
-                    if (_multiplierIncreaseProgress < _multiplierIncreaseMaxProgress) {
-                        _multiplierIncreaseProgress++;
-
-                        Accessors.Progress(ref counter) = _multiplierIncreaseProgress;
-                        multiplierChanged = true;
-                    }
-                    if (_multiplierIncreaseProgress >= _multiplierIncreaseMaxProgress) {
-                        _multiplier *= 2;
-                        _multiplierIncreaseProgress = 0;
-                        _multiplierIncreaseMaxProgress = _multiplier * 2;
-
-                        Accessors.Multiplier(ref counter) = _multiplier;
-                        Accessors.Progress(ref counter) = _multiplierIncreaseProgress;
-                        Accessors.MaxProgress(ref counter) = _multiplierIncreaseMaxProgress;
-
-                        multiplierChanged = true;
-                    }
+                if (_multiplier >= 8) {
+                    return;
                 }
+
+                var counter = Accessors.MultiplierCounter(ref _scoreController);
+
+                if (_multiplierIncreaseProgress < _multiplierIncreaseMaxProgress) {
+                    _multiplierIncreaseProgress++;
+
+                    Accessors.Progress(ref counter) = _multiplierIncreaseProgress;
+                    multiplierChanged = true;
+                }
+
+                if (_multiplierIncreaseProgress < _multiplierIncreaseMaxProgress) {
+                    return;
+                }
+
+                _multiplier *= 2;
+                _multiplierIncreaseProgress = 0;
+                _multiplierIncreaseMaxProgress = _multiplier * 2;
+
+                Accessors.Multiplier(ref counter) = _multiplier;
+                Accessors.Progress(ref counter) = _multiplierIncreaseProgress;
+                Accessors.MaxProgress(ref counter) = _multiplierIncreaseMaxProgress;
+
+                multiplierChanged = true;
             } else if (keyframe.combo < _playbackPreviousCombo) {
                 if (_multiplierIncreaseProgress > 0) {
                     _multiplierIncreaseProgress = 0;

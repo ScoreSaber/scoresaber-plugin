@@ -73,23 +73,21 @@ namespace ScoreSaber.Core.ReplaySystem {
         private async Task<List<LegacyReplayFile.Keyframe>> AddFrames(LegacyReplayFile.SavedData replayData) {
             List<LegacyReplayFile.Keyframe> _keyframes = new List<LegacyReplayFile.Keyframe>(replayData._keyframes.Length);
             await Task.Run(() => {
-                if (replayData != null) {
-                    for (int i = 0; i < replayData._keyframes.Length; i++) {
-                        LegacyReplayFile.SavedData.KeyframeSerializable ks = replayData._keyframes[i];
-                        LegacyReplayFile.Keyframe k = new LegacyReplayFile.Keyframe {
-                            _pos1 = new Vector3(ks._xPos1, ks._yPos1, ks._zPos1),
-                            _pos2 = new Vector3(ks._xPos2, ks._yPos2, ks._zPos2),
-                            _pos3 = new Vector3(ks._xPos3, ks._yPos3, ks._zPos3),
-                            _rot1 = new Quaternion(ks._xRot1, ks._yRot1, ks._zRot1, ks._wRot1),
-                            _rot2 = new Quaternion(ks._xRot2, ks._yRot2, ks._zRot2, ks._wRot2),
-                            _rot3 = new Quaternion(ks._xRot3, ks._yRot3, ks._zRot3, ks._wRot3),
-                            _time = ks._time,
-                            score = ks.score,
-                            combo = ks.combo
-                        };
-                        _keyframes.Add(k);
-                    }
+                if (replayData == null) {
+                    return;
                 }
+
+                _keyframes.AddRange(replayData._keyframes.Select(ks => new LegacyReplayFile.Keyframe {
+                    _pos1 = new Vector3(ks._xPos1, ks._yPos1, ks._zPos1),
+                    _pos2 = new Vector3(ks._xPos2, ks._yPos2, ks._zPos2),
+                    _pos3 = new Vector3(ks._xPos3, ks._yPos3, ks._zPos3),
+                    _rot1 = new Quaternion(ks._xRot1, ks._yRot1, ks._zRot1, ks._wRot1),
+                    _rot2 = new Quaternion(ks._xRot2, ks._yRot2, ks._zRot2, ks._wRot2),
+                    _rot3 = new Quaternion(ks._xRot3, ks._yRot3, ks._zRot3, ks._wRot3),
+                    _time = ks._time,
+                    score = ks.score,
+                    combo = ks.combo
+                }));
             });
             return _keyframes;
         }

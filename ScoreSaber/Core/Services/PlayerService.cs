@@ -4,7 +4,7 @@ using IPA.Utilities;
 using Newtonsoft.Json;
 using Oculus.Platform;
 using Oculus.Platform.Models;
-using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Extensions;
@@ -39,13 +39,15 @@ namespace ScoreSaber.Core.Services {
         }
 
         public void GetLocalPlayerInfo() {
+            
+            if (LocalPlayerInfo != null) {
+                return;
+            }
 
-            if (LocalPlayerInfo == null) {
-                if (File.Exists(Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "Plugins", "x86_64", "steam_api64.dll"))) {
-                    GetLocalPlayerInfo1().RunTask();
-                } else {
-                    GetLocalPlayerInfo2();
-                }
+            if (File.Exists(Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "Plugins", "x86_64", "steam_api64.dll"))) {
+                GetLocalPlayerInfo1().RunTask();
+            } else {
+                GetLocalPlayerInfo2();
             }
         }
 
@@ -61,13 +63,13 @@ namespace ScoreSaber.Core.Services {
                     bool authenticated = await AuthenticateWithScoreSaber(steamInfo);
                     if (authenticated) {
                         LocalPlayerInfo = steamInfo;
-                        ChangeLoginStatus(LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
+                        ChangeLoginStatus(LoginStatus.Success, "Successfully signed into ScoreSaber!");
                         break;
-                    } else {
-                        ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
-                        attempts++;
-                        await Task.Delay(4000);
                     }
+
+                    ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
+                    attempts++;
+                    await Task.Delay(4000);
                 } else {
                     Plugin.Log.Error("Steamworks is not initialized!");
                     ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting steam info");
@@ -84,13 +86,13 @@ namespace ScoreSaber.Core.Services {
 
             ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
 
-            Users.GetLoggedInUser().OnComplete((Message<User>.Callback)delegate (Message<User> loggedInMessage) {
+            Users.GetLoggedInUser().OnComplete(delegate (Message<User> loggedInMessage) {
                 if (!loggedInMessage.IsError) {
-                    Users.GetLoggedInUserFriends().OnComplete((Message<UserList>.Callback)delegate (Message<UserList> friendsMessage) {
+                    Users.GetLoggedInUserFriends().OnComplete(delegate (Message<UserList> friendsMessage) {
                         if (!friendsMessage.IsError) {
-                            Users.GetUserProof().OnComplete((Message<UserProof>.Callback)delegate (Message<UserProof> userProofMessage) {
+                            Users.GetUserProof().OnComplete(delegate (Message<UserProof> userProofMessage) {
                                 if (!userProofMessage.IsError) {
-                                    Users.GetAccessToken().OnComplete((Message<string>.Callback)async delegate (Message<string> authTokenMessage) {
+                                    Users.GetAccessToken().OnComplete(async delegate (Message<string> authTokenMessage) {
                                         string playerId = loggedInMessage.Data.ID.ToString();
                                         string playerName = loggedInMessage.Data.OculusID;
                                         string friends = playerId + ",";
@@ -99,22 +101,22 @@ namespace ScoreSaber.Core.Services {
                                         bool authenticated = await AuthenticateWithScoreSaber(oculusInfo);
                                         if (authenticated) {
                                             LocalPlayerInfo = oculusInfo;
-                                            ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
+                                            ChangeLoginStatus(LoginStatus.Success, "Successfully signed into ScoreSaber!");
                                         } else {
-                                            ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
+                                            ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
                                         }
                                     });
 
                                 } else {
-                                    ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
+                                    ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
                                 }
                             });
                         } else {
-                            ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
+                            ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
                         }
                     });
                 } else {
-                    ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
+                    ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
                 }
             });
         }
@@ -133,7 +135,7 @@ namespace ScoreSaber.Core.Services {
                 for (int i = 0; i < SteamFriends.GetFriendCount(EFriendFlags.k_EFriendFlagAll); i++) {
                     var friendSteamId = SteamFriends.GetFriendByIndex(i, EFriendFlags.k_EFriendFlagImmediate);
                     if (friendSteamId.m_SteamID.ToString() != "0") {
-                        friends = friends + friendSteamId.m_SteamID.ToString() + ",";
+                        friends = friends + friendSteamId.m_SteamID + ",";
                     }
                 }
                 friends = friends.Remove(friends.Length - 1);
@@ -200,9 +202,9 @@ namespace ScoreSaber.Core.Services {
 
             if (response != null) {
                 return response;
-            } else {
-                throw new Exception("Failed to download replay");
             }
+
+            throw new Exception("Failed to download replay");
         }
 
         private string GetReplayPath(string levelId, string difficultyName, string characteristic, string playerId, string songName) {
@@ -215,11 +217,7 @@ namespace ScoreSaber.Core.Services {
             }
 
             string legacyPath = $@"{Settings.replayPath}\{playerId}-{songName}-{levelId}.dat";
-            if (File.Exists(legacyPath)) {
-                return legacyPath;
-            }
-
-            return null;
+            return File.Exists(legacyPath) ? legacyPath : null;
         }
 
     }

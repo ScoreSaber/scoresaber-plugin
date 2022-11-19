@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class PosePlayer : TimeSynchronizer, IInitializable, ITickable, IScroller, IDisposable {
-        private int _lastIndex = 0;
+        private int _lastIndex;
         private readonly MainCamera _mainCamera;
         private readonly SaberManager _saberManager;
         private readonly VRPoseGroup[] _sortedPoses;
@@ -90,14 +90,16 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             _spectatorCamera.depth = 0;
             _spectatorCamera.transform.SetParent(spectatorObject.transform);
 
-            if (Plugin.Settings.enableReplayFrameRenderer) {
-                var ss = Resources.FindObjectsOfTypeAll<ScreenshotRecorder>().Last();
-                ss.SetField("_directory", Plugin.Settings.replayFramePath);
-                ss.enabled = true;
-                _desktopCamera.depth = 1;
-                var gc = Resources.FindObjectsOfTypeAll<DisableGCWhileEnabled>().Last();
-                gc.enabled = false;
+            if (!Plugin.Settings.enableReplayFrameRenderer) {
+                return;
             }
+
+            var ss = Resources.FindObjectsOfTypeAll<ScreenshotRecorder>().Last();
+            ss.SetField("_directory", Plugin.Settings.replayFramePath);
+            ss.enabled = true;
+            _desktopCamera.depth = 1;
+            var gc = Resources.FindObjectsOfTypeAll<DisableGCWhileEnabled>().Last();
+            gc.enabled = false;
         }
 
         public void Tick() {
@@ -120,10 +122,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             }
             if (foundPoseThisFrame) {
                 return;
-            } else if (_lastIndex > 0 && !ReachedEnd()) {
-                var previousGroup = _sortedPoses[_lastIndex - 1];
-                UpdatePoses(previousGroup, _sortedPoses[_lastIndex]);
             }
+
+            if (_lastIndex <= 0 || ReachedEnd()) {
+                return;
+            }
+
+            var previousGroup = _sortedPoses[_lastIndex - 1];
+            UpdatePoses(previousGroup, _sortedPoses[_lastIndex]);
         }
 
         private void UpdatePoses(VRPoseGroup activePose, VRPoseGroup nextPose) {
@@ -161,7 +167,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             eulerAngles += headRotationOffset;
             rot.eulerAngles = eulerAngles;
 
-            float t2 = 4f == 0.0f ? 1.0f : Time.deltaTime * 6f;
+            float t2 = Time.deltaTime * 6f;
             pos.x += Plugin.Settings.replayCameraXOffset;
             pos.y += Plugin.Settings.replayCameraYOffset;
             pos.z += Plugin.Settings.replayCameraZOffset;
@@ -179,11 +185,13 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedPoses.Length; c++) {
-                if (_sortedPoses[c].Time >= newTime) {
-                    _lastIndex = c;
-                    Tick();
-                    return;
+                if (!(_sortedPoses[c].Time >= newTime)) {
+                    continue;
                 }
+
+                _lastIndex = c;
+                Tick();
+                return;
             }
         }
 

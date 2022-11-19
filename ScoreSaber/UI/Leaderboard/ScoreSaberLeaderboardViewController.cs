@@ -38,9 +38,9 @@ namespace ScoreSaber.UI.Leaderboard {
         protected readonly Button _downButton = null;
 
         [UIValue("info-buttons-view")]
-        protected readonly InfoButtonsView _infoButtons = null;
+        protected readonly InfoButtonsView _infoButtons;
         [UIValue("score-detail-view")]
-        protected readonly ScoreDetailView _scoreDetailView = null;
+        protected readonly ScoreDetailView _scoreDetailView;
         [UIComponent("profile-detail-view")]
         protected readonly ProfileDetailView _profileDetailView = null;
 
@@ -78,11 +78,11 @@ namespace ScoreSaber.UI.Leaderboard {
             Done
         }
 
-        private bool _isOST = false;
+        private bool _isOST;
         public bool IsOST {
             get { return _isOST; }
             set {
-                if (!_isOST && value == true) {
+                if (!_isOST && value) {
                     _infoButtons.HideInfoButtons();
                     _panelView.SetRankedStatus("N/A (Not Custom Song)");
                 }
@@ -138,22 +138,24 @@ namespace ScoreSaber.UI.Leaderboard {
 
             _panelView.Show();
 
-            _panelView.disabling = delegate () {
-                if (_scoreDetailView.detailModalRoot != null && _profileDetailView.profileModalRoot != null) {
-                    _scoreDetailView.detailModalRoot.gameObject.SetActive(false);
-                    _profileDetailView.profileModalRoot.gameObject.SetActive(false);
-                    Accessors.animateParentCanvas(ref _scoreDetailView.detailModalRoot) = true;
-                    Accessors.animateParentCanvas(ref _profileDetailView.profileModalRoot) = true;
+            _panelView.disabling = delegate {
+                if (_scoreDetailView.detailModalRoot == null || _profileDetailView.profileModalRoot == null) {
+                    return;
                 }
+
+                _scoreDetailView.detailModalRoot.gameObject.SetActive(false);
+                _profileDetailView.profileModalRoot.gameObject.SetActive(false);
+                Accessors.animateParentCanvas(ref _scoreDetailView.detailModalRoot) = true;
+                Accessors.animateParentCanvas(ref _profileDetailView.profileModalRoot) = true;
             };
 
-            _panelView.statusWasSelected = delegate () {
+            _panelView.statusWasSelected = delegate {
                 if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
                 _parserParams.EmitEvent("close-modals");
                 Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
             };
 
-            _panelView.rankingWasSelected = delegate () {
+            _panelView.rankingWasSelected = delegate {
                 _parserParams.EmitEvent("close-modals");
                 _parserParams.EmitEvent("show-profile");
                 _profileDetailView.ShowProfile(_playerService.LocalPlayerInfo.playerId).RunTask();
@@ -285,11 +287,10 @@ namespace ScoreSaber.UI.Leaderboard {
                             }
                         }
                     } else {
-                        if (leaderboardPage > 1) {
-                            SetErrorState(tableView, loadingControl, null, null, "No scores on this page");
-                        } else {
-                            SetErrorState(tableView, loadingControl, null, null, "No scores on this leaderboard, be the first!");
-                        }
+                        SetErrorState(tableView, loadingControl, null, null,
+                            leaderboardPage > 1
+                                ? "No scores on this page"
+                                : "No scores on this leaderboard, be the first!");
                     }
                 }
             } catch (HttpErrorException httpError) {
@@ -301,11 +302,9 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private void SetRankedStatus(LeaderboardInfo leaderboardInfo) {
             if (leaderboardInfo.ranked) {
-                if (leaderboardInfo.positiveModifiers) {
-                    _panelView.SetRankedStatus("Ranked (DA = +0.02, GN +0.04)");
-                } else {
-                    _panelView.SetRankedStatus("Ranked (modifiers disabled)");
-                }
+                _panelView.SetRankedStatus(leaderboardInfo.positiveModifiers
+                    ? "Ranked (DA = +0.02, GN +0.04)"
+                    : "Ranked (modifiers disabled)");
                 return;
             }
             if (leaderboardInfo.qualified) {
@@ -377,12 +376,8 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void CheckPage() {
-
-            if (leaderboardPage > 1) {
-                _upButton.interactable = true;
-            } else {
-                _upButton.interactable = false;
-            }
+            
+            _upButton.interactable = leaderboardPage > 1;
         }
 
         public void RefreshLeaderboard() {
@@ -394,13 +389,15 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void ChangeScope(bool filterAroundCountry) {
-
-            if (activated) {
-                _filterAroundCountry = filterAroundCountry;
-                leaderboardPage = 1;
-                RefreshLeaderboard();
-                CheckPage();
+            
+            if (!activated) {
+                return;
             }
+
+            _filterAroundCountry = filterAroundCountry;
+            leaderboardPage = 1;
+            RefreshLeaderboard();
+            CheckPage();
         }
 
         private async Task StartReplay(ScoreMap score) {

@@ -2,7 +2,7 @@
 
 using BeatSaberMarkupLanguage;
 using HMUI;
-using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.ReplaySystem.Playback;
 using System;
@@ -71,11 +71,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private void MainImberPanelView_DidHandSwitchEvent(XRNode hand) {
 
-            if (hand == XRNode.RightHand) {
-                Plugin.Settings.leftHandedReplayUI = true;
-            }
-            if (hand == XRNode.LeftHand) {
-                Plugin.Settings.leftHandedReplayUI = false;
+            switch (hand)
+            {
+                case XRNode.RightHand:
+                    Plugin.Settings.leftHandedReplayUI = true;
+                    break;
+                case XRNode.LeftHand:
+                    Plugin.Settings.leftHandedReplayUI = false;
+                    break;
             }
 
             Settings.SaveSettings(Plugin.Settings);
@@ -89,12 +92,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         }
 
         private void ImberSpecsReporter_DidReport(int fps, float leftSaberSpeed, float rightSaberSpeed) {
-
-            if (_mainImberPanelView.didParse) {
-                _mainImberPanelView.fps = fps;
-                _mainImberPanelView.leftSaberSpeed = leftSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
-                _mainImberPanelView.rightSaberSpeed = rightSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
+            
+            if (!_mainImberPanelView.didParse) {
+                return;
             }
+
+            _mainImberPanelView.fps = fps;
+            _mainImberPanelView.leftSaberSpeed = leftSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
+            _mainImberPanelView.rightSaberSpeed = rightSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
         }
 
         private void SpectateAreaController_DidUpdatePlayerSpectatorPose(Vector3 position, Quaternion rotation) {

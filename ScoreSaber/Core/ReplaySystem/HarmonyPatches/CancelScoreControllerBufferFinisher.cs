@@ -36,12 +36,12 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
             for (int i = 0; i < codes.Count; i++) {
 
                 if (!startIndex.HasValue) {
-
-                    if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand == _multScore) {
-
-                        startIndex = i - 1;
-                        count = 2;
+                    if (codes[i].opcode != OpCodes.Ldfld || codes[i].operand != _multScore) {
+                        continue;
                     }
+
+                    startIndex = i - 1;
+                    count = 2;
                 } else if (!endIndex.HasValue) {
 
                     count++;

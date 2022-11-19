@@ -3,7 +3,7 @@
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
-using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Core.Utils;
@@ -96,7 +96,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             SetCrowns(score.leaderboardPlayerInfo.id);
             _nameText.text = $"{score.leaderboardPlayerInfo.name}'s score";
             _deviceText.SetFancyText("Device", HMD.GetFriendlyName(score.hmd));
-            _scoreText.SetFancyText("Score", $"{string.Format("{0:n0}", score.modifiedScore)} (<color=#FFD42A>{scoreMap.accuracy}%</color>)");
+            _scoreText.SetFancyText("Score", $"{score.modifiedScore:n0} (<color=#FFD42A>{scoreMap.accuracy}%</color>)");
             _ppText.SetFancyText("Performance Points", $"<color=#6772E5>{score.pp}pp</color>");
             _maxComboText.SetFancyText("Combo", score.maxCombo != 0 ? score.maxCombo.ToString() : "N/A");
             _fullComboText.SetFancyText("Full Combo", score.maxCombo != 0 ? score.fullCombo ? "<color=#9EDBB1>Yes</color>" : "<color=#FF0000>No</color>" : "N/A");
@@ -117,11 +117,13 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             ScoreInfoHoverHint.enabled = false;
             Tuple<string, string> crownDetails = LeaderboardUtils.GetCrownDetails(playerId);
 
-            if (!string.IsNullOrEmpty(crownDetails.Item1)) {
-                ScoreInfoHoverHint.enabled = true;
-                scoreInfoPrefixPicture = crownDetails.Item1;
-                ScoreInfoHoverHint.text = crownDetails.Item2;
+            if (string.IsNullOrEmpty(crownDetails.Item1)) {
+                return;
             }
+
+            ScoreInfoHoverHint.enabled = true;
+            scoreInfoPrefixPicture = crownDetails.Item1;
+            ScoreInfoHoverHint.text = crownDetails.Item2;
         }
 
         private void StartReplay() {

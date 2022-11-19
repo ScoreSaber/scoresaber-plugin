@@ -12,7 +12,7 @@ using UnityEngine;
 namespace ScoreSaber.UI.Elements.Team {
     internal class TeamUserInfo : INotifyPropertyChanged {
 
-        private string _usernameText = null;
+        private string _usernameText;
         [UIValue("username")]
         protected string UsernameText {
             get => _usernameText;
@@ -22,20 +22,16 @@ namespace ScoreSaber.UI.Elements.Team {
             }
         }
 
-        private string _discordLink = null;
+        private string _discordLink;
         protected string DiscordLink {
             get => _discordLink;
             set {
-                if (value == null) {
-                    _discordLink = null;
-                } else {
-                    _discordLink = value;
-                }
+                _discordLink = value ?? null;
                 NotifyPropertyChanged("hasDiscord");
             }
         }
 
-        private string _githubLink = null;
+        private string _githubLink;
         protected string GithubLink {
             get => _githubLink;
             set {
@@ -48,41 +44,29 @@ namespace ScoreSaber.UI.Elements.Team {
             }
         }
 
-        private string _twitchLink = null;
+        private string _twitchLink;
         protected string TwitchLink {
             get => _twitchLink;
             set {
-                if (value == null) {
-                    _twitchLink = null;
-                } else {
-                    _twitchLink = $"https://www.twitch.tv/{value}";
-                }
+                _twitchLink = value == null ? null : $"https://www.twitch.tv/{value}";
                 NotifyPropertyChanged("hasTwitch");
             }
         }
 
-        private string _twitterLink = null;
+        private string _twitterLink;
         protected string TwitterLink {
             get => _twitterLink;
             set {
-                if (value == null) {
-                    _twitterLink = null;
-                } else {
-                    _twitterLink = $"https://twitter.com/{value}";
-                }
+                _twitterLink = value == null ? null : $"https://twitter.com/{value}";
                 NotifyPropertyChanged("hasTwitter");
             }
         }
 
-        private string _youtubeLink = null;
+        private string _youtubeLink;
         protected string YoutubeLink {
             get => _youtubeLink;
             set {
-                if (value == null) {
-                    _youtubeLink = null;
-                } else {
-                    _youtubeLink = $"https://www.youtube.com/channel/{value}";
-                }
+                _youtubeLink = value == null ? null : $"https://www.youtube.com/channel/{value}";
                 NotifyPropertyChanged("hasYoutube");
             }
         }
@@ -123,13 +107,15 @@ namespace ScoreSaber.UI.Elements.Team {
         }
 
         public void LoadImage() {
-
-            if (!_loaded) {
-                if (_profilePictureTemp != null) {
-                    SetImage(_profilePictureTemp);
-                }
-                _loaded = true;
+            
+            if (_loaded) {
+                return;
             }
+
+            if (_profilePictureTemp != null) {
+                SetImage(_profilePictureTemp);
+            }
+            _loaded = true;
         }
 
         private void SetImage(string image) {
@@ -141,24 +127,27 @@ namespace ScoreSaber.UI.Elements.Team {
             }
         }
 
-        public int clickCounter = 0;
+        public int clickCounter;
         [UIAction("username-click")]
         public void UsernameClick() {
-            if (UsernameText == "Umbranox") {
-                if (clickCounter < 5) {
-                    clickCounter++;
-                }
-                if (clickCounter == 5) {
-                    SetImage("r.jpg");
-                    UsernameText = "🌧 Rain ❤";
-                    DiscordLink = "128460955272216576";
-                    TwitterLink = "VaporRain";
-                    TwitchLink = "inkierain";
-                    NotifyPropertyChanged("profilePicture");
-                    YoutubeLink = null;
-                    GithubLink = null;
-                }
+            
+            if (UsernameText != "Umbranox") {
+                return;
             }
+
+            if (clickCounter < 5) {
+                clickCounter++;
+                return;
+            }
+
+            SetImage("r.jpg");
+            UsernameText = "🌧 Rain ❤";
+            DiscordLink = "128460955272216576";
+            TwitterLink = "VaporRain";
+            TwitchLink = "inkierain";
+            NotifyPropertyChanged("profilePicture");
+            YoutubeLink = null;
+            GithubLink = null;
         }
 
         [UIAction("#post-parse")]

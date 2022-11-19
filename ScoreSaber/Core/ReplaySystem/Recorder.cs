@@ -1,8 +1,8 @@
 ﻿#region
 
-using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.ReplaySystem.Recorders;
+using ScoreSaber.Core.Services;
 using System;
 using Zenject;
 
@@ -40,7 +40,7 @@ namespace ScoreSaber.Core.ReplaySystem {
 
         public ReplayFile Export() {
 
-            return new ReplayFile() {
+            return new ReplayFile {
                 metadata = _metadataRecorder.Export(),
                 poseKeyframes = _poseRecorder.Export(),
                 heightKeyframes = _heightEventRecorder.Export(),

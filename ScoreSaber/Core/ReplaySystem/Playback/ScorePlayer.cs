@@ -52,12 +52,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedScoreEvents.Length; c++) {
-                if (_sortedScoreEvents[c].Time >= newTime) {
-                    _lastIndex = c;
-                    Tick();
-                    UpdateScore(c != 0 ? _sortedScoreEvents[c - 1].Score : 0, newTime);
-                    return;
+                if (!(_sortedScoreEvents[c].Time >= newTime)) {
+                    continue;
                 }
+
+                _lastIndex = c;
+                Tick();
+                UpdateScore(c != 0 ? _sortedScoreEvents[c - 1].Score : 0, newTime);
+                return;
             }
             UpdateScore(_sortedScoreEvents.LastOrDefault().Score, newTime);
         }
@@ -80,19 +82,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         }
 
         private int CalculatePostNoteCountForTime(float time) {
-
-            int count = 0;
-            foreach (var noteEvent in _sortedNoteEvents) {
-
-                if (noteEvent.Time > time)
-                    break;
-
-                var eventType = noteEvent.EventType;
-                if (eventType == NoteEventType.GoodCut || eventType == NoteEventType.BadCut || eventType == NoteEventType.Miss)
-                    count++;
-
-            }
-            return count;
+            return _sortedNoteEvents.TakeWhile(noteEvent => !(noteEvent.Time > time))
+                .Select(noteEvent => noteEvent.EventType).Count(eventType =>
+                    eventType == NoteEventType.GoodCut || eventType == NoteEventType.BadCut ||
+                    eventType == NoteEventType.Miss);
         }
     }
 }

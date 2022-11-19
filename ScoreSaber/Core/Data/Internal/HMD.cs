@@ -1,11 +1,14 @@
 ﻿
 #region
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.XR;
+
 #endregion
 
-namespace ScoreSaber.Core.Data {
+namespace ScoreSaber.Core.Data.Internal {
     internal static class HMD {
         internal static int Unknown = 0;
         internal static int CV1 = 1;
@@ -34,19 +37,14 @@ namespace ScoreSaber.Core.Data {
             try {
                 var inputDevices = new List<InputDevice>();
                 InputDevices.GetDevices(inputDevices);
-                foreach (var device in inputDevices) {
-                    if (device.name.ToLower().Contains("knuckles")) {
-                        return Index;
-                    }
-                }
 #pragma warning disable CS0618 // Type or member is obsolete
-                return Get(XRDevice.model);
-#pragma warning restore CS0618 // Type or member is obsolete
+                return inputDevices.Any(device => device.name.ToLower().Contains("knuckles")) ? Index : Get(XRDevice.model);
             } catch (Exception) {
                 return 0;
             }
         }
 
+        // TODO: These methods are a mess, refactor soon (tm)
         private static int Get(string hmdName) {
 
             string hmd = hmdName.ToLower();
@@ -54,11 +52,8 @@ namespace ScoreSaber.Core.Data {
                 if (hmd.Contains("pro")) {
                     return VivePro;
                 }
-                if (hmd.Contains("cosmos")) {
-                    return Cosmos;
-                } else {
-                    return Vive;
-                }
+                
+                return hmd.Contains("cosmos") ? Cosmos : Vive;
             }
             if (hmd.Contains("quest")) {
                 return Quest;
@@ -66,37 +61,42 @@ namespace ScoreSaber.Core.Data {
             if (hmd.Contains("oculus")) {
                 if (hmd.Contains("cv1")) {
                     return CV1;
-                } else {
-                    if (hmd.Contains("quest")) {
-                        return Quest;
-                    } else {
-                        return RiftS;
-                    }
                 }
+
+                return hmd.Contains("quest") ? Quest : RiftS;
             }
             if (hmdName.ToLower().Contains("index")) {
                 return Index;
             }
-            foreach (string brand in WMRBrands) {
-                if (hmdName.ToLower().Contains(brand)) {
-                    return Windows;
-                }
-            }
-            return Unknown;
+            
+            return WMRBrands.Any(brand => hmdName.ToLower().Contains(brand)) ? Windows : Unknown;
         }
 
         internal static string GetFriendlyName(int hmd) {
 
-            if (hmd == 0) { return "Unknown"; }
-            if (hmd == 1) { return "Oculus Rift CV1"; }
-            if (hmd == 2) { return "HTC VIVE"; }
-            if (hmd == 4) { return "HTC VIVE Pro"; }
-            if (hmd == 8) { return "Windows Mixed Reality"; }
-            if (hmd == 16) { return "Oculus Rift S"; }
-            if (hmd == 32) { return "Oculus Quest"; }
-            if (hmd == 64) { return "Valve Index"; }
-            if (hmd == 128) { return "HTC VIVE Cosmos"; }
-            return "Unknown";
+            switch (hmd)
+            {
+                case 0:
+                    return "Unknown";
+                case 1:
+                    return "Oculus Rift CV1";
+                case 2:
+                    return "HTC VIVE";
+                case 4:
+                    return "HTC VIVE Pro";
+                case 8:
+                    return "Windows Mixed Reality";
+                case 16:
+                    return "Oculus Rift S";
+                case 32:
+                    return "Oculus Quest";
+                case 64:
+                    return "Valve Index";
+                case 128:
+                    return "HTC VIVE Cosmos";
+                default:
+                    return "Unknown";
+            }
         }
     }
 }

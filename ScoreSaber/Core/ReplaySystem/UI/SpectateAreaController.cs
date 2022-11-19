@@ -5,7 +5,7 @@ using System.Linq;
 using Tweening;
 using UnityEngine;
 using Zenject;
-using static ScoreSaber.Core.Data.Settings;
+using static ScoreSaber.Core.Data.Internal.Settings;
 
 #endregion
 
@@ -16,11 +16,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private readonly GameNoteController.Pool _gameNoteControllerPool;
         public event Action<Vector3, Quaternion> DidUpdatePlayerSpectatorPose;
 
-        private GameNoteController _activeNote = null;
+        private GameNoteController _activeNote;
         private Quaternion _initialQuaternion;
-        private Tween _movementTween = null;
-        private Tween _statusTween = null;
-        private bool _despawned = false;
+        private Tween _movementTween;
+        private Tween _statusTween;
+        private bool _despawned;
 
         public SpectateAreaController(DiContainer diContainer, TimeTweeningManager timeTweeningManager) {
 

@@ -9,7 +9,7 @@ namespace ScoreSaber.Core.Data.Wrappers {
         internal LeaderboardInfoMap(LeaderboardInfo leaderboardInfo, IDifficultyBeatmap difficultyBeatmap) {
             this.difficultyBeatmap = difficultyBeatmap;
             this.leaderboardInfo = leaderboardInfo;
-            this.songHash = difficultyBeatmap.level.levelID.Split('_')[2];
+            songHash = difficultyBeatmap.level.levelID.Split('_')[2];
         }
     }
 }

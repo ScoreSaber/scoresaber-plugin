@@ -49,12 +49,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private AmeNode _loopNode;
         private AmeNode _failNode;
         private Transform _parent;
-        private bool _loopMode = false;
+        private bool _loopMode;
         private readonly MainCamera _mainCamera;
         private readonly DiContainer _container;
         private readonly float _minNodeDistance = 0.01f;
         private readonly AudioTimeSyncController _audioTimeSyncController;
-        private float _levelFailTime = 0f;
+        private float _levelFailTime;
         private float _maxPercent = 1f;
         private bool _allowPast;
 
@@ -136,10 +136,13 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 _bar.currentTime = _audioTimeSyncController.songTime;
                 _bar.barFill = currentAudioProgress;
             }
-            if (_loopMode) {
-                if (currentAudioProgress >= _bar.GetNodePercent(_loopNode)) {
-                    MainNode_PositionDidChange(mainNodeValue);
-                }
+
+            if (!_loopMode) {
+                return;
+            }
+
+            if (currentAudioProgress >= _bar.GetNodePercent(_loopNode)) {
+                MainNode_PositionDidChange(mainNodeValue);
             }
         }
 
@@ -295,7 +298,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             curvedText.text = initialText;
             curvedText.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             curvedText.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            curvedText.alignment = TMPro.TextAlignmentOptions.Top;
+            curvedText.alignment = TextAlignmentOptions.Top;
             curvedText.color = color;
 
             var node = nodeGameObject.AddComponent<AmeNode>();

@@ -2,11 +2,11 @@
 
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
 using System;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -47,7 +47,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             if (firstActivation) {
                 BSMLParser.instance.Parse(
-                    "<button-with-icon id=\"watch-replay-button\" icon=\"ScoreSaber.Resources.replay.png\" hover-hint=\"Watch Replay\" pref-width=\"15\" pref-height=\"13\" interactable=\"false\" on-click=\"replay-click\" />",
+                    // Converted to XElement to avoid having long string literals
+                    new XElement("button-with-icon", new XAttribute("id", "watch-replay-button"),
+                        new XAttribute("icon", "ScoreSaber.Resources.replay.png"),
+                        new XAttribute("hover-hint", "Watch Replay"), new XAttribute("pref-width", "15"),
+                        new XAttribute("pref-height", "13"), new XAttribute("interactable", "false"),
+                        new XAttribute("on-click", "replay-click")).ToString(),
                     _resultsViewController.gameObject,
                     this
                 );

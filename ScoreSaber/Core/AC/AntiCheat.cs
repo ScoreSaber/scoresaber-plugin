@@ -1,14 +1,16 @@
 ﻿#if RELEASE
+using IPA.Utilities;
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace ScoreSaber.Core.AC {
     internal class AntiCheat {
         internal string AC() {
 
-            string localPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "Plugins", "ScoreSaber.dll");
-            string dataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "Beat Saber_Data");
+            string localPath = Path.Combine(UnityGame.InstallPath, "Plugins", "ScoreSaber.dll");
+            string dataPath = Path.Combine(UnityGame.InstallPath, "Beat Saber_Data");
             string oculusPlatform = Path.Combine(dataPath, "Managed", "Oculus.Platform.dll");
             string steamWorks = Path.Combine(dataPath, "Managed", "Steamworks.NET.dll");
 
@@ -34,7 +36,8 @@ namespace ScoreSaber.Core.AC {
                     steamHash = BitConverter.ToString(hasher).Replace("-", "").ToLowerInvariant();
                 }
 
-                string hash = BitConverter.ToString(md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(string.Format("{0}{1}{2}", localHash, oculusHash, steamHash)))).Replace("-", "").ToLowerInvariant();
+                string hash = BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(
+                    $"{localHash}{oculusHash}{steamHash}"))).Replace("-", "").ToLowerInvariant();
 
                 return hash;
             }

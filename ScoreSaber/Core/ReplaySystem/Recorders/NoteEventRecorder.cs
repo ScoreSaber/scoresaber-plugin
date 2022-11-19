@@ -40,7 +40,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
         private void ScoreController_scoringForNoteFinishedEvent(ScoringElement element) {
 
             var noteData = element.noteData;
-            var noteID = new NoteID() { Time = noteData.time, LineIndex = noteData.lineIndex, LineLayer = (int)noteData.noteLineLayer, ColorType = (int)noteData.colorType, CutDirection = (int)noteData.cutDirection };
+            var noteID = new NoteID { Time = noteData.time, LineIndex = noteData.lineIndex, LineLayer = (int)noteData.noteLineLayer, ColorType = (int)noteData.colorType, CutDirection = (int)noteData.cutDirection };
 
             if (element is GoodCutScoringElement goodCut) {
 
@@ -48,7 +48,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
                 var noteCutInfo = goodCut.cutScoreBuffer.noteCutInfo;
                 _scoringStartInfo.Remove(goodCut);
 
-                _noteKeyframes.Add(new NoteEvent() {
+                _noteKeyframes.Add(new NoteEvent {
 
                     NoteID = noteID,
                     EventType = NoteEventType.GoodCut,
@@ -74,7 +74,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
                 var badCutEventType = noteData.colorType == ColorType.None ? NoteEventType.Bomb : NoteEventType.BadCut;
                 var noteCutInfo = _collectedBadCutInfos[badCut.noteData];
                 _collectedBadCutInfos.Remove(badCut.noteData);
-                _noteKeyframes.Add(new NoteEvent() {
+                _noteKeyframes.Add(new NoteEvent {
 
                     NoteID = noteID,
                     EventType = badCutEventType,
@@ -96,7 +96,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
             } else if (noteData.colorType != ColorType.None /* not bomb */ && element is MissScoringElement) {
 
-                _noteKeyframes.Add(new NoteEvent() {
+                _noteKeyframes.Add(new NoteEvent {
 
                     NoteID = noteID,
                     EventType = NoteEventType.Miss,

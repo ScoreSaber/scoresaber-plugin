@@ -1,22 +1,21 @@
 ﻿#region
 
 using HMUI;
-using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Internal;
 using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.XR;
 using VRUIControls;
 using Zenject;
-using Object = UnityEngine.Object;
 
 #endregion
 
 namespace ScoreSaber.Core.ReplaySystem.UI {
     internal class ImberUIPositionController : IInitializable, ITickable, IDisposable {
-        private bool _isActive = false;
-        private bool _isClicking = false;
-        private bool _didClickOnce = false;
+        private bool _isActive;
+        private bool _isClicking;
+        private bool _didClickOnce;
         private DateTime _lastTriggerDownTime;
         private XRNode _handTrack = XRNode.LeftHand;
         private readonly float _sensitivityToClick = 0.5f;
@@ -140,15 +139,17 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         }
 
         private void OpenedUI() {
-
-            if (!Plugin.Settings.hasOpenedReplayUI) {
-                var replayPrompt = GameObject.Find("Replay Prompt");
-                if (replayPrompt != null) {
-                    GameObject.Destroy(replayPrompt);
-                }
-                Plugin.Settings.hasOpenedReplayUI = true;
-                Settings.SaveSettings(Plugin.Settings);
+            
+            if (Plugin.Settings.hasOpenedReplayUI) {
+                return;
             }
+
+            var replayPrompt = GameObject.Find("Replay Prompt");
+            if (replayPrompt != null) {
+                GameObject.Destroy(replayPrompt);
+            }
+            Plugin.Settings.hasOpenedReplayUI = true;
+            Settings.SaveSettings(Plugin.Settings);
         }
 
         public void UpdateTrackingHand(XRNode node) {

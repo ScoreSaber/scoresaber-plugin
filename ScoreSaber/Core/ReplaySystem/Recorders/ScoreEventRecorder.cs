@@ -1,8 +1,10 @@
 ﻿#region
+
 using ScoreSaber.Core.ReplaySystem.Data;
 using System;
 using System.Collections.Generic;
 using Zenject;
+
 #endregion
 
 namespace ScoreSaber.Core.ReplaySystem.Recorders {
@@ -38,17 +40,17 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
         private void ScoreController_scoreDidChangeEvent(int rawScore, int score) {
 
-            _scoreKeyframes.Add(new ScoreEvent() { Score = rawScore, Time = audioTimeSyncController.songTime });
+            _scoreKeyframes.Add(new ScoreEvent { Score = rawScore, Time = audioTimeSyncController.songTime });
         }
 
         private void ComboController_comboDidChangeEvent(int combo) {
 
-            _comboKeyframes.Add(new ComboEvent() { Combo = combo, Time = audioTimeSyncController.songTime });
+            _comboKeyframes.Add(new ComboEvent { Combo = combo, Time = audioTimeSyncController.songTime });
         }
 
         private void ScoreController_multiplierDidChangeEvent(int multiplier, float nextMultiplierProgress) {
 
-            _multiplierKeyframes.Add(new MultiplierEvent() {
+            _multiplierKeyframes.Add(new MultiplierEvent {
                 Multiplier = multiplier,
                 NextMultiplierProgress = nextMultiplierProgress,
                 Time = audioTimeSyncController.songTime

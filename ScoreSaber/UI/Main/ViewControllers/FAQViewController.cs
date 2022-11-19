@@ -57,11 +57,13 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         private int _scoreSaberCounter;
         [UIAction("scoresaber-image-clicked")]
         public void ScoreSaberImageClicked() {
-
+            
             _scoreSaberCounter++;
+            
             if (_scoreSaberCounter == 5) {
                 scoreSaberImage = "ScoreSaber.Resources.logo-flushed.png";
             }
+
             if (_scoreSaberCounter == 10) {
                 scoreSaberImage = "ScoreSaber.Resources.logo-large.png";
                 _scoreSaberCounter = 0;

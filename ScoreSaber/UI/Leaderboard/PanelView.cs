@@ -5,17 +5,16 @@ using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
+using ScoreSaber.UI.Main;
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Tweening;
 using UnityEngine;
 using Zenject;
-using ScoreSaber.UI.Main;
-using ScoreSaber.Core.Data;
 
 namespace ScoreSaber.UI.Leaderboard {
     [HotReload]
@@ -23,10 +22,10 @@ namespace ScoreSaber.UI.Leaderboard {
 
         #region BSML Components
         [UIComponent("scoresaber-logo")]
-        protected ImageView _scoresaberLogo = null;
+        protected ImageView _scoresaberLogo;
 
         [UIComponent("separator")]
-        protected ImageView _separator = null;
+        protected ImageView _separator;
 
         [UIComponent("scoresaber-logo")]
         protected readonly ClickableImage _scoresaberLogoClickable = null;
@@ -63,13 +62,13 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        private bool _isPromptLoading = false;
+        private bool _isPromptLoading;
         [UIValue("prompt-loader-active")]
         protected bool promptLoading {
             get => _isPromptLoading;
             set {
                 _isPromptLoading = value;
-                NotifyPropertyChanged(nameof(promptLoading));
+                NotifyPropertyChanged();
             }
         }
 
@@ -98,9 +97,9 @@ namespace ScoreSaber.UI.Leaderboard {
         public Action statusWasSelected;
         public Action rankingWasSelected;
 
-        private PlayerService _playerService = null;
-        private TimeTweeningManager _timeTweeningManager = null;
-        private PlatformLeaderboardViewController _platformLeaderboardViewController = null;
+        private PlayerService _playerService;
+        private TimeTweeningManager _timeTweeningManager;
+        private PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         private Color _scoreSaberBlue;
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
@@ -194,11 +193,9 @@ namespace ScoreSaber.UI.Leaderboard {
 
             var selectedColor = new Color(0.60f, 0.80f, 1);
             while (!Plugin.Settings.hasClickedScoreSaberLogo) {
-                if (_scoresaberLogoClickable.DefaultColor == Color.white) {
-                    _scoresaberLogoClickable.DefaultColor = selectedColor;
-                } else {
-                    _scoresaberLogoClickable.DefaultColor = Color.white;
-                }
+                _scoresaberLogoClickable.DefaultColor = _scoresaberLogoClickable.DefaultColor == Color.white
+                    ? selectedColor
+                    : Color.white;
                 await Task.Delay(1000);
             }
         }
@@ -219,12 +216,9 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void SetGlobalRanking(string globalRanking, bool withPrefix = true) {
-
-            if (withPrefix) {
-                globalLeaderboardRanking = $"<b><color=#FFDE1A>Global Ranking: </color></b>{globalRanking}";
-            } else {
-                globalLeaderboardRanking = globalRanking;
-            }
+            
+            globalLeaderboardRanking =
+                withPrefix ? $"<b><color=#FFDE1A>Global Ranking: </color></b>{globalRanking}" : globalRanking;
         }
 
         public void SetRankedStatus(string rankedStatus) {
@@ -271,27 +265,30 @@ namespace ScoreSaber.UI.Leaderboard {
                     _timeTweeningManager.AddTween(new FloatTween(0f, 1f, ChangePromptState, tweenTime, EaseType.InSine), _promptRoot);
                 }
 
-                if (_promptRoot.gameObject.activeInHierarchy && dismissTime != -1) {
+                if (_promptRoot.gameObject.activeInHierarchy && Math.Abs(dismissTime - (-1)) > 0.0001) {
                     DismissPrompt(dismissTime);
                 }
 
             } catch (Exception) {
+                // ignored
             }
         }
 
         public void DismissPrompt(float dismissTime = 0f, float tweenTime = 0.5f) {
-
-            if (_promptRoot.gameObject.activeSelf) {
-                void Disable() { _promptRoot.gameObject.SetActive(false); };
-
-                var endTween = _timeTweeningManager.AddTween(new FloatTween(1f, 0f, ChangePromptState, tweenTime, EaseType.OutCubic, dismissTime), _promptRoot);
-                endTween.onCompleted = Disable;
-                endTween.onKilled = delegate () {
-                    if (_activeDisableTween != null && _activeDisableTween == endTween) {
-                        Disable();
-                    }
-                };
+            
+            if (!_promptRoot.gameObject.activeSelf) {
+                return;
             }
+
+            void Disable() { _promptRoot.gameObject.SetActive(false); };
+
+            var endTween = _timeTweeningManager.AddTween(new FloatTween(1f, 0f, ChangePromptState, tweenTime, EaseType.OutCubic, dismissTime), _promptRoot);
+            endTween.onCompleted = Disable;
+            endTween.onKilled = delegate {
+                if (_activeDisableTween != null && _activeDisableTween == endTween) {
+                    Disable();
+                }
+            };
         }
 
         private void ChangePromptState(float value) {
@@ -326,23 +323,20 @@ namespace ScoreSaber.UI.Leaderboard {
             try {
                 Loaded(false);
                 _currentPlayerInfo = await _playerService.GetPlayerInfo(_playerService.LocalPlayerInfo.playerId, full: false);
-                if (Plugin.Settings.showLocalPlayerRank) {
-                    SetGlobalRanking($"#{string.Format("{0:n0}", _currentPlayerInfo.rank)}<size=75%> (<color=#6772E5>{string.Format("{0:n0}", _currentPlayerInfo.pp)}pp</color>)");
-                } else {
-                    SetGlobalRanking("Hidden");
-                }
+                SetGlobalRanking(Plugin.Settings.showLocalPlayerRank
+                    ? $"#{_currentPlayerInfo.rank:n0}<size=75%> (<color=#6772E5>{_currentPlayerInfo.pp:n0}pp</color>)"
+                    : "Hidden");
                 Loaded(true);
             } catch (HttpErrorException ex) {
                 if (ex.isScoreSaberError) {
-                    if (ex.scoreSaberError.errorMessage == "Player not found") {
-                        SetGlobalRanking("Welcome to ScoreSaber! Set a score to create a profile", false);
-                    } else {
-                        SetGlobalRanking($"Failed to load player ranking: {ex.scoreSaberError.errorMessage}", false);
-                    }
+                    SetGlobalRanking(
+                        ex.scoreSaberError.errorMessage == "Player not found"
+                            ? "Welcome to ScoreSaber! Set a score to create a profile"
+                            : $"Failed to load player ranking: {ex.scoreSaberError.errorMessage}", false);
                 } else {
                     SetGlobalRanking("", false);
                     SetPromptError("Failed to update local player ranking", false, 1.5f);
-                    Plugin.Log.Error("Failed to update local player ranking " + ex.ToString());
+                    Plugin.Log.Error("Failed to update local player ranking " + ex);
                 }
             }
             Loaded(true);

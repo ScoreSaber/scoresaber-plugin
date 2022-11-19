@@ -3,6 +3,7 @@
 using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.HarmonyPatches;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Zenject;
 
@@ -73,7 +74,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             if (Input.GetKeyDown(KeyCode.R)) {
                 OverrideTime(0f);
             }
-
+            
             if (Input.GetKeyDown(KeyCode.Space)) {
                 if (_paused) {
                     audioTimeSyncController.Resume();
@@ -136,10 +137,12 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             Accessors.InitialStartFilterTime(ref _callbackInitData) = time;
             Accessors.CallbackStartFilterTime(ref _beatmapObjectCallbackController) = time;
 
-            foreach (var callback in Accessors.CallbacksInTime(ref _beatmapObjectCallbackController)) {
-
-                if (callback.Value.lastProcessedNode != null && callback.Value.lastProcessedNode.Value.time > time)
-                    callback.Value.lastProcessedNode = null;
+            foreach (KeyValuePair<float, CallbacksInTime> callback in Accessors
+                         .CallbacksInTime(ref _beatmapObjectCallbackController).Where(callback =>
+                             callback.Value.lastProcessedNode != null &&
+                             callback.Value.lastProcessedNode.Value.time > time))
+            {
+                callback.Value.lastProcessedNode = null;
             }
 
             Accessors.AudioSongTime(ref _audioTimeSyncController) = time;
@@ -165,10 +168,9 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void CancelAllHitSounds() {
 
             var activeItems = Accessors.NoteCutPool(ref _noteCutSoundEffectManager).activeItems;
-            for (int i = 0; i < activeItems.Count; i++) {
-                var effect = activeItems[i];
-                if (effect.isActiveAndEnabled)
-                    effect.StopPlayingAndFinish();
+            foreach (var effect in activeItems.Where(effect => effect.isActiveAndEnabled))
+            {
+                effect.StopPlayingAndFinish();
             }
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
             _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);

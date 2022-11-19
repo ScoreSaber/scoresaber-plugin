@@ -10,7 +10,7 @@ using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class HeightPlayer : TimeSynchronizer, IInitializable, ITickable, IScroller {
-        private int _lastIndex = 0;
+        private int _lastIndex;
         private readonly HeightEvent[] _sortedHeightEvents;
         private readonly PlayerHeightDetector _playerHeightDetector;
 
@@ -31,20 +31,24 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                 return;
 
             var activeEvent = _sortedHeightEvents[_lastIndex];
-            if (audioTimeSyncController.songEndTime >= activeEvent.Time) {
-                _lastIndex++;
-                FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(activeEvent.Height);
+            if (!(audioTimeSyncController.songEndTime >= activeEvent.Time)) {
+                return;
             }
+
+            _lastIndex++;
+            FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(activeEvent.Height);
         }
 
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedHeightEvents.Length; c++) {
-                if (_sortedHeightEvents[c].Time >= newTime) {
-                    _lastIndex = c;
-                    Tick();
-                    return;
+                if (!(_sortedHeightEvents[c].Time >= newTime)) {
+                    continue;
                 }
+
+                _lastIndex = c;
+                Tick();
+                return;
             }
             FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(_sortedHeightEvents.LastOrDefault().Height);
         }

@@ -7,7 +7,6 @@ using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Core.Utils;
 using ScoreSaber.UI.Leaderboard;
-using ScoreSaber.UI.Other;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,7 +27,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         #region BSML Components
         [UIComponent("profile-modal-root")]
-        public ModalView profileModalRoot = null;
+        public ModalView profileModalRoot;
 
         [UIComponent("badge-grid")]
         protected readonly GridLayoutGroup _badgeGrid = null;
@@ -37,10 +36,10 @@ namespace ScoreSaber.UI.Elements.Profile {
         protected readonly RectTransform _badgePrefab = null;
 
         [UIComponent("profile-top")]
-        protected ImageView _profileTop = null;
+        protected ImageView _profileTop;
 
         [UIComponent("profile-line-border")]
-        protected ImageView _profileLineBorder = null;
+        protected ImageView _profileLineBorder;
 
         [UIComponent("profile-picture")]
         public readonly ImageView profilePicture = null;
@@ -78,7 +77,7 @@ namespace ScoreSaber.UI.Elements.Profile {
         [UIValue("badge-host-list")]
         protected List<object> badgeList = new List<object>();
 
-        private bool _profileSet = false;
+        private bool _profileSet;
         [UIValue("profile-set")]
         public bool profileSet {
             get => _profileSet;
@@ -87,7 +86,7 @@ namespace ScoreSaber.UI.Elements.Profile {
                 NotifyPropertyChanged();
             }
         }
-        private bool _profileSetLoading = false;
+        private bool _profileSetLoading;
         [UIValue("profile-set-loading")]
         public bool profileSetLoading {
             get => _profileSetLoading;
@@ -113,7 +112,7 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
         #endregion
 
-        private PlayerService _playerService = null;
+        private PlayerService _playerService;
 
         [Inject]
         private void Construct(PlayerService playerService) {
@@ -157,19 +156,14 @@ namespace ScoreSaber.UI.Elements.Profile {
             playerNameText.text = _playerInfo.name;
             profilePicture.SetImage(_playerInfo.profilePicture);
 
-            rankText.text = $"#{string.Format("{0:n0}", _playerInfo.rank)}";
-            ppText.text = $"<color=#6772E5>{string.Format("{0:n0}", _playerInfo.pp)}pp</color>";
+            rankText.text = $"#{_playerInfo.rank:n0}";
+            ppText.text = $"<color=#6772E5>{_playerInfo.pp:n0}pp</color>";
 
             rankedAccText.text = $"{Math.Round(_playerInfo.scoreStats.averageRankedAccuracy, 2)}%";
-            totalScoreText.text = string.Format("{0:n0}", _playerInfo.scoreStats.totalScore);
+            totalScoreText.text = $"{_playerInfo.scoreStats.totalScore:n0}";
 
-            List<Tuple<string, string>> list = new List<Tuple<string, string>>();
-
-            foreach (Badge badge in _playerInfo.badges) {
-                list.Add(new Tuple<string, string>(badge.image, badge.description));
-            }
-
-            SetProfileBadges(list.ToArray());
+            SetProfileBadges(_playerInfo.badges
+                .Select(badge => new Tuple<string, string>(badge.image, badge.description)).ToArray());
             SetCrowns(playerId);
             SetLoadingState(false);
         }
@@ -204,11 +198,13 @@ namespace ScoreSaber.UI.Elements.Profile {
             profileHoverHint.enabled = false;
             Tuple<string, string> crownDetails = LeaderboardUtils.GetCrownDetails(playerId);
 
-            if (!string.IsNullOrEmpty(crownDetails.Item1)) {
-                profileHoverHint.enabled = true;
-                profilePrefixPicture = crownDetails.Item1;
-                profileHoverHint.text = crownDetails.Item2;
+            if (string.IsNullOrEmpty(crownDetails.Item1)) {
+                return;
             }
+
+            profileHoverHint.enabled = true;
+            profilePrefixPicture = crownDetails.Item1;
+            profileHoverHint.text = crownDetails.Item2;
         }
 
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") {

@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 #endregion
 
-namespace ScoreSaber.UI.Other {
+namespace ScoreSaber.UI.Elements {
     internal class BadgeCell : INotifyPropertyChanged {
 
         [UIComponent("image")]

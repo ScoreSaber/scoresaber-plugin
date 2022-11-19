@@ -34,7 +34,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
         private void PlayerHeightDetector_playerHeightDidChangeEvent(float newHeight) {
 
-            _heightKeyframes.Add(new HeightEvent() { Height = newHeight, Time = audioTimeSyncController.songTime });
+            _heightKeyframes.Add(new HeightEvent { Height = newHeight, Time = audioTimeSyncController.songTime });
         }
 
         public List<HeightEvent> Export() {

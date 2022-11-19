@@ -1,4 +1,4 @@
-﻿namespace ScoreSaber.Core.Data {
+﻿namespace ScoreSaber.Core.Data.Internal {
     internal class LocalPlayerInfo {
 
         internal string serverKey { get; set; }

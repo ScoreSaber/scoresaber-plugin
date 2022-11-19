@@ -21,12 +21,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedMultiplierEvents.Length; c++) {
-                if (_sortedMultiplierEvents[c].Time >= newTime) {
-                    int multiplier = c != 0 ? _sortedMultiplierEvents[c - 1].Multiplier : 1;
-                    float progress = c != 0 ? _sortedMultiplierEvents[c - 1].NextMultiplierProgress : 0;
-                    UpdateMultiplier(multiplier, progress);
-                    return;
+                if (!(_sortedMultiplierEvents[c].Time >= newTime)) {
+                    continue;
                 }
+
+                int multiplier = c != 0 ? _sortedMultiplierEvents[c - 1].Multiplier : 1;
+                float progress = c != 0 ? _sortedMultiplierEvents[c - 1].NextMultiplierProgress : 0;
+                UpdateMultiplier(multiplier, progress);
+                return;
             }
             var lastEvent = _sortedMultiplierEvents.LastOrDefault();
             UpdateMultiplier(lastEvent.Multiplier, lastEvent.NextMultiplierProgress);

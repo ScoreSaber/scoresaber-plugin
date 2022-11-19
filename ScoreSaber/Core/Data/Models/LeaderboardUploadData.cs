@@ -1,6 +1,7 @@
 ﻿#region
 
 using Newtonsoft.Json;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Utils;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace ScoreSaber.Core.Data.Models {
 
             string[] levelInfo = difficultyBeatmap.level.levelID.Split('_');
             data.gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
-            data.difficulty = BeatmapDifficultyMethods.DefaultRating(difficultyBeatmap.difficulty);
+            data.difficulty = difficultyBeatmap.difficulty.DefaultRating();
             data.infoHash = iH.ToString();
             data.leaderboardId = levelInfo[2];
             data.songName = difficultyBeatmap.level.songName;

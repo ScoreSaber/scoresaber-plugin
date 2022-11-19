@@ -8,7 +8,7 @@ using UnityEngine;
 
 #endregion
 
-namespace ScoreSaber.UI.Other {
+namespace ScoreSaber.UI.Elements {
     internal class GlobalCell {
 
         #region BSML Components
@@ -47,7 +47,7 @@ namespace ScoreSaber.UI.Other {
 
             _identifier = id;
             _avatarUrl = avatarUrl;
-            _ppText = string.Format("<color=#6772E5>{0:n0}pp</color>", pp);
+            _ppText = $"<color=#6772E5>{pp:n0}pp</color>";
             _username = username;
             _globalRank = rank;
             _weeklyChange = weeklyChange;

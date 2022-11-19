@@ -11,7 +11,6 @@ using ScoreSaber.Extensions;
 using ScoreSaber.UI.Elements;
 using ScoreSaber.UI.Elements.Profile;
 using ScoreSaber.UI.Leaderboard;
-using ScoreSaber.UI.Other;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -97,8 +96,8 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         private int _page = 1;
         private GlobalPlayerScope _scope;
         private string _requestId = string.Empty;
-        private DiContainer _container = null;
-        private GlobalLeaderboardService _globalLeaderboardService = null;
+        private DiContainer _container;
+        private GlobalLeaderboardService _globalLeaderboardService;
 
         private readonly List<GlobalCell> _globalCells = new List<GlobalCell>();
 
@@ -195,16 +194,17 @@ namespace ScoreSaber.UI.Main.ViewControllers {
                     string rank;
                     int localRank = counter + (((_page - 1) * 5) / 5) * 5;
                     if (_scope == GlobalPlayerScope.Country || _scope == GlobalPlayerScope.Friends) {
-                        rank = string.Format("#{0:n0} (#{1:n0})", localRank, player.rank);
+                        rank = $"#{localRank:n0} (#{player.rank:n0})";
                     } else {
-                        rank = string.Format("#{0:n0}", player.rank);
+                        rank = $"#{player.rank:n0}";
                     }
 
                     void onGlobalCellClicked(string identifier, string name) {
                         ShowProfile(identifier, name).RunTask();
                     }
 
-                    _globalCells.Add(new GlobalCell(player.id, player.profilePicture, player.name, player.country, rank, GetWeekDifference(player.histories, player.rank), player.pp, onGlobalCellClicked));
+                    _globalCells.Add(new GlobalCell(player.id, player.profilePicture, player.name, player.country, rank,
+                        GetWeekDifference(player.histories, player.rank), player.pp, onGlobalCellClicked));
                     counter++;
                 }
 
@@ -218,16 +218,13 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         }
 
         private int GetWeekDifference(string history, int currentRank) {
+            
             if (currentRank == 0) {
                 return 0;
             }
             string[] historyArray = history.Split(',');
             int lastWeek;
-            if (historyArray.Length > 6) {
-                lastWeek = Convert.ToInt32(historyArray[historyArray.Length - 1]);
-            } else {
-                lastWeek = Convert.ToInt32(historyArray[0]);
-            }
+            lastWeek = Convert.ToInt32(historyArray.Length > 6 ? historyArray[historyArray.Length - 1] : historyArray[0]);
             if (lastWeek == 999999) {
                 return 0;
             }
@@ -235,6 +232,7 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         }
 
         public async Task ShowProfile(string playerId, string name) {
+            
             _parserParams.EmitEvent("close-modals");
             _parserParams.EmitEvent("show-profile");
             _profileDetailView.SetLoadingState(true);
@@ -247,18 +245,17 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         }
 
         private void CheckPages() {
-            if (_page <= 1) {
-                _upButton.interactable = false;
-            } else {
-                _upButton.interactable = true;
-            }
+            
+            _upButton.interactable = _page > 1;
         }
 
         private void ShowGlobalLoading(bool loading) {
+            
             globalSet = !loading;
         }
 
         private void PageButtonClicked(bool down) {
+            
             if (down) {
                 _page++;
             } else {

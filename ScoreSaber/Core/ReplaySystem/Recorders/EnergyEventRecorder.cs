@@ -34,7 +34,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
         private void GameEnergyCounter_gameEnergyDidChangeEvent(float energy) {
 
-            _energyKeyframes.Add(new EnergyEvent() { Energy = energy, Time = audioTimeSyncController.songTime });
+            _energyKeyframes.Add(new EnergyEvent { Energy = energy, Time = audioTimeSyncController.songTime });
         }
 
         public List<EnergyEvent> Export() {

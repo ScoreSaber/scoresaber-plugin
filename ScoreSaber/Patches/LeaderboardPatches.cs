@@ -33,6 +33,7 @@ namespace ScoreSaber.Patches {
         [AffinityPatch(typeof(PlatformLeaderboardViewController), nameof(PlatformLeaderboardViewController.Refresh))]
         [AffinityPrefix]
         bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
+            
             if (____difficultyBeatmap.level is CustomBeatmapLevel) {
                 ____hasScoresData = false;
                 ____scores.Clear();
@@ -42,25 +43,23 @@ namespace ScoreSaber.Patches {
                 _scoresaberLeaderboardViewController.IsOST = false;
                 _scoresaberLeaderboardViewController.RefreshLeaderboard(____difficultyBeatmap, ____leaderboardTableView, ____scoresScope, ____loadingControl, Guid.NewGuid().ToString()).RunTask();
                 return false;
-            } else {
-                _scoresaberLeaderboardViewController.IsOST = true;
-                return true;
             }
+
+            _scoresaberLeaderboardViewController.IsOST = true;
+            return true;
         }
 
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
         void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
-            if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
-
-                LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
-                TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
-
-                if (_scoresaberLeaderboardViewController.IsOST) {
-                    _playerNameText.richText = false;
-                } else {
-                    _playerNameText.richText = true;
-                }
+            
+            if (__instance.transform.parent.transform.parent.name != "PlatformLeaderboardViewController") {
+                return;
             }
+
+            LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
+            TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
+
+            _playerNameText.richText = !_scoresaberLeaderboardViewController.IsOST;
         }
 
         [AffinityPatch(typeof(PlatformLeaderboardViewController), "DidActivate")]
@@ -92,7 +91,7 @@ namespace ScoreSaber.Patches {
             countryTexture.Apply();
 
             Sprite _countryIcon = Sprite.Create(countryTexture, new Rect(0, 0, countryTexture.width, countryTexture.height), Vector2.zero);
-            ____scopeSegmentedControl.SetData(new DataItem[] {
+            ____scopeSegmentedControl.SetData(new[] {
                     new DataItem(____globalLeaderboardIcon, "Global"),
                     new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),
                     new DataItem(____friendsLeaderboardIcon, "Friends"),

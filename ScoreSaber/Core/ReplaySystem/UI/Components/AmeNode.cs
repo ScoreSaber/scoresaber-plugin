@@ -14,7 +14,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Components {
         public bool isBeingDragged => _handle.dragged;
 
         public bool moveable { get; set; } = true;
-        public float min { get; set; } = 0f;
+        public float min { get; set; }
         public float max { get; set; } = 1f;
 
         internal void Init(AmeHandle handle) {

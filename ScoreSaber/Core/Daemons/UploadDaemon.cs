@@ -1,8 +1,10 @@
 ﻿#if RELEASE
 using Newtonsoft.Json;
 using ScoreSaber.Core.AC;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
+using ScoreSaber.Core.Utils;
 using ScoreSaber.Extensions;
 using System;
 using System.IO;
@@ -11,9 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using ScoreSaber.Core.Utils;
 using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
-using ScoreSaber.Core.Data;
 
 namespace ScoreSaber.Core.Daemons {
 
@@ -24,12 +24,12 @@ namespace ScoreSaber.Core.Daemons {
 
         public bool Uploading { get; set; }
 
-        private readonly PlayerService _playerService = null;
-        private readonly ReplayService _replayService = null;
-        private readonly LeaderboardService _leaderboardService = null;
+        private readonly PlayerService _playerService;
+        private readonly ReplayService _replayService;
+        private readonly LeaderboardService _leaderboardService;
 
-        private readonly PlayerDataModel _playerDataModel = null;
-        private readonly CustomLevelLoader _customLevelLoader = null;
+        private readonly PlayerDataModel _playerDataModel;
+        private readonly CustomLevelLoader _customLevelLoader;
 
         public UploadDaemon(PlayerService playerService, LeaderboardService leaderboardService, ReplayService replayService, PlayerDataModel playerDataModel, CustomLevelLoader customLevelLoader) {
             _playerService = playerService;
@@ -279,10 +279,10 @@ namespace ScoreSaber.Core.Daemons {
                 {
                     SaveLocalReplay(rawDataCasted, levelCasted, serializedReplay);
                     Plugin.Log.Info("Score uploaded!");
-                    UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
+                    UploadStatusChanged?.Invoke(UploadStatus.Success, "Score uploaded!");
                 }
                 else {
-                    UploadStatusChanged?.Invoke(UploadStatus.Error, $"Failed to upload score.");
+                    UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score.");
                 }
 
                 Uploading = false;

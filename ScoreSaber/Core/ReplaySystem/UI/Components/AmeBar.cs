@@ -22,11 +22,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Components {
         }
 
         public float currentTime {
-            set => _currentTimeText.text = string.Format("{0}:{1:00}", (int)value / 60, value % 60f);
+            set => _currentTimeText.text = $"{(int)value / 60}:{value % 60f:00}";
         }
 
         public float endTime {
-            set => _endTimeText.text = string.Format("{0}:{1:00}", (int)value / 60, value % 60f);
+            set => _endTimeText.text = $"{(int)value / 60}:{value % 60f:00}";
         }
 
         private RectTransform _otherTransform;
@@ -38,14 +38,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Components {
             _currentTimeText = CreateText();
             _currentTimeText.rectTransform.sizeDelta = fillBarTransform.sizeDelta;
             _currentTimeText.rectTransform.anchorMin = new Vector2(0f, 0.5f);
-            _currentTimeText.alignment = TMPro.TextAlignmentOptions.Left;
+            _currentTimeText.alignment = TextAlignmentOptions.Left;
             _currentTimeText.text = "0:00";
             _currentTimeText.name = "Current Time";
 
             _endTimeText = CreateText();
             _endTimeText.rectTransform.sizeDelta = fillBarTransform.sizeDelta;
             _endTimeText.rectTransform.anchorMin = new Vector2(0f, 0.5f);
-            _endTimeText.alignment = TMPro.TextAlignmentOptions.Right;
+            _endTimeText.alignment = TextAlignmentOptions.Right;
             _endTimeText.text = "0:00";
             _endTimeText.name = "End Time";
         }
@@ -105,7 +105,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Components {
             return curvedText;
         }
 
-        private static Material _mainUIFontMaterial = null;
+        private static Material _mainUIFontMaterial;
         internal static Material MainUIFontMaterial {
             get {
                 if (_mainUIFontMaterial == null)

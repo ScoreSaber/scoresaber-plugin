@@ -1,11 +1,12 @@
 ﻿#region
 
-using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 #endregion
 
@@ -13,15 +14,8 @@ namespace ScoreSaber.Core.Utils {
     internal static class LeaderboardUtils {
 
         internal static bool LocalReplayExists(IDifficultyBeatmap difficultyBeatmap, ScoreMap score) {
-
-            if (File.Exists(GetReplayPath(difficultyBeatmap, score))) {
-                return true;
-            }
-
-            if (File.Exists(GetLegacyReplayPath(difficultyBeatmap, score))) {
-                return true;
-            }
-            return false;
+            return File.Exists(GetReplayPath(difficultyBeatmap, score)) ||
+                   File.Exists(GetLegacyReplayPath(difficultyBeatmap, score));
         }
 
         internal static string GetReplayPath(IDifficultyBeatmap difficultyBeatmap, ScoreMap scoreMap) {
@@ -68,7 +62,8 @@ namespace ScoreSaber.Core.Utils {
             return new Tuple<string, string>("", "");
         }
 
-        internal static GameplayModifiersMap GetModifierFromStrings(string[] modifiers, bool isPositiveModifiersEnabled) {
+        // TODO: Refactor this
+        internal static GameplayModifiersMap GetModifierFromStrings(IEnumerable<string> modifiers, bool isPositiveModifiersEnabled) {
 
             double totalMultiplier = 1;
             var energyType = GameplayModifiers.EnergyType.Bar;
@@ -226,10 +221,8 @@ namespace ScoreSaber.Core.Utils {
         }
 
         public static bool ContainsV3Stuff(IReadonlyBeatmapData readonlyBeatmapData) {
-            foreach (var item in readonlyBeatmapData.allBeatmapDataItems)
-                if (item.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && item is SliderData)
-                    return true;
-            return false;
+            return readonlyBeatmapData.allBeatmapDataItems.Any(item =>
+                item.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && item is SliderData);
         }
     }
 }

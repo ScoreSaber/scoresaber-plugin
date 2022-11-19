@@ -43,16 +43,16 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
         public Metadata Export() {
 
-            var roomCenter = new VRPosition() {
+            var roomCenter = new VRPosition {
                 X = _mainSettingsModelSO.roomCenter.value.x,
                 Y = _mainSettingsModelSO.roomCenter.value.y,
                 Z = _mainSettingsModelSO.roomCenter.value.z
             };
 
-            return new Metadata() {
+            return new Metadata {
                 Version = "2.0.0",
                 LevelID = _gameplayCoreSceneSetupData.difficultyBeatmap.level.levelID,
-                Difficulty = BeatmapDifficultyMethods.DefaultRating(_gameplayCoreSceneSetupData.difficultyBeatmap.difficulty),
+                Difficulty = _gameplayCoreSceneSetupData.difficultyBeatmap.difficulty.DefaultRating(),
                 Characteristic = _gameplayCoreSceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName,
                 Environment = _gameplayCoreSceneSetupData.environmentInfo.serializedName,
                 Modifiers = GetModifierList(_gameplayCoreSceneSetupData.gameplayModifiers),
@@ -66,6 +66,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
         }
 
+        // TODO: Refactor this entire method
         public string[] GetModifierList(GameplayModifiers modifiers) {
 
             List<string> result = new List<string>();
@@ -96,7 +97,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
             if (modifiers.ghostNotes) {
                 result.Add("GN");
             }
-            if (modifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) {
+            if (modifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) { // could be a switch, but this is more readable imo
                 result.Add("SS");
             }
             if (modifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) {

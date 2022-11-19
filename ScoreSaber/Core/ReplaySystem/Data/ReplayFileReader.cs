@@ -32,7 +32,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
             _input = SevenZipHelper.Decompress(_input);
             var pointers = ReadPointers();
 
-            var file = new ReplayFile() {
+            var file = new ReplayFile {
                 metadata = ReadMetadata(ref pointers.metadata),
                 poseKeyframes = ReadPoseGroupList(ref pointers.poseKeyframes),
                 heightKeyframes = ReadHeightChangeList(ref pointers.heightKeyframes),
@@ -48,7 +48,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         private Pointers ReadPointers() {
 
             int offset = 0;
-            return new Pointers() {
+            return new Pointers {
                 metadata = ReadInt(ref offset),
                 poseKeyframes = ReadInt(ref offset),
                 heightKeyframes = ReadInt(ref offset),
@@ -63,7 +63,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private Metadata ReadMetadata(ref int offset) {
 
-            return new Metadata() {
+            return new Metadata {
                 Version = ReadString(ref offset),
                 LevelID = ReadString(ref offset),
                 Difficulty = ReadInt(ref offset),
@@ -81,7 +81,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private VRPoseGroup ReadVRPoseGroup(ref int offset) {
 
-            return new VRPoseGroup() {
+            return new VRPoseGroup {
                 Head = ReadVRPose(ref offset),
                 Left = ReadVRPose(ref offset),
                 Right = ReadVRPose(ref offset),
@@ -92,7 +92,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private VRPose ReadVRPose(ref int offset) {
 
-            return new VRPose() {
+            return new VRPose {
                 Position = ReadVRPosition(ref offset),
                 Rotation = ReadVRRotation(ref offset)
             };
@@ -100,7 +100,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private NoteEvent ReadNoteEvent(ref int offset) {
 
-            return new NoteEvent() {
+            return new NoteEvent {
                 NoteID = ReadNoteID(ref offset),
                 EventType = (NoteEventType)ReadInt(ref offset),
                 CutPoint = ReadVRPosition(ref offset),
@@ -122,7 +122,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private NoteID ReadNoteID(ref int offset) {
 
-            return new NoteID() {
+            return new NoteID {
                 Time = ReadFloat(ref offset),
                 LineLayer = ReadInt(ref offset),
                 LineIndex = ReadInt(ref offset),
@@ -133,7 +133,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private HeightEvent ReadHeightChange(ref int offset) {
 
-            return new HeightEvent() {
+            return new HeightEvent {
                 Height = ReadFloat(ref offset),
                 Time = ReadFloat(ref offset)
             };
@@ -141,7 +141,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private ScoreEvent ReadScoreEvent(ref int offset) {
 
-            return new ScoreEvent() {
+            return new ScoreEvent {
                 Score = ReadInt(ref offset),
                 Time = ReadFloat(ref offset)
             };
@@ -149,7 +149,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private ComboEvent ReadComboEvent(ref int offset) {
 
-            return new ComboEvent() {
+            return new ComboEvent {
                 Combo = ReadInt(ref offset),
                 Time = ReadFloat(ref offset)
             };
@@ -157,7 +157,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private MultiplierEvent ReadMultiplierEvent(ref int offset) {
 
-            return new MultiplierEvent() {
+            return new MultiplierEvent {
                 Multiplier = ReadInt(ref offset),
                 NextMultiplierProgress = ReadFloat(ref offset),
                 Time = ReadFloat(ref offset)
@@ -166,7 +166,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private EnergyEvent ReadEnergyEvent(ref int offset) {
 
-            return new EnergyEvent() {
+            return new EnergyEvent {
                 Energy = ReadFloat(ref offset),
                 Time = ReadFloat(ref offset)
             };
@@ -285,7 +285,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private VRPosition ReadVRPosition(ref int offset) {
 
-            return new VRPosition() {
+            return new VRPosition {
                 X = ReadFloat(ref offset),
                 Y = ReadFloat(ref offset),
                 Z = ReadFloat(ref offset)
@@ -294,7 +294,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         private VRRotation ReadVRRotation(ref int offset) {
 
-            return new VRRotation() {
+            return new VRRotation {
                 X = ReadFloat(ref offset),
                 Y = ReadFloat(ref offset),
                 Z = ReadFloat(ref offset),

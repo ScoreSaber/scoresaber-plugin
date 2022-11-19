@@ -49,7 +49,11 @@ namespace ScoreSaber.UI.Main.ViewControllers {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
             _tabSelector.textSegmentedControl.didSelectCellEvent += DidSelect;
-            if (_teamHosts.Count > 0) {
+            if (_teamHosts.Count <= 0) {
+                return;
+            }
+
+            {
                 var host = (TeamHost)_teamHosts[0];
                 host.Init();
                 foreach (TeamUserInfo profile in host.profiles) {
@@ -74,10 +78,8 @@ namespace ScoreSaber.UI.Main.ViewControllers {
 
         private TeamHost TeamToProfileHost(IEnumerable<TeamMember> team, string teamName) {
 
-            var host = new List<TeamUserInfo>();
-            foreach (TeamMember member in team) {
-                host.Add(new TeamUserInfo(member.ProfilePicture, member.Name, member.Discord, member.GitHub, member.Twitch, member.Twitter, member.YouTube));
-            }
+            var host = team.Select(member => new TeamUserInfo(member.ProfilePicture, member.Name, member.Discord,
+                member.GitHub, member.Twitch, member.Twitter, member.YouTube)).ToList();
             return new TeamHost(teamName, host);
         }
 

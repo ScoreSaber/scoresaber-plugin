@@ -18,12 +18,14 @@ namespace ScoreSaber.UI.Main {
         private GlobalViewController _globalViewController;
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-
-            if (firstActivation) {
-                SetTitle("ScoreSaber");
-                showBackButton = true;
-                ProvideInitialViewControllers(_globalViewController, _teamViewController, _faqViewController);
+            
+            if (!firstActivation) {
+                return;
             }
+
+            SetTitle("ScoreSaber");
+            showBackButton = true;
+            ProvideInitialViewControllers(_globalViewController, _teamViewController, _faqViewController);
         }
 
         [Inject]

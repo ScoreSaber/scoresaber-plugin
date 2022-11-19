@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
 
-        public LeaderboardMap currentLoadedLeaderboard = null;
+        public LeaderboardMap currentLoadedLeaderboard;
 
         public LeaderboardService() {
             Plugin.Log.Debug("LeaderboardService Setup");
@@ -41,7 +41,9 @@ namespace ScoreSaber.Core.Services {
                     var leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
                     return leaderboardData;
                 } catch (Exception) {
+                    // ignored
                 }
+
                 attempts++;
                 await Task.Delay(1000);
             }
@@ -53,7 +55,7 @@ namespace ScoreSaber.Core.Services {
             string url = "/game/leaderboard";
             string leaderboardId = difficultyBeatmap.level.levelID.Split('_')[2];
             string gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
-            string difficulty = BeatmapDifficultyMethods.DefaultRating(difficultyBeatmap.difficulty).ToString();
+            string difficulty = difficultyBeatmap.difficulty.DefaultRating().ToString();
 
             if (!filterAroundCountry) {
                 switch (scope) {
