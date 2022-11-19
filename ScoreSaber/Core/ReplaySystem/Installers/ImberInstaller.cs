@@ -1,20 +1,24 @@
-﻿using ScoreSaber.Core.ReplaySystem.UI;
+﻿#region
+
+using ScoreSaber.Core.ReplaySystem.UI;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem.Installers
-{
-    internal class ImberInstaller : Installer
-    {
-        public override void InstallBindings() {
+#endregion
 
-            if (Plugin.ReplayState.IsPlaybackEnabled && !Plugin.ReplayState.IsLegacyReplay) {
-                Container.Bind<VRControllerAccessor>().AsSingle();
-                Container.BindInterfacesTo<ImberManager>().AsSingle();
-                Container.BindInterfacesAndSelfTo<ImberScrubber>().AsSingle();
-                Container.BindInterfacesAndSelfTo<ImberSpecsReporter>().AsSingle();
-                Container.BindInterfacesAndSelfTo<ImberUIPositionController>().AsSingle();
-                Container.Bind<MainImberPanelView>().FromNewComponentAsViewController().AsSingle();
-                Container.Bind(typeof(ITickable), typeof(SpectateAreaController)).To<SpectateAreaController>().AsSingle();
+namespace ScoreSaber.Core.ReplaySystem.Installers {
+    internal class ImberInstaller : Installer {
+        public override void InstallBindings() {
+            switch (Plugin.ReplayState.IsPlaybackEnabled) {
+                case true when !Plugin.ReplayState.IsLegacyReplay:
+                    Container.Bind<VRControllerAccessor>().AsSingle();
+                    Container.BindInterfacesTo<ImberManager>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<ImberScrubber>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<ImberSpecsReporter>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<ImberUIPositionController>().AsSingle();
+                    Container.Bind<MainImberPanelView>().FromNewComponentAsViewController().AsSingle();
+                    Container.Bind(typeof(ITickable), typeof(SpectateAreaController)).To<SpectateAreaController>()
+                        .AsSingle();
+                    break;
             }
         }
     }

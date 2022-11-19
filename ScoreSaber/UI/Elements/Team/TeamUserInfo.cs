@@ -1,113 +1,44 @@
-﻿using BeatSaberMarkupLanguage;
+﻿#region
+
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using System.ComponentModel;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
+#endregion
+
 namespace ScoreSaber.UI.Elements.Team {
     internal class TeamUserInfo : INotifyPropertyChanged {
-
-        private string _usernameText = null;
-        [UIValue("username")]
-        protected string usernameText {
-            get => _usernameText;
-            set {
-                _usernameText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private string _discordLink = null;
-        protected string discordLink {
-            get => _discordLink;
-            set {
-                if (value == null) {
-                    _discordLink = null;
-                } else {
-                    _discordLink = value;
-                }
-                NotifyPropertyChanged("hasDiscord");
-            }
-        }
-
-        private string _githubLink = null;
-        protected string githubLink {
-            get => _githubLink;
-            set {
-                if (value == null) {
-                    _githubLink = null;
-                } else {
-                    _githubLink = $"https://github.com/{value}";
-                }
-                NotifyPropertyChanged("hasGithub");
-            }
-        }
-
-        private string _twitchLink = null;
-        protected string twitchLink {
-            get => _twitchLink;
-            set {
-                if (value == null) {
-                    _twitchLink = null;
-                } else {
-                    _twitchLink = $"https://www.twitch.tv/{value}";
-                }
-                NotifyPropertyChanged("hasTwitch");
-            }
-        }
-
-        private string _twitterLink = null;
-        protected string twitterLink {
-            get => _twitterLink;
-            set {
-                if (value == null) {
-                    _twitterLink = null;
-                } else {
-                    _twitterLink = $"https://twitter.com/{value}";
-                }
-                NotifyPropertyChanged("hasTwitter");
-            }
-        }
-
-        private string _youtubeLink = null;
-        protected string youtubeLink {
-            get => _youtubeLink;
-            set {
-                if (value == null) {
-                    _youtubeLink = null;
-                } else {
-                    _youtubeLink = $"https://www.youtube.com/channel/{value}";
-                }
-                NotifyPropertyChanged("hasYoutube");
-            }
-        }
+        [UIComponent("profile-image")] protected readonly ImageView _profilePictureComponent = null;
 
         private readonly string _profilePictureTemp;
+
+        [UIComponent("username-text")] protected readonly CurvedTextMeshPro _usernameTextComponent = null;
+
+        private string _discordLink;
+
+        private string _githubLink;
         private bool _loaded;
 
-        [UIValue("discord")]
-        private bool _hasDiscord => _discordLink != null;
-        [UIValue("github")]
-        private bool _hasGithub => _githubLink != null;
-        [UIValue("twitch")]
-        private bool _hasTwitch => _twitchLink != null;
-        [UIValue("twitter")]
-        private bool _hasTwitter => _twitterLink != null;
-        [UIValue("youtube")]
-        private bool _hasYoutube => _youtubeLink != null;
+        private string _twitchLink;
 
-        [UIComponent("username-text")]
-        protected readonly CurvedTextMeshPro _usernameTextComponent = null;
+        private string _twitterLink;
 
-        [UIComponent("profile-image")]
-        protected readonly ImageView _profilePictureComponent = null;
+        private string _usernameText;
 
-        public TeamUserInfo(string _profilePicture, string _username, string _discord = null, string _github = null, string _twitch = null, string _twitter = null, string _youtube = null) {
+        private string _youtubeLink;
 
-            if (_username == "williums") {
-                _username = "<color=#FF0000>w</color><color=#FF7F00>i</color><color=#FFFF00>l</color><color=#00FF00>l</color><color=#0000FF>i</color><color=#4B0082>u</color><color=#8B00FF>m</color><color=#FF0000>s</color>";
+        public int clickCounter;
+
+        public TeamUserInfo(string _profilePicture, string _username, string _discord = null, string _github = null,
+            string _twitch = null, string _twitter = null, string _youtube = null) {
+            switch (_username) {
+                case "williums":
+                    _username =
+                        "<color=#FF0000>w</color><color=#FF7F00>i</color><color=#FFFF00>l</color><color=#00FF00>l</color><color=#0000FF>i</color><color=#4B0082>u</color><color=#8B00FF>m</color><color=#FF0000>s</color>";
+                    break;
             }
 
             _profilePictureTemp = _profilePicture;
@@ -119,48 +50,159 @@ namespace ScoreSaber.UI.Elements.Team {
             youtubeLink = _youtube;
         }
 
-        public void LoadImage() {
+        [UIValue("username")]
+        protected string usernameText {
+            get => _usernameText;
+            set {
+                _usernameText = value;
+                NotifyPropertyChanged();
+            }
+        }
 
-            if (!_loaded) {
-                if (_profilePictureTemp != null) {
-                    SetImage(_profilePictureTemp);
+        protected string discordLink {
+            get => _discordLink;
+            set {
+                switch (value) {
+                    case null:
+                        _discordLink = null;
+                        break;
+                    default:
+                        _discordLink = value;
+                        break;
                 }
-                _loaded = true;
+
+                NotifyPropertyChanged("hasDiscord");
+            }
+        }
+
+        protected string githubLink {
+            get => _githubLink;
+            set {
+                switch (value) {
+                    case null:
+                        _githubLink = null;
+                        break;
+                    default:
+                        _githubLink = $"https://github.com/{value}";
+                        break;
+                }
+
+                NotifyPropertyChanged("hasGithub");
+            }
+        }
+
+        protected string twitchLink {
+            get => _twitchLink;
+            set {
+                switch (value) {
+                    case null:
+                        _twitchLink = null;
+                        break;
+                    default:
+                        _twitchLink = $"https://www.twitch.tv/{value}";
+                        break;
+                }
+
+                NotifyPropertyChanged("hasTwitch");
+            }
+        }
+
+        protected string twitterLink {
+            get => _twitterLink;
+            set {
+                switch (value) {
+                    case null:
+                        _twitterLink = null;
+                        break;
+                    default:
+                        _twitterLink = $"https://twitter.com/{value}";
+                        break;
+                }
+
+                NotifyPropertyChanged("hasTwitter");
+            }
+        }
+
+        protected string youtubeLink {
+            get => _youtubeLink;
+            set {
+                switch (value) {
+                    case null:
+                        _youtubeLink = null;
+                        break;
+                    default:
+                        _youtubeLink = $"https://www.youtube.com/channel/{value}";
+                        break;
+                }
+
+                NotifyPropertyChanged("hasYoutube");
+            }
+        }
+
+        [UIValue("discord")] private bool _hasDiscord => _discordLink != null;
+
+        [UIValue("github")] private bool _hasGithub => _githubLink != null;
+
+        [UIValue("twitch")] private bool _hasTwitch => _twitchLink != null;
+
+        [UIValue("twitter")] private bool _hasTwitter => _twitterLink != null;
+
+        [UIValue("youtube")] private bool _hasYoutube => _youtubeLink != null;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void LoadImage() {
+            switch (_loaded) {
+                case false: {
+                    if (_profilePictureTemp != null) {
+                        SetImage(_profilePictureTemp);
+                    }
+
+                    _loaded = true;
+                    break;
+                }
             }
         }
 
         private void SetImage(string image) {
-
             if (_profilePictureComponent != null) {
-                _profilePictureComponent.SetImage($"https://raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/images/{image}");
+                _profilePictureComponent.SetImage(
+                    $"https://raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/images/{image}");
             } else {
                 Plugin.Log.Info("ProfilePictureComponent is null");
             }
         }
 
-        public int clickCounter = 0;
         [UIAction("username-click")]
         public void UsernameClick() {
-            if (usernameText == "Umbranox") {
-                if (clickCounter < 5) {
-                    clickCounter++;
-                }
-                if (clickCounter == 5) {
-                    SetImage("r.jpg");
-                    usernameText = "🌧 Rain ❤";
-                    discordLink = "128460955272216576";
-                    twitterLink = "VaporRain";
-                    twitchLink = "inkierain";
-                    NotifyPropertyChanged("profilePicture");
-                    youtubeLink = null;
-                    githubLink = null;
+            switch (usernameText) {
+                case "Umbranox": {
+                    switch (clickCounter < 5) {
+                        case true:
+                            clickCounter++;
+                            break;
+                    }
+
+                    switch (clickCounter) {
+                        case 5:
+                            SetImage("r.jpg");
+                            usernameText = "🌧 Rain ❤";
+                            discordLink = "128460955272216576";
+                            twitterLink = "VaporRain";
+                            twitchLink = "inkierain";
+                            NotifyPropertyChanged("profilePicture");
+                            youtubeLink = null;
+                            githubLink = null;
+                            break;
+                    }
+
+                    break;
                 }
             }
         }
 
         [UIAction("#post-parse")]
         protected void Parsed() {
-
             _profilePictureComponent.material = Plugin.NoGlowMatRound;
             _usernameTextComponent.fontSizeMax = 5.5f;
             _usernameTextComponent.fontSizeMin = 2.5f;
@@ -173,26 +215,26 @@ namespace ScoreSaber.UI.Elements.Team {
         }
 
         [UIAction("github-clicked")]
-        protected void GitHubClicked() { 
-            Application.OpenURL(_githubLink); 
+        protected void GitHubClicked() {
+            Application.OpenURL(_githubLink);
         }
 
         [UIAction("twitter-clicked")]
-        protected void TwitchClicked() { 
-            Application.OpenURL(_twitchLink); 
+        protected void TwitchClicked() {
+            Application.OpenURL(_twitchLink);
         }
 
         [UIAction("twitch-clicked")]
         protected void TwitterClicked() {
-            Application.OpenURL(_twitterLink); }
+            Application.OpenURL(_twitterLink);
+        }
 
 
         [UIAction("youtube-clicked")]
         protected void YoutubeClicked() {
-            Application.OpenURL(_youtubeLink); 
+            Application.OpenURL(_youtubeLink);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

@@ -1,4 +1,8 @@
-﻿using System;
+﻿#region
+
+using System;
+
+#endregion
 
 namespace ScoreSaber.Core.Daemons {
     internal static class UploadDaemonHelper {

@@ -1,4 +1,7 @@
-﻿using BeatSaberMarkupLanguage.Components;
+﻿#region
+
+using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using IPA.Utilities;
 using System;
@@ -9,68 +12,70 @@ using UnityEngine.UI;
 using VRUIControls;
 using Zenject;
 
-namespace ScoreSaber.UI.Multiplayer {
+#endregion
 
+namespace ScoreSaber.UI.Multiplayer {
     // Unused for now
     internal class ScoreSaberMultiplayerLobbyLeaderboardFlowManager : IInitializable, IDisposable {
-
         private readonly DiContainer _container;
         private readonly MainFlowCoordinator _mainFlowCoordinator;
-        private readonly ServerPlayerListViewController _serverPlayerListViewController;
         private readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
+        private readonly ServerPlayerListViewController _serverPlayerListViewController;
 
         private ClickableImage _image;
 
-        public ScoreSaberMultiplayerLobbyLeaderboardFlowManager(DiContainer container, MainFlowCoordinator mainFlowCoordinator, ServerPlayerListViewController serverPlayerListViewController, PlatformLeaderboardViewController platformLeaderboardViewController) {
-
+        public ScoreSaberMultiplayerLobbyLeaderboardFlowManager(DiContainer container,
+            MainFlowCoordinator mainFlowCoordinator, ServerPlayerListViewController serverPlayerListViewController,
+            PlatformLeaderboardViewController platformLeaderboardViewController) {
             _container = container;
             _mainFlowCoordinator = mainFlowCoordinator;
             _serverPlayerListViewController = serverPlayerListViewController;
             _platformLeaderboardViewController = platformLeaderboardViewController;
         }
 
-        public void Initialize() {
+        public void Dispose() {
+            _serverPlayerListViewController.didActivateEvent -= ServerPlayerListViewController_didActivateEvent;
+            _serverPlayerListViewController.didDeactivateEvent -= ServerPlayerListViewController_didDeactivateEvent;
+        }
 
+        public void Initialize() {
             _serverPlayerListViewController.didActivateEvent += ServerPlayerListViewController_didActivateEvent;
             _serverPlayerListViewController.didDeactivateEvent += ServerPlayerListViewController_didDeactivateEvent;
         }
 
-        private void ServerPlayerListViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-
-            if (firstActivation)
-                _image = SetupButton();
+        private void ServerPlayerListViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy,
+            bool screenSystemEnabling) {
+            switch (firstActivation) {
+                case true:
+                    _image = SetupButton();
+                    break;
+            }
 
             _image.OnClickEvent += OnScoreSaberButtonClicked;
         }
 
         private void OnScoreSaberButtonClicked(PointerEventData _) {
-
-            var youngest = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
-            if (!(youngest is GameServerLobbyFlowCoordinator))
-                return;
-
-
-
-            //_platformLeaderboardViewController.SetData() ;
-            ReflectionUtil.InvokeMethod<object, FlowCoordinator>(youngest, "SetRightScreenViewController", _platformLeaderboardViewController, ViewController.AnimationType.In);
+            FlowCoordinator youngest = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
+            switch (youngest is GameServerLobbyFlowCoordinator) {
+                case false:
+                    return;
+                default:
+                    //_platformLeaderboardViewController.SetData() ;
+                    youngest.InvokeMethod<object, FlowCoordinator>("SetRightScreenViewController",
+                        _platformLeaderboardViewController, ViewController.AnimationType.In);
+                    break;
+            }
         }
 
-        private void ServerPlayerListViewController_didDeactivateEvent(bool removedFromHierarchy, bool screenSystemDisabling) {
-
+        private void ServerPlayerListViewController_didDeactivateEvent(bool removedFromHierarchy,
+            bool screenSystemDisabling) {
             _image.OnClickEvent -= OnScoreSaberButtonClicked;
         }
 
-        public void Dispose() {
-
-            _serverPlayerListViewController.didActivateEvent -= ServerPlayerListViewController_didActivateEvent;
-            _serverPlayerListViewController.didDeactivateEvent -= ServerPlayerListViewController_didDeactivateEvent;
-        }
-
         private ClickableImage SetupButton() {
-
             GameObject gameObject = new GameObject("ScoreSaber Icon");
             ClickableImage image = gameObject.AddComponent<ClickableImage>();
-            image.material = BeatSaberMarkupLanguage.Utilities.ImageResources.NoGlowMat;
+            image.material = Utilities.ImageResources.NoGlowMat;
 
             image.rectTransform.SetParent(_serverPlayerListViewController.transform);
             image.rectTransform.localPosition = new Vector3(-52f, 36.5f, 0f);
@@ -81,15 +86,15 @@ namespace ScoreSaber.UI.Multiplayer {
             image.color = image.DefaultColor = Color.white.ColorWithAlpha(0.1f);
             image.SetField<ImageView, float>("_skew", 0.18f);
 
-            var canvas = gameObject.AddComponent<Canvas>();
+            Canvas canvas = gameObject.AddComponent<Canvas>();
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
             _container.InstantiateComponent<VRGraphicRaycaster>(gameObject);
 
-            var imgBytes = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.logo.png");
-            image.sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(imgBytes);
+            byte[] imgBytes = Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.logo.png");
+            image.sprite = Utilities.LoadSpriteRaw(imgBytes);
             image.sprite.texture.wrapMode = TextureWrapMode.Clamp;
 
             return image;

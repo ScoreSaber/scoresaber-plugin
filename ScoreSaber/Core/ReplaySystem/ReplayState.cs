@@ -1,10 +1,12 @@
-﻿using ScoreSaber.Core.ReplaySystem.Data;
+﻿#region
+
+using ScoreSaber.Core.ReplaySystem.Data;
 using System.Collections.Generic;
 
-namespace ScoreSaber.Core.ReplaySystem
-{
-    internal class ReplayState
-    {
+#endregion
+
+namespace ScoreSaber.Core.ReplaySystem {
+    internal class ReplayState {
         // State management
         internal IDifficultyBeatmap CurrentLevel;
         internal GameplayModifiers CurrentModifiers;
@@ -13,7 +15,7 @@ namespace ScoreSaber.Core.ReplaySystem
         // Legacy 
         internal bool IsLegacyReplay;
         internal bool IsPlaybackEnabled;
-        internal List<Z.Keyframe> LoadedLegacyKeyframes;
+        internal List<LegacyReplayFile.Keyframe> LoadedLegacyKeyframes;
 
         // New
         internal ReplayFile LoadedReplayFile;

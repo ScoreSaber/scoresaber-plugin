@@ -1,16 +1,18 @@
-﻿using ScoreSaber.Core.ReplaySystem;
+﻿#region
+
+using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.Data;
 using System;
 using System.Threading.Tasks;
 
-namespace ScoreSaber.Core.Daemons {
+#endregion
 
+namespace ScoreSaber.Core.Services {
     internal class ReplayService {
-
-        public event Action<byte[]> ReplaySerialized;
-
         private string _currentPlayId;
         private Recorder _replayRecorder;
+
+        public event Action<byte[]> ReplaySerialized;
 
         public void NewPlayStarted(string playId, Recorder replayRecorder) {
             _currentPlayId = playId;

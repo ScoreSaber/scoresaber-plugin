@@ -1,42 +1,43 @@
-﻿using Zenject;
-using ScoreSaber.Core.ReplaySystem.Recorders;
-using SiraUtil.Logging;
-using ScoreSaber.Core.Utils;
-using System.Reflection;
-using ScoreSaber.Core.Daemons;
+﻿#region
 
-namespace ScoreSaber.Core.ReplaySystem.Installers
-{
-    internal class RecordInstaller : Installer
-    {
-        private readonly SiraLog _siraLog;
+using ScoreSaber.Core.ReplaySystem.Recorders;
+using ScoreSaber.Core.Utils;
+using SiraUtil.Logging;
+using Zenject;
+
+#endregion
+
+namespace ScoreSaber.Core.ReplaySystem.Installers {
+    internal class RecordInstaller : Installer {
         private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
+        private readonly SiraLog _siraLog;
 
         public RecordInstaller(SiraLog siraLog, GameplayCoreSceneSetupData gameplayCoreSceneSetupData) {
-
             _siraLog = siraLog;
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
         }
 
         public override void InstallBindings() {
-
             bool hasV3Stuff = LeaderboardUtils.ContainsV3Stuff(_gameplayCoreSceneSetupData.transformedBeatmapData);
 
-            if (hasV3Stuff) {
-                _siraLog.Warn("This map contains Beatmap V3 sliders! Not recording...");
-                return;
+            switch (hasV3Stuff) {
+                case true:
+                    _siraLog.Warn("This map contains Beatmap V3 sliders! Not recording...");
+                    return;
             }
 
-            if (!Plugin.ReplayState.IsPlaybackEnabled) {
-                Plugin.Log.Debug("Installing replay recorders");
-                Container.BindInterfacesAndSelfTo<Recorder>().AsSingle();
-                Container.BindInterfacesAndSelfTo<MetadataRecorder>().AsSingle();
-                Container.BindInterfacesAndSelfTo<HeightEventRecorder>().AsSingle();
-                Container.BindInterfacesAndSelfTo<NoteEventRecorder>().AsSingle();
-                Container.BindInterfacesAndSelfTo<PoseRecorder>().AsSingle();
-                Container.BindInterfacesAndSelfTo<ScoreEventRecorder>().AsSingle();
-                Container.BindInterfacesAndSelfTo<EnergyEventRecorder>().AsSingle();
-                Plugin.Log.Debug("Replay recorders installed");
+            switch (Plugin.ReplayState.IsPlaybackEnabled) {
+                case false:
+                    Plugin.Log.Debug("Installing replay recorders");
+                    Container.BindInterfacesAndSelfTo<Recorder>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<MetadataRecorder>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<HeightEventRecorder>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<NoteEventRecorder>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<PoseRecorder>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<ScoreEventRecorder>().AsSingle();
+                    Container.BindInterfacesAndSelfTo<EnergyEventRecorder>().AsSingle();
+                    Plugin.Log.Debug("Replay recorders installed");
+                    break;
             }
         }
     }

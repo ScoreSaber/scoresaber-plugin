@@ -1,4 +1,6 @@
-﻿using ScoreSaber.Core.Daemons;
+﻿#region
+
+using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Core.Services;
@@ -7,12 +9,12 @@ using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main;
 using ScoreSaber.UI.Main.ViewControllers;
 using ScoreSaber.UI.Multiplayer;
-using System.Reflection;
 using Zenject;
+
+#endregion
 
 namespace ScoreSaber.Core {
     internal class MainInstaller : Installer {
-
         public override void InstallBindings() {
             Container.BindInstance(new object()).WithId("ScoreSaberUIBindings").AsCached();
             Container.Bind<ReplayLoader>().AsSingle().NonLazy();
@@ -21,7 +23,7 @@ namespace ScoreSaber.Core {
             Container.Bind<GlobalLeaderboardService>().AsSingle();
             Container.Bind<LeaderboardService>().AsSingle();
             Container.Bind<PlayerService>().AsSingle();
-          
+
 
             Container.Bind<PanelView>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<FAQViewController>().FromNewComponentAsViewController().AsSingle();

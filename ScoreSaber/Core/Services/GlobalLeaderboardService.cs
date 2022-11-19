@@ -1,12 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿#region
+
+using Newtonsoft.Json;
 using ScoreSaber.Core.Data.Models;
-using System.Reflection;
 using System.Threading.Tasks;
 
+#endregion
+
 namespace ScoreSaber.Core.Services {
-
     internal class GlobalLeaderboardService {
-
         public enum GlobalPlayerScope {
             Global,
             AroundPlayer,
@@ -19,16 +20,14 @@ namespace ScoreSaber.Core.Services {
         }
 
         public async Task<PlayerInfo[]> GetPlayerList(GlobalPlayerScope scope, int page) {
-
             string url = BuildUrl(scope, page);
 
-            var response = await Plugin.HttpInstance.GetAsync(url);
-            var globalLeaderboardData = JsonConvert.DeserializeObject<PlayerCollection>(response);
+            string response = await Plugin.HttpInstance.GetAsync(url);
+            PlayerCollection globalLeaderboardData = JsonConvert.DeserializeObject<PlayerCollection>(response);
             return globalLeaderboardData.players;
         }
 
         private string BuildUrl(GlobalPlayerScope scope, int page) {
-
             string url = "/game/players";
             switch (scope) {
                 case GlobalPlayerScope.Global:
@@ -44,8 +43,8 @@ namespace ScoreSaber.Core.Services {
                     url = $"{url}/around-country?page={page}";
                     break;
             }
+
             return url;
         }
-
     }
 }

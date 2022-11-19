@@ -1,41 +1,45 @@
-﻿using HMUI;
-using ScoreSaber.Core.Data;
+﻿#region
+
+using HMUI;
+using ScoreSaber.Core.Data.Internal;
 using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.XR;
 using VRUIControls;
 using Zenject;
+using Object = UnityEngine.Object;
 
-namespace ScoreSaber.Core.ReplaySystem.UI
-{
-    internal class ImberUIPositionController : IInitializable, ITickable, IDisposable
-    {
-        private bool _isActive = false;
-        private bool _isClicking = false;
-        private bool _didClickOnce = false;
-        private DateTime _lastTriggerDownTime;
-        private XRNode _handTrack = XRNode.LeftHand;
-        private readonly float _sensitivityToClick = 0.5f;
-        private readonly float _timeBufferToDoubleClick = 0.75f;
+#endregion
+
+namespace ScoreSaber.Core.ReplaySystem.UI {
+    internal class ImberUIPositionController : IInitializable, ITickable, IDisposable {
+        private readonly Canvas _canvas;
+        private readonly CurvedCanvasSettings _curve;
 
         private readonly IGamePause _gamePause;
         private readonly ImberScrubber _imberScrubber;
         private readonly MainImberPanelView _mainImberPanelView;
-        private readonly VRControllerAccessor _vrControllerAccessor;
-
-        private bool _isPaused;
-        private readonly VRGraphicRaycaster _vrGraphicsRaycaster;
+        private readonly MainSettingsModelSO _mainSettingsModelSO;
         private readonly Transform _menuControllerTransform;
         private readonly Transform _menuWrapperTransform;
         private readonly Transform _pauseMenuManagerTransform;
-        private readonly CurvedCanvasSettings _curve;
-        private readonly Canvas _canvas;
-        private readonly MainSettingsModelSO _mainSettingsModelSO;
+        private readonly float _sensitivityToClick = 0.5f;
+        private readonly float _timeBufferToDoubleClick = 0.75f;
+        private readonly VRControllerAccessor _vrControllerAccessor;
+        private readonly VRGraphicRaycaster _vrGraphicsRaycaster;
         private Vector3 _controllerOffset;
+        private bool _didClickOnce;
+        private XRNode _handTrack = XRNode.LeftHand;
+        private bool _isActive;
+        private bool _isClicking;
 
-        public ImberUIPositionController(IGamePause gamePause, ImberScrubber imberScrubber, PauseMenuManager pauseMenuManager, MainImberPanelView mainImberPanelView, VRControllerAccessor vrControllerAccessor) {
+        private bool _isPaused;
+        private DateTime _lastTriggerDownTime;
 
+        public ImberUIPositionController(IGamePause gamePause, ImberScrubber imberScrubber,
+            PauseMenuManager pauseMenuManager, MainImberPanelView mainImberPanelView,
+            VRControllerAccessor vrControllerAccessor) {
             _gamePause = gamePause;
             _imberScrubber = imberScrubber;
             _mainImberPanelView = mainImberPanelView;
@@ -50,19 +54,92 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _controllerOffset = new Vector3(0f, 0f, -2f);
         }
 
-        public void Initialize() {
+        public void Dispose() {
+            _gamePause.didResumeEvent -= GamePause_didResumeEvent;
+            _gamePause.didPauseEvent -= GamePause_didPauseEvent;
+        }
 
+        public void Initialize() {
             _gamePause.didPauseEvent += GamePause_didPauseEvent;
             _gamePause.didResumeEvent += GamePause_didResumeEvent;
-            _pauseMenuManagerTransform.position = new Vector3(_controllerOffset.x, _controllerOffset.y, _controllerOffset.z);
+            _pauseMenuManagerTransform.position =
+                new Vector3(_controllerOffset.x, _controllerOffset.y, _controllerOffset.z);
 
-            if (Plugin.Settings.leftHandedReplayUI) {
-                _handTrack = XRNode.RightHand;
+            switch (Plugin.Settings.leftHandedReplayUI) {
+                case true:
+                    _handTrack = XRNode.RightHand;
+                    break;
+            }
+        }
+
+        public void Tick() {
+            VRController controller = _handTrack == XRNode.LeftHand
+                ? _vrControllerAccessor.leftController
+                : _vrControllerAccessor.rightController;
+
+            switch (_didClickOnce) {
+                // Detect Trigger Double Click
+                case true when DateTime.Now > _lastTriggerDownTime.AddSeconds(_timeBufferToDoubleClick):
+                    _didClickOnce = false;
+                    break;
+                default: {
+                    switch (controller.triggerValue >= _sensitivityToClick) {
+                        case true when !_isClicking: {
+                            _isClicking = true;
+                            switch (_didClickOnce) {
+                                case true: {
+                                    _didClickOnce = false;
+                                    // DID DOUBLE CLICK HERE!!!
+                                    _isActive = !_isActive;
+                                    _imberScrubber.visibility = _isActive;
+                                    _mainImberPanelView.visibility = _isActive;
+                                    OpenedUI();
+                                    _mainImberPanelView.StartCoroutine(KillMe(controller));
+
+                                    switch (_isPaused) {
+                                        case false:
+                                            _curve.enabled = !_isActive;
+                                            _canvas.enabled = !_isActive;
+                                            _menuWrapperTransform.gameObject.SetActive(_isActive);
+                                            _menuControllerTransform.gameObject.SetActive(_isActive);
+                                            _vrGraphicsRaycaster.enabled = _isActive;
+                                            break;
+                                    }
+
+                                    break;
+                                }
+                                default:
+                                    _lastTriggerDownTime = DateTime.Now;
+                                    _didClickOnce = true;
+                                    break;
+                            }
+
+                            break;
+                        }
+                        default: {
+                            switch (controller.triggerValue < _sensitivityToClick) {
+                                case true when _isClicking:
+                                    _isClicking = false;
+                                    break;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+            }
+
+            switch (_isActive) {
+                // Update Active UI Position
+                case true when !Plugin.Settings.lockedReplayUIMode:
+                    SetUIPosition(controller);
+                    break;
             }
         }
 
         private void GamePause_didResumeEvent() {
-
             _isPaused = false;
             _menuWrapperTransform.gameObject.SetActive(_isActive);
             _menuControllerTransform.gameObject.SetActive(_isActive);
@@ -70,7 +147,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         private void GamePause_didPauseEvent() {
-
             _isPaused = true;
             _menuWrapperTransform.gameObject.SetActive(false);
             _curve.enabled = true;
@@ -78,96 +154,55 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _menuWrapperTransform.gameObject.SetActive(true);
         }
 
-        public void Tick() {
-
-            VRController controller = _handTrack == XRNode.LeftHand ? _vrControllerAccessor.leftController : _vrControllerAccessor.rightController;
-
-            // Detect Trigger Double Click
-            if (_didClickOnce && DateTime.Now > _lastTriggerDownTime.AddSeconds(_timeBufferToDoubleClick)) {
-                _didClickOnce = false;
-            } else {
-                if (controller.triggerValue >= _sensitivityToClick && !_isClicking) {
-                    _isClicking = true;
-                    if (_didClickOnce) {
-                        _didClickOnce = false;
-                        // DID DOUBLE CLICK HERE!!!
-                        _isActive = !_isActive;
-                        _imberScrubber.visibility = _isActive;
-                        _mainImberPanelView.visibility = _isActive;
-                        OpenedUI();
-                        _mainImberPanelView.StartCoroutine(KillMe(controller));
-
-                        if (!_isPaused) {
-                            _curve.enabled = !_isActive;
-                            _canvas.enabled = !_isActive;
-                            _menuWrapperTransform.gameObject.SetActive(_isActive);
-                            _menuControllerTransform.gameObject.SetActive(_isActive);
-                            _vrGraphicsRaycaster.enabled = _isActive;
-                        }
-                    } else {
-                        _lastTriggerDownTime = DateTime.Now;
-                        _didClickOnce = true;
-                    }
-                } else if (controller.triggerValue < _sensitivityToClick && _isClicking) {
-                    _isClicking = false;
-                }
-            }
-
-            // Update Active UI Position
-            if (_isActive && !Plugin.Settings.lockedReplayUIMode) {
-
-                SetUIPosition(controller);
-            }
-        }
-
         private IEnumerator KillMe(VRController controller) {
             for (int i = 0; i < 5; i++) {
                 yield return new WaitForEndOfFrame();
             }
+
             SetUIPosition(controller);
         }
 
         private void SetUIPosition(VRController controller) {
+            Vector3 viewOffset = _handTrack == XRNode.LeftHand
+                ? new Vector3(0.25f, 0.25f, 0.25f)
+                : new Vector3(-0.25f, 0.25f, 0.25f);
+            Vector3 scrubberOffset = _handTrack == XRNode.LeftHand
+                ? new Vector3(0.46f, -0.06f, 0.25f)
+                : new Vector3(-0.46f, -0.06f, 0.25f);
 
-            Vector3 viewOffset = _handTrack == XRNode.LeftHand ? new Vector3(0.25f, 0.25f, 0.25f) : new Vector3(-0.25f, 0.25f, 0.25f);
-            Vector3 scrubberOffset = _handTrack == XRNode.LeftHand ? new Vector3(0.46f, -0.06f, 0.25f) : new Vector3(-0.46f, -0.06f, 0.25f);
-
-            _mainImberPanelView.Transform.SetLocalPositionAndRotation(controller.transform.TransformPoint(viewOffset), controller.transform.rotation);
-            _imberScrubber.transform.SetLocalPositionAndRotation(controller.transform.TransformPoint(scrubberOffset), controller.transform.rotation);
+            _mainImberPanelView.Transform.SetLocalPositionAndRotation(controller.transform.TransformPoint(viewOffset),
+                controller.transform.rotation);
+            _imberScrubber.transform.SetLocalPositionAndRotation(controller.transform.TransformPoint(scrubberOffset),
+                controller.transform.rotation);
         }
 
         private void OpenedUI() {
+            switch (Plugin.Settings.hasOpenedReplayUI) {
+                case false: {
+                    GameObject replayPrompt = GameObject.Find("Replay Prompt");
+                    if (replayPrompt != null) {
+                        Object.Destroy(replayPrompt);
+                    }
 
-            if (!Plugin.Settings.hasOpenedReplayUI) {
-                GameObject replayPrompt = GameObject.Find("Replay Prompt");
-                if (replayPrompt != null) {
-                    GameObject.Destroy(replayPrompt);
+                    Plugin.Settings.hasOpenedReplayUI = true;
+                    Settings.SaveSettings(Plugin.Settings);
+                    break;
                 }
-                Plugin.Settings.hasOpenedReplayUI = true;
-                Settings.SaveSettings(Plugin.Settings);
             }
         }
 
         public void UpdateTrackingHand(XRNode node) {
-
             _handTrack = node;
         }
 
         public void SetActiveState(bool value) {
-
             _isActive = value;
         }
 
         public void SetControllerOffset(Vector3 value) {
-
             _controllerOffset = value;
-            _pauseMenuManagerTransform.position = new Vector3(_controllerOffset.x, _controllerOffset.y, _controllerOffset.z);
-        }
-
-        public void Dispose() {
-
-            _gamePause.didResumeEvent -= GamePause_didResumeEvent;
-            _gamePause.didPauseEvent -= GamePause_didPauseEvent;
+            _pauseMenuManagerTransform.position =
+                new Vector3(_controllerOffset.x, _controllerOffset.y, _controllerOffset.z);
         }
     }
 }

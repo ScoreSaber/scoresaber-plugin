@@ -354,3 +354,6 @@ MigrationBackup/
 ScoreSaber/ObfuscationSettings.cs
 ScoreSaber/Core/ReplaySystem/Legacy/LegacyRecorder.cs
 ScoreSaber/Core/ReplaySystem/Legacy/OldLegacyReplayPlayer.cs
+
+# IntelliJ IDEA
+.idea/

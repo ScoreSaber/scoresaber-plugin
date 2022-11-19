@@ -1,11 +1,13 @@
-﻿using ScoreSaber.Core.ReplaySystem.Data;
+﻿#region
+
+using ScoreSaber.Core.ReplaySystem.Data;
 using System.IO;
 using UnityEngine;
 
-namespace ScoreSaber.Extensions
-{
-    internal static class ReplayExtensions
-    {
+#endregion
+
+namespace ScoreSaber.Extensions {
+    internal static class ReplayExtensions {
         internal static VRPosition Convert(this Vector3 vec) {
             return new VRPosition { X = vec.x, Y = vec.y, Z = vec.z };
         }
@@ -27,8 +29,10 @@ namespace ScoreSaber.Extensions
         }
 
         internal static string Truncate(this string value, int maxLength) {
+            if (string.IsNullOrEmpty(value)) {
+                return value;
+            }
 
-            if (string.IsNullOrEmpty(value)) return value;
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
 

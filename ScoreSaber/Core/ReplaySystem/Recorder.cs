@@ -1,24 +1,28 @@
-﻿using ScoreSaber.Core.Daemons;
+﻿#region
+
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.ReplaySystem.Recorders;
+using ScoreSaber.Core.Services;
 using System;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem
-{
-    internal class Recorder : IInitializable, IDisposable
-    {
+#endregion
+
+namespace ScoreSaber.Core.ReplaySystem {
+    internal class Recorder : IInitializable, IDisposable {
+        private readonly EnergyEventRecorder _energyEventRecorder;
+        private readonly HeightEventRecorder _heightEventRecorder;
         private readonly string _id;
-        private readonly PoseRecorder _poseRecorder;
-        private readonly ReplayService _replayService;
         private readonly MetadataRecorder _metadataRecorder;
         private readonly NoteEventRecorder _noteEventRecorder;
+        private readonly PoseRecorder _poseRecorder;
+        private readonly ReplayService _replayService;
         private readonly ScoreEventRecorder _scoreEventRecorder;
-        private readonly HeightEventRecorder _heightEventRecorder;
-        private readonly EnergyEventRecorder _energyEventRecorder;
 
-        public Recorder(PoseRecorder poseRecorder, MetadataRecorder metadataRecorder, NoteEventRecorder noteEventRecorder, ScoreEventRecorder scoreEventRecorder, HeightEventRecorder heightEventRecorder, EnergyEventRecorder energyEventRecorder, ReplayService replayService) {
-
+        public Recorder(PoseRecorder poseRecorder, MetadataRecorder metadataRecorder,
+            NoteEventRecorder noteEventRecorder, ScoreEventRecorder scoreEventRecorder,
+            HeightEventRecorder heightEventRecorder, EnergyEventRecorder energyEventRecorder,
+            ReplayService replayService) {
             _poseRecorder = poseRecorder;
             _replayService = replayService;
             _metadataRecorder = metadataRecorder;
@@ -31,14 +35,15 @@ namespace ScoreSaber.Core.ReplaySystem
             Plugin.Log.Debug("Main replay recorder installed");
         }
 
-        public void Initialize() {
+        public void Dispose() {
+        }
 
+        public void Initialize() {
             _replayService.NewPlayStarted(_id, this);
         }
 
         public ReplayFile Export() {
-
-            return new ReplayFile() {
+            return new ReplayFile {
                 metadata = _metadataRecorder.Export(),
                 poseKeyframes = _poseRecorder.Export(),
                 heightKeyframes = _heightEventRecorder.Export(),
@@ -48,9 +53,6 @@ namespace ScoreSaber.Core.ReplaySystem
                 multiplierKeyframes = _scoreEventRecorder.ExportMultiplierKeyframes(),
                 energyKeyframes = _energyEventRecorder.Export()
             };
-        }
-
-        public void Dispose() {
         }
     }
 }

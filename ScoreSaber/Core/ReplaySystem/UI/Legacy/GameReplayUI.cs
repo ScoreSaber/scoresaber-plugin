@@ -1,68 +1,81 @@
-﻿using HMUI;
+﻿#region
+
+using HMUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using TMPro;
 using UnityEngine;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
-{
-    internal class GameReplayUI : MonoBehaviour {
+#endregion
 
+namespace ScoreSaber.Core.ReplaySystem.UI.Legacy {
+    internal class GameReplayUI : MonoBehaviour {
         [Inject] private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData = null;
 
         public void Start() {
-
             CreateReplayUI();
         }
 
         private void CreateReplayUI() {
-
-            string replayText = string.Format("REPLAY MODE - Watching {0} play {1} - {2} ({3})", Plugin.ReplayState.CurrentPlayerName, 
-                Plugin.ReplayState.CurrentLevel.level.songAuthorName, Plugin.ReplayState.CurrentLevel.level.songName,
-              Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentLevel.difficulty).Replace("ExpertPlus", "Expert+"));
+            string replayText =
+                $"REPLAY MODE - Watching {Plugin.ReplayState.CurrentPlayerName} play {Plugin.ReplayState.CurrentLevel.level.songAuthorName} - {Plugin.ReplayState.CurrentLevel.level.songName} ({Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentLevel.difficulty).Replace("ExpertPlus", "Expert+")})";
             float timeScale = 1f;
 
-            if (!Plugin.ReplayState.IsLegacyReplay) {
-                if (Plugin.ReplayState.LoadedReplayFile.noteKeyframes.Count > 0) {
-                    timeScale = Plugin.ReplayState.LoadedReplayFile.noteKeyframes[0].TimeSyncTimescale;
+            switch (Plugin.ReplayState.IsLegacyReplay) {
+                case false: {
+                    switch (Plugin.ReplayState.LoadedReplayFile.noteKeyframes.Count > 0) {
+                        case true:
+                            timeScale = Plugin.ReplayState.LoadedReplayFile.noteKeyframes[0].TimeSyncTimescale;
+                            break;
+                    }
+
+                    break;
                 }
             }
+
             if (timeScale != 1f) {
                 replayText += $" [{timeScale:P1}]";
             }
+
             string friendlyMods = GetFriendlyModifiers(Plugin.ReplayState.CurrentModifiers);
             if (friendlyMods != string.Empty) {
-                replayText += string.Format(" [{0}]", friendlyMods);
+                replayText += $" [{friendlyMods}]";
             }
+
             GameObject _watermarkCanvas = new GameObject("InGameReplayUI");
 
-            if (_gameplayCoreSceneSetupData.environmentInfo.environmentName == "Interscope") {
-                _watermarkCanvas.transform.position = new Vector3(0f, 3.5f, 12.0f);
-            } else {
-                _watermarkCanvas.transform.position = new Vector3(0f, 4f, 12.0f);
+            switch (_gameplayCoreSceneSetupData.environmentInfo.environmentName) {
+                case "Interscope":
+                    _watermarkCanvas.transform.position = new Vector3(0f, 3.5f, 12.0f);
+                    break;
+                default:
+                    _watermarkCanvas.transform.position = new Vector3(0f, 4f, 12.0f);
+                    break;
             }
+
             _watermarkCanvas.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 
             Canvas _canvas = _watermarkCanvas.AddComponent<Canvas>();
             _watermarkCanvas.AddComponent<CurvedCanvasSettings>();
             _canvas.renderMode = RenderMode.WorldSpace;
             _canvas.enabled = false;
-            TMP_Text _text = CreateText(_canvas.transform as RectTransform, replayText, new Vector2(0, 10), new Vector2(100, 20), 15f);
+            TMP_Text _text = CreateText(_canvas.transform as RectTransform, replayText, new Vector2(0, 10),
+                new Vector2(100, 20), 15f);
             _text.alignment = TextAlignmentOptions.Center;
-            var rectTransform = _text.transform as RectTransform;
+            RectTransform rectTransform = _text.transform as RectTransform;
             rectTransform.SetParent(_canvas.transform, false);
             _canvas.enabled = true;
         }
 
-        public TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition, Vector2 sizeDelta, float fontSize) {
-
+        public TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition,
+            Vector2 sizeDelta, float fontSize) {
             GameObject gameObject = new GameObject("CustomUIText-ScoreSaber");
             gameObject.SetActive(false);
             TextMeshProUGUI textMeshProUGUI = gameObject.AddComponent<TextMeshProUGUI>();
-            textMeshProUGUI.font = Instantiate(Resources.FindObjectsOfTypeAll<TMP_FontAsset>().First((TMP_FontAsset t) => t.name == "Teko-Medium SDF"));
+            textMeshProUGUI.font = Instantiate(Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
+                .First(t => t.name == "Teko-Medium SDF"));
             textMeshProUGUI.rectTransform.SetParent(parent, false);
             textMeshProUGUI.text = text;
             textMeshProUGUI.fontSize = fontSize;
@@ -76,60 +89,103 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
         }
 
         public string GetFriendlyModifiers(GameplayModifiers gameplayModifiers) {
-
-            if (gameplayModifiers == null) return string.Empty;
+            switch (gameplayModifiers) {
+                case null:
+                    return string.Empty;
+            }
 
             List<string> result = new List<string>();
-            if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) {
-                result.Add("BE");
+            switch (gameplayModifiers.energyType) {
+                case GameplayModifiers.EnergyType.Battery:
+                    result.Add("BE");
+                    break;
             }
-            if (gameplayModifiers.noFailOn0Energy) {
-                result.Add("NF");
+
+            switch (gameplayModifiers.noFailOn0Energy) {
+                case true:
+                    result.Add("NF");
+                    break;
             }
-            if (gameplayModifiers.instaFail) {
-                result.Add("IF");
+
+            switch (gameplayModifiers.instaFail) {
+                case true:
+                    result.Add("IF");
+                    break;
             }
-            if (gameplayModifiers.failOnSaberClash) {
-                result.Add("SC");
+
+            switch (gameplayModifiers.failOnSaberClash) {
+                case true:
+                    result.Add("SC");
+                    break;
             }
-            if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) {
-                result.Add("NO");
+
+            switch (gameplayModifiers.enabledObstacleType) {
+                case GameplayModifiers.EnabledObstacleType.NoObstacles:
+                    result.Add("NO");
+                    break;
             }
-            if (gameplayModifiers.noBombs) {
-                result.Add("NB");
+
+            switch (gameplayModifiers.noBombs) {
+                case true:
+                    result.Add("NB");
+                    break;
             }
-            if (gameplayModifiers.strictAngles) {
-                result.Add("SA");
+
+            switch (gameplayModifiers.strictAngles) {
+                case true:
+                    result.Add("SA");
+                    break;
             }
-            if (gameplayModifiers.disappearingArrows) {
-                result.Add("DA");
+
+            switch (gameplayModifiers.disappearingArrows) {
+                case true:
+                    result.Add("DA");
+                    break;
             }
-            if (gameplayModifiers.ghostNotes) {
-                result.Add("GN");
+
+            switch (gameplayModifiers.ghostNotes) {
+                case true:
+                    result.Add("GN");
+                    break;
             }
-            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) {
-                result.Add("SS");
+
+            switch (gameplayModifiers.songSpeed) {
+                case GameplayModifiers.SongSpeed.Slower:
+                    result.Add("SS");
+                    break;
+                case GameplayModifiers.SongSpeed.Faster:
+                    result.Add("FS");
+                    break;
+                case GameplayModifiers.SongSpeed.SuperFast:
+                    result.Add("SF");
+                    break;
             }
-            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) {
-                result.Add("FS");
+
+            switch (gameplayModifiers.smallCubes) {
+                case true:
+                    result.Add("SC");
+                    break;
             }
-            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.SuperFast) {
-                result.Add("SF");
+
+            switch (gameplayModifiers.strictAngles) {
+                case true:
+                    result.Add("SA");
+                    break;
             }
-            if (gameplayModifiers.smallCubes) {
-                result.Add("SC");
+
+            switch (gameplayModifiers.proMode) {
+                case true:
+                    result.Add("PM");
+                    break;
             }
-            if (gameplayModifiers.strictAngles) {
-                result.Add("SA");
+
+            switch (gameplayModifiers.noArrows) {
+                case true:
+                    result.Add("NA");
+                    break;
             }
-            if (gameplayModifiers.proMode) {
-                result.Add("PM");
-            }
-            if (gameplayModifiers.noArrows) {
-                result.Add("NA");
-            }
+
             return string.Join(",", result);
         }
-
     }
 }

@@ -1,22 +1,42 @@
-﻿using BeatSaberMarkupLanguage;
+﻿#region
+
+using BeatSaberMarkupLanguage;
 using HMUI;
 using ScoreSaber.Core.ReplaySystem.UI.Components;
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VRUIControls;
 using Zenject;
 
-namespace ScoreSaber.Core.ReplaySystem.UI
-{
-    internal class ImberScrubber : IInitializable, ITickable, IDisposable
-    {
-        public event Action<float> DidCalculateNewTime;
-        private static Color _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
+#endregion
 
-        public Transform transform {
-            get => _parent;
+namespace ScoreSaber.Core.ReplaySystem.UI {
+    internal class ImberScrubber : IInitializable, ITickable, IDisposable {
+        private static readonly Color _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
+        private readonly AudioTimeSyncController _audioTimeSyncController;
+        private readonly DiContainer _container;
+        private readonly MainCamera _mainCamera;
+        private readonly float _minNodeDistance = 0.01f;
+        private bool _allowPast;
+
+        private AmeBar _bar;
+        private AmeNode _failNode;
+        private float _levelFailTime;
+        private bool _loopMode;
+        private AmeNode _loopNode;
+        private AmeNode _mainNode;
+        private float _maxPercent = 1f;
+
+        public ImberScrubber(MainCamera mainCamera, DiContainer container,
+            AudioTimeSyncController audioTimeSyncController) {
+            _container = container;
+            _mainCamera = mainCamera;
+            _audioTimeSyncController = audioTimeSyncController;
         }
+
+        public Transform transform { get; private set; }
 
         public bool loopMode {
             get => _loopMode;
@@ -31,9 +51,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         public bool visibility {
-            set {
-                _bar.gameObject.SetActive(value);
-            }
+            set => _bar.gameObject.SetActive(value);
         }
 
         public float mainNodeValue {
@@ -41,35 +59,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             set => _bar.AssignNodeToPercent(_mainNode, value);
         }
 
-        private AmeBar _bar;
-        private AmeNode _mainNode;
-        private AmeNode _loopNode;
-        private AmeNode _failNode;
-        private Transform _parent;
-        private bool _loopMode = false;
-        private readonly MainCamera _mainCamera;
-        private readonly DiContainer _container;
-        private readonly float _minNodeDistance = 0.01f;
-        private readonly AudioTimeSyncController _audioTimeSyncController;
-        private float _levelFailTime = 0f;
-        private float _maxPercent = 1f;
-        private bool _allowPast;
-
-        public ImberScrubber(MainCamera mainCamera, DiContainer container, AudioTimeSyncController audioTimeSyncController) {
-
-            _container = container;
-            _mainCamera = mainCamera;
-            _audioTimeSyncController = audioTimeSyncController;
-        }
-
-        public void Setup(float levelFailTime, bool allowPast) {
-
-            _levelFailTime = levelFailTime;
-            _allowPast = allowPast;
+        public void Dispose() {
+            _mainNode.PositionDidChange -= MainNode_PositionDidChange;
+            _loopNode.PositionDidChange -= LoopNode_PositionDidChange;
         }
 
         public void Initialize() {
-
             _bar = Create(_mainCamera.camera, new Vector2(500f, 100f));
             //_bar.transform.position = new Vector3(0f, 1.5f, 0f);
             _bar.transform.localScale = Vector3.one * 0.001f;
@@ -92,8 +87,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI
                 _failNode = CreateTextNode(_bar.transform as RectTransform, "FAILED", new Color(0.7f, 0.1f, 0.15f, 1f));
                 _failNode.name = "Imber Text Node";
                 _failNode.moveable = false;
-                if (!_allowPast)
-                    _maxPercent = _levelFailTime / _audioTimeSyncController.songEndTime;
+                switch (_allowPast) {
+                    case false:
+                        _maxPercent = _levelFailTime / _audioTimeSyncController.songEndTime;
+                        break;
+                }
+
                 _bar.AssignNodeToPercent(_failNode, _levelFailTime / _audioTimeSyncController.songEndTime);
                 _bar.AssignNodeToPercent(_loopNode, _maxPercent);
                 _loopNode.max = _maxPercent;
@@ -102,16 +101,49 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _mainNode.max = _bar.GetNodePercent(_loopNode) - _minNodeDistance;
             _loopNode.min = _bar.GetNodePercent(_mainNode) + _minNodeDistance;
 
-            var gameObject = new GameObject("Imber Scrubber Wrapper");
+            GameObject gameObject = new GameObject("Imber Scrubber Wrapper");
             _bar.gameObject.transform.SetParent(gameObject.transform, false);
-            _parent = gameObject.transform;
+            transform = gameObject.transform;
             gameObject.layer = 5;
 
             visibility = false;
         }
 
-        private void MainNode_PositionDidChange(float value) {
+        public void Tick() {
+            float currentAudioProgress = _audioTimeSyncController.songTime / _audioTimeSyncController.songEndTime;
+            switch (_mainNode.isBeingDragged) {
+                case false: {
+                    switch (_loopMode) {
+                        case false:
+                            mainNodeValue = currentAudioProgress;
+                            break;
+                    }
 
+                    _bar.currentTime = _audioTimeSyncController.songTime;
+                    _bar.barFill = currentAudioProgress;
+                    break;
+                }
+            }
+
+            switch (_loopMode) {
+                case true: {
+                    if (currentAudioProgress >= _bar.GetNodePercent(_loopNode)) {
+                        MainNode_PositionDidChange(mainNodeValue);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        public event Action<float> DidCalculateNewTime;
+
+        public void Setup(float levelFailTime, bool allowPast) {
+            _levelFailTime = levelFailTime;
+            _allowPast = allowPast;
+        }
+
+        private void MainNode_PositionDidChange(float value) {
             _bar.barFill = value;
             DidCalculateNewTime?.Invoke(_audioTimeSyncController.songLength * value);
             _bar.currentTime = _audioTimeSyncController.songLength * value;
@@ -119,31 +151,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         private void LoopNode_PositionDidChange(float value) {
-
             _mainNode.max = Mathf.Min(_maxPercent, value) - _minNodeDistance;
-        }
-
-        public void Tick() {
-
-            float currentAudioProgress = _audioTimeSyncController.songTime / _audioTimeSyncController.songEndTime;
-            if (!_mainNode.isBeingDragged) {
-                if (!_loopMode) {
-                    mainNodeValue = currentAudioProgress;
-                }
-                _bar.currentTime = _audioTimeSyncController.songTime;
-                _bar.barFill = currentAudioProgress;
-            }
-            if (_loopMode) {
-                if (currentAudioProgress >= _bar.GetNodePercent(_loopNode)) {
-                    MainNode_PositionDidChange(mainNodeValue);
-                }
-            }
-        }
-
-        public void Dispose() {
-
-            _mainNode.PositionDidChange -= MainNode_PositionDidChange;
-            _loopNode.PositionDidChange -= LoopNode_PositionDidChange;
         }
 
         #region ALL OBJECT INSTANTIATION EW MANUAL OBJECT SETUP IS CRINGE
@@ -152,7 +160,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             // Setup the main game object
             GameObject ameBar = new GameObject("ImberScrubber: Ame Bar");
             RectTransform rectTransformBar = ameBar.AddComponent<RectTransform>();
-            var barSize = new Vector2(size.x, size.y / 10f);
+            Vector2 barSize = new Vector2(size.x, size.y / 10f);
             rectTransformBar.sizeDelta = size;
 
             // Create the canvas
@@ -169,7 +177,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
 
             //GameObject uwu = new GameObject("Imber Container");
             //uwu.transform.SetParent(rectTransformBar);
-            RectTransform rectTransform = rectTransformBar;// uwu.gameObject.AddComponent<RectTransform>();
+            RectTransform rectTransform = rectTransformBar; // uwu.gameObject.AddComponent<RectTransform>();
             //rectTransform.sizeDelta = size;
 
             // Create the backwall for proper raycast events.
@@ -193,7 +201,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             progressImage.rectTransform.sizeDelta = barSize;
             progressImage.rectTransform.anchorMin = new Vector2(0f, 0.5f);
             progressImage.rectTransform.anchorMax = new Vector2(0f, 0.5f);
-            progressImage.color = _scoreSaberBlue; // SCORESABER BLUE IS SET HERE SLKJDFLKSDFGJKLDFGJ SDLFKG JSDLFKG JSDLKFG JLSDFKGJ LSKDFGJ LKSDFGJ LKSDFG JLSDKGF
+            progressImage.color =
+                _scoreSaberBlue; // SCORESABER BLUE IS SET HERE SLKJDFLKSDFGJKLDFGJ SDLFKG JSDLFKG JSDLKFG JLSDFKGJ LSKDFGJ LKSDFGJ LKSDFG JLSDKGF
             progressImage.name = "Progress Bar";
 
             ImageView clickScrubImage = CreateImage(rectTransform);
@@ -213,14 +222,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         private void ClickedBackground(float value) {
-
-            if (!_mainNode.isBeingDragged) {
-                DidCalculateNewTime?.Invoke(_audioTimeSyncController.songLength * value);
+            switch (_mainNode.isBeingDragged) {
+                case false:
+                    DidCalculateNewTime?.Invoke(_audioTimeSyncController.songLength * value);
+                    break;
             }
         }
 
         private ImageView CreateImage(RectTransform transform) {
-
             GameObject imageGameObject = new GameObject("ImberImage");
             ImageView image = imageGameObject.AddComponent<ImageView>();
             image.material = Utilities.ImageResources.NoGlowMat;
@@ -230,7 +239,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         private AmeNode CreateSlideNode(RectTransform tranform) {
-
             GameObject nodeGameObject = new GameObject("SlideNode");
             RectTransform rectTransform = nodeGameObject.AddComponent<RectTransform>();
             rectTransform.SetParent(tranform, false);
@@ -267,7 +275,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         private AmeNode CreateTextNode(RectTransform tranform, string initialText, Color color) {
-
             GameObject nodeGameObject = new GameObject("TextNode");
             RectTransform rectTransform = nodeGameObject.AddComponent<RectTransform>();
             rectTransform.SetParent(tranform, false);
@@ -292,13 +299,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             curvedText.text = initialText;
             curvedText.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             curvedText.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            curvedText.alignment = TMPro.TextAlignmentOptions.Top;
+            curvedText.alignment = TextAlignmentOptions.Top;
             curvedText.color = color;
 
             AmeNode node = nodeGameObject.AddComponent<AmeNode>();
 
             return node;
         }
+
         #endregion
     }
 }

@@ -1,21 +1,21 @@
-﻿using SevenZip.Compression.LZMA;
+﻿#region
+
+using ScoreSaber.Libraries.SevenZip.Compress.LzmaAlone;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text;
 
-namespace ScoreSaber.Core.ReplaySystem.Data
-{
-    internal class ReplayFileWriter
-    {
-        private const int _pointerSize = 38;
-        internal byte[] Write(ReplayFile file) {
+#endregion
 
+namespace ScoreSaber.Core.ReplaySystem.Data {
+    internal class ReplayFileWriter {
+        private const int _pointerSize = 38;
+
+        internal byte[] Write(ReplayFile file) {
             try {
                 byte[] compressed = null;
-                using (var outputStream = new MemoryStream()) {
-
+                using (MemoryStream outputStream = new MemoryStream()) {
                     int pointerLocation = (int)outputStream.Length;
                     for (int i = 0; i < _pointerSize; i += 4) {
                         WriteInt(0, outputStream);
@@ -52,24 +52,23 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                     byte[] uncompressed = outputStream.ToArray();
                     compressed = SevenZipHelper.Compress(uncompressed);
                 }
+
                 List<byte> result = new List<byte>();
                 result.AddRange(GetFileHeader());
                 result.AddRange(compressed);
                 return result.ToArray();
             } catch (Exception ex) {
                 //File.WriteAllText("replay.json", Newtonsoft.Json.JsonConvert.SerializeObject(file));
-                Plugin.Log.Debug($"Failed to write replay: {ex.ToString()}");
+                Plugin.Log.Debug($"Failed to write replay: {ex}");
                 return null;
             }
         }
 
         private byte[] GetFileHeader() {
-
             return Encoding.UTF8.GetBytes("ScoreSaber Replay 👌🤠\r\n");
         }
 
         private int WriteMetadata(Metadata metadata, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteString(metadata.Version, outputStream);
             bytesWritten += WriteString(metadata.LevelID, outputStream);
@@ -87,7 +86,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteVRPoseGroup(VRPoseGroup vrPoseGroup, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteVRPose(vrPoseGroup.Head, outputStream);
             bytesWritten += WriteVRPose(vrPoseGroup.Left, outputStream);
@@ -98,7 +96,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteVRPose(VRPose vrPose, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteVRPosition(vrPose.Position, outputStream);
             bytesWritten += WriteVRRotation(vrPose.Rotation, outputStream);
@@ -106,7 +103,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteHeightEvent(HeightEvent heightEvent, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteFloat(heightEvent.Height, outputStream);
             bytesWritten += WriteFloat(heightEvent.Time, outputStream);
@@ -114,7 +110,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteNoteEvent(NoteEvent noteEvent, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteNoteID(noteEvent.NoteID, outputStream);
             bytesWritten += WriteInt((int)noteEvent.EventType, outputStream);
@@ -136,7 +131,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteNoteID(NoteID noteID, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteFloat(noteID.Time, outputStream);
             bytesWritten += WriteInt(noteID.LineLayer, outputStream);
@@ -147,7 +141,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteScoreEvent(ScoreEvent scoreEvent, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(scoreEvent.Score, outputStream);
             bytesWritten += WriteFloat(scoreEvent.Time, outputStream);
@@ -155,7 +148,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteComboEvent(ComboEvent scoreEvent, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(scoreEvent.Combo, outputStream);
             bytesWritten += WriteFloat(scoreEvent.Time, outputStream);
@@ -163,7 +155,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteMultiplierEvent(MultiplierEvent multiplierEvent, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(multiplierEvent.Multiplier, outputStream);
             bytesWritten += WriteFloat(multiplierEvent.NextMultiplierProgress, outputStream);
@@ -172,7 +163,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteEnergyEvent(EnergyEvent energyEvent, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteFloat(energyEvent.Energy, outputStream);
             bytesWritten += WriteFloat(energyEvent.Time, outputStream);
@@ -181,88 +171,87 @@ namespace ScoreSaber.Core.ReplaySystem.Data
 
         // Lists
         private int WriteStringArray(string[] values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Length, outputStream);
             foreach (string value in values) {
                 bytesWritten += WriteString(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         private int WriteVRPoseGroupList(List<VRPoseGroup> values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Count, outputStream);
             foreach (VRPoseGroup value in values) {
                 bytesWritten += WriteVRPoseGroup(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         private int WriteHeightChangeList(List<HeightEvent> values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Count, outputStream);
             foreach (HeightEvent value in values) {
                 bytesWritten += WriteHeightEvent(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         private int WriteNoteEventList(List<NoteEvent> values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Count, outputStream);
             foreach (NoteEvent value in values) {
                 bytesWritten += WriteNoteEvent(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         private int WriteScoreEventList(List<ScoreEvent> values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Count, outputStream);
             foreach (ScoreEvent value in values) {
                 bytesWritten += WriteScoreEvent(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         private int WriteComboEventList(List<ComboEvent> values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Count, outputStream);
             foreach (ComboEvent value in values) {
                 bytesWritten += WriteComboEvent(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         private int WriteMultiplierEventList(List<MultiplierEvent> values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Count, outputStream);
             foreach (MultiplierEvent value in values) {
                 bytesWritten += WriteMultiplierEvent(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         private int WriteEnergyEventList(List<EnergyEvent> values, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteInt(values.Count, outputStream);
             foreach (EnergyEvent value in values) {
                 bytesWritten += WriteEnergyEvent(value, outputStream);
             }
+
             return bytesWritten;
         }
 
         // Primitives
         private int WriteString(string value, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             byte[] stringBytes = Encoding.UTF8.GetBytes(value);
             bytesWritten += WriteInt(stringBytes.Length, outputStream);
@@ -274,25 +263,21 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteInt(int value, MemoryStream outputStream) {
-
             outputStream.Write(BitConverter.GetBytes(value), 0, 4);
             return 4;
         }
 
         private int WriteFloat(float value, MemoryStream outputStream) {
-
             outputStream.Write(BitConverter.GetBytes(value), 0, 4);
             return 4;
         }
 
         private int WriteBool(bool value, MemoryStream outputStream) {
-
             outputStream.Write(BitConverter.GetBytes(value), 0, 1);
             return 1;
         }
 
         private int WriteVRPosition(VRPosition position, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteFloat(position.X, outputStream);
             bytesWritten += WriteFloat(position.Y, outputStream);
@@ -301,7 +286,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         }
 
         private int WriteVRRotation(VRRotation rotation, MemoryStream outputStream) {
-
             int bytesWritten = 0;
             bytesWritten += WriteFloat(rotation.X, outputStream);
             bytesWritten += WriteFloat(rotation.Y, outputStream);

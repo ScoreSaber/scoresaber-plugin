@@ -1,11 +1,44 @@
-﻿using ScoreSaber.Core.Data.Models;
+﻿#region
+
+using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Utils;
 using System;
 
+#endregion
+
 namespace ScoreSaber.Core.Data.Wrappers {
     internal class ScoreMap {
+        internal ScoreMap(Score _score, LeaderboardInfoMap customLeaderboardInfo, IReadonlyBeatmapData beatmapData) {
+            score = _score;
 
-        internal Score score { get; private set; }
+            GameplayModifiersMap replayMods = new GameplayModifiersMap();
+            switch (string.IsNullOrEmpty(score.modifiers)) {
+                case false when score.modifiers.Contains(","):
+                    replayMods = LeaderboardUtils.GetModifierFromStrings(score.modifiers.Split(','), false);
+                    break;
+                case false:
+                    replayMods = LeaderboardUtils.GetModifierFromStrings(new[] { score.modifiers }, false);
+                    break;
+            }
+
+            double maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData) * replayMods.totalMultiplier;
+
+            parent = customLeaderboardInfo;
+            hasLocalReplay = LeaderboardUtils.LocalReplayExists(customLeaderboardInfo.difficultyBeatmap, this);
+            score.weight = Math.Round(score.weight * 100, 2);
+            score.pp = Math.Round(score.pp, 2);
+            accuracy = Math.Round(score.modifiedScore / maxScore * 100, 2);
+            gameplayModifiers = replayMods.gameplayModifiers;
+            switch (hasLocalReplay) {
+                case true:
+                    score.hasReplay = true;
+                    break;
+            }
+
+            formattedPlayerName = LeaderboardUtils.GetFormattedName(this);
+        }
+
+        internal Score score { get; }
 
         //Extra
         internal LeaderboardInfoMap parent { get; set; }
@@ -13,32 +46,5 @@ namespace ScoreSaber.Core.Data.Wrappers {
         internal double accuracy { get; set; }
         internal GameplayModifiers gameplayModifiers { get; set; }
         internal string formattedPlayerName { get; set; }
-
-        internal ScoreMap(Score _score, LeaderboardInfoMap customLeaderboardInfo, IReadonlyBeatmapData beatmapData) {
-            score = _score;
-
-            GameplayModifiersMap replayMods = new GameplayModifiersMap();
-            if (!string.IsNullOrEmpty(score.modifiers)) {
-                if (score.modifiers.Contains(",")) {
-                    replayMods = LeaderboardUtils.GetModifierFromStrings(score.modifiers.Split(','), false);
-                } else {
-                    replayMods = LeaderboardUtils.GetModifierFromStrings(new string[] { score.modifiers }, false);
-                }
-            }
-
-            double maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData) * replayMods.totalMultiplier;
-
-            this.parent = customLeaderboardInfo;
-            this.hasLocalReplay = LeaderboardUtils.LocalReplayExists(customLeaderboardInfo.difficultyBeatmap, this);
-            this.score.weight = Math.Round(score.weight * 100, 2);
-            this.score.pp = Math.Round(score.pp, 2);
-            this.accuracy = Math.Round((score.modifiedScore / maxScore) * 100, 2);
-            this.gameplayModifiers = replayMods.gameplayModifiers;
-            if (this.hasLocalReplay) {
-                this.score.hasReplay = true;
-            }
-            this.formattedPlayerName = LeaderboardUtils.GetFormattedName(this);
-        }
-      
     }
 }
