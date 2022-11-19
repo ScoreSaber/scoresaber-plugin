@@ -11,41 +11,37 @@ using UnityEngine.Playables;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class EnergyPlayer : TimeSynchronizer, IScroller {
-        private readonly EnergyEvent[] _sortedEnergyEvents;
         private GameEnergyCounter _gameEnergyCounter;
         private GameEnergyUIPanel _gameEnergyUIPanel;
+        private readonly EnergyEvent[] _sortedEnergyEvents;
 
         public EnergyPlayer(ReplayFile file, GameEnergyCounter gameEnergyCounter, GameEnergyUIPanel gameEnergyUIPanel) {
+
             _gameEnergyCounter = gameEnergyCounter;
             _gameEnergyUIPanel = gameEnergyUIPanel;
             _sortedEnergyEvents = file.energyKeyframes.ToArray();
         }
 
         public void TimeUpdate(float newTime) {
-            if (_gameEnergyUIPanel == null) { return; }
 
+            if (_gameEnergyUIPanel == null) { return; }
             for (int c = 0; c < _sortedEnergyEvents.Length; c++) {
-                switch (_sortedEnergyEvents[c].Time >= newTime) {
-                    case true: {
-                        float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : 0.5f;
-                        UpdateEnergy(energy);
-                        return;
-                    }
+                if (_sortedEnergyEvents[c].Time >= newTime) {
+                    float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : 0.5f;
+                    UpdateEnergy(energy);
+                    return;
                 }
             }
-
             UpdateEnergy(0.5f);
-            EnergyEvent lastEvent = _sortedEnergyEvents.LastOrDefault();
-            switch (newTime >= lastEvent.Time) {
-                case true when lastEvent.Energy <= Mathf.Epsilon:
-                    UpdateEnergy(0f);
-                    break;
+            var lastEvent = _sortedEnergyEvents.LastOrDefault();
+            if (newTime >= lastEvent.Time && lastEvent.Energy <= Mathf.Epsilon) {
+                UpdateEnergy(0f);
             }
         }
 
         private void UpdateEnergy(float energy) {
-            if (_gameEnergyUIPanel == null) { return; }
 
+            if (_gameEnergyUIPanel == null) { return; }
             bool isFailingEnergy = energy <= Mathf.Epsilon;
 
             bool noFail = _gameEnergyCounter.noFail;
@@ -57,13 +53,13 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             Accessors.NoFailPropertyUpdater(ref _gameEnergyCounter, noFail);
 
             _gameEnergyUIPanel.Init();
-            PlayableDirector director = Accessors.Director(ref _gameEnergyUIPanel);
+            var director = Accessors.Director(ref _gameEnergyUIPanel);
             director.Stop();
             director.Evaluate();
             Accessors.EnergyBar(ref _gameEnergyUIPanel).enabled = !isFailingEnergy;
 
-            FieldAccessor<GameEnergyCounter, Action<float>>.Get(_gameEnergyCounter, "gameEnergyDidChangeEvent")
-                .Invoke(energy);
+            FieldAccessor<GameEnergyCounter, Action<float>>.Get(_gameEnergyCounter, "gameEnergyDidChangeEvent").Invoke(energy);
+            return;
         }
     }
 }

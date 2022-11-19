@@ -34,6 +34,7 @@ namespace ScoreSaber {
     }
 
     internal sealed class Http {
+        internal Dictionary<string, string> PersistentRequestHeaders { get; }
         internal HttpOptions options;
 
         internal Http(HttpOptions _options = new HttpOptions()) {
@@ -55,8 +56,6 @@ namespace ScoreSaber {
             PersistentRequestHeaders.Add("User-Agent", userAgent);
         }
 
-        internal Dictionary<string, string> PersistentRequestHeaders { get; }
-
         internal async Task SendHttpAsyncRequest(UnityWebRequest request) {
             foreach (KeyValuePair<string, string> header in PersistentRequestHeaders) {
                 request.SetRequestHeader(header.Key, header.Value);
@@ -69,7 +68,7 @@ namespace ScoreSaber {
         }
 
         internal async Task<string> GetRawAsync(string url) {
-            using (UnityWebRequest request = UnityWebRequest.Get(url)) {
+            using (var request = UnityWebRequest.Get(url)) {
                 request.timeout = 5;
                 await SendHttpAsyncRequest(request);
                 if (request.isNetworkError || request.isHttpError) {
@@ -82,7 +81,7 @@ namespace ScoreSaber {
 
         internal async Task<string> GetAsync(string url) {
             url = $"{options.baseURL}{url}";
-            using (UnityWebRequest request = UnityWebRequest.Get(url)) {
+            using (var request = UnityWebRequest.Get(url)) {
                 request.timeout = 5;
                 await SendHttpAsyncRequest(request);
                 if (request.isNetworkError || request.isHttpError) {
@@ -95,7 +94,7 @@ namespace ScoreSaber {
 
         internal async Task<byte[]> DownloadAsync(string url) {
             url = $"{options.baseURL}{url}";
-            using (UnityWebRequest request = UnityWebRequest.Get(url)) {
+            using (var request = UnityWebRequest.Get(url)) {
                 await SendHttpAsyncRequest(request);
                 if (request.isNetworkError || request.isHttpError) {
                     throw ThrowHttpException(request);
@@ -107,7 +106,7 @@ namespace ScoreSaber {
 
         internal async Task<string> PostAsync(string url, WWWForm form) {
             url = $"{options.baseURL}{url}";
-            using (UnityWebRequest request = UnityWebRequest.Post(url, form)) {
+            using (var request = UnityWebRequest.Post(url, form)) {
                 request.timeout = 120;
                 await SendHttpAsyncRequest(request);
                 if (request.isNetworkError || request.isHttpError) {
@@ -120,15 +119,18 @@ namespace ScoreSaber {
 
         internal HttpErrorException ThrowHttpException(UnityWebRequest request) {
             if (request.downloadHandler.data != null) {
-                return new HttpErrorException(request.isNetworkError, request.isHttpError,
-                    Encoding.UTF8.GetString(request.downloadHandler.data)); // Epic
+                return new HttpErrorException(request.isNetworkError, request.isHttpError, Encoding.UTF8.GetString(request.downloadHandler.data));
             }
 
-            return new HttpErrorException(request.isNetworkError, request.isHttpError); // Epic
+            return new HttpErrorException(request.isNetworkError, request.isHttpError);
         }
     }
 
     internal class HttpErrorException : Exception {
+        internal bool isNetworkError { get; set; }
+        internal bool isHttpError { get; set; }
+        internal bool isScoreSaberError { get; set; }
+        internal ScoreSaberError scoreSaberError { get; set; }
         internal HttpErrorException(bool _isNetworkError, bool _isHttpError, string _scoreSaberErrorMessage = "") {
             isNetworkError = _isNetworkError;
             isHttpError = _isHttpError;
@@ -139,10 +141,5 @@ namespace ScoreSaber {
                 } catch (Exception) { }
             }
         }
-
-        internal bool isNetworkError { get; set; }
-        internal bool isHttpError { get; set; }
-        internal bool isScoreSaberError { get; set; }
-        internal ScoreSaberError scoreSaberError { get; set; }
     }
 }

@@ -1,14 +1,17 @@
 ﻿#region
 
 using HarmonyLib;
+using ScoreSaber.Core.ReplaySystem.Legacy;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
 
 #endregion
 
-namespace ScoreSaber.Core.ReplaySystem.Legacy {
+namespace ScoreSaber.Patches {
+
     internal class LegacyReplayPatches : IInitializable, IAffinity {
+
         private readonly LegacyReplayPlayer _legacyReplayPlayer;
 
         public LegacyReplayPatches(LegacyReplayPlayer legacyReplayPlayer) {
@@ -19,130 +22,114 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
         [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasCut))]
         [AffinityPrefix]
-        private void PatchNoteWasCut(NoteController noteController) {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay: {
-                    NoteData noteData = noteController.noteData;
-                    if (noteData.colorType != ColorType.None) {
-                        _legacyReplayPlayer.cutOrMissedNotes++;
-                    }
+        void PatchNoteWasCut(NoteController noteController) {
 
-                    break;
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                NoteData noteData = noteController.noteData;
+                if (noteData.colorType != ColorType.None) {
+                    _legacyReplayPlayer.cutOrMissedNotes++;
                 }
             }
         }
 
         [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasMissed))]
         [AffinityPrefix]
-        private bool PatchNoteWasMissed(NoteController noteController) {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay: {
-                    NoteData noteData = noteController.noteData;
-                    if (noteData.colorType != ColorType.None) {
-                        _legacyReplayPlayer.cutOrMissedNotes++;
-                    }
+        bool PatchNoteWasMissed(NoteController noteController) {
 
-                    return false;
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                NoteData noteData = noteController.noteData;
+                if (noteData.colorType != ColorType.None) {
+                    _legacyReplayPlayer.cutOrMissedNotes++;
                 }
-                default:
-                    return true;
+                return false;
             }
+            return true;
         }
 
         [AffinityPatch(typeof(MissedNoteEffectSpawner), nameof(MissedNoteEffectSpawner.HandleNoteWasMissed))]
         [AffinityPrefix]
-        private bool PatchMissedNoteEffectSpawnerHandleNoteWasMissed() {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay:
-                    return _legacyReplayPlayer.IsRealMiss();
-                default:
-                    return true;
+        bool PatchMissedNoteEffectSpawnerHandleNoteWasMissed() {
+
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                return _legacyReplayPlayer.IsRealMiss();
             }
+
+            return true;
         }
 
         [AffinityPatch(typeof(FlyingSpriteSpawner), nameof(FlyingSpriteSpawner.SpawnFlyingSprite))]
         [AffinityPrefix]
-        private bool PatchSpawnFlyingSprite() {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay:
-                    return _legacyReplayPlayer.IsRealMiss();
-                default:
-                    return true;
+        bool PatchSpawnFlyingSprite() {
+
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                return _legacyReplayPlayer.IsRealMiss();
             }
+
+            return true;
         }
+
     }
 
     [HarmonyPatch(typeof(BombNoteController), nameof(BombNoteController.HandleWasCutBySaber))]
     internal class PatchBombNoteControllerWasCutBySaber {
-        private static bool Prefix() {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay:
-                    return false;
-                default:
-                    return true;
+        static bool Prefix() {
+
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                return false;
             }
+
+            return true;
         }
     }
 
     [HarmonyPatch(typeof(ScoreUIController), nameof(ScoreUIController.HandleScoreDidChangeRealtime))]
     internal class PatchScoreUIController {
-        private static bool Prefix() {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay:
-                    return false;
-                default:
-                    return true;
+        static bool Prefix() {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                return false;
             }
+            return true;
         }
     }
 
-    [HarmonyPatch(typeof(RelativeScoreAndImmediateRankCounter),
-        nameof(RelativeScoreAndImmediateRankCounter.HandleScoreDidChange))]
+    [HarmonyPatch(typeof(RelativeScoreAndImmediateRankCounter), nameof(RelativeScoreAndImmediateRankCounter.HandleScoreDidChange))]
     internal class PatchRelativeScoreAndImmediateRankCounter {
-        private static bool Prefix() {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay:
-                    return false;
-                default:
-                    return true;
+        static bool Prefix() {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                return false;
             }
+            return true;
         }
     }
 
     [HarmonyPatch(typeof(StandardLevelGameplayManager), nameof(StandardLevelGameplayManager.HandleGameEnergyDidReach0))]
     internal class PatchStandardLevelGameplayManagerHandleGameEnergyDidReach0 {
-        private static bool Prefix() {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay:
-                    return false;
-                default:
-                    return true;
+        static bool Prefix() {
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                return false;
             }
+            return true;
         }
     }
 
     [HarmonyPatch(typeof(NoteCutSoundEffect), nameof(NoteCutSoundEffect.NoteWasCut))]
     internal class PatchNoteCutSoundEffect {
-        private static bool Prefix(NoteController noteController, in NoteCutInfo noteCutInfo,
-            ref AudioSource ____audioSource, ref bool ____goodCut, float ____goodCutVolume, ref bool ____noteWasCut,
-            ref NoteController ____noteController, ref NoteCutSoundEffect __instance) {
-            switch (Plugin.ReplayState.IsPlaybackEnabled) {
-                case true when Plugin.ReplayState.IsLegacyReplay: {
-                    if (____noteController != noteController) {
-                        return false;
-                    }
+        static bool Prefix(NoteController noteController, in NoteCutInfo noteCutInfo, ref AudioSource ____audioSource, ref bool ____goodCut, float ____goodCutVolume, ref bool ____noteWasCut, ref NoteController ____noteController, ref NoteCutSoundEffect __instance) {
 
-                    ____noteWasCut = true;
-                    ____audioSource.priority = 24;
-                    ____audioSource.pitch = Random.Range(0.9f, 1.2f);
-                    ____goodCut = true;
-                    ____audioSource.volume = ____goodCutVolume;
-                    __instance.transform.position = noteCutInfo.cutPoint;
+            if (Plugin.ReplayState.IsPlaybackEnabled && Plugin.ReplayState.IsLegacyReplay) {
+                if (____noteController != noteController) {
                     return false;
                 }
-                default:
-                    return true;
+                ____noteWasCut = true;
+                ____audioSource.priority = 24;
+                ____audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.2f);
+                ____goodCut = true;
+                ____audioSource.volume = ____goodCutVolume;
+                __instance.transform.position = noteCutInfo.cutPoint;
+                return false;
             }
+
+            return true;
         }
     }
 }

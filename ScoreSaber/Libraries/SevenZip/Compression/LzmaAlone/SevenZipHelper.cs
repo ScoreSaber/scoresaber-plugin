@@ -2,7 +2,7 @@ using System;
 using System.IO;
 
 
-namespace SevenZip.Compression.LZMA
+namespace SevenZip.Compression.LZMAAlone
 {
     public static class SevenZipHelper
     {

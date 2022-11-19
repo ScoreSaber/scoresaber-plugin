@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE1006 // Naming Styles
-
-#region
+﻿#region
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -10,23 +8,25 @@ using System.Collections.Generic;
 
 namespace ScoreSaber.Core.Data.Models {
     internal class ScoreSaberTeam {
-        [JsonProperty("TeamMembers")] public Dictionary<TeamType, List<TeamMember>> TeamMembers { get; set; }
+        [JsonProperty("TeamMembers")]
+        public Dictionary<TeamType, List<TeamMember>> TeamMembers { get; set; }
     }
 
     internal class TeamMember {
-        [JsonProperty("Name")] internal string Name { get; set; }
-
-        [JsonProperty("ProfilePicture")] internal string ProfilePicture { get; set; }
-
-        [JsonProperty("Discord")] internal string Discord { get; set; }
-
-        [JsonProperty("GitHub")] internal string GitHub { get; set; }
-
-        [JsonProperty("Twitch")] internal string Twitch { get; set; }
-
-        [JsonProperty("Twitter")] internal string Twitter { get; set; }
-
-        [JsonProperty("YouTube")] internal string YouTube { get; set; }
+        [JsonProperty("Name")]
+        internal string Name { get; set; }
+        [JsonProperty("ProfilePicture")]
+        internal string ProfilePicture { get; set; }
+        [JsonProperty("Discord")]
+        internal string Discord { get; set; }
+        [JsonProperty("GitHub")]
+        internal string GitHub { get; set; }
+        [JsonProperty("Twitch")]
+        internal string Twitch { get; set; }
+        [JsonProperty("Twitter")]
+        internal string Twitter { get; set; }
+        [JsonProperty("YouTube")]
+        internal string YouTube { get; set; }
     }
 
     [JsonConverter(typeof(StringEnumConverter))]

@@ -18,10 +18,11 @@ using static HMUI.IconSegmentedControl;
 
 namespace ScoreSaber.Patches {
     internal class LeaderboardPatches : IInitializable, IAffinity {
+
         private readonly ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
+        private PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         private int _lastScopeIndex = -1;
-        private PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         public LeaderboardPatches(ScoreSaberLeaderboardViewController scoresaberLeaderboardViewController) {
             _scoresaberLeaderboardViewController = scoresaberLeaderboardViewController;
@@ -31,122 +32,90 @@ namespace ScoreSaber.Patches {
 
         [AffinityPatch(typeof(PlatformLeaderboardViewController), nameof(PlatformLeaderboardViewController.Refresh))]
         [AffinityPrefix]
-        private bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap,
-            ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData,
-            ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos,
-            ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
-            switch (____difficultyBeatmap.level) {
-                case CustomBeatmapLevel _:
-                    ____hasScoresData = false;
-                    ____scores.Clear();
-                    ____leaderboardTableView.SetScores(____scores, ____playerScorePos[(int)____scoresScope]);
-                    ____loadingControl.ShowLoading();
+        bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
+            if (____difficultyBeatmap.level is CustomBeatmapLevel) {
+                ____hasScoresData = false;
+                ____scores.Clear();
+                ____leaderboardTableView.SetScores(____scores, ____playerScorePos[(int)____scoresScope]);
+                ____loadingControl.ShowLoading();
 
-                    _scoresaberLeaderboardViewController.isOST = false;
-                    _scoresaberLeaderboardViewController.RefreshLeaderboard(____difficultyBeatmap,
-                        ____leaderboardTableView,
-                        ____scoresScope, ____loadingControl, Guid.NewGuid().ToString()).RunTask();
-                    return false;
-                default:
-                    _scoresaberLeaderboardViewController.isOST = true;
-                    return true;
+                _scoresaberLeaderboardViewController.IsOST = false;
+                _scoresaberLeaderboardViewController.RefreshLeaderboard(____difficultyBeatmap, ____leaderboardTableView, ____scoresScope, ____loadingControl, Guid.NewGuid().ToString()).RunTask();
+                return false;
+            } else {
+                _scoresaberLeaderboardViewController.IsOST = true;
+                return true;
             }
         }
 
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
-        private void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
-            switch (__instance.transform.parent.transform.parent.name) {
-                case "PlatformLeaderboardViewController": {
-                    LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
-                    TextMeshProUGUI _playerNameText =
-                        tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
+        void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
+            if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
 
-                    switch (_scoresaberLeaderboardViewController.isOST) {
-                        case true:
-                            _playerNameText.richText = false;
-                            break;
-                        default:
-                            _playerNameText.richText = true;
-                            break;
-                    }
+                LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
+                TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
 
-                    break;
+                if (_scoresaberLeaderboardViewController.IsOST) {
+                    _playerNameText.richText = false;
+                } else {
+                    _playerNameText.richText = true;
                 }
             }
         }
 
         [AffinityPatch(typeof(PlatformLeaderboardViewController), "DidActivate")]
         [AffinityPrefix]
-        private bool PatchPlatformLeaderboardDidActivatePrefix(ref PlatformLeaderboardViewController __instance) {
+        bool PatchPlatformLeaderboardDidActivatePrefix(ref PlatformLeaderboardViewController __instance) {
             _platformLeaderboardViewController = __instance;
             return true;
         }
 
         [AffinityPatch(typeof(PlatformLeaderboardViewController), "DidActivate")]
         [AffinityPostfix]
-        private void PatchPlatformLeaderboardDidActivatePostfix(ref bool firstActivation,
-            ref Sprite ____friendsLeaderboardIcon, ref Sprite ____globalLeaderboardIcon,
-            ref Sprite ____aroundPlayerLeaderboardIcon, ref IconSegmentedControl ____scopeSegmentedControl) {
-            switch (firstActivation) {
-                case true: {
-                    _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>(
-                        "Refresh",
-                        true, true);
+        void PatchPlatformLeaderboardDidActivatePostfix(ref bool firstActivation, ref Sprite ____friendsLeaderboardIcon, ref Sprite ____globalLeaderboardIcon, ref Sprite ____aroundPlayerLeaderboardIcon, ref IconSegmentedControl ____scopeSegmentedControl) {
+            if (firstActivation) {
+                _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
 
-                    switch (Plugin.Settings.enableCountryLeaderboards) {
-                        case true:
-                            SetupScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon,
-                                ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
-                            break;
-                    }
-
-                    break;
+                if (Plugin.Settings.enableCountryLeaderboards) {
+                    SetupScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon, ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
                 }
             }
-
-            switch (Plugin.Settings.enableCountryLeaderboards) {
-                case true:
-                    ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
-                    break;
+            if (Plugin.Settings.enableCountryLeaderboards) {
+                ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
             }
         }
 
-        private void SetupScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon,
-            Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
+        private void SetupScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
+
             Texture2D countryTexture = new Texture2D(64, 64);
-            countryTexture.LoadImage(Utilities.GetResource(Assembly.GetExecutingAssembly(),
-                "ScoreSaber.Resources.country.png"));
+            countryTexture.LoadImage(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png"));
             countryTexture.Apply();
 
-            Sprite _countryIcon = Sprite.Create(countryTexture,
-                new Rect(0, 0, countryTexture.width, countryTexture.height), Vector2.zero);
-            ____scopeSegmentedControl.SetData(new[] {
-                new DataItem(____globalLeaderboardIcon, "Global"),
-                new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),
-                new DataItem(____friendsLeaderboardIcon, "Friends"),
-                new DataItem(_countryIcon, "Country")
-            });
+            Sprite _countryIcon = Sprite.Create(countryTexture, new Rect(0, 0, countryTexture.width, countryTexture.height), Vector2.zero);
+            ____scopeSegmentedControl.SetData(new DataItem[] {
+                    new DataItem(____globalLeaderboardIcon, "Global"),
+                    new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),
+                    new DataItem(____friendsLeaderboardIcon, "Friends"),
+                    new DataItem(_countryIcon, "Country"),
+                });
 
-            ____scopeSegmentedControl.didSelectCellEvent -=
-                _platformLeaderboardViewController.HandleScopeSegmentedControlDidSelectCell;
+            ____scopeSegmentedControl.didSelectCellEvent -= _platformLeaderboardViewController.HandleScopeSegmentedControlDidSelectCell;
             ____scopeSegmentedControl.didSelectCellEvent += ScopeSegmentedControl_didSelectCellEvent;
         }
 
         private void ScopeSegmentedControl_didSelectCellEvent(SegmentedControl segmentedControl, int cellNumber) {
+
             bool filterAroundCountry = false;
 
             switch (cellNumber) {
                 case 0:
-                    _platformLeaderboardViewController.SetStaticField("_scoresScope",
-                        PlatformLeaderboardsModel.ScoresScope.Global);
+                    _platformLeaderboardViewController.SetStaticField("_scoresScope", PlatformLeaderboardsModel.ScoresScope.Global);
                     break;
                 case 1:
-                    _platformLeaderboardViewController.SetStaticField("_scoresScope",
-                        PlatformLeaderboardsModel.ScoresScope.AroundPlayer);
+                    _platformLeaderboardViewController.SetStaticField("_scoresScope", PlatformLeaderboardsModel.ScoresScope.AroundPlayer);
                     break;
                 case 2:
-                    _platformLeaderboardViewController.SetStaticField("_scoresScope",
-                        PlatformLeaderboardsModel.ScoresScope.Friends);
+                    _platformLeaderboardViewController.SetStaticField("_scoresScope", PlatformLeaderboardsModel.ScoresScope.Friends);
                     break;
                 case 3:
                     filterAroundCountry = true;

@@ -4,10 +4,9 @@ using BeatSaberMarkupLanguage;
 using HarmonyLib;
 using IPA;
 using IPA.Loader;
-using IPA.Utilities.Async;
 using ScoreSaber.Core;
 using ScoreSaber.Core.Daemons;
-using ScoreSaber.Core.Data.Internal;
+using ScoreSaber.Core.Data;
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.Installers;
 using ScoreSaber.UI.Elements.Profile;
@@ -17,7 +16,6 @@ using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
@@ -27,11 +25,16 @@ using IPALogger = IPA.Logging.Logger;
 namespace ScoreSaber {
     [Plugin(RuntimeOptions.DynamicInit)]
     public class Plugin {
-        internal static Material Furry;
-        internal static Material NonFurry;
-        internal static Material NoGlowMatRound;
+        internal static ReplayState ReplayState { get; set; }
+        internal static Recorder ReplayRecorder { get; set; }
+        internal static IPALogger Log { get; private set; }
+        internal static Plugin Instance { get; private set; }
 
-        private static bool _scoreSubmission = true;
+        internal static Settings Settings { get; private set; }
+
+        internal static Http HttpInstance { get; private set; }
+
+        internal static Material NoGlowMatRound;
 
         internal Harmony harmony;
 
@@ -57,55 +60,6 @@ namespace ScoreSaber {
 
             HttpInstance = new Http(new HttpOptions
                 { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = libVersion });
-        }
-
-        internal static ReplayState ReplayState { get; set; }
-        internal static Recorder ReplayRecorder { get; set; }
-        internal static IPALogger Log { get; private set; }
-        internal static Plugin Instance { get; private set; }
-
-        internal static Settings Settings { get; private set; }
-
-        internal static Http HttpInstance { get; private set; }
-
-        public static bool ScoreSubmission {
-            get => _scoreSubmission;
-            set {
-                bool canSet = new StackTrace().GetFrames().Select(frame => frame.GetMethod().ReflectedType.Namespace)
-                    .Where(namespaceName => !string.IsNullOrEmpty(namespaceName)).Any(namespaceName =>
-                        namespaceName.Contains("BS_Utils") || namespaceName.Contains("SiraUtil"));
-
-                switch (canSet) {
-                    case true: {
-                        switch (ReplayState.IsPlaybackEnabled) {
-                            case false: {
-                                StandardLevelScenesTransitionSetupDataSO transitionSetup = Resources
-                                    .FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-                                MultiplayerLevelScenesTransitionSetupDataSO multiTransitionSetup =
-                                    Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>()
-                                        .FirstOrDefault();
-                                switch (value) {
-                                    case true:
-                                        transitionSetup.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
-                                        transitionSetup.didFinishEvent += UploadDaemonHelper.ThreeInstance;
-                                        multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.FourInstance;
-                                        multiTransitionSetup.didFinishEvent += UploadDaemonHelper.FourInstance;
-                                        break;
-                                    default:
-                                        transitionSetup.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
-                                        multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.FourInstance;
-                                        break;
-                                }
-
-                                _scoreSubmission = value;
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-                }
-            }
         }
 
         [OnEnable]
@@ -137,33 +91,39 @@ namespace ScoreSaber {
                 .First(m => m.name == "UINoGlowRoundEdge");
         }
 
-
         [OnDisable]
         public void OnDisable() {
             SceneManager.sceneLoaded -= SceneLoaded;
         }
 
-        internal static async Task<Material> GetFurryMaterial() {
-            if (Furry != null) {
-                return Furry;
+        
+        private static bool _scoreSubmission = true;
+        /// <summary>
+        /// <c>ScoreSubmission</c> represents if the plugin should attempt to submit a new score.
+        /// </summary>
+        public static bool ScoreSubmission {
+            get => _scoreSubmission;
+            set { // canSet is True if BS_Utils or SiraUtil is being used
+                bool canSet = new StackTrace().GetFrames().Select(frame => frame.GetMethod().ReflectedType.Namespace)
+                    .Where(namespaceName => !string.IsNullOrEmpty(namespaceName)).Any(namespaceName =>
+                        namespaceName.Contains("BS_Utils") || namespaceName.Contains("SiraUtil"));
+                if (canSet) {
+                    if (!ReplayState.IsPlaybackEnabled) { // Legacy replay?
+                        var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+                        var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+                        if (value) {
+                            transitionSetup.didFinishEvent -= UploadDaemonHelper.StandardSceneTransitionInstance;
+                            transitionSetup.didFinishEvent += UploadDaemonHelper.StandardSceneTransitionInstance;
+                            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.MultiplayerSceneTransitionInstance;
+                            multiTransitionSetup.didFinishEvent += UploadDaemonHelper.MultiplayerSceneTransitionInstance;
+                        } else {
+                            transitionSetup.didFinishEvent -= UploadDaemonHelper.StandardSceneTransitionInstance;
+                            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.MultiplayerSceneTransitionInstance;
+                        }
+                        _scoreSubmission = value;
+                    }
+                }
             }
-
-            AssetBundle bundle = null;
-
-            IEnumerator SeriouslyUnityMakeSomethingBetter() {
-                AssetBundleCreateRequest bundleContainer = AssetBundle.LoadFromMemoryAsync(
-                    Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.cyanisa.furry"));
-                yield return bundleContainer;
-                bundle = bundleContainer.assetBundle;
-            }
-
-            await Coroutines.AsTask(SeriouslyUnityMakeSomethingBetter());
-            Furry = new Material(bundle.LoadAsset<Material>("FurMat"));
-            bundle.Unload(false);
-            NonFurry = BeatSaberUI.MainTextFont.material;
-            Furry.mainTexture = BeatSaberUI.MainTextFont.material.mainTexture;
-
-            return Furry;
         }
     }
 }

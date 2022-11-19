@@ -10,48 +10,50 @@ using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Recorders {
     internal class MetadataRecorder : TimeSynchronizer, IInitializable, IDisposable {
-        private readonly BeatmapObjectSpawnController.InitData _beatmapObjectSpawnControllerInitData;
-        private readonly IGameEnergyCounter _gameEnergyCounter;
+        BeatmapObjectSpawnController.InitData _beatmapObjectSpawnControllerInitData;
         private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
         private readonly MainSettingsModelSO _mainSettingsModelSO;
+        private readonly IGameEnergyCounter _gameEnergyCounter;
         private float _failTime;
 
-        public MetadataRecorder(GameplayCoreSceneSetupData gameplayCoreSceneSetupData,
-            BeatmapObjectSpawnController.InitData beatmapObjectSpawnControllerInitData,
-            IGameEnergyCounter gameEnergyCounter) {
+        public MetadataRecorder(GameplayCoreSceneSetupData gameplayCoreSceneSetupData, BeatmapObjectSpawnController.InitData beatmapObjectSpawnControllerInitData, IGameEnergyCounter gameEnergyCounter) {
+
             _beatmapObjectSpawnControllerInitData = beatmapObjectSpawnControllerInitData;
             _mainSettingsModelSO = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>()[0];
             _gameEnergyCounter = gameEnergyCounter;
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
         }
 
+
+        public void Initialize() {
+
+            _gameEnergyCounter.gameEnergyDidReach0Event += GameEnergyCounter_gameEnergyDidReach0Event;
+        }
+
         public void Dispose() {
+
             _gameEnergyCounter.gameEnergyDidReach0Event -= GameEnergyCounter_gameEnergyDidReach0Event;
         }
 
 
-        public void Initialize() {
-            _gameEnergyCounter.gameEnergyDidReach0Event += GameEnergyCounter_gameEnergyDidReach0Event;
-        }
-
-
         private void GameEnergyCounter_gameEnergyDidReach0Event() {
+
             _failTime = audioTimeSyncController.songTime;
         }
 
         public Metadata Export() {
-            VRPosition roomCenter = new VRPosition {
+
+            var roomCenter = new VRPosition() {
                 X = _mainSettingsModelSO.roomCenter.value.x,
                 Y = _mainSettingsModelSO.roomCenter.value.y,
                 Z = _mainSettingsModelSO.roomCenter.value.z
             };
 
-            return new Metadata {
+            return new Metadata() {
                 Version = "2.0.0",
                 LevelID = _gameplayCoreSceneSetupData.difficultyBeatmap.level.levelID,
-                Difficulty = _gameplayCoreSceneSetupData.difficultyBeatmap.difficulty.DefaultRating(),
-                Characteristic = _gameplayCoreSceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet
-                    .beatmapCharacteristic.serializedName,
+                Difficulty = BeatmapDifficultyMethods.DefaultRating(_gameplayCoreSceneSetupData.difficultyBeatmap.difficulty),
+                Characteristic = _gameplayCoreSceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName,
                 Environment = _gameplayCoreSceneSetupData.environmentInfo.serializedName,
                 Modifiers = GetModifierList(_gameplayCoreSceneSetupData.gameplayModifiers),
                 NoteSpawnOffset = _beatmapObjectSpawnControllerInitData.noteJumpValue,
@@ -61,101 +63,62 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
                 RoomCenter = roomCenter,
                 FailTime = _failTime
             };
+
         }
 
         public string[] GetModifierList(GameplayModifiers modifiers) {
+
             List<string> result = new List<string>();
-            switch (modifiers.energyType) {
-                case GameplayModifiers.EnergyType.Battery:
-                    result.Add("BE");
-                    break;
+            if (modifiers.energyType == GameplayModifiers.EnergyType.Battery) {
+                result.Add("BE");
             }
-
-            switch (modifiers.noFailOn0Energy) {
-                case true:
-                    result.Add("NF");
-                    break;
+            if (modifiers.noFailOn0Energy) {
+                result.Add("NF");
             }
-
-            switch (modifiers.instaFail) {
-                case true:
-                    result.Add("IF");
-                    break;
+            if (modifiers.instaFail) {
+                result.Add("IF");
             }
-
-            switch (modifiers.failOnSaberClash) {
-                case true:
-                    result.Add("SC");
-                    break;
+            if (modifiers.failOnSaberClash) {
+                result.Add("SC");
             }
-
-            switch (modifiers.enabledObstacleType) {
-                case GameplayModifiers.EnabledObstacleType.NoObstacles:
-                    result.Add("NO");
-                    break;
+            if (modifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) {
+                result.Add("NO");
             }
-
-            switch (modifiers.noBombs) {
-                case true:
-                    result.Add("NB");
-                    break;
+            if (modifiers.noBombs) {
+                result.Add("NB");
             }
-
-            switch (modifiers.strictAngles) {
-                case true:
-                    result.Add("SA");
-                    break;
+            if (modifiers.strictAngles) {
+                result.Add("SA");
             }
-
-            switch (modifiers.disappearingArrows) {
-                case true:
-                    result.Add("DA");
-                    break;
+            if (modifiers.disappearingArrows) {
+                result.Add("DA");
             }
-
-            switch (modifiers.ghostNotes) {
-                case true:
-                    result.Add("GN");
-                    break;
+            if (modifiers.ghostNotes) {
+                result.Add("GN");
             }
-
-            switch (modifiers.songSpeed) {
-                case GameplayModifiers.SongSpeed.Slower:
-                    result.Add("SS");
-                    break;
-                case GameplayModifiers.SongSpeed.Faster:
-                    result.Add("FS");
-                    break;
-                case GameplayModifiers.SongSpeed.SuperFast:
-                    result.Add("SF");
-                    break;
+            if (modifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) {
+                result.Add("SS");
             }
-
-            switch (modifiers.smallCubes) {
-                case true:
-                    result.Add("SC");
-                    break;
+            if (modifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) {
+                result.Add("FS");
             }
-
-            switch (modifiers.strictAngles) {
-                case true:
-                    result.Add("SA");
-                    break;
+            if (modifiers.songSpeed == GameplayModifiers.SongSpeed.SuperFast) {
+                result.Add("SF");
             }
-
-            switch (modifiers.proMode) {
-                case true:
-                    result.Add("PM");
-                    break;
+            if (modifiers.smallCubes) {
+                result.Add("SC");
             }
-
-            switch (modifiers.noArrows) {
-                case true:
-                    result.Add("NA");
-                    break;
+            if (modifiers.strictAngles) {
+                result.Add("SA");
             }
-
+            if (modifiers.proMode) {
+                result.Add("PM");
+            }
+            if (modifiers.noArrows) {
+                result.Add("NA");
+            }
             return result.ToArray();
         }
+
     }
 }

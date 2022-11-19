@@ -8,10 +8,11 @@ using UnityEngine;
 
 #endregion
 
-namespace ScoreSaber.Core.Data.Internal {
+namespace ScoreSaber.Core.Data {
     internal class Settings {
-        public bool hideReplayUI = false;
         private static int _currentVersion => 6;
+
+        public bool hideReplayUI = false;
 
         public int fileVersion { get; set; }
         public bool disableScoreSaber { get; set; }
@@ -41,6 +42,7 @@ namespace ScoreSaber.Core.Data.Internal {
         internal static string replayPath => configPath + @"\Replays";
 
         public void SetDefaults() {
+
             disableScoreSaber = false;
             showLocalPlayerRank = true;
             showScorePP = true;
@@ -65,6 +67,7 @@ namespace ScoreSaber.Core.Data.Internal {
         }
 
         public void SetDefaultSpectatorPositions() {
+
             spectatorPositions = new List<SpectatorPoseRoot>();
             spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 0f, -2f)), "Main"));
             spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 4f, 0f)), "Bird's Eye"));
@@ -73,6 +76,7 @@ namespace ScoreSaber.Core.Data.Internal {
         }
 
         internal static Settings LoadSettings() {
+
             try {
                 if (!Directory.Exists(dataPath)) {
                     Directory.CreateDirectory(dataPath);
@@ -87,52 +91,47 @@ namespace ScoreSaber.Core.Data.Internal {
                 }
 
                 if (!File.Exists(configPath + @"\ScoreSaber.json")) {
-                    Settings settings = new Settings();
+                    var settings = new Settings();
                     settings.SetDefaults();
                     SaveSettings(settings);
                     return settings;
                 }
 
-                Settings decoded =
-                    JsonConvert.DeserializeObject<Settings>(File.ReadAllText(configPath + @"\ScoreSaber.json"));
+                Settings decoded = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(configPath + @"\ScoreSaber.json"));
 
-                switch (decoded.fileVersion < _currentVersion) {
-                    //Upgrade settings if old
-                    case true: {
-                        switch (decoded.spectatorPositions) {
-                            case null:
-                                decoded.SetDefaultSpectatorPositions();
-                                break;
-                        }
-
-                        SaveSettings(decoded);
-                        break;
+                //Upgrade settings if old
+                if (decoded.fileVersion < _currentVersion) {
+                    if (decoded.spectatorPositions == null) {
+                        decoded.SetDefaultSpectatorPositions();
                     }
+                    SaveSettings(decoded);
                 }
-
                 return decoded;
             } catch (Exception ex) {
-                Plugin.Log.Error("Failed to load settings " + ex);
+                Plugin.Log.Error("Failed to load settings " + ex.ToString());
                 return new Settings();
             }
         }
 
         internal static void SaveSettings(Settings settings) {
+
             try {
                 settings.fileVersion = _currentVersion;
-                JsonSerializerSettings serializerSettings = new JsonSerializerSettings();
+                var serializerSettings = new JsonSerializerSettings();
                 serializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 serializerSettings.Formatting = Formatting.Indented;
                 string serialized = JsonConvert.SerializeObject(settings, serializerSettings);
                 File.WriteAllText(configPath + @"\ScoreSaber.json", serialized);
             } catch (Exception ex) {
-                Plugin.Log.Error("Failed to save settings " + ex);
+                Plugin.Log.Error("Failed to save settings " + ex.ToString());
             }
         }
 
         internal struct SpectatorPoseRoot {
-            [JsonProperty("name")] internal string name { get; set; }
-            [JsonProperty("spectatorPose")] internal SpectatorPose spectatorPose { get; set; }
+            [JsonProperty("name")]
+            internal string name { get; set; }
+            [JsonProperty("spectatorPose")]
+            internal SpectatorPose spectatorPose { get; set; }
 
             internal SpectatorPoseRoot(SpectatorPose spectatorPose, string name) {
                 this.name = name;
@@ -141,9 +140,12 @@ namespace ScoreSaber.Core.Data.Internal {
         }
 
         internal struct SpectatorPose {
-            [JsonProperty("x")] internal float x { get; set; }
-            [JsonProperty("y")] internal float y { get; set; }
-            [JsonProperty("z")] internal float z { get; set; }
+            [JsonProperty("x")]
+            internal float x { get; set; }
+            [JsonProperty("y")]
+            internal float y { get; set; }
+            [JsonProperty("z")]
+            internal float z { get; set; }
 
             internal SpectatorPose(Vector3 position) {
                 x = position.x;

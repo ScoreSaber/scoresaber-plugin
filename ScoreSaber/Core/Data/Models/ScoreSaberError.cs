@@ -1,11 +1,8 @@
-﻿#region
-
-using Newtonsoft.Json;
-
-#endregion
+﻿using Newtonsoft.Json;
 
 namespace ScoreSaber.Core.Data.Models {
     internal class ScoreSaberError {
-        [JsonProperty("errorMessage")] internal string errorMessage { get; set; }
+        [JsonProperty("errorMessage")]
+        internal string errorMessage { get; set; }
     }
 }

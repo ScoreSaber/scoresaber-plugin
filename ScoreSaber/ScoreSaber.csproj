@@ -215,7 +215,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\country.png" />
-    <EmbeddedResource Include="Resources\cyanisa.furry" />
     <EmbeddedResource Include="Resources\info.png" />
     <EmbeddedResource Include="Resources\pixel.png" />
     <EmbeddedResource Include="Resources\replay.png" />
@@ -231,7 +230,6 @@
     <EmbeddedResource Include="Resources\cmb.png" />
     <EmbeddedResource Include="Resources\cmb-blush.png" />
     <EmbeddedResource Include="Resources\logo-large.png" />
-    <EmbeddedResource Include="Resources\bri-ish.png" />
     <EmbeddedResource Include="Resources\crown-bronze.png" />
     <EmbeddedResource Include="Resources\crown-gold.png" />
     <EmbeddedResource Include="Resources\crown-silver.png" />
@@ -248,5 +246,9 @@
       <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\Laure\source\repos\ScoreSaber-Plugin\ScoreSaber\Patches\.editorconfig" />
   </ItemGroup>
 </Project>

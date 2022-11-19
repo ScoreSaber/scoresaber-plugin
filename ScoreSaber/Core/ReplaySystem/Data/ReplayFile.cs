@@ -6,19 +6,19 @@ using UnityEngine;
 
 #endregion
 
-#pragma warning disable IDE1006 // Naming Styles
 namespace ScoreSaber.Core.ReplaySystem.Data {
     internal class ReplayFile {
-        internal List<ComboEvent> comboKeyframes;
-        internal List<EnergyEvent> energyKeyframes;
-        internal List<HeightEvent> heightKeyframes;
         internal Metadata metadata;
-        internal List<MultiplierEvent> multiplierKeyframes;
-        internal List<NoteEvent> noteKeyframes;
         internal List<VRPoseGroup> poseKeyframes;
+        internal List<HeightEvent> heightKeyframes;
+        internal List<NoteEvent> noteKeyframes;
         internal List<ScoreEvent> scoreKeyframes;
+        internal List<ComboEvent> comboKeyframes;
+        internal List<MultiplierEvent> multiplierKeyframes;
+        internal List<EnergyEvent> energyKeyframes;
 
         internal ReplayFile() {
+
             poseKeyframes = new List<VRPoseGroup>();
             heightKeyframes = new List<HeightEvent>();
             noteKeyframes = new List<NoteEvent>();
@@ -42,17 +42,17 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal float RoomRotation;
         internal VRPosition RoomCenter;
         internal float FailTime;
-    }
+    };
 
     internal struct ScoreEvent {
         public int Score;
         public float Time;
-    }
+    };
 
     internal struct ComboEvent {
         internal int Combo;
         internal float Time;
-    }
+    };
 
     internal struct NoteEvent {
         internal NoteID NoteID;
@@ -71,7 +71,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal float Time;
         internal float UnityTimescale;
         internal float TimeSyncTimescale;
-    }
+    };
 
     internal enum NoteEventType {
         None,
@@ -89,8 +89,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal int CutDirection;
 
         public static bool operator ==(NoteID a, NoteID b) {
-            return Mathf.Approximately(a.Time, b.Time) && a.LineIndex == b.LineIndex && a.LineLayer == b.LineLayer &&
-                   a.ColorType == b.ColorType && a.CutDirection == b.CutDirection;
+            return Mathf.Approximately(a.Time, b.Time) && a.LineIndex == b.LineIndex && a.LineLayer == b.LineLayer && a.ColorType == b.ColorType && a.CutDirection == b.CutDirection;
         }
 
         public static bool operator !=(NoteID a, NoteID b) {
@@ -108,23 +107,23 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         public bool Equals(NoteID other) {
             return this == other;
         }
-    }
+    };
 
     internal struct EnergyEvent {
         internal float Energy;
         internal float Time;
-    }
+    };
 
     internal struct HeightEvent {
         internal float Height;
         internal float Time;
-    }
+    };
 
     internal struct MultiplierEvent {
         internal int Multiplier;
         internal float NextMultiplierProgress;
         internal float Time;
-    }
+    };
 
     internal struct VRPoseGroup {
         internal VRPose Head;
@@ -132,12 +131,12 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal VRPose Right;
         internal int FPS;
         internal float Time;
-    }
+    };
 
     internal struct VRPose {
         internal VRPosition Position;
         internal VRRotation Rotation;
-    }
+    };
 
     internal struct VRPosition {
         internal float X;
@@ -145,14 +144,14 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal float Z;
 
         internal static VRPosition None() {
-            return new VRPosition { X = 0, Y = 0, Z = 0 };
+            return new VRPosition() { X = 0, Y = 0, Z = 0 };
         }
-    }
+    };
 
     internal struct VRRotation {
         internal float X;
         internal float Y;
         internal float Z;
         internal float W;
-    }
+    };
 }

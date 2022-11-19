@@ -1,11 +1,8 @@
-﻿#region
-
-using Zenject;
-
-#endregion
+﻿using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem {
     internal abstract class TimeSynchronizer {
-        [Inject] protected readonly AudioTimeSyncController audioTimeSyncController = null;
+        [Inject]
+        protected readonly AudioTimeSyncController audioTimeSyncController = null;
     }
 }

@@ -1,21 +1,19 @@
 ﻿#if RELEASE
 using Newtonsoft.Json;
 using ScoreSaber.Core.AC;
-using ScoreSaber.Core.Data;
-using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using ScoreSaber.Core.Utils;
 using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
+using ScoreSaber.Core.Data;
 
 namespace ScoreSaber.Core.Daemons {
 
@@ -24,7 +22,7 @@ namespace ScoreSaber.Core.Daemons {
 
         public event Action<UploadStatus, string> UploadStatusChanged;
 
-        public bool uploading { get; set; }
+        public bool Uploading { get; set; }
 
         private readonly PlayerService _playerService = null;
         private readonly ReplayService _replayService = null;
@@ -44,56 +42,61 @@ namespace ScoreSaber.Core.Daemons {
             Plugin.Log.Debug("Upload service setup!");
         }
 
-
+        /// <summary>
+        /// This method prepare both the standard and multiplayer upload process on Transition Event
+        /// by linking them to <see cref="StandardSceneTransition"/> and <see cref="MultiplayerSceneTransition"/>
+        /// </summary>
         private void SetupUploader() {
+            var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+            var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
-            StandardLevelScenesTransitionSetupDataSO transitionSetup =
- Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-            MultiplayerLevelScenesTransitionSetupDataSO multiTransitionSetup =
- Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
             if (!Plugin.ScoreSubmission) {
                 return;
             }
 
-            transitionSetup.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
+            transitionSetup.didFinishEvent -= UploadDaemonHelper.StandardSceneTransitionInstance;
             transitionSetup.didFinishEvent -= StandardSceneTransition;
-            UploadDaemonHelper.ThreeInstance = StandardSceneTransition;
+            UploadDaemonHelper.StandardSceneTransitionInstance = StandardSceneTransition;
             transitionSetup.didFinishEvent += StandardSceneTransition;
 
-            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.FourInstance;
+            multiTransitionSetup.didFinishEvent -= UploadDaemonHelper.MultiplayerSceneTransitionInstance;
             multiTransitionSetup.didFinishEvent -= MultiplayerSceneTransition;
-            UploadDaemonHelper.FourInstance = MultiplayerSceneTransition;
+            UploadDaemonHelper.MultiplayerSceneTransitionInstance = MultiplayerSceneTransition;
             multiTransitionSetup.didFinishEvent += MultiplayerSceneTransition;
         }
 
-        public void StandardSceneTransition(StandardLevelScenesTransitionSetupDataSO scene, LevelCompletionResults lcr) {
-            //StandardLevelScenesTransitionSetupDataSO 
-            //LevelCompletionResults
-            
-            ReplayHandler(scene.gameMode, scene.difficultyBeatmap, lcr, scene.practiceSettings != null);
+        /// <summary>
+        /// This method prepare standard <c>data</c> and <c>results</c> to be sent to <see cref="ReplayHandler"/>
+        /// </summary>
+        public void StandardSceneTransition(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results) {
+            ReplayHandler(data.gameMode, data.difficultyBeatmap, results, data.practiceSettings != null);
         }
 
-        public void MultiplayerSceneTransition(MultiplayerLevelScenesTransitionSetupDataSO scene, MultiplayerResultsData mrd) {
-            // MultiplayerLevelScenesTransitionSetupDataSO
-            // multiplayerResultsData
-            
-            if (scene.difficultyBeatmap == null) {
+        /// <summary>
+        /// This method prepare multiplayer <c>data</c> and <c>results</c> to be sent to <see cref="ReplayHandler"/>
+        /// </summary>
+        public void MultiplayerSceneTransition(MultiplayerLevelScenesTransitionSetupDataSO data, MultiplayerResultsData results) {
+            if (data.difficultyBeatmap == null) {
                 return;
             }
-            if (mrd.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults == null) {
+            if (results.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults == null) {
                 return;
             }
-            if (mrd.localPlayerResultData.multiplayerLevelCompletionResults.playerLevelEndReason == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndReason.HostEndedLevel) {
+            if (results.localPlayerResultData.multiplayerLevelCompletionResults.playerLevelEndReason == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndReason.HostEndedLevel) {
                 return;
             }
-            if (mrd.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
+            if (results.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
                 return;
             }
 
-            ReplayHandler(scene.gameMode, scene.difficultyBeatmap, mrd.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
+            ReplayHandler(data.gameMode, data.difficultyBeatmap, results.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
         }
 
-        public void ReplayHandler(string gm, IDifficultyBeatmap db, LevelCompletionResults lcr, bool practiceMode) {
+        /// <summary>
+        /// This method handle replay in situation where the score can't be uploaded,
+        /// otherwise <c>beatmap</c> and <c>results</c> get sent to <see cref="PreUpload"/>
+        /// </summary>
+        public void ReplayHandler(string gameMode, IDifficultyBeatmap levelCasted, LevelCompletionResults results, bool practiceMode) {
             try {
                 if (Plugin.ReplayState.IsPlaybackEnabled) {
                     return;
@@ -102,11 +105,11 @@ namespace ScoreSaber.Core.Daemons {
                 PracticeViewController practiceViewController =
                     Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
                 if (!practiceViewController.isInViewControllerHierarchy) {
-                    if (gm != "Solo" && gm != "Multiplayer") {
+                    if (gameMode != "Solo" && gameMode != "Multiplayer") {
                         return;
                     }
 
-                    Plugin.Log.Debug($"Starting upload process for {db.level.levelID}:{db.level.songName}");
+                    Plugin.Log.Debug($"Starting upload process for {levelCasted.level.levelID}:{levelCasted.level.songName}");
 
                     if (practiceMode) {
                         // If practice write replay at this point
@@ -114,17 +117,17 @@ namespace ScoreSaber.Core.Daemons {
                         return;
                     }
                     
-                    if (lcr.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
+                    if (results.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
                         _replayService.WriteSerializedReplay().RunTask();
                         return;
                     }
                     
-                    if (lcr.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
+                    if (results.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
                         _replayService.WriteSerializedReplay().RunTask();
                         return;
                     }
                     
-                    PreUpload(db, lcr);
+                    PreUpload(levelCasted, results);
                 } else {
                     // If practice write replay at this point
                     _replayService.WriteSerializedReplay().RunTask();
@@ -135,72 +138,73 @@ namespace ScoreSaber.Core.Daemons {
             }
         }
 
-        //This starts the upload processs
-        async void PreUpload(IDifficultyBeatmap db, LevelCompletionResults lcr) {
-            if (!(db.level is CustomBeatmapLevel)) {
+        /// <summary>
+        /// This method prepare and verify the data to be uploaded. It also encode the score data with MD5 in UTF8.
+        /// The data get sent to <see cref="UploadScore"/>
+        /// </summary>
+        async void PreUpload(IDifficultyBeatmap levelCasted, LevelCompletionResults results) {
+            if (!(levelCasted.level is CustomBeatmapLevel)) {
                 return;
             }
 
             EnvironmentInfoSO defaultEnvironment = _customLevelLoader.LoadEnvironmentInfo(null, false);
 
             IReadonlyBeatmapData beatmapData =
-                await db.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
+                await levelCasted.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
 
             if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
                 UploadStatusChanged?.Invoke(UploadStatus.Error, "New note type not supported, not uploading");
                 return;
             }
 
-            double maxScore = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(beatmapData.cuttableNotesCount);
+            double maxScore = LeaderboardUtils.MaxRawScoreForNumberOfNotes(beatmapData.cuttableNotesCount);
+            // Modifiers?
             maxScore *= 1.12;
 
-            if (lcr.modifiedScore > maxScore) {
-                return;
+            if (results.modifiedScore > maxScore) {
+                return; // Score is above maximum possible, not uploading.
             }
 
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging score...");
-                ScoreSaberUploadData data =
-                    ScoreSaberUploadData.Create(db, lcr, _playerService.localPlayerInfo, AntiCheat.GetHash());
+                var data = ScoreSaberUploadData.Create(levelCasted, results, _playerService.LocalPlayerInfo, new AntiCheat().AC());
                 string scoreData = JsonConvert.SerializeObject(data);
 
                 // TODO: Simplify now that we're open source
                 
-                byte[] encodedPassword =
-                    new UTF8Encoding().GetBytes($"f0b4a81c9bd3ded1081b365f7628781f-{_playerService.localPlayerInfo.playerKey}-{_playerService.localPlayerInfo.playerId}-f0b4a81c9bd3ded1081b365f7628781f");
-                
+                byte[] encodedPassword = new UTF8Encoding().GetBytes($"f0b4a81c9bd3ded1081b365f7628781f-{_playerService.LocalPlayerInfo.playerKey}-{_playerService.LocalPlayerInfo.playerId}-f0b4a81c9bd3ded1081b365f7628781f");
+
                 byte[] keyHash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
                 
                 string key = BitConverter.ToString(keyHash)
                     .Replace("-", string.Empty)
                     .ToLower();
                 
-                string scoreDataHex =
-                    BitConverter.ToString(Swap(Encoding.UTF8.GetBytes(scoreData), Encoding.UTF8.GetBytes(key))).Replace("-", "");
-                UploadScore(data, scoreDataHex, db, lcr).RunTask();
+                string scoreDataHex = BitConverter.ToString(Swap(Encoding.UTF8.GetBytes(scoreData), Encoding.UTF8.GetBytes(key))).Replace("-", "");
+
+                UploadScore(data, scoreDataHex, levelCasted, results).RunTask();
             } catch (Exception ex) {
                 UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score, error written to log.");
                 Plugin.Log.Error($"Failed to upload score: {ex}");
             }
         }
 
-        public async Task UploadScore(object rawData, object data, object level, object lcr) {
-            //LeaderboardUploadDataA
-            //string
-            //IDifficultyBeatmap
-            IDifficultyBeatmap levelCasted = (IDifficultyBeatmap)level;
-            LevelCompletionResults results = (LevelCompletionResults)lcr;
+        /// <summary>
+        /// This method verify the leaderboard and rank status of the level. Proceed to package the replay and upload it.
+        /// Finally, attempt to upload the score. On success, <see cref="SaveLocalReplay"/> is called.
+        /// </summary>
+        public async Task UploadScore(ScoreSaberUploadData rawDataCasted, string data, IDifficultyBeatmap levelCasted, LevelCompletionResults results) {
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Checking leaderboard ranked status...");
 
-                Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(levelCasted);
+                var currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(levelCasted);
 
                 if (currentLeaderboard != null) {
                     if (currentLeaderboard.leaderboardInfo.playerScore != null) {
                         if (results.modifiedScore < currentLeaderboard.leaderboardInfo.playerScore.modifiedScore) {
                             UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
                             UploadStatusChanged?.Invoke(UploadStatus.Done, "");
-                            uploading = false;
+                            Uploading = false;
                             return;
                         }
                     }
@@ -215,8 +219,8 @@ namespace ScoreSaber.Core.Daemons {
                 byte[] serializedReplay = await _replayService.WriteSerializedReplay();
 
                 // Create http packet
-                WWWForm form = new WWWForm();
-                form.AddField("data", (string)data);
+                var form = new WWWForm();
+                form.AddField("data", data);
                 if (serializedReplay != null) {
                     Plugin.Log.Debug($"Replay size: {serializedReplay.Length}");
                     form.AddBinaryData("zr", serializedReplay);
@@ -228,7 +232,7 @@ namespace ScoreSaber.Core.Daemons {
 
                 // Start upload process
                 while (!done) {
-                    uploading = true;
+                    Uploading = true;
                     string response = null;
                     
                     Plugin.Log.Info("Attempting score upload...");
@@ -241,7 +245,7 @@ namespace ScoreSaber.Core.Daemons {
                             ? $"Failed to upload score: {httpException.scoreSaberError.errorMessage}:{httpException}"
                             : $"Failed to upload score: {httpException.isNetworkError}:{httpException.isHttpError}:{httpException}");
                     } catch (Exception ex) {
-                        Plugin.Log.Error($"Failed to upload score: {ex.ToString()}");
+                        Plugin.Log.Error($"Failed to upload score: {ex}");
                     }
 
                     if (!string.IsNullOrEmpty(response)) {
@@ -271,32 +275,32 @@ namespace ScoreSaber.Core.Daemons {
                     }
                 }
 
-                switch (failed)
+                if(!failed)
                 {
-                    case false:
-                        SaveLocalReplay(rawData, level, serializedReplay);
-                        Plugin.Log.Info("Score uploaded!");
-                        UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
-                        break;
-                    case true:
-                        UploadStatusChanged?.Invoke(UploadStatus.Error, $"Failed to upload score.");
-                        break;
+                    SaveLocalReplay(rawDataCasted, levelCasted, serializedReplay);
+                    Plugin.Log.Info("Score uploaded!");
+                    UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
+                }
+                else {
+                    UploadStatusChanged?.Invoke(UploadStatus.Error, $"Failed to upload score.");
                 }
 
-                uploading = false;
+                Uploading = false;
                 UploadStatusChanged?.Invoke(UploadStatus.Done, "");
             } catch (Exception) {
-                uploading = false;
+                Uploading = false;
                 UploadStatusChanged?.Invoke(UploadStatus.Done, "");
             }
         }
 
-        private void SaveLocalReplay(object rawData, object level, byte[] replay) {
+        /// <summary>
+        /// This method write the local replay in the UserData/ScoreSaber/Replays folder following the specific format:
+        /// Player ID - Song Name - Difficulty - BeatmapCharacteristic - LeaderboardID
+        /// </summary>
+        private void SaveLocalReplay(ScoreSaberUploadData rawDataCasted, IDifficultyBeatmap levelCasted, byte[] replay) {
 
             try {
                 if (replay != null) {
-                    ScoreSaberUploadData rawDataCasted = (ScoreSaberUploadData)rawData;
-                    IDifficultyBeatmap levelCasted = (IDifficultyBeatmap)level;
                     if (!Plugin.Settings.saveLocalReplays) {
                         return;
                     }
@@ -314,8 +318,7 @@ namespace ScoreSaber.Core.Daemons {
 
         public void Dispose() {
             Plugin.Log.Info("Upload service successfully deconstructed");
-            StandardLevelScenesTransitionSetupDataSO transitionSetup =
- Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+            var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
             if (transitionSetup != null) {
                 transitionSetup.didFinishEvent -= StandardSceneTransition;
             }

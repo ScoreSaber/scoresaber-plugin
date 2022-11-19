@@ -4,10 +4,9 @@ using IPA.Utilities;
 using Newtonsoft.Json;
 using Oculus.Platform;
 using Oculus.Platform.Models;
-using ScoreSaber.Core.Data.Internal;
+using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
-using ScoreSaber.Core.Utils;
 using ScoreSaber.Extensions;
 using Steamworks;
 using System;
@@ -19,6 +18,10 @@ using UnityEngine;
 
 namespace ScoreSaber.Core.Services {
     internal class PlayerService {
+
+        public LocalPlayerInfo LocalPlayerInfo { get; set; }
+        public LoginStatus Status { get; set; }
+        public event Action<LoginStatus, string> LoginStatusChanged;
         public enum LoginStatus {
             Info = 0,
             Error = 1,
@@ -29,45 +32,42 @@ namespace ScoreSaber.Core.Services {
             Plugin.Log.Debug("PlayerService Setup!");
         }
 
-        public LocalPlayerInfo localPlayerInfo { get; set; }
-        public LoginStatus loginStatus { get; set; }
-        public event Action<LoginStatus, string> LoginStatusChanged;
-
         public void ChangeLoginStatus(LoginStatus _loginStatus, string status) {
-            loginStatus = _loginStatus;
-            LoginStatusChanged?.Invoke(loginStatus, status);
+
+            Status = _loginStatus;
+            LoginStatusChanged?.Invoke(Status, status);
         }
 
         public void GetLocalPlayerInfo() {
-            switch (localPlayerInfo) {
-                case null when File.Exists(Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "Plugins", "x86_64",
-                    "steam_api64.dll")):
+
+            if (LocalPlayerInfo == null) {
+                if (File.Exists(Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "Plugins", "x86_64", "steam_api64.dll"))) {
                     GetLocalPlayerInfo1().RunTask();
-                    break;
-                case null:
+                } else {
                     GetLocalPlayerInfo2();
-                    break;
+                }
             }
         }
 
         private async Task GetLocalPlayerInfo1() {
+
             ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
 
             int attempts = 1;
 
             while (attempts < 4) {
-                LocalPlayerInfo steamInfo = await GetLocalSteamInfo();
+                var steamInfo = await GetLocalSteamInfo();
                 if (steamInfo != null) {
                     bool authenticated = await AuthenticateWithScoreSaber(steamInfo);
                     if (authenticated) {
-                        localPlayerInfo = steamInfo;
-                        ChangeLoginStatus(LoginStatus.Success, SuccessText.Get(steamInfo.playerId));
+                        LocalPlayerInfo = steamInfo;
+                        ChangeLoginStatus(LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
                         break;
+                    } else {
+                        ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
+                        attempts++;
+                        await Task.Delay(4000);
                     }
-
-                    ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
-                    attempts++;
-                    await Task.Delay(4000);
                 } else {
                     Plugin.Log.Error("Steamworks is not initialized!");
                     ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting steam info");
@@ -75,87 +75,67 @@ namespace ScoreSaber.Core.Services {
                 }
             }
 
-            if (loginStatus != LoginStatus.Success) {
-                ChangeLoginStatus(LoginStatus.Error,
-                    "Failed to authenticate with ScoreSaber! Please restart your game");
+            if (Status != LoginStatus.Success) {
+                ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
             }
         }
 
         private void GetLocalPlayerInfo2() {
+
             ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
 
-            Users.GetLoggedInUser().OnComplete(delegate(Message<User> loggedInMessage) {
-                switch (loggedInMessage.IsError) {
-                    case false:
-                        Users.GetLoggedInUserFriends().OnComplete(delegate(Message<UserList> friendsMessage) {
-                            switch (friendsMessage.IsError) {
-                                case false:
-                                    Users.GetUserProof().OnComplete(delegate(Message<UserProof> userProofMessage) {
-                                        switch (userProofMessage.IsError) {
-                                            case false:
-                                                Users.GetAccessToken().OnComplete(
-                                                    async delegate(Message<string> authTokenMessage) {
-                                                        string playerId = loggedInMessage.Data.ID.ToString();
-                                                        string playerName = loggedInMessage.Data.OculusID;
-                                                        string friends = playerId + ",";
-                                                        string nonce = userProofMessage.Data.Value + "," +
-                                                                       authTokenMessage.Data;
-                                                        LocalPlayerInfo oculusInfo =
-                                                            new LocalPlayerInfo(playerId, playerName, friends, "1",
-                                                                nonce);
-                                                        bool authenticated =
-                                                            await AuthenticateWithScoreSaber(oculusInfo);
-                                                        switch (authenticated) {
-                                                            case true:
-                                                                localPlayerInfo = oculusInfo;
-                                                                ChangeLoginStatus(LoginStatus.Success,
-                                                                    "Successfully signed into ScoreSaber!");
-                                                                break;
-                                                            default:
-                                                                ChangeLoginStatus(LoginStatus.Error,
-                                                                    "Failed to authenticate with ScoreSaber! Please restart your game");
-                                                                break;
-                                                        }
-                                                    });
-                                                break;
-                                            default:
-                                                ChangeLoginStatus(LoginStatus.Error,
-                                                    "Failed to authenticate! Error getting oculus info");
-                                                break;
+            Users.GetLoggedInUser().OnComplete((Message<User>.Callback)delegate (Message<User> loggedInMessage) {
+                if (!loggedInMessage.IsError) {
+                    Users.GetLoggedInUserFriends().OnComplete((Message<UserList>.Callback)delegate (Message<UserList> friendsMessage) {
+                        if (!friendsMessage.IsError) {
+                            Users.GetUserProof().OnComplete((Message<UserProof>.Callback)delegate (Message<UserProof> userProofMessage) {
+                                if (!userProofMessage.IsError) {
+                                    Users.GetAccessToken().OnComplete((Message<string>.Callback)async delegate (Message<string> authTokenMessage) {
+                                        string playerId = loggedInMessage.Data.ID.ToString();
+                                        string playerName = loggedInMessage.Data.OculusID;
+                                        string friends = playerId + ",";
+                                        string nonce = userProofMessage.Data.Value + "," + authTokenMessage.Data;
+                                        var oculusInfo = new LocalPlayerInfo(playerId, playerName, friends, "1", nonce);
+                                        bool authenticated = await AuthenticateWithScoreSaber(oculusInfo);
+                                        if (authenticated) {
+                                            LocalPlayerInfo = oculusInfo;
+                                            ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
+                                        } else {
+                                            ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
                                         }
                                     });
-                                    break;
-                                default:
-                                    ChangeLoginStatus(LoginStatus.Error,
-                                        "Failed to authenticate! Error getting oculus info");
-                                    break;
-                            }
-                        });
-                        break;
-                    default:
-                        ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
-                        break;
+
+                                } else {
+                                    ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
+                                }
+                            });
+                        } else {
+                            ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
+                        }
+                    });
+                } else {
+                    ChangeLoginStatus((LoginStatus)PlayerService.LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
                 }
             });
         }
 
         private async Task<LocalPlayerInfo> GetLocalSteamInfo() {
+
             await TaskEx.WaitUntil(() => SteamManager.Initialized);
 
             string authToken = (await new SteamPlatformUserModel().GetUserAuthToken()).token;
 
-            LocalPlayerInfo steamInfo = await Task.Run(() => {
-                CSteamID steamID = SteamUser.GetSteamID();
+            var steamInfo = await Task.Run(() => {
+                var steamID = SteamUser.GetSteamID();
                 string playerId = steamID.m_SteamID.ToString();
                 string playerName = SteamFriends.GetPersonaName();
                 string friends = playerId + ",";
                 for (int i = 0; i < SteamFriends.GetFriendCount(EFriendFlags.k_EFriendFlagAll); i++) {
-                    CSteamID friendSteamId = SteamFriends.GetFriendByIndex(i, EFriendFlags.k_EFriendFlagImmediate);
+                    var friendSteamId = SteamFriends.GetFriendByIndex(i, EFriendFlags.k_EFriendFlagImmediate);
                     if (friendSteamId.m_SteamID.ToString() != "0") {
-                        friends = friends + friendSteamId.m_SteamID + ",";
+                        friends = friends + friendSteamId.m_SteamID.ToString() + ",";
                     }
                 }
-
                 friends = friends.Remove(friends.Length - 1);
                 return new LocalPlayerInfo(playerId, playerName, friends, "0", authToken);
             });
@@ -165,11 +145,13 @@ namespace ScoreSaber.Core.Services {
         }
 
         private async Task<bool> AuthenticateWithScoreSaber(LocalPlayerInfo playerInfo) {
+
+
             if (Plugin.HttpInstance.PersistentRequestHeaders.ContainsKey("Cookies")) {
                 Plugin.HttpInstance.PersistentRequestHeaders.Remove("Cookies");
             }
 
-            WWWForm form = new WWWForm();
+            var form = new WWWForm();
             form.AddField("at", playerInfo.authType);
             form.AddField("playerId", playerInfo.playerId);
             form.AddField("nonce", playerInfo.playerNonce);
@@ -178,7 +160,7 @@ namespace ScoreSaber.Core.Services {
 
             try {
                 string response = await Plugin.HttpInstance.PostAsync("/game/auth", form);
-                AuthResponse authResponse = JsonConvert.DeserializeObject<AuthResponse>(response);
+                var authResponse = JsonConvert.DeserializeObject<AuthResponse>(response);
                 playerInfo.playerKey = authResponse.PlayerKey;
                 playerInfo.serverKey = authResponse.ServerKey;
 
@@ -191,52 +173,43 @@ namespace ScoreSaber.Core.Services {
         }
 
         public async Task<PlayerInfo> GetPlayerInfo(string playerId, bool full) {
+
             string url = $"/player/{playerId}";
 
-            switch (full) {
-                case true:
-                    url += "/full";
-                    break;
-                default:
-                    url += "/basic";
-                    break;
+            if (full) {
+                url += "/full";
+            } else {
+                url += "/basic";
             }
 
-            string response = await Plugin.HttpInstance.GetAsync(url);
-            PlayerInfo playerStats = JsonConvert.DeserializeObject<PlayerInfo>(response);
+            var response = await Plugin.HttpInstance.GetAsync(url);
+            var playerStats = JsonConvert.DeserializeObject<PlayerInfo>(response);
             return playerStats;
         }
 
         public async Task<byte[]> GetReplayData(IDifficultyBeatmap level, int leaderboardId, ScoreMap scoreMap) {
-            switch (scoreMap.hasLocalReplay) {
-                case true: {
-                    string replayPath = GetReplayPath(scoreMap.parent.songHash, level.difficulty.SerializedName(),
-                        level.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName,
-                        scoreMap.score.leaderboardPlayerInfo.id, level.level.songName);
-                    if (replayPath != null) {
-                        return File.ReadAllBytes(replayPath);
-                    }
 
-                    break;
+            if (scoreMap.hasLocalReplay) {
+                string replayPath = GetReplayPath(scoreMap.parent.songHash, level.difficulty.SerializedName(), level.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName, scoreMap.score.leaderboardPlayerInfo.id, level.level.songName);
+                if (replayPath != null) {
+                    return File.ReadAllBytes(replayPath);
                 }
             }
 
-            byte[] response = await Plugin.HttpInstance.DownloadAsync(
-                $"/game/telemetry/downloadReplay?playerId={scoreMap.score.leaderboardPlayerInfo.id}&leaderboardId={leaderboardId}");
+            byte[] response = await Plugin.HttpInstance.DownloadAsync($"/game/telemetry/downloadReplay?playerId={scoreMap.score.leaderboardPlayerInfo.id}&leaderboardId={leaderboardId}");
 
             if (response != null) {
                 return response;
+            } else {
+                throw new Exception("Failed to download replay");
             }
-
-            throw new Exception("Failed to download replay");
         }
 
-        private string GetReplayPath(string levelId, string difficultyName, string characteristic, string playerId,
-            string songName) {
+        private string GetReplayPath(string levelId, string difficultyName, string characteristic, string playerId, string songName) {
+
             songName = songName.ReplaceInvalidChars().Truncate(155);
 
-            string path =
-                $@"{Settings.replayPath}\{playerId}-{songName}-{difficultyName}-{characteristic}-{levelId}.dat";
+            string path = $@"{Settings.replayPath}\{playerId}-{songName}-{difficultyName}-{characteristic}-{levelId}.dat";
             if (File.Exists(path)) {
                 return path;
             }
@@ -248,5 +221,6 @@ namespace ScoreSaber.Core.Services {
 
             return null;
         }
+
     }
 }

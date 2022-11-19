@@ -11,47 +11,10 @@ using UnityEngine;
 
 namespace ScoreSaber.UI.Elements.Team {
     internal class TeamUserInfo : INotifyPropertyChanged {
-        [UIComponent("profile-image")] protected readonly ImageView _profilePictureComponent = null;
 
-        private readonly string _profilePictureTemp;
-
-        [UIComponent("username-text")] protected readonly CurvedTextMeshPro _usernameTextComponent = null;
-
-        private string _discordLink;
-
-        private string _githubLink;
-        private bool _loaded;
-
-        private string _twitchLink;
-
-        private string _twitterLink;
-
-        private string _usernameText;
-
-        private string _youtubeLink;
-
-        public int clickCounter;
-
-        public TeamUserInfo(string _profilePicture, string _username, string _discord = null, string _github = null,
-            string _twitch = null, string _twitter = null, string _youtube = null) {
-            switch (_username) {
-                case "williums":
-                    _username =
-                        "<color=#FF0000>w</color><color=#FF7F00>i</color><color=#FFFF00>l</color><color=#00FF00>l</color><color=#0000FF>i</color><color=#4B0082>u</color><color=#8B00FF>m</color><color=#FF0000>s</color>";
-                    break;
-            }
-
-            _profilePictureTemp = _profilePicture;
-            usernameText = _username;
-            discordLink = _discord;
-            githubLink = _github;
-            twitchLink = _twitch;
-            twitterLink = _twitter;
-            youtubeLink = _youtube;
-        }
-
+        private string _usernameText = null;
         [UIValue("username")]
-        protected string usernameText {
+        protected string UsernameText {
             get => _usernameText;
             set {
                 _usernameText = value;
@@ -59,150 +22,148 @@ namespace ScoreSaber.UI.Elements.Team {
             }
         }
 
-        protected string discordLink {
+        private string _discordLink = null;
+        protected string DiscordLink {
             get => _discordLink;
             set {
-                switch (value) {
-                    case null:
-                        _discordLink = null;
-                        break;
-                    default:
-                        _discordLink = value;
-                        break;
+                if (value == null) {
+                    _discordLink = null;
+                } else {
+                    _discordLink = value;
                 }
-
                 NotifyPropertyChanged("hasDiscord");
             }
         }
 
-        protected string githubLink {
+        private string _githubLink = null;
+        protected string GithubLink {
             get => _githubLink;
             set {
-                switch (value) {
-                    case null:
-                        _githubLink = null;
-                        break;
-                    default:
-                        _githubLink = $"https://github.com/{value}";
-                        break;
+                if (value == null) {
+                    _githubLink = null;
+                } else {
+                    _githubLink = $"https://github.com/{value}";
                 }
-
                 NotifyPropertyChanged("hasGithub");
             }
         }
 
-        protected string twitchLink {
+        private string _twitchLink = null;
+        protected string TwitchLink {
             get => _twitchLink;
             set {
-                switch (value) {
-                    case null:
-                        _twitchLink = null;
-                        break;
-                    default:
-                        _twitchLink = $"https://www.twitch.tv/{value}";
-                        break;
+                if (value == null) {
+                    _twitchLink = null;
+                } else {
+                    _twitchLink = $"https://www.twitch.tv/{value}";
                 }
-
                 NotifyPropertyChanged("hasTwitch");
             }
         }
 
-        protected string twitterLink {
+        private string _twitterLink = null;
+        protected string TwitterLink {
             get => _twitterLink;
             set {
-                switch (value) {
-                    case null:
-                        _twitterLink = null;
-                        break;
-                    default:
-                        _twitterLink = $"https://twitter.com/{value}";
-                        break;
+                if (value == null) {
+                    _twitterLink = null;
+                } else {
+                    _twitterLink = $"https://twitter.com/{value}";
                 }
-
                 NotifyPropertyChanged("hasTwitter");
             }
         }
 
-        protected string youtubeLink {
+        private string _youtubeLink = null;
+        protected string YoutubeLink {
             get => _youtubeLink;
             set {
-                switch (value) {
-                    case null:
-                        _youtubeLink = null;
-                        break;
-                    default:
-                        _youtubeLink = $"https://www.youtube.com/channel/{value}";
-                        break;
+                if (value == null) {
+                    _youtubeLink = null;
+                } else {
+                    _youtubeLink = $"https://www.youtube.com/channel/{value}";
                 }
-
                 NotifyPropertyChanged("hasYoutube");
             }
         }
 
-        [UIValue("discord")] private bool _hasDiscord => _discordLink != null;
+        private readonly string _profilePictureTemp;
+        private bool _loaded;
 
-        [UIValue("github")] private bool _hasGithub => _githubLink != null;
+        [UIValue("discord")]
+        private bool _hasDiscord => _discordLink != null;
+        [UIValue("github")]
+        private bool _hasGithub => _githubLink != null;
+        [UIValue("twitch")]
+        private bool _hasTwitch => _twitchLink != null;
+        [UIValue("twitter")]
+        private bool _hasTwitter => _twitterLink != null;
+        [UIValue("youtube")]
+        private bool _hasYoutube => _youtubeLink != null;
 
-        [UIValue("twitch")] private bool _hasTwitch => _twitchLink != null;
+        [UIComponent("username-text")]
+        protected readonly CurvedTextMeshPro _usernameTextComponent = null;
 
-        [UIValue("twitter")] private bool _hasTwitter => _twitterLink != null;
+        [UIComponent("profile-image")]
+        protected readonly ImageView _profilePictureComponent = null;
 
-        [UIValue("youtube")] private bool _hasYoutube => _youtubeLink != null;
+        public TeamUserInfo(string _profilePicture, string _username, string _discord = null, string _github = null, string _twitch = null, string _twitter = null, string _youtube = null) {
 
-        public event PropertyChangedEventHandler PropertyChanged;
+            if (_username == "williums") {
+                _username = "<color=#FF0000>w</color><color=#FF7F00>i</color><color=#FFFF00>l</color><color=#00FF00>l</color><color=#0000FF>i</color><color=#4B0082>u</color><color=#8B00FF>m</color><color=#FF0000>s</color>";
+            }
+
+            _profilePictureTemp = _profilePicture;
+            UsernameText = _username;
+            DiscordLink = _discord;
+            GithubLink = _github;
+            TwitchLink = _twitch;
+            TwitterLink = _twitter;
+            YoutubeLink = _youtube;
+        }
 
         public void LoadImage() {
-            switch (_loaded) {
-                case false: {
-                    if (_profilePictureTemp != null) {
-                        SetImage(_profilePictureTemp);
-                    }
 
-                    _loaded = true;
-                    break;
+            if (!_loaded) {
+                if (_profilePictureTemp != null) {
+                    SetImage(_profilePictureTemp);
                 }
+                _loaded = true;
             }
         }
 
         private void SetImage(string image) {
+
             if (_profilePictureComponent != null) {
-                _profilePictureComponent.SetImage(
-                    $"https://raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/images/{image}");
+                _profilePictureComponent.SetImage($"https://raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/images/{image}");
             } else {
                 Plugin.Log.Info("ProfilePictureComponent is null");
             }
         }
 
+        public int clickCounter = 0;
         [UIAction("username-click")]
         public void UsernameClick() {
-            switch (usernameText) {
-                case "Umbranox": {
-                    switch (clickCounter < 5) {
-                        case true:
-                            clickCounter++;
-                            break;
-                    }
-
-                    switch (clickCounter) {
-                        case 5:
-                            SetImage("r.jpg");
-                            usernameText = "🌧 Rain ❤";
-                            discordLink = "128460955272216576";
-                            twitterLink = "VaporRain";
-                            twitchLink = "inkierain";
-                            NotifyPropertyChanged("profilePicture");
-                            youtubeLink = null;
-                            githubLink = null;
-                            break;
-                    }
-
-                    break;
+            if (UsernameText == "Umbranox") {
+                if (clickCounter < 5) {
+                    clickCounter++;
+                }
+                if (clickCounter == 5) {
+                    SetImage("r.jpg");
+                    UsernameText = "🌧 Rain ❤";
+                    DiscordLink = "128460955272216576";
+                    TwitterLink = "VaporRain";
+                    TwitchLink = "inkierain";
+                    NotifyPropertyChanged("profilePicture");
+                    YoutubeLink = null;
+                    GithubLink = null;
                 }
             }
         }
 
         [UIAction("#post-parse")]
         protected void Parsed() {
+
             _profilePictureComponent.material = Plugin.NoGlowMatRound;
             _usernameTextComponent.fontSizeMax = 5.5f;
             _usernameTextComponent.fontSizeMin = 2.5f;
@@ -235,6 +196,7 @@ namespace ScoreSaber.UI.Elements.Team {
             Application.OpenURL(_youtubeLink);
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

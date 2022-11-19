@@ -10,12 +10,13 @@ using System.Linq;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class ComboPlayer : TimeSynchronizer, IScroller {
-        private readonly ComboEvent[] _sortedComboEvents;
-        private readonly NoteEvent[] _sortedNoteEvents;
         private ComboController _comboController;
         private ComboUIController _comboUIController;
+        private readonly NoteEvent[] _sortedNoteEvents;
+        private readonly ComboEvent[] _sortedComboEvents;
 
         public ComboPlayer(ReplayFile file, ComboController comboController, ComboUIController comboUIController) {
+
             _comboController = comboController;
             _comboUIController = comboUIController;
             _sortedNoteEvents = file.noteKeyframes.ToArray();
@@ -23,23 +24,20 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         }
 
         public void TimeUpdate(float newTime) {
+
             for (int c = 0; c < _sortedComboEvents.Length; c++) {
-                switch (_sortedComboEvents[c].Time >= newTime) {
-                    case true:
-                        UpdateCombo(newTime, c != 0 ? _sortedComboEvents[c - 1].Combo : 0);
-                        return;
+                if (_sortedComboEvents[c].Time >= newTime) {
+                    UpdateCombo(newTime, c != 0 ? _sortedComboEvents[c - 1].Combo : 0);
+                    return;
                 }
             }
-
             UpdateCombo(newTime, _sortedComboEvents.LastOrDefault().Combo);
         }
 
         private void UpdateCombo(float time, int combo) {
-            IEnumerable<NoteEvent> previousComboEvents =
-                _sortedNoteEvents.Where(ne => ne.EventType != NoteEventType.None && time > ne.Time);
-            int cutOrMissRecorded = previousComboEvents.Count(ne =>
-                ne.EventType == NoteEventType.BadCut || ne.EventType == NoteEventType.GoodCut ||
-                ne.EventType == NoteEventType.Miss);
+
+            var previousComboEvents = _sortedNoteEvents.Where(ne => ne.EventType != NoteEventType.None && time > ne.Time);
+            int cutOrMissRecorded = previousComboEvents.Count(ne => ne.EventType == NoteEventType.BadCut || ne.EventType == NoteEventType.GoodCut || ne.EventType == NoteEventType.Miss);
 
             Accessors.Combo(ref _comboController) = combo;
             Accessors.MaxCombo(ref _comboController) = cutOrMissRecorded;

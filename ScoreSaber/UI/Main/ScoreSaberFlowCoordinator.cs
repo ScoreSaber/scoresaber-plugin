@@ -11,28 +11,24 @@ using Zenject;
 
 namespace ScoreSaber.UI.Main {
     internal class ScoreSaberFlowCoordinator : FlowCoordinator, IInitializable {
-        private FAQViewController _faqViewController;
-        private GlobalViewController _globalViewController;
 
         private FlowCoordinator _lastFlowCoordinator;
+        private FAQViewController _faqViewController;
         private TeamViewController _teamViewController;
-
-        public void Initialize() {
-        }
+        private GlobalViewController _globalViewController;
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-            switch (firstActivation) {
-                case true:
-                    SetTitle("ScoreSaber");
-                    showBackButton = true;
-                    ProvideInitialViewControllers(_globalViewController, _teamViewController, _faqViewController);
-                    break;
+
+            if (firstActivation) {
+                SetTitle("ScoreSaber");
+                showBackButton = true;
+                ProvideInitialViewControllers(_globalViewController, _teamViewController, _faqViewController);
             }
         }
 
         [Inject]
-        internal void Construct(FAQViewController faqViewController, TeamViewController teamViewController,
-            GlobalViewController globalViewController) {
+        internal void Construct(FAQViewController faqViewController, TeamViewController teamViewController, GlobalViewController globalViewController) {
+
             _faqViewController = faqViewController;
             _teamViewController = teamViewController;
             _globalViewController = globalViewController;
@@ -40,16 +36,17 @@ namespace ScoreSaber.UI.Main {
         }
 
         protected override void BackButtonWasPressed(ViewController topViewController) {
+
             SetLeftScreenViewController(null, ViewController.AnimationType.None);
             SetRightScreenViewController(null, ViewController.AnimationType.None);
             _lastFlowCoordinator.DismissFlowCoordinator(this);
         }
 
         internal static void ShowMainFlowCoordinator() {
-            ScoreSaberFlowCoordinator flowCoordinator =
-                Resources.FindObjectsOfTypeAll<ScoreSaberFlowCoordinator>().FirstOrDefault();
+
+            ScoreSaberFlowCoordinator flowCoordinator = Resources.FindObjectsOfTypeAll<ScoreSaberFlowCoordinator>().FirstOrDefault();
             if (flowCoordinator != null) {
-                FlowCoordinator activeFlow = DeepestChildFlowCoordinator(BeatSaberUI.MainFlowCoordinator);
+                var activeFlow = DeepestChildFlowCoordinator(BeatSaberUI.MainFlowCoordinator);
                 activeFlow.PresentFlowCoordinator(flowCoordinator);
                 flowCoordinator._lastFlowCoordinator = activeFlow;
             } else {
@@ -58,16 +55,17 @@ namespace ScoreSaber.UI.Main {
         }
 
         internal static FlowCoordinator DeepestChildFlowCoordinator(FlowCoordinator root) {
-            FlowCoordinator flow = root.childFlowCoordinator;
-            if (flow == null) {
-                return root;
-            }
 
+            var flow = root.childFlowCoordinator;
+            if (flow == null) return root;
             if (flow.childFlowCoordinator == null || flow.childFlowCoordinator == flow) {
                 return flow;
             }
-
             return DeepestChildFlowCoordinator(flow);
+        }
+
+        public void Initialize() {
+
         }
     }
 }

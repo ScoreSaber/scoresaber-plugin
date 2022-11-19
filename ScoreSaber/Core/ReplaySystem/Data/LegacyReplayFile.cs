@@ -1,17 +1,13 @@
-﻿#pragma warning disable IDE1006 // Naming Styles
-
-#region
+﻿#region
 
 using System;
 using UnityEngine;
 
-// ReSharper disable InconsistentNaming
-
 #endregion
 
-// Old replay "format"
 namespace ScoreSaber.Core.ReplaySystem.Data {
     public class LegacyReplayFile : MonoBehaviour {
+
         public class Keyframe {
             public Vector3 _pos1;
             public Vector3 _pos2;
@@ -26,8 +22,6 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
 
         [Serializable]
         public class SavedData {
-            public KeyframeSerializable[] _keyframes;
-
             [Serializable]
             public class KeyframeSerializable {
                 public float _xPos1;
@@ -61,6 +55,9 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
                 public int combo;
                 public int score;
             }
+            public KeyframeSerializable[] _keyframes;
         }
+
     }
+
 }

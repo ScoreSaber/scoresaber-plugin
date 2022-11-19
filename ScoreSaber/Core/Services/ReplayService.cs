@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace ScoreSaber.Core.Services {
+namespace ScoreSaber.Core.Daemons {
+
     internal class ReplayService {
-        private string _currentPlayId;
-        private Recorder _replayRecorder;
 
         public event Action<byte[]> ReplaySerialized;
+
+        private string _currentPlayId;
+        private Recorder _replayRecorder;
 
         public void NewPlayStarted(string playId, Recorder replayRecorder) {
             _currentPlayId = playId;
@@ -21,7 +23,7 @@ namespace ScoreSaber.Core.Services {
         }
 
         public async Task<byte[]> WriteSerializedReplay() {
-            ReplayFileWriter writer = new ReplayFileWriter();
+            var writer = new ReplayFileWriter();
             byte[] serializedReplay = null;
             Plugin.Log.Debug($"Writing replay with id: {_currentPlayId}");
             await Task.Run(() => {

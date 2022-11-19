@@ -1,6 +1,6 @@
 ﻿#region
 
-using ScoreSaber.Core.Services;
+using ScoreSaber.Core.Daemons;
 using Zenject;
 
 #endregion
