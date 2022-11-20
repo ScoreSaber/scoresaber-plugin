@@ -62,14 +62,14 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         }
 
         public void Initialize() {
-            
+
             SetupCameras();
-            _fpfcSettings.Changed += FpfcSettings_Changed;
+            _fpfcSettings.Changed += FPFCSettings_Changed;
             ScoreUIController.InitData data = new ScoreUIController.InitData(scoreDisplayType: ScoreUIController.ScoreDisplayType.MultipliedScore);
             _scoreUIController.SetField("_initData", data);
         }
 
-        private void FpfcSettings_Changed(IFPFCSettings fpfcSettings) {
+        private void FPFCSettings_Changed(IFPFCSettings fpfcSettings) {
 
             if (fpfcSettings.Enabled) {
                 _desktopCamera.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -77,7 +77,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         }
 
         private void SetupCameras() {
-            
+
             _mainCamera.enabled = false;
             _mainCamera.gameObject.SetActive(false);
 
@@ -267,7 +267,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
         public void Dispose() {
 
-            _fpfcSettings.Changed -= FpfcSettings_Changed;
+            _fpfcSettings.Changed -= FPFCSettings_Changed;
             _fpfcSettings.Enabled = _initialFPFCState;
         }
     }

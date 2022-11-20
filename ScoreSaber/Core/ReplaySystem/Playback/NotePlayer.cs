@@ -5,7 +5,6 @@ using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Extensions;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Zenject;
@@ -50,20 +49,17 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         private bool ProcessEvent(NoteEvent activeEvent) {
 
             bool foundNote = false;
-            switch (activeEvent.EventType)
-            {
+            switch (activeEvent.EventType) {
                 case NoteEventType.GoodCut:
                 case NoteEventType.BadCut: {
-                    if (_gameNotePool.activeItems.Any(noteController => HandleEvent(activeEvent, noteController)))
-                    {
+                    if (_gameNotePool.activeItems.Any(noteController => HandleEvent(activeEvent, noteController))) {
                         foundNote = true;
                     }
 
                     break;
                 }
                 case NoteEventType.Bomb: {
-                    if (_bombNotePool.activeItems.Any(bombController => HandleEvent(activeEvent, bombController)))
-                    {
+                    if (_bombNotePool.activeItems.Any(bombController => HandleEvent(activeEvent, bombController))) {
                         foundNote = true;
                     }
 
@@ -74,7 +70,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         }
 
         private bool HandleEvent(NoteEvent activeEvent, NoteController noteController) {
-            
+
             if (!DoesNoteMatchID(activeEvent.NoteID, noteController.noteData)) {
                 return false;
             }

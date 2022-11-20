@@ -18,7 +18,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal List<EnergyEvent> energyKeyframes;
 
         internal ReplayFile() {
-            
+
             poseKeyframes = new List<VRPoseGroup>();
             heightKeyframes = new List<HeightEvent>();
             noteKeyframes = new List<NoteEvent>();

@@ -21,7 +21,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasCut))]
         [AffinityPrefix]
         void PatchNoteWasCut(NoteController noteController) {
-            
+
             if (!Plugin.ReplayState.IsPlaybackEnabled || !Plugin.ReplayState.IsLegacyReplay) {
                 return;
             }
@@ -35,7 +35,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         [AffinityPatch(typeof(ScoreController), nameof(ScoreController.HandleNoteWasMissed))]
         [AffinityPrefix]
         bool PatchNoteWasMissed(NoteController noteController) {
-            
+
             if (!Plugin.ReplayState.IsPlaybackEnabled || !Plugin.ReplayState.IsLegacyReplay) {
                 return true;
             }
@@ -74,7 +74,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
     [HarmonyPatch(typeof(BombNoteController), nameof(BombNoteController.HandleWasCutBySaber))]
     internal class PatchBombNoteControllerWasCutBySaber {
         static bool Prefix() {
-            
+
             return !Plugin.ReplayState.IsPlaybackEnabled || !Plugin.ReplayState.IsLegacyReplay;
         }
     }
@@ -82,7 +82,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
     [HarmonyPatch(typeof(ScoreUIController), nameof(ScoreUIController.HandleScoreDidChangeRealtime))]
     internal class PatchScoreUIController {
         static bool Prefix() {
-            
+
             return !Plugin.ReplayState.IsPlaybackEnabled || !Plugin.ReplayState.IsLegacyReplay;
         }
     }
@@ -90,7 +90,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
     [HarmonyPatch(typeof(RelativeScoreAndImmediateRankCounter), nameof(RelativeScoreAndImmediateRankCounter.HandleScoreDidChange))]
     internal class PatchRelativeScoreAndImmediateRankCounter {
         static bool Prefix() {
-            
+
             return !Plugin.ReplayState.IsPlaybackEnabled || !Plugin.ReplayState.IsLegacyReplay;
         }
     }
@@ -98,7 +98,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
     [HarmonyPatch(typeof(StandardLevelGameplayManager), nameof(StandardLevelGameplayManager.HandleGameEnergyDidReach0))]
     internal class PatchStandardLevelGameplayManagerHandleGameEnergyDidReach0 {
         static bool Prefix() {
-            
+
             return !Plugin.ReplayState.IsPlaybackEnabled || !Plugin.ReplayState.IsLegacyReplay;
         }
     }
@@ -106,7 +106,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
     [HarmonyPatch(typeof(NoteCutSoundEffect), nameof(NoteCutSoundEffect.NoteWasCut))]
     internal class PatchNoteCutSoundEffect {
         static bool Prefix(NoteController noteController, in NoteCutInfo noteCutInfo, ref AudioSource ____audioSource, ref bool ____goodCut, float ____goodCutVolume, ref bool ____noteWasCut, ref NoteController ____noteController, ref NoteCutSoundEffect __instance) {
-            
+
             if (!Plugin.ReplayState.IsPlaybackEnabled || !Plugin.ReplayState.IsLegacyReplay) {
                 return true;
             }

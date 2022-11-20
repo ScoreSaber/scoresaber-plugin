@@ -31,11 +31,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Legacy {
                     timeScale = Plugin.ReplayState.LoadedReplayFile.noteKeyframes[0].TimeSyncTimescale;
                 }
             }
-            
+
             if (Math.Abs(timeScale - 1f) > 0.001f) {
                 replayText += $" [{timeScale:P1}]";
             }
-            
+
             string friendlyMods = GetFriendlyModifiers(Plugin.ReplayState.CurrentModifiers);
             if (friendlyMods != string.Empty) {
                 replayText += $" [{friendlyMods}]";
@@ -46,7 +46,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Legacy {
                 _gameplayCoreSceneSetupData.environmentInfo.environmentName == "Interscope"
                     ? new Vector3(0f, 3.5f, 12.0f)
                     : new Vector3(0f, 4f, 12.0f);
-            
+
             _watermarkCanvas.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 
             var _canvas = _watermarkCanvas.AddComponent<Canvas>();

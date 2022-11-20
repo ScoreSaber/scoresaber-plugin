@@ -103,7 +103,7 @@ namespace ScoreSaber.UI.Elements.Team {
         }
 
         public void LoadImage() {
-            
+
             if (!_loaded) {
                 if (_profilePictureTemp != null) {
                     SetImage(_profilePictureTemp);

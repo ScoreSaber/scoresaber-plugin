@@ -376,7 +376,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void CheckPage() {
-            
+
             _upButton.interactable = leaderboardPage > 1;
         }
 
@@ -389,7 +389,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void ChangeScope(bool filterAroundCountry) {
-            
+
             if (!activated) {
                 return;
             }

@@ -16,7 +16,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
         internal static bool Buffer { get; set; }
 
         internal static bool Prefix(NoteCutSoundEffectManager __instance, NoteController noteController) {
-            
+
             if (!Plugin.ReplayState.IsPlaybackEnabled || Plugin.ReplayState.IsLegacyReplay) {
                 return true;
             }

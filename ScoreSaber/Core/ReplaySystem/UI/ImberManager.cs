@@ -71,8 +71,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private void MainImberPanelView_DidHandSwitchEvent(XRNode hand) {
 
-            switch (hand)
-            {
+            switch (hand) {
                 case XRNode.RightHand:
                     Plugin.Settings.LeftHandedReplayUI = true;
                     break;
@@ -92,7 +91,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         }
 
         private void ImberSpecsReporter_DidReport(int fps, float leftSaberSpeed, float rightSaberSpeed) {
-            
+
             if (_mainImberPanelView.DidParse) {
                 _mainImberPanelView.FPS = fps;
                 _mainImberPanelView.LeftSaberSpeed = leftSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);

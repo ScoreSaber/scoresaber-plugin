@@ -52,7 +52,7 @@ namespace ScoreSaber.Core.Data.Internal {
                 if (hmd.Contains("pro")) {
                     return VivePro;
                 }
-                
+
                 return hmd.Contains("cosmos") ? Cosmos : Vive;
             }
             if (hmd.Contains("quest")) {
@@ -68,14 +68,13 @@ namespace ScoreSaber.Core.Data.Internal {
             if (hmdName.ToLower().Contains("index")) {
                 return Index;
             }
-            
+
             return WMRBrands.Any(brand => hmdName.ToLower().Contains(brand)) ? Windows : Unknown;
         }
 
         internal static string GetFriendlyName(int hmd) {
 
-            switch (hmd)
-            {
+            switch (hmd) {
                 case 0:
                     return "Unknown";
                 case 1:

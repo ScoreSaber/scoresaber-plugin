@@ -215,7 +215,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void SetGlobalRanking(string globalRanking, bool withPrefix = true) {
-            
+
             globalLeaderboardRanking =
                 withPrefix ? $"<b><color=#FFDE1A>Global Ranking: </color></b>{globalRanking}" : globalRanking;
         }
@@ -274,7 +274,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void DismissPrompt(float dismissTime = 0f, float tweenTime = 0.5f) {
-            
+
             if (!_promptRoot.gameObject.activeSelf) {
                 return;
             }

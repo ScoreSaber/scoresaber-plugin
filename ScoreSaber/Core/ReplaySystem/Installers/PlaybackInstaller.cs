@@ -21,7 +21,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
         }
 
         public override void InstallBindings() {
-            
+
             if (!Plugin.ReplayState.IsPlaybackEnabled) {
                 return;
             }

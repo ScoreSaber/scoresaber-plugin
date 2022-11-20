@@ -45,7 +45,7 @@ namespace ScoreSaber.UI.Multiplayer {
 
         private void LevelSelectionNavigationController_didChangeLevelDetailContentEvent(
             LevelSelectionNavigationController controller, StandardLevelDetailViewController.ContentType contentType) {
-           
+
             if (controller.selectedDifficultyBeatmap == null) {
                 HideLeaderboard();
             } else {
@@ -61,7 +61,7 @@ namespace ScoreSaber.UI.Multiplayer {
 
         private void HideLeaderboard() {
 
-            if(_platformLeaderboardViewController.isInViewControllerHierarchy) {
+            if (_platformLeaderboardViewController.isInViewControllerHierarchy) {
                 var currentFlowCoordinator = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
                 if (currentFlowCoordinator is MultiplayerLevelSelectionFlowCoordinator) {
                     currentFlowCoordinator.InvokeMethod<object, FlowCoordinator>("SetRightScreenViewController", null,

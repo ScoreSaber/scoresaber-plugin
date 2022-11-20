@@ -22,7 +22,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         private bool _paused;
 
         public ReplayTimeSyncController(List<IScroller> scrollers, BasicBeatmapObjectManager basicBeatmapObjectManager, NoteCutSoundEffectManager noteCutSoundEffectManager, BeatmapObjectSpawnController beatmapObjectSpawnController, AudioTimeSyncController.InitData audioInitData, BeatmapCallbacksController.InitData initData, BeatmapCallbacksController beatmapObjectCallbackController) {
-            
+
             _scrollers = scrollers;
             _callbackInitData = initData;
             _audioInitData = audioInitData;
@@ -76,7 +76,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             if (Input.GetKeyDown(KeyCode.R)) {
                 OverrideTime(0f);
             }
-            
+
             if (Input.GetKeyDown(KeyCode.Space)) {
                 if (_paused) {
                     audioTimeSyncController.Resume();
@@ -143,8 +143,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             foreach (KeyValuePair<float, CallbacksInTime> callback in Accessors
                          .CallbacksInTime(ref _beatmapObjectCallbackController).Where(callback =>
                              callback.Value.lastProcessedNode != null &&
-                             callback.Value.lastProcessedNode.Value.time > time))
-            {
+                             callback.Value.lastProcessedNode.Value.time > time)) {
                 callback.Value.lastProcessedNode = null;
             }
 
@@ -171,8 +170,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void CancelAllHitSounds() {
 
             var activeItems = Accessors.NoteCutPool(ref _noteCutSoundEffectManager).activeItems;
-            foreach (var effect in activeItems.Where(effect => effect.isActiveAndEnabled))
-            {
+            foreach (var effect in activeItems.Where(effect => effect.isActiveAndEnabled)) {
                 effect.StopPlayingAndFinish();
             }
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);

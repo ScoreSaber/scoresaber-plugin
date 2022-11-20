@@ -1,8 +1,10 @@
 ﻿#if RELEASE
 using Newtonsoft.Json;
 using ScoreSaber.Core.AC;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
+using ScoreSaber.Core.Utils;
 using ScoreSaber.Extensions;
 using System;
 using System.IO;
@@ -11,9 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using ScoreSaber.Core.Utils;
 using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
-using ScoreSaber.Core.Data.Internal;
 
 namespace ScoreSaber.Core.Daemons {
 
@@ -121,17 +121,17 @@ namespace ScoreSaber.Core.Daemons {
                         _replayService.WriteSerializedReplay().RunTask();
                         return;
                     }
-                    
+
                     if (results.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
                         _replayService.WriteSerializedReplay().RunTask();
                         return;
                     }
-                    
+
                     if (results.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
                         _replayService.WriteSerializedReplay().RunTask();
                         return;
                     }
-                    
+
                     PreUpload(levelCasted, results);
                 } else {
                     // If practice write replay at this point
@@ -177,15 +177,15 @@ namespace ScoreSaber.Core.Daemons {
                 string scoreData = JsonConvert.SerializeObject(data);
 
                 // TODO: Simplify now that we're open source
-                
+
                 byte[] encodedPassword = new UTF8Encoding().GetBytes($"f0b4a81c9bd3ded1081b365f7628781f-{_playerService.LocalPlayerInfo.PlayerKey}-{_playerService.LocalPlayerInfo.PlayerId}-f0b4a81c9bd3ded1081b365f7628781f");
 
                 byte[] keyHash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
-                
+
                 string key = BitConverter.ToString(keyHash)
                     .Replace("-", string.Empty)
                     .ToLower();
-                
+
                 string scoreDataHex = BitConverter.ToString(Swap(Encoding.UTF8.GetBytes(scoreData), Encoding.UTF8.GetBytes(key))).Replace("-", "");
 
                 UploadScore(data, scoreDataHex, levelCasted, results).RunTask();
@@ -241,10 +241,10 @@ namespace ScoreSaber.Core.Daemons {
                 while (!done) {
                     Uploading = true;
                     string response = null;
-                    
+
                     Plugin.Log.Info("Attempting score upload...");
                     UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Uploading score...");
-                    
+
                     try {
                         response = await Plugin.HttpInstance.PostAsync("/game/upload", form);
                     } catch (HttpErrorException httpException) {
@@ -282,13 +282,11 @@ namespace ScoreSaber.Core.Daemons {
                     }
                 }
 
-                if(!failed)
-                {
+                if (!failed) {
                     SaveLocalReplay(rawDataCasted, levelCasted, serializedReplay);
                     Plugin.Log.Info("Score uploaded!");
                     UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
-                }
-                else {
+                } else {
                     UploadStatusChanged?.Invoke(UploadStatus.Error, $"Failed to upload score.");
                 }
 

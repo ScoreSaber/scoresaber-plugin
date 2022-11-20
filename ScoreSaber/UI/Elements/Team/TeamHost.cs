@@ -56,7 +56,7 @@ namespace ScoreSaber.UI.Elements.Team {
         }
 
         public void Parse(GameObject parentGrid) {
-           
+
             if (!_parsed) {
                 BSMLParser.instance.Parse(_content, parentGrid, this);
                 if (_grid != null) {

@@ -219,7 +219,7 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         }
 
         private int GetWeekDifference(string history, int currentRank) {
-            
+
             if (currentRank == 0) {
                 return 0;
             }
@@ -233,7 +233,7 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         }
 
         public async Task ShowProfile(string playerId, string name) {
-            
+
             _parserParams.EmitEvent("close-modals");
             _parserParams.EmitEvent("show-profile");
             _profileDetailView.SetLoadingState(true);
@@ -246,17 +246,17 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         }
 
         private void CheckPages() {
-            
+
             _upButton.interactable = _page > 1;
         }
 
         private void ShowGlobalLoading(bool loading) {
-            
+
             GlobalSet = !loading;
         }
 
         private void PageButtonClicked(bool down) {
-            
+
             if (down) {
                 _page++;
             } else {

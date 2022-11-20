@@ -34,7 +34,7 @@ namespace ScoreSaber.Patches {
         [AffinityPatch(typeof(PlatformLeaderboardViewController), nameof(PlatformLeaderboardViewController.Refresh))]
         [AffinityPrefix]
         bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
-            
+
             if (____difficultyBeatmap.level is CustomBeatmapLevel) {
                 ____hasScoresData = false;
                 ____scores.Clear();
@@ -52,7 +52,7 @@ namespace ScoreSaber.Patches {
 
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
         void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
-            
+
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
                 var tableCell = (LeaderboardTableCell)__result;
                 var _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
@@ -72,7 +72,7 @@ namespace ScoreSaber.Patches {
         [AffinityPatch(typeof(PlatformLeaderboardViewController), "DidActivate")]
         [AffinityPostfix]
         void PatchPlatformLeaderboardDidActivatePostfix(ref bool firstActivation, ref Sprite ____friendsLeaderboardIcon, ref Sprite ____globalLeaderboardIcon, ref Sprite ____aroundPlayerLeaderboardIcon, ref IconSegmentedControl ____scopeSegmentedControl) {
-           
+
             if (firstActivation) {
                 _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
 

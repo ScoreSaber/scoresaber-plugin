@@ -9,7 +9,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
     [HarmonyPatch(typeof(RelativeScoreAndImmediateRankCounter), nameof(RelativeScoreAndImmediateRankCounter.UpdateRelativeScoreAndImmediateRank))]
     internal class ImmediateRankReinitializer {
         internal static bool Prefix(RelativeScoreAndImmediateRankCounter __instance, int score, int maxPossibleScore, ref Action ___relativeScoreOrImmediateRankDidChangeEvent) {
-            
+
             if (!Plugin.ReplayState.IsPlaybackEnabled || Plugin.ReplayState.IsLegacyReplay) {
                 return true;
             }

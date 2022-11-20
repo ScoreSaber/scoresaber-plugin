@@ -8,7 +8,7 @@ using Zenject;
 namespace ScoreSaber.Core.ReplaySystem.Installers {
     internal class ImberInstaller : Installer {
         public override void InstallBindings() {
-            
+
             if (!Plugin.ReplayState.IsPlaybackEnabled || Plugin.ReplayState.IsLegacyReplay) {
                 return;
             }

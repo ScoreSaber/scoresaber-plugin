@@ -18,7 +18,7 @@ namespace ScoreSaber.UI.Main {
         private GlobalViewController _globalViewController;
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-            
+
             if (!firstActivation) {
                 return;
             }

@@ -58,8 +58,7 @@ namespace ScoreSaber {
             BSMLParser.instance.RegisterTypeHandler(new ProfileDetailViewTypeHandler());
             BSMLParser.instance.RegisterTag(new ProfileDetailViewTag(metadata.Assembly));
 
-            HttpInstance = new Http(new HttpOptions
-                { BaseURL = "https://scoresaber.com/api", ApplicationName = "ScoreSaber-PC", Version = libVersion });
+            HttpInstance = new Http(new HttpOptions { BaseURL = "https://scoresaber.com/api", ApplicationName = "ScoreSaber-PC", Version = libVersion });
         }
 
         [OnEnable]
@@ -100,7 +99,7 @@ namespace ScoreSaber {
             SceneManager.sceneLoaded -= SceneLoaded;
         }
 
-        
+
         private static bool _scoreSubmission = true;
         /// <summary>
         /// <c>ScoreSubmission</c> represents if the plugin should attempt to submit a new score.
@@ -112,7 +111,7 @@ namespace ScoreSaber {
                 bool canSet = new StackTrace().GetFrames().Select(frame => frame.GetMethod().ReflectedType.Namespace)
                     .Where(namespaceName => !string.IsNullOrEmpty(namespaceName)).Any(namespaceName =>
                         namespaceName.Contains("BS_Utils") || namespaceName.Contains("SiraUtil"));
-                
+
                 if (!canSet) {
                     return;
                 }

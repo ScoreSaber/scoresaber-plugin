@@ -52,10 +52,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             //_saberManager.rightSaber.disableCutting = true;
             _saberManager.leftSaber.transform.GetComponentInParent<VRController>().enabled = false;
             _saberManager.rightSaber.transform.GetComponentInParent<VRController>().enabled = false;
-            _fpfcSettings.Changed += FpfcSettings_Changed;
+            _fpfcSettings.Changed += FPFCSettings_Changed;
         }
 
-        private void FpfcSettings_Changed(IFPFCSettings fpfcSettings) {
+        private void FPFCSettings_Changed(IFPFCSettings fpfcSettings) {
 
             if (fpfcSettings.Enabled) {
                 _desktopCamera.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -203,7 +203,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
         public void Dispose() {
 
-            _fpfcSettings.Changed -= FpfcSettings_Changed;
+            _fpfcSettings.Changed -= FPFCSettings_Changed;
             _fpfcSettings.Enabled = initialFPFCState;
         }
     }

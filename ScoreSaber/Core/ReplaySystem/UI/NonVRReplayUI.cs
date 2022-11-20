@@ -48,7 +48,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         }
 
         protected void OnGUI() {
-            
+
             if (!Plugin.Settings.HideReplayUI) {
                 _currentPosition = 0;
                 DrawLabel("Replay Controls -", header: true);
