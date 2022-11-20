@@ -238,6 +238,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Libraries\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="ScoreSaber.csproj.user" Condition="Exists('ScoreSaber.csproj.user')" Visible="false" />
   </ItemGroup>
 
@@ -247,12 +251,5 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\Users\Laure\source\repos\ScoreSaber-Plugin\ScoreSaber\Patches\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Libraries\" />
-  </ItemGroup>
+  
 </Project>
