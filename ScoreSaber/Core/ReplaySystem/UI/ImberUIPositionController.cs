@@ -44,7 +44,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             _vrControllerAccessor = vrControllerAccessor;
             _menuWrapperTransform = pauseMenuManager.transform.Find("Wrapper/MenuWrapper");
             _pauseMenuManagerTransform = pauseMenuManager.transform;
-            _menuControllerTransform = _vrControllerAccessor.leftController.transform.parent;
+            _menuControllerTransform = _vrControllerAccessor.LeftController.transform.parent;
             _vrGraphicsRaycaster = _menuWrapperTransform.GetComponentInChildren<VRGraphicRaycaster>();
             _canvas = _vrGraphicsRaycaster.GetComponent<Canvas>();
             _curve = _canvas.GetComponent<CurvedCanvasSettings>();
@@ -58,7 +58,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             _gamePause.didResumeEvent += GamePause_didResumeEvent;
             _pauseMenuManagerTransform.position = new Vector3(_controllerOffset.x, _controllerOffset.y, _controllerOffset.z);
 
-            if (Plugin.Settings.leftHandedReplayUI) {
+            if (Plugin.Settings.LeftHandedReplayUI) {
                 _handTrack = XRNode.RightHand;
             }
         }
@@ -82,7 +82,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         public void Tick() {
 
-            VRController controller = _handTrack == XRNode.LeftHand ? _vrControllerAccessor.leftController : _vrControllerAccessor.rightController;
+            VRController controller = _handTrack == XRNode.LeftHand ? _vrControllerAccessor.LeftController : _vrControllerAccessor.RightController;
 
             // Detect Trigger Double Click
             if (_didClickOnce && DateTime.Now > _lastTriggerDownTime.AddSeconds(_timeBufferToDoubleClick)) {
@@ -94,8 +94,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                         _didClickOnce = false;
                         // DID DOUBLE CLICK HERE!!!
                         _isActive = !_isActive;
-                        _imberScrubber.visibility = _isActive;
-                        _mainImberPanelView.visibility = _isActive;
+                        _imberScrubber.Visibility = _isActive;
+                        _mainImberPanelView.Visibility = _isActive;
                         OpenedUI();
                         _mainImberPanelView.StartCoroutine(KillMe(controller));
 
@@ -116,13 +116,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
 
             // Update Active UI Position
-            if (_isActive && !Plugin.Settings.lockedReplayUIMode) {
+            if (_isActive && !Plugin.Settings.LockedReplayUIMode) {
 
                 SetUIPosition(controller);
             }
         }
 
         private IEnumerator KillMe(VRController controller) {
+
             for (int i = 0; i < 5; i++) {
                 yield return new WaitForEndOfFrame();
             }
@@ -139,17 +140,15 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         }
 
         private void OpenedUI() {
-            
-            if (Plugin.Settings.hasOpenedReplayUI) {
-                return;
-            }
 
-            var replayPrompt = GameObject.Find("Replay Prompt");
-            if (replayPrompt != null) {
-                GameObject.Destroy(replayPrompt);
+            if (!Plugin.Settings.HasOpenedReplayUI) {
+                var replayPrompt = GameObject.Find("Replay Prompt");
+                if (replayPrompt != null) {
+                    GameObject.Destroy(replayPrompt);
+                }
+                Plugin.Settings.HasOpenedReplayUI = true;
+                Settings.SaveSettings(Plugin.Settings);
             }
-            Plugin.Settings.hasOpenedReplayUI = true;
-            Settings.SaveSettings(Plugin.Settings);
         }
 
         public void UpdateTrackingHand(XRNode node) {

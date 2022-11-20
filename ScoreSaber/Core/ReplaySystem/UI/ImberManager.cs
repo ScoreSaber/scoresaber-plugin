@@ -42,7 +42,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             _audioTimeSyncController = audioTimeSyncController;
             _replayTimeSyncController = replayTimeSyncController;
             _imberUIPositionController = imberUIPositionController;
-            _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
+            _positions = Plugin.Settings.SpectatorPositions.Select(sp => sp.Name);
             _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
             _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
             _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
@@ -64,7 +64,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             _imberScrubber.DidCalculateNewTime += ImberScrubber_DidCalculateNewTime;
             _imberSpecsReporter.DidReport += ImberSpecsReporter_DidReport;
             _gamePause.didResumeEvent += GamePause_didResumeEvent;
-            if (!Plugin.Settings.hasOpenedReplayUI) {
+            if (!Plugin.Settings.HasOpenedReplayUI) {
                 CreateWatermark();
             }
         }
@@ -74,10 +74,10 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             switch (hand)
             {
                 case XRNode.RightHand:
-                    Plugin.Settings.leftHandedReplayUI = true;
+                    Plugin.Settings.LeftHandedReplayUI = true;
                     break;
                 case XRNode.LeftHand:
-                    Plugin.Settings.leftHandedReplayUI = false;
+                    Plugin.Settings.LeftHandedReplayUI = false;
                     break;
             }
 
@@ -88,18 +88,16 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private void GamePause_didResumeEvent() {
 
-            _mainImberPanelView.playPauseText = "PAUSE";
+            _mainImberPanelView.PlayPauseText = "PAUSE";
         }
 
         private void ImberSpecsReporter_DidReport(int fps, float leftSaberSpeed, float rightSaberSpeed) {
             
-            if (!_mainImberPanelView.didParse) {
-                return;
+            if (_mainImberPanelView.DidParse) {
+                _mainImberPanelView.FPS = fps;
+                _mainImberPanelView.LeftSaberSpeed = leftSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
+                _mainImberPanelView.RightSaberSpeed = rightSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
             }
-
-            _mainImberPanelView.fps = fps;
-            _mainImberPanelView.leftSaberSpeed = leftSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
-            _mainImberPanelView.rightSaberSpeed = rightSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
         }
 
         private void SpectateAreaController_DidUpdatePlayerSpectatorPose(Vector3 position, Quaternion rotation) {
@@ -128,7 +126,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private void MainImberPanelView_DidPositionTabVisibilityChange(bool value) {
 
             if (value) {
-                _spectateAreaController.AnimateTo(_mainImberPanelView.location);
+                _spectateAreaController.AnimateTo(_mainImberPanelView.Location);
 
             } else {
                 _spectateAreaController.Dismiss();
@@ -142,7 +140,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private void MainImberPanelView_DidPositionJump() {
 
-            _spectateAreaController.JumpToCallback(_mainImberPanelView.location);
+            _spectateAreaController.JumpToCallback(_mainImberPanelView.Location);
         }
 
         private void ImberScrubber_DidCalculateNewTime(float newTime) {
@@ -152,11 +150,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private void MainImberPanelView_DidClickLoop() {
 
-            _imberScrubber.loopMode = !_imberScrubber.loopMode;
+            _imberScrubber.LoopMode = !_imberScrubber.LoopMode;
 
             const string oddLoopID = "76561198114011987";
             string unloopText = "playerID" == oddLoopID || "replayPlayerID" == oddLoopID ? "ODDLOOP" : "UNLOOP";
-            _mainImberPanelView.loopText = _imberScrubber.loopMode ? unloopText : "LOOP";
+            _mainImberPanelView.LoopText = _imberScrubber.LoopMode ? unloopText : "LOOP";
         }
 
         private void MainImberPanelView_DidClickRestart() {
@@ -168,10 +166,10 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             if (_audioTimeSyncController.state == AudioTimeSyncController.State.Playing) {
                 _replayTimeSyncController.CancelAllHitSounds();
-                _mainImberPanelView.playPauseText = "PLAY";
+                _mainImberPanelView.PlayPauseText = "PLAY";
                 _audioTimeSyncController.Pause();
             } else if (_audioTimeSyncController.state == AudioTimeSyncController.State.Paused) {
-                _mainImberPanelView.playPauseText = "PAUSE";
+                _mainImberPanelView.PlayPauseText = "PAUSE";
                 _audioTimeSyncController.Resume();
             }
         }
@@ -184,8 +182,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private void MainImberPanelView_DidChangeVisiblity(bool value) {
 
             _imberUIPositionController.SetActiveState(value);
-            _mainImberPanelView.visibility = value;
-            _imberScrubber.visibility = value;
+            _mainImberPanelView.Visibility = value;
+            _imberScrubber.Visibility = value;
             if (!value) {
                 _spectateAreaController.Dismiss();
             }

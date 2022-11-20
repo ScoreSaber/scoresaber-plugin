@@ -27,6 +27,7 @@ namespace ScoreSaber.UI.Multiplayer {
         public ScoreSaberMultiplayerLobbyLeaderboardFlowManager(DiContainer container,
             MainFlowCoordinator mainFlowCoordinator, ServerPlayerListViewController serverPlayerListViewController,
             PlatformLeaderboardViewController platformLeaderboardViewController) {
+
             _container = container;
             _mainFlowCoordinator = mainFlowCoordinator;
             _serverPlayerListViewController = serverPlayerListViewController;
@@ -34,47 +35,47 @@ namespace ScoreSaber.UI.Multiplayer {
         }
 
         public void Dispose() {
+
             _serverPlayerListViewController.didActivateEvent -= ServerPlayerListViewController_didActivateEvent;
             _serverPlayerListViewController.didDeactivateEvent -= ServerPlayerListViewController_didDeactivateEvent;
         }
 
         public void Initialize() {
+
             _serverPlayerListViewController.didActivateEvent += ServerPlayerListViewController_didActivateEvent;
             _serverPlayerListViewController.didDeactivateEvent += ServerPlayerListViewController_didDeactivateEvent;
         }
 
         private void ServerPlayerListViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy,
             bool screenSystemEnabling) {
-            switch (firstActivation) {
-                case true:
-                    _image = SetupButton();
-                    break;
+
+            if (firstActivation) {
+                _image = SetupButton();
             }
 
             _image.OnClickEvent += OnScoreSaberButtonClicked;
         }
 
         private void OnScoreSaberButtonClicked(PointerEventData _) {
-            FlowCoordinator youngest = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
-            switch (youngest is GameServerLobbyFlowCoordinator) {
-                case false:
-                    return;
-                default:
-                    //_platformLeaderboardViewController.SetData() ;
-                    youngest.InvokeMethod<object, FlowCoordinator>("SetRightScreenViewController",
-                        _platformLeaderboardViewController, ViewController.AnimationType.In);
-                    break;
+
+            var youngest = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
+            if (youngest is GameServerLobbyFlowCoordinator) {
+                //_platformLeaderboardViewController.SetData() ;
+                youngest.InvokeMethod<object, FlowCoordinator>("SetRightScreenViewController",
+                    _platformLeaderboardViewController, ViewController.AnimationType.In);
             }
         }
 
         private void ServerPlayerListViewController_didDeactivateEvent(bool removedFromHierarchy,
             bool screenSystemDisabling) {
+
             _image.OnClickEvent -= OnScoreSaberButtonClicked;
         }
 
         private ClickableImage SetupButton() {
-            GameObject gameObject = new GameObject("ScoreSaber Icon");
-            ClickableImage image = gameObject.AddComponent<ClickableImage>();
+
+            var gameObject = new GameObject("ScoreSaber Icon");
+            var image = gameObject.AddComponent<ClickableImage>();
             image.material = Utilities.ImageResources.NoGlowMat;
 
             image.rectTransform.SetParent(_serverPlayerListViewController.transform);
@@ -86,7 +87,7 @@ namespace ScoreSaber.UI.Multiplayer {
             image.color = image.DefaultColor = Color.white.ColorWithAlpha(0.1f);
             image.SetField<ImageView, float>("_skew", 0.18f);
 
-            Canvas canvas = gameObject.AddComponent<Canvas>();
+            var canvas = gameObject.AddComponent<Canvas>();
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;

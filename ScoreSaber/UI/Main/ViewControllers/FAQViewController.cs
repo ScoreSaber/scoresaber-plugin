@@ -36,7 +36,7 @@ namespace ScoreSaber.UI.Main.ViewControllers {
 
         private string _scoreSaberImage = "ScoreSaber.Resources.logo-large.png";
         [UIValue("scoresaber-image")]
-        public string scoreSaberImage {
+        public string ScoreSaberImage {
             get { return _scoreSaberImage; }
             set {
                 _scoreSaberImage = value;
@@ -46,7 +46,7 @@ namespace ScoreSaber.UI.Main.ViewControllers {
 
         private string _bsmgImage = "ScoreSaber.Resources.bsmg.jpg";
         [UIValue("bsmg-image")]
-        public string bsmgImage {
+        public string BSMGImage {
             get { return _bsmgImage; }
             set {
                 _bsmgImage = value;
@@ -61,11 +61,11 @@ namespace ScoreSaber.UI.Main.ViewControllers {
             _scoreSaberCounter++;
             
             if (_scoreSaberCounter == 5) {
-                scoreSaberImage = "ScoreSaber.Resources.logo-flushed.png";
+                ScoreSaberImage = "ScoreSaber.Resources.logo-flushed.png";
             }
 
             if (_scoreSaberCounter == 10) {
-                scoreSaberImage = "ScoreSaber.Resources.logo-large.png";
+                ScoreSaberImage = "ScoreSaber.Resources.logo-large.png";
                 _scoreSaberCounter = 0;
             }
         }
@@ -76,13 +76,13 @@ namespace ScoreSaber.UI.Main.ViewControllers {
 
             _bsmgCounter++;
             if (_bsmgCounter == 5) {
-                bsmgImage = "ScoreSaber.Resources.cmb.png";
+                BSMGImage = "ScoreSaber.Resources.cmb.png";
             }
             if (_bsmgCounter == 10) {
-                bsmgImage = "ScoreSaber.Resources.cmb-blush.png";
+                BSMGImage = "ScoreSaber.Resources.cmb-blush.png";
             }
             if (_bsmgCounter == 15) {
-                bsmgImage = "ScoreSaber.Resources.bsmg.jpg";
+                BSMGImage = "ScoreSaber.Resources.bsmg.jpg";
                 _bsmgCounter = 0;
             }
         }

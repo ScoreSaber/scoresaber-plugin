@@ -36,6 +36,7 @@ namespace ScoreSaber.UI.Elements.Team {
         private static readonly string _content;
 
         static TeamHost() {
+
             _content = Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "ScoreSaber.UI.Elements.Team.TeamHost.bsml");
         }
 
@@ -56,16 +57,14 @@ namespace ScoreSaber.UI.Elements.Team {
 
         public void Parse(GameObject parentGrid) {
            
-            if (_parsed) {
-                return;
+            if (!_parsed) {
+                BSMLParser.instance.Parse(_content, parentGrid, this);
+                if (_grid != null) {
+                    _grid.constraintCount = 3;
+                    _grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                }
+                _parsed = true;
             }
-
-            BSMLParser.instance.Parse(_content, parentGrid, this);
-            if (_grid != null) {
-                _grid.constraintCount = 3;
-                _grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            }
-            _parsed = true;
         }
     }
 }

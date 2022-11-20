@@ -56,16 +56,16 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         protected readonly List<object> _rankCells = new List<object>();
 
         [UIValue("global-loading")]
-        protected bool _globalLoading => !globalSet;
+        protected bool GlobalLoading => !GlobalSet;
 
         private bool _globalSet;
         [UIValue("global-set")]
-        protected bool globalSet {
+        protected bool GlobalSet {
             get => _globalSet;
             set {
                 _globalSet = value;
                 NotifyPropertyChanged();
-                NotifyPropertyChanged(nameof(_globalLoading));
+                NotifyPropertyChanged(nameof(GlobalLoading));
             }
         }
 
@@ -82,6 +82,7 @@ namespace ScoreSaber.UI.Main.ViewControllers {
         #endregion
 
         #region Handlers
+        // Unused?
         [UIAction("global-up")] private void GlobalUpClicked() => PageButtonClicked(false);
         [UIAction("global-down")] private void GlobalDownClicked() => PageButtonClicked(true);
         [UIAction("global-click")] private void GlobalTextClicked() => Application.OpenURL("https://scoresaber.com/global");
@@ -194,17 +195,17 @@ namespace ScoreSaber.UI.Main.ViewControllers {
                     string rank;
                     int localRank = counter + (((_page - 1) * 5) / 5) * 5;
                     if (_scope == GlobalPlayerScope.Country || _scope == GlobalPlayerScope.Friends) {
-                        rank = $"#{localRank:n0} (#{player.rank:n0})";
+                        rank = $"#{localRank:n0} (#{player.Rank:n0})";
                     } else {
-                        rank = $"#{player.rank:n0}";
+                        rank = $"#{player.Rank:n0}";
                     }
 
                     void onGlobalCellClicked(string identifier, string name) {
                         ShowProfile(identifier, name).RunTask();
                     }
 
-                    _globalCells.Add(new GlobalCell(player.id, player.profilePicture, player.name, player.country, rank,
-                        GetWeekDifference(player.histories, player.rank), player.pp, onGlobalCellClicked));
+                    _globalCells.Add(new GlobalCell(player.Id, player.ProfilePicture, player.Name, player.Country, rank,
+                        GetWeekDifference(player.Histories, player.Rank), player.PP, onGlobalCellClicked));
                     counter++;
                 }
 
@@ -251,7 +252,7 @@ namespace ScoreSaber.UI.Main.ViewControllers {
 
         private void ShowGlobalLoading(bool loading) {
             
-            globalSet = !loading;
+            GlobalSet = !loading;
         }
 
         private void PageButtonClicked(bool down) {

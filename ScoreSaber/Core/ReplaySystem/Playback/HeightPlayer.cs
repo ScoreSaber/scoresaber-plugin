@@ -42,13 +42,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedHeightEvents.Length; c++) {
-                if (!(_sortedHeightEvents[c].Time >= newTime)) {
-                    continue;
+                if (_sortedHeightEvents[c].Time >= newTime) {
+                    _lastIndex = c;
+                    Tick();
+                    return;
                 }
-
-                _lastIndex = c;
-                Tick();
-                return;
             }
             FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(_sortedHeightEvents.LastOrDefault().Height);
         }

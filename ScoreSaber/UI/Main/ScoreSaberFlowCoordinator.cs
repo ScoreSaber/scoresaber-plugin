@@ -46,7 +46,7 @@ namespace ScoreSaber.UI.Main {
 
         internal static void ShowMainFlowCoordinator() {
 
-            ScoreSaberFlowCoordinator flowCoordinator = Resources.FindObjectsOfTypeAll<ScoreSaberFlowCoordinator>().FirstOrDefault();
+            var flowCoordinator = Resources.FindObjectsOfTypeAll<ScoreSaberFlowCoordinator>().FirstOrDefault();
             if (flowCoordinator != null) {
                 var activeFlow = DeepestChildFlowCoordinator(BeatSaberUI.MainFlowCoordinator);
                 activeFlow.PresentFlowCoordinator(flowCoordinator);

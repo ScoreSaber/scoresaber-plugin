@@ -144,13 +144,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedNoteEvents.Length; c++) {
-                if (!(_sortedNoteEvents[c].Time >= newTime)) {
-                    continue;
+                if (_sortedNoteEvents[c].Time >= newTime) {
+                    _lastIndex = c;
+                    Tick();
+                    return;
                 }
-
-                _lastIndex = c;
-                Tick();
-                return;
             }
             _lastIndex = _sortedNoteEvents.Count() != 0 ? _sortedNoteEvents.Length - 1 : 0;
         }

@@ -18,11 +18,13 @@ namespace ScoreSaber.Extensions {
             Math.Round(@this, digits, MidpointRounding.AwayFromZero);
 
         public static double Round(this double @this, int digits) {
+
             if (double.IsNaN(@this)) return double.NaN;
             return (double)((decimal)@this).Round(digits);
         }
 
         static bool TryReduceDays(ref TimeSpan period, int len, out double result) {
+
             if (period.TotalDays >= len) {
                 result = (int)Math.Floor(period.TotalDays / len);
                 period -= TimeSpan.FromDays(len * result);

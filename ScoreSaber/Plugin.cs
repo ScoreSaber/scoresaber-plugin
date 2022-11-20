@@ -34,7 +34,7 @@ namespace ScoreSaber {
 
         internal static Http HttpInstance { get; private set; }
 
-        internal static Material NoGlowMatRound;
+        internal static Material NoGlowMatRound { get; set; }
 
         internal Harmony harmony;
 
@@ -59,16 +59,17 @@ namespace ScoreSaber {
             BSMLParser.instance.RegisterTag(new ProfileDetailViewTag(metadata.Assembly));
 
             HttpInstance = new Http(new HttpOptions
-                { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = libVersion });
+                { BaseURL = "https://scoresaber.com/api", ApplicationName = "ScoreSaber-PC", Version = libVersion });
         }
 
         [OnEnable]
         public void OnEnable() {
+
             SceneManager.sceneLoaded += SceneLoaded;
 
             Settings = Settings.LoadSettings();
             ReplayState = new ReplayState();
-            switch (Settings.disableScoreSaber) {
+            switch (Settings.DisableScoreSaber) {
                 case false:
                     harmony = new Harmony("com.umbranox.BeatSaber.ScoreSaber");
                     harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -78,6 +79,7 @@ namespace ScoreSaber {
         }
 
         private void SceneLoaded(Scene scene, LoadSceneMode mode) {
+
             switch (scene.name) {
                 case "MainMenu":
                     SharedCoroutineStarter.instance.StartCoroutine(WaitForLeaderboard());
@@ -94,6 +96,7 @@ namespace ScoreSaber {
 
         [OnDisable]
         public void OnDisable() {
+
             SceneManager.sceneLoaded -= SceneLoaded;
         }
 
@@ -104,7 +107,8 @@ namespace ScoreSaber {
         /// </summary>
         public static bool ScoreSubmission {
             get => _scoreSubmission;
-            set { // canSet is True if BS_Utils or SiraUtil is being used
+            set {
+                // canSet is True if BS_Utils or SiraUtil is being used
                 bool canSet = new StackTrace().GetFrames().Select(frame => frame.GetMethod().ReflectedType.Namespace)
                     .Where(namespaceName => !string.IsNullOrEmpty(namespaceName)).Any(namespaceName =>
                         namespaceName.Contains("BS_Utils") || namespaceName.Contains("SiraUtil"));
@@ -115,9 +119,8 @@ namespace ScoreSaber {
 
                 if (ReplayState.IsPlaybackEnabled) {
                     return;
-                }  
+                }
 
-                // Legacy replay?
                 var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
                 var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
                 if (value) {

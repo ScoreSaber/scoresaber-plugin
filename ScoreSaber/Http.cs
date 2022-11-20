@@ -13,50 +13,38 @@ using UnityEngine.Networking;
 #endregion
 
 namespace ScoreSaber {
-    /// <summary>
-    ///     HTTP Options
-    /// </summary>
     internal struct HttpOptions {
-        /// <summary>
-        ///     Application Name
-        /// </summary>
-        public string applicationName { get; set; }
-
-        /// <summary>
-        ///     Application Version
-        /// </summary>
-        public Version version { get; set; }
-
-        /// <summary>
-        ///     The BaseURL
-        /// </summary>
-        public string baseURL { get; set; }
+        public string ApplicationName { get; set; }
+        public Version Version { get; set; }
+        public string BaseURL { get; set; }
     }
 
     internal sealed class Http {
         internal Dictionary<string, string> PersistentRequestHeaders { get; }
-        internal HttpOptions options;
+        internal HttpOptions Options { get; set; }
 
         internal Http(HttpOptions _options = new HttpOptions()) {
-            options = _options;
+
+            Options = _options;
             PersistentRequestHeaders = new Dictionary<string, string>();
 
-            if ((_options.applicationName != null && _options.version == null) ||
-                (_options.applicationName == null && _options.version != null)) {
+            if ((_options.ApplicationName != null && _options.Version == null) ||
+                (_options.ApplicationName == null && _options.Version != null)) {
                 throw new ArgumentException("You must specify either both or none of ApplicationName and Version");
             }
 
             string libVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string userAgent = $"Default/{libVersion}";
 
-            if (_options.applicationName != null) {
-                userAgent = $"{_options.applicationName}/{_options.version}";
+            if (_options.ApplicationName != null) {
+                userAgent = $"{_options.ApplicationName}/{_options.Version}";
             }
 
             PersistentRequestHeaders.Add("User-Agent", userAgent);
         }
 
         internal async Task SendHttpAsyncRequest(UnityWebRequest request) {
+
             foreach (KeyValuePair<string, string> header in PersistentRequestHeaders) {
                 request.SetRequestHeader(header.Key, header.Value);
             }
@@ -68,6 +56,7 @@ namespace ScoreSaber {
         }
 
         internal async Task<string> GetRawAsync(string url) {
+
             using (var request = UnityWebRequest.Get(url)) {
                 request.timeout = 5;
                 await SendHttpAsyncRequest(request);
@@ -80,7 +69,8 @@ namespace ScoreSaber {
         }
 
         internal async Task<string> GetAsync(string url) {
-            url = $"{options.baseURL}{url}";
+
+            url = $"{Options.BaseURL}{url}";
             using (var request = UnityWebRequest.Get(url)) {
                 request.timeout = 5;
                 await SendHttpAsyncRequest(request);
@@ -93,7 +83,8 @@ namespace ScoreSaber {
         }
 
         internal async Task<byte[]> DownloadAsync(string url) {
-            url = $"{options.baseURL}{url}";
+
+            url = $"{Options.BaseURL}{url}";
             using (var request = UnityWebRequest.Get(url)) {
                 await SendHttpAsyncRequest(request);
                 if (request.isNetworkError || request.isHttpError) {
@@ -105,7 +96,8 @@ namespace ScoreSaber {
         }
 
         internal async Task<string> PostAsync(string url, WWWForm form) {
-            url = $"{options.baseURL}{url}";
+
+            url = $"{Options.BaseURL}{url}";
             using (var request = UnityWebRequest.Post(url, form)) {
                 request.timeout = 120;
                 await SendHttpAsyncRequest(request);
@@ -118,6 +110,7 @@ namespace ScoreSaber {
         }
 
         internal HttpErrorException ThrowHttpException(UnityWebRequest request) {
+
             if (request.downloadHandler.data != null) {
                 return new HttpErrorException(request.isNetworkError, request.isHttpError, Encoding.UTF8.GetString(request.downloadHandler.data));
             }
@@ -127,17 +120,17 @@ namespace ScoreSaber {
     }
 
     internal class HttpErrorException : Exception {
-        internal bool isNetworkError { get; set; }
-        internal bool isHttpError { get; set; }
-        internal bool isScoreSaberError { get; set; }
-        internal ScoreSaberError scoreSaberError { get; set; }
+        internal bool IsNetworkError { get; set; }
+        internal bool IsHttpError { get; set; }
+        internal bool IsScoreSaberError { get; set; }
+        internal ScoreSaberError ScoreSaberError { get; set; }
         internal HttpErrorException(bool _isNetworkError, bool _isHttpError, string _scoreSaberErrorMessage = "") {
-            isNetworkError = _isNetworkError;
-            isHttpError = _isHttpError;
+            IsNetworkError = _isNetworkError;
+            IsHttpError = _isHttpError;
             if (_scoreSaberErrorMessage != string.Empty) {
                 try {
-                    scoreSaberError = JsonConvert.DeserializeObject<ScoreSaberError>(_scoreSaberErrorMessage);
-                    isScoreSaberError = true;
+                    ScoreSaberError = JsonConvert.DeserializeObject<ScoreSaberError>(_scoreSaberErrorMessage);
+                    IsScoreSaberError = true;
                 } catch (Exception) { }
             }
         }

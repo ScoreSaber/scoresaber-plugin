@@ -3,13 +3,14 @@
 namespace ScoreSaber.Core.Data.Wrappers {
     internal class LeaderboardInfoMap {
         internal LeaderboardInfo leaderboardInfo { get; set; }
-        internal IDifficultyBeatmap difficultyBeatmap { get; set; }
-        internal string songHash { get; set; }
+        internal IDifficultyBeatmap DifficultyBeatmap { get; set; }
+        internal string SongHash { get; set; }
 
         internal LeaderboardInfoMap(LeaderboardInfo leaderboardInfo, IDifficultyBeatmap difficultyBeatmap) {
-            this.difficultyBeatmap = difficultyBeatmap;
+
+            this.DifficultyBeatmap = difficultyBeatmap;
             this.leaderboardInfo = leaderboardInfo;
-            songHash = difficultyBeatmap.level.levelID.Split('_')[2];
+            SongHash = difficultyBeatmap.level.levelID.Split('_')[2];
         }
     }
 }

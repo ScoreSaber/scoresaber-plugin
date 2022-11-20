@@ -18,7 +18,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal List<EnergyEvent> energyKeyframes;
 
         internal ReplayFile() {
-
+            
             poseKeyframes = new List<VRPoseGroup>();
             heightKeyframes = new List<HeightEvent>();
             noteKeyframes = new List<NoteEvent>();
@@ -89,23 +89,28 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal int CutDirection;
 
         public static bool operator ==(NoteID a, NoteID b) {
+
             return Mathf.Approximately(a.Time, b.Time) && a.LineIndex == b.LineIndex && a.LineLayer == b.LineLayer &&
                    a.ColorType == b.ColorType && a.CutDirection == b.CutDirection;
         }
 
         public static bool operator !=(NoteID a, NoteID b) {
+
             return !(a == b);
         }
 
         public override int GetHashCode() {
+
             return Time.GetHashCode() ^ LineLayer ^ LineIndex;
         }
 
         public override bool Equals(object obj) {
+
             return Equals((NoteID)obj);
         }
 
         public bool Equals(NoteID other) {
+
             return this == other;
         }
     }
@@ -145,6 +150,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data {
         internal float Z;
 
         internal static VRPosition None() {
+
             return new VRPosition { X = 0, Y = 0, Z = 0 };
         }
     }

@@ -108,16 +108,17 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void Initialize() {
 
-            _scoreDetailView.showProfile += scoreDetailView_showProfile;
-            _scoreDetailView.startReplay += scoreDetailView_startReplay;
-            _playerService.LoginStatusChanged += playerService_LoginStatusChanged;
-            _infoButtons.infoButtonClicked += infoButtons_infoButtonClicked;
-            _uploadDaemon.UploadStatusChanged += uploadDaemon_UploadStatusChanged;
+            _scoreDetailView.showProfile += ScoreDetailView_showProfile;
+            _scoreDetailView.startReplay += ScoreDetailView_startReplay;
+            _playerService.LoginStatusChanged += PlayerService_LoginStatusChanged;
+            _infoButtons.infoButtonClicked += InfoButtons_infoButtonClicked;
+            _uploadDaemon.UploadStatusChanged += UploadDaemon_UploadStatusChanged;
             _platformLeaderboardViewController.didActivateEvent += LeaderboardViewActivate;
         }
 
         [UIAction("#post-parse")]
         public void Parsed() {
+
             _upButton.transform.localScale *= .5f;
             _downButton.transform.localScale *= .5f;
             _root.name = "ScoreSaberLeaderboardElements";
@@ -152,38 +153,41 @@ namespace ScoreSaber.UI.Leaderboard {
             _panelView.statusWasSelected = delegate {
                 if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
                 _parserParams.EmitEvent("close-modals");
-                Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
+                Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.leaderboardInfo.Id}");
             };
 
             _panelView.rankingWasSelected = delegate {
                 _parserParams.EmitEvent("close-modals");
                 _parserParams.EmitEvent("show-profile");
-                _profileDetailView.ShowProfile(_playerService.LocalPlayerInfo.playerId).RunTask();
+                _profileDetailView.ShowProfile(_playerService.LocalPlayerInfo.PlayerId).RunTask();
             };
 
             _container.Inject(_profileDetailView);
             _playerService.GetLocalPlayerInfo();
         }
 
-        private void infoButtons_infoButtonClicked(int index) {
+        private void InfoButtons_infoButtonClicked(int index) {
+
             if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
 
             _parserParams.EmitEvent("present-score-info");
-            _scoreDetailView.SetScoreInfo(_leaderboardService.currentLoadedLeaderboard.scores[index], _replayDownloading);
+            _scoreDetailView.SetScoreInfo(_leaderboardService.currentLoadedLeaderboard.Scores[index], _replayDownloading);
         }
 
-        private void scoreDetailView_showProfile(string playerId) {
+        private void ScoreDetailView_showProfile(string playerId) {
 
             _parserParams.EmitEvent("close-modals");
             _parserParams.EmitEvent("show-profile");
             _profileDetailView.ShowProfile(playerId).RunTask();
         }
 
-        private void scoreDetailView_startReplay(ScoreMap score) {
+        private void ScoreDetailView_startReplay(ScoreMap score) {
+
             StartReplay(score).RunTask();
         }
 
-        private void playerService_LoginStatusChanged(PlayerService.LoginStatus loginStatus, string status) {
+        private void PlayerService_LoginStatusChanged(PlayerService.LoginStatus loginStatus, string status) {
+
             switch (loginStatus) {
                 case PlayerService.LoginStatus.Info:
                     _panelView.SetPromptInfo(status, true);
@@ -200,7 +204,8 @@ namespace ScoreSaber.UI.Leaderboard {
             Plugin.Log.Debug(status);
         }
 
-        private void uploadDaemon_UploadStatusChanged(UploadStatus status, string statusText) {
+        private void UploadDaemon_UploadStatusChanged(UploadStatus status, string statusText) {
+
             if (statusText != string.Empty) {
                 Plugin.Log.Debug($"{statusText}");
             }
@@ -228,15 +233,12 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
+        // Could use a clean up
         public async Task RefreshLeaderboard(IDifficultyBeatmap difficultyBeatmap, LeaderboardTableView tableView, PlatformLeaderboardsModel.ScoresScope scope, LoadingControl loadingControl, string refreshId) {
 
             try {
-
                 _currentLeaderboardRefreshId = refreshId;
-                if (_uploadDaemon.Uploading) { return; }
-                if (!activated) { return; }
-
-
+                if (_uploadDaemon.Uploading || !activated) { return; }
 
                 if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer) {
                     _upButton.interactable = false;
@@ -264,14 +266,11 @@ namespace ScoreSaber.UI.Leaderboard {
                     return;
                 }
 
-
-
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
-
 
                 if (_currentLeaderboardRefreshId == refreshId) {
                     LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
-                    SetRankedStatus(leaderboardData.leaderboardInfoMap.leaderboardInfo);
+                    SetRankedStatus(leaderboardData.LeaderboardInfoMap.leaderboardInfo);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
@@ -301,17 +300,18 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         private void SetRankedStatus(LeaderboardInfo leaderboardInfo) {
-            if (leaderboardInfo.ranked) {
-                _panelView.SetRankedStatus(leaderboardInfo.positiveModifiers
+
+            if (leaderboardInfo.Ranked) {
+                _panelView.SetRankedStatus(leaderboardInfo.PositiveModifiers
                     ? "Ranked (DA = +0.02, GN +0.04)"
                     : "Ranked (modifiers disabled)");
                 return;
             }
-            if (leaderboardInfo.qualified) {
+            if (leaderboardInfo.Qualified) {
                 _panelView.SetRankedStatus("Qualified");
                 return;
             }
-            if (leaderboardInfo.loved) {
+            if (leaderboardInfo.Loved) {
                 _panelView.SetRankedStatus("Loved");
                 return;
             }
@@ -319,8 +319,9 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public int GetPlayerScoreIndex(LeaderboardMap leaderboardMap) {
-            for (int i = 0; i < leaderboardMap.scores.Length; i++) {
-                if (leaderboardMap.scores[i].score.leaderboardPlayerInfo.id == _playerService.LocalPlayerInfo.playerId) {
+
+            for (int i = 0; i < leaderboardMap.Scores.Length; i++) {
+                if (leaderboardMap.Scores[i].Score.LeaderboardPlayerInfo.Id == _playerService.LocalPlayerInfo.PlayerId) {
                     return i;
                 }
             }
@@ -329,14 +330,13 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private void SetErrorState(LeaderboardTableView tableView, LoadingControl loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
 
-
             if (httpErrorException != null) {
-                if (httpErrorException.isNetworkError) {
+                if (httpErrorException.IsNetworkError) {
                     errorText = "Failed to load leaderboard due to a network error, score won't upload";
                     _leaderboardService.currentLoadedLeaderboard = null;
                 }
-                if (httpErrorException.isScoreSaberError) {
-                    errorText = httpErrorException.scoreSaberError.errorMessage;
+                if (httpErrorException.IsScoreSaberError) {
+                    errorText = httpErrorException.ScoreSaberError.ErrorMessage;
                     if (errorText == "Leaderboard not found") {
                         _leaderboardService.currentLoadedLeaderboard = null;
                         _panelView.SetRankedStatus("");
@@ -407,9 +407,9 @@ namespace ScoreSaber.UI.Leaderboard {
 
             try {
                 _panelView.SetPromptInfo("Downloading Replay...", true);
-                byte[] replay = await _playerService.GetReplayData(score.parent.difficultyBeatmap, score.parent.leaderboardInfo.id, score);
+                byte[] replay = await _playerService.GetReplayData(score.Parent.DifficultyBeatmap, score.Parent.leaderboardInfo.Id, score);
                 _panelView.SetPromptInfo("Replay downloaded! Unpacking...", true);
-                await _replayLoader.Load(replay, score.parent.difficultyBeatmap, score.gameplayModifiers, score.score.leaderboardPlayerInfo.name);
+                await _replayLoader.Load(replay, score.Parent.DifficultyBeatmap, score.GameplayModifiers, score.Score.LeaderboardPlayerInfo.Name);
                 _panelView.SetPromptSuccess("Replay Started!", false, 1f);
             } catch (Exception ex) {
                 _panelView.SetPromptError("Failed to start replay! Error written to log.", false);
@@ -421,13 +421,14 @@ namespace ScoreSaber.UI.Leaderboard {
         public void Dispose() {
 
             _platformLeaderboardViewController.didActivateEvent -= LeaderboardViewActivate;
-            _playerService.LoginStatusChanged -= playerService_LoginStatusChanged;
-            _uploadDaemon.UploadStatusChanged -= uploadDaemon_UploadStatusChanged;
-            _infoButtons.infoButtonClicked -= infoButtons_infoButtonClicked;
-            _scoreDetailView.startReplay -= scoreDetailView_startReplay;
-            _scoreDetailView.showProfile -= scoreDetailView_showProfile;
+            _playerService.LoginStatusChanged -= PlayerService_LoginStatusChanged;
+            _uploadDaemon.UploadStatusChanged -= UploadDaemon_UploadStatusChanged;
+            _infoButtons.infoButtonClicked -= InfoButtons_infoButtonClicked;
+            _scoreDetailView.startReplay -= ScoreDetailView_startReplay;
+            _scoreDetailView.showProfile -= ScoreDetailView_showProfile;
         }
 
+        // Currently broken
 #if PPV3
 
         public void UpdatePPv3ButtonState(bool active) {

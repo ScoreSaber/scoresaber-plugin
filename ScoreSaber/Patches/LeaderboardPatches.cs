@@ -25,6 +25,7 @@ namespace ScoreSaber.Patches {
         private int _lastScopeIndex = -1;
 
         public LeaderboardPatches(ScoreSaberLeaderboardViewController scoresaberLeaderboardViewController) {
+
             _scoresaberLeaderboardViewController = scoresaberLeaderboardViewController;
         }
 
@@ -52,19 +53,18 @@ namespace ScoreSaber.Patches {
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
         void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
             
-            if (__instance.transform.parent.transform.parent.name != "PlatformLeaderboardViewController") {
-                return;
+            if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
+                var tableCell = (LeaderboardTableCell)__result;
+                var _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
+
+                _playerNameText.richText = !_scoresaberLeaderboardViewController.IsOST;
             }
-
-            LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
-            TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
-
-            _playerNameText.richText = !_scoresaberLeaderboardViewController.IsOST;
         }
 
         [AffinityPatch(typeof(PlatformLeaderboardViewController), "DidActivate")]
         [AffinityPrefix]
         bool PatchPlatformLeaderboardDidActivatePrefix(ref PlatformLeaderboardViewController __instance) {
+
             _platformLeaderboardViewController = __instance;
             return true;
         }
@@ -72,25 +72,26 @@ namespace ScoreSaber.Patches {
         [AffinityPatch(typeof(PlatformLeaderboardViewController), "DidActivate")]
         [AffinityPostfix]
         void PatchPlatformLeaderboardDidActivatePostfix(ref bool firstActivation, ref Sprite ____friendsLeaderboardIcon, ref Sprite ____globalLeaderboardIcon, ref Sprite ____aroundPlayerLeaderboardIcon, ref IconSegmentedControl ____scopeSegmentedControl) {
+           
             if (firstActivation) {
                 _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
 
-                if (Plugin.Settings.enableCountryLeaderboards) {
+                if (Plugin.Settings.EnableCountryLeaderboards) {
                     SetupScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon, ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
                 }
             }
-            if (Plugin.Settings.enableCountryLeaderboards) {
+            if (Plugin.Settings.EnableCountryLeaderboards) {
                 ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
             }
         }
 
         private void SetupScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
 
-            Texture2D countryTexture = new Texture2D(64, 64);
+            var countryTexture = new Texture2D(64, 64);
             countryTexture.LoadImage(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png"));
             countryTexture.Apply();
 
-            Sprite _countryIcon = Sprite.Create(countryTexture, new Rect(0, 0, countryTexture.width, countryTexture.height), Vector2.zero);
+            var _countryIcon = Sprite.Create(countryTexture, new Rect(0, 0, countryTexture.width, countryTexture.height), Vector2.zero);
             ____scopeSegmentedControl.SetData(new[] {
                     new DataItem(____globalLeaderboardIcon, "Global"),
                     new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),

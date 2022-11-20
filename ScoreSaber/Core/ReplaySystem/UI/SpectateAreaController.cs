@@ -16,11 +16,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private readonly GameNoteController.Pool _gameNoteControllerPool;
         public event Action<Vector3, Quaternion> DidUpdatePlayerSpectatorPose;
 
-        private GameNoteController _activeNote;
+        private GameNoteController _activeNote = null;
+        // Unused?
         private Quaternion _initialQuaternion;
-        private Tween _movementTween;
-        private Tween _statusTween;
-        private bool _despawned;
+        private Tween _movementTween = null;
+        private Tween _statusTween = null;
+        private bool _despawned = false;
 
         public SpectateAreaController(DiContainer diContainer, TimeTweeningManager timeTweeningManager) {
 
@@ -39,7 +40,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 _activeNote.enabled = false;
                 _activeNote.transform.localScale = Vector3.zero;
                 _initialQuaternion = _activeNote.noteTransform.localRotation;
-                _activeNote.transform.SetLocalPositionAndRotation(pose.spectatorPose.ToVector3(), Quaternion.identity);
+                _activeNote.transform.SetLocalPositionAndRotation(pose.SpectatorPose.ToVector3(), Quaternion.identity);
                 _activeNote.noteTransform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(45f, 45f, 45f));
 
                 var visuals = _activeNote.GetComponent<ColorNoteVisuals>();
@@ -64,7 +65,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             _movementTween?.Kill();
             _activeNote.gameObject.SetActive(true);
-            _movementTween = new Vector3Tween(_activeNote.transform.localPosition, pose.spectatorPose.ToVector3(),
+            _movementTween = new Vector3Tween(_activeNote.transform.localPosition, pose.SpectatorPose.ToVector3(),
                 val => { _activeNote.transform.localPosition = val; }, 0.75f, EaseType.OutQuart);
             _timeTweeningManager.AddTween(_movementTween, _activeNote);
         }
@@ -72,7 +73,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         public void JumpToCallback(string poseID) {
 
             if (TryGetPose(poseID, out SpectatorPoseRoot pose)) {
-                DidUpdatePlayerSpectatorPose?.Invoke(pose.spectatorPose.ToVector3(), Quaternion.identity);
+                DidUpdatePlayerSpectatorPose?.Invoke(pose.SpectatorPose.ToVector3(), Quaternion.identity);
             }
         }
 
@@ -114,8 +115,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private bool TryGetPose(string poseID, out SpectatorPoseRoot pose) {
 
-            pose = Plugin.Settings.spectatorPositions.FirstOrDefault(sp => sp.name == poseID);
-            return pose.name != null;
+            pose = Plugin.Settings.SpectatorPositions.FirstOrDefault(sp => sp.Name == poseID);
+            return pose.Name != null;
         }
 
         public void Dispose() {

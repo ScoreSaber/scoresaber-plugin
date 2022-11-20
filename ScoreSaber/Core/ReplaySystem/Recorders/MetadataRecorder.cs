@@ -10,7 +10,7 @@ using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Recorders {
     internal class MetadataRecorder : TimeSynchronizer, IInitializable, IDisposable {
-        BeatmapObjectSpawnController.InitData _beatmapObjectSpawnControllerInitData;
+        private readonly BeatmapObjectSpawnController.InitData _beatmapObjectSpawnControllerInitData;
         private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
         private readonly MainSettingsModelSO _mainSettingsModelSO;
         private readonly IGameEnergyCounter _gameEnergyCounter;

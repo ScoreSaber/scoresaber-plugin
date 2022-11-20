@@ -6,7 +6,6 @@ using ScoreSaber.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 #endregion
 
@@ -14,30 +13,39 @@ namespace ScoreSaber.Core.Utils {
     internal static class LeaderboardUtils {
 
         internal static bool LocalReplayExists(IDifficultyBeatmap difficultyBeatmap, ScoreMap score) {
-            return File.Exists(GetReplayPath(difficultyBeatmap, score)) ||
-                   File.Exists(GetLegacyReplayPath(difficultyBeatmap, score));
+
+            if (File.Exists(GetReplayPath(difficultyBeatmap, score))) {
+                return true;
+            }
+
+            if (File.Exists(GetLegacyReplayPath(difficultyBeatmap, score))) {
+                return true;
+            }
+            return false;
         }
 
         internal static string GetReplayPath(IDifficultyBeatmap difficultyBeatmap, ScoreMap scoreMap) {
-            return $@"{Settings.replayPath}\{scoreMap.score.leaderboardPlayerInfo.id}-{difficultyBeatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{difficultyBeatmap.difficulty.SerializedName()}-{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{scoreMap.parent.songHash}.dat";
+
+            return $@"{Settings.ReplayPath}\{scoreMap.Score.LeaderboardPlayerInfo.Id}-{difficultyBeatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{difficultyBeatmap.difficulty.SerializedName()}-{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{scoreMap.Parent.SongHash}.dat";
         }
 
         internal static string GetLegacyReplayPath(IDifficultyBeatmap difficultyBeatmap, ScoreMap scoreMap) {
-            return $@"{Settings.replayPath}\{scoreMap.score.leaderboardPlayerInfo.id}-{difficultyBeatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{scoreMap.parent.songHash}.dat";
+
+            return $@"{Settings.ReplayPath}\{scoreMap.Score.LeaderboardPlayerInfo.Id}-{difficultyBeatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{scoreMap.Parent.SongHash}.dat";
         }
 
         internal static string GetFormattedName(ScoreMap scoreMap) {
 
-            bool hasMods = !string.IsNullOrEmpty(scoreMap.score.modifiers);
+            bool hasMods = !string.IsNullOrEmpty(scoreMap.Score.Modifiers);
 
-            string name = $"<size=85%>{scoreMap.score.leaderboardPlayerInfo.name}</size>";
-            string accuracy = $"<size=75%>(<color=#FFD42A>{scoreMap.accuracy}%</color>)</size>";
-            string pp = $"<size=75%>(<color=#6772E5>{scoreMap.score.pp}<size=45%>pp</size></color>)</size>";
-            string modifiers = $"<size=75%><color=#6F6F6F>[{scoreMap.score.modifiers}]</color></size>";
+            string name = $"<size=85%>{scoreMap.Score.LeaderboardPlayerInfo.Name}</size>";
+            string accuracy = $"<size=75%>(<color=#FFD42A>{scoreMap.Accuracy}%</color>)</size>";
+            string pp = $"<size=75%>(<color=#6772E5>{scoreMap.Score.PP}<size=45%>pp</size></color>)</size>";
+            string modifiers = $"<size=75%><color=#6F6F6F>[{scoreMap.Score.Modifiers}]</color></size>";
 
             string formattedName = $"{name} - {accuracy}";
 
-            if (scoreMap.score.pp > 0 && Plugin.Settings.showScorePP) {
+            if (scoreMap.Score.PP > 0 && Plugin.Settings.ShowScorePP) {
                 formattedName = $"{formattedName} - {pp}";
             }
 
@@ -49,6 +57,7 @@ namespace ScoreSaber.Core.Utils {
         }
 
         internal static Tuple<string, string> GetCrownDetails(string playerId) {
+
             switch (playerId) {
                 case PlayerIDs.woops:
                     return new Tuple<string, string>("ScoreSaber.Resources.crown-bronze.png", "Beat Saber Invitational 3rd place");
@@ -62,8 +71,7 @@ namespace ScoreSaber.Core.Utils {
             return new Tuple<string, string>("", "");
         }
 
-        // TODO: Refactor this
-        internal static GameplayModifiersMap GetModifierFromStrings(IEnumerable<string> modifiers, bool isPositiveModifiersEnabled) {
+        internal static GameplayModifiersMap GetModifierFromStrings(string[] modifiers, bool isPositiveModifiersEnabled) {
 
             double totalMultiplier = 1;
             var energyType = GameplayModifiers.EnergyType.Bar;
@@ -142,12 +150,13 @@ namespace ScoreSaber.Core.Utils {
             }
             var gameplayModifiers = new GameplayModifiers(energyType, NF, IF, false, obstacleType, NB, false, SA, DA, songSpeed, NA, GN, PM, false, SC);
             var gameplayModifiersWrapper = new GameplayModifiersMap(gameplayModifiers) {
-                totalMultiplier = totalMultiplier
+                TotalMultiplier = totalMultiplier
             };
             return gameplayModifiersWrapper;
         }
 
         public static int MaxRawScoreForNumberOfNotes(int noteCount) {
+
             int num = 0;
             int num2 = 1;
             while (num2 < 8) {
@@ -221,8 +230,11 @@ namespace ScoreSaber.Core.Utils {
         }
 
         public static bool ContainsV3Stuff(IReadonlyBeatmapData readonlyBeatmapData) {
-            return readonlyBeatmapData.allBeatmapDataItems.Any(item =>
-                item.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && item is SliderData);
+
+            foreach (var item in readonlyBeatmapData.allBeatmapDataItems)
+                if (item.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && item is SliderData)
+                    return true;
+            return false;
         }
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 
 namespace ScoreSaber.Core.ReplaySystem.UI.Components {
     public class AmeHandle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEventSystemHandler, IInitializePotentialDragHandler, IEndDragHandler {
-        public bool dragged { get; private set; }
+        public bool Dragged { get; private set; }
         private Action<AmeHandle, Vector2, Camera> _handleMoveCallback;
 
         public void AddCallback(Action<AmeHandle, Vector2, Camera> callback) {
@@ -18,12 +18,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Components {
 
         public void OnBeginDrag(PointerEventData eventData) {
 
-            dragged = true;
+            Dragged = true;
         }
 
         public void OnInitializePotentialDrag(PointerEventData eventData) {
 
-            dragged = true;
+            Dragged = true;
             eventData.useDragThreshold = false;
         }
 
@@ -38,7 +38,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Components {
 
         public void OnEndDrag(PointerEventData eventData) {
 
-            dragged = false;
+            Dragged = false;
         }
     }
 }

@@ -9,36 +9,37 @@ using System;
 namespace ScoreSaber.Core.Data.Wrappers {
     internal class ScoreMap {
 
-        internal Score score { get; private set; }
+        internal Score Score { get; private set; }
 
         //Extra
-        internal LeaderboardInfoMap parent { get; set; }
-        internal bool hasLocalReplay { get; set; }
-        internal double accuracy { get; set; }
-        internal GameplayModifiers gameplayModifiers { get; set; }
-        internal string formattedPlayerName { get; set; }
+        internal LeaderboardInfoMap Parent { get; set; }
+        internal bool HasLocalReplay { get; set; }
+        internal double Accuracy { get; set; }
+        internal GameplayModifiers GameplayModifiers { get; set; }
+        internal string FormattedPlayerName { get; set; }
 
         internal ScoreMap(Score _score, LeaderboardInfoMap customLeaderboardInfo, IReadonlyBeatmapData beatmapData) {
-            score = _score;
+
+            Score = _score;
 
             var replayMods = new GameplayModifiersMap();
-            if (!string.IsNullOrEmpty(score.modifiers)) {
+            if (!string.IsNullOrEmpty(Score.Modifiers)) {
                 replayMods = LeaderboardUtils.GetModifierFromStrings(
-                    score.modifiers.Contains(",") ? score.modifiers.Split(',') : new[] { score.modifiers }, false);
+                    Score.Modifiers.Contains(",") ? Score.Modifiers.Split(',') : new[] { Score.Modifiers }, false);
             }
 
-            double maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData) * replayMods.totalMultiplier;
+            double maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData) * replayMods.TotalMultiplier;
 
-            parent = customLeaderboardInfo;
-            hasLocalReplay = LeaderboardUtils.LocalReplayExists(customLeaderboardInfo.difficultyBeatmap, this);
-            score.weight = Math.Round(score.weight * 100, 2);
-            score.pp = Math.Round(score.pp, 2);
-            accuracy = Math.Round((score.modifiedScore / maxScore) * 100, 2);
-            gameplayModifiers = replayMods.gameplayModifiers;
-            if (hasLocalReplay) {
-                score.hasReplay = true;
+            Parent = customLeaderboardInfo;
+            HasLocalReplay = LeaderboardUtils.LocalReplayExists(customLeaderboardInfo.DifficultyBeatmap, this);
+            Score.Weight = Math.Round(Score.Weight * 100, 2);
+            Score.PP = Math.Round(Score.PP, 2);
+            Accuracy = Math.Round((Score.ModifiedScore / maxScore) * 100, 2);
+            GameplayModifiers = replayMods.GameplayModifiers;
+            if (HasLocalReplay) {
+                Score.HasReplay = true;
             }
-            formattedPlayerName = LeaderboardUtils.GetFormattedName(this);
+            FormattedPlayerName = LeaderboardUtils.GetFormattedName(this);
         }
 
     }

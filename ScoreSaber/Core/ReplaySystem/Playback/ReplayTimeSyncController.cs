@@ -13,7 +13,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class ReplayTimeSyncController : TimeSynchronizer, ITickable {
         private readonly List<IScroller> _scrollers;
         private readonly AudioManagerSO _audioManagerSO;
-        private AudioTimeSyncController.InitData _audioInitData;
+        private readonly AudioTimeSyncController.InitData _audioInitData;
         private BasicBeatmapObjectManager _basicBeatmapObjectManager;
         private NoteCutSoundEffectManager _noteCutSoundEffectManager;
         private BeatmapCallbacksController.InitData _callbackInitData;
@@ -22,6 +22,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         private bool _paused;
 
         public ReplayTimeSyncController(List<IScroller> scrollers, BasicBeatmapObjectManager basicBeatmapObjectManager, NoteCutSoundEffectManager noteCutSoundEffectManager, BeatmapObjectSpawnController beatmapObjectSpawnController, AudioTimeSyncController.InitData audioInitData, BeatmapCallbacksController.InitData initData, BeatmapCallbacksController beatmapObjectCallbackController) {
+            
             _scrollers = scrollers;
             _callbackInitData = initData;
             _audioInitData = audioInitData;
@@ -33,6 +34,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         }
 
         public void Tick() {
+
             int index = -1;
             if (Input.GetKeyDown(KeyCode.Alpha1))
                 index = 0;
@@ -87,6 +89,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         }
 
         private void UpdateTimes() {
+
             foreach (var scroller in _scrollers)
                 scroller.TimeUpdate(audioTimeSyncController.songTime);
         }

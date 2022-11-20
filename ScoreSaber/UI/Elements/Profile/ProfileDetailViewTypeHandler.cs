@@ -12,6 +12,7 @@ namespace ScoreSaber.UI.Elements.Profile {
     [ComponentHandler(typeof(ProfileDetailView))]
     internal class ProfileDetailViewTypeHandler : TypeHandler<ProfileDetailView> {
         public override Dictionary<string, string[]> Props => new Dictionary<string, string[]> {
+
             { "name", new [] { "name" } },
             { "profileImageSource", new [] { "src" } },
             { "performancePoints", new [] { "pp" } },
@@ -25,6 +26,7 @@ namespace ScoreSaber.UI.Elements.Profile {
         };
 
         public override Dictionary<string, Action<ProfileDetailView, string>> Setters => new Dictionary<string, Action<ProfileDetailView, string>> {
+
             { "name", (profile, value) => profile.playerNameText.text = value },
             { "profileImageSource", (profile, value) => profile.profilePicture.SetImage(value) },
             { "rankedAccuracy", (profile, value) => profile.rankedAccText.text = value },
@@ -35,6 +37,7 @@ namespace ScoreSaber.UI.Elements.Profile {
         };
 
         public override void HandleTypeAfterParse(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
+
             base.HandleTypeAfterParse(componentType, parserParams);
             try {
                 var profile = componentType.component as ProfileDetailView;

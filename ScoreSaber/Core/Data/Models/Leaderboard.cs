@@ -9,116 +9,116 @@ namespace ScoreSaber.Core.Data.Models {
 
     internal class Leaderboard {
         [JsonProperty("leaderboardInfo")]
-        internal LeaderboardInfo leaderboardInfo { get; set; }
+        internal LeaderboardInfo LeaderboardInfo { get; set; }
         [JsonProperty("scores")]
-        internal Score[] scores { get; set; }
+        internal Score[] Scores { get; set; }
     }
 
     internal class LeaderboardInfo {
         [JsonProperty("id")]
-        internal int id { get; set; }
+        internal int Id { get; set; }
         [JsonProperty("songHash")]
-        internal string songHash { get; set; }
+        internal string SongHash { get; set; }
         [JsonProperty("songName")]
-        internal string songName { get; set; }
+        internal string SongName { get; set; }
         [JsonProperty("songSubName")]
-        internal string songSubName { get; set; }
+        internal string SongSubName { get; set; }
         [JsonProperty("songAuthorName")]
-        internal string songAuthorName { get; set; }
+        internal string SongAuthorName { get; set; }
         [JsonProperty("levelAuthorName")]
-        internal string levelAuthorName { get; set; }
+        internal string LevelAuthorName { get; set; }
         [JsonProperty("difficulty")]
-        internal Difficulty difficulty { get; set; }
+        internal Difficulty Difficulty { get; set; }
         [JsonProperty("maxScore")]
-        internal int maxScore { get; set; }
+        internal int MaxScore { get; set; }
         [JsonProperty("createdDate")]
-        internal DateTimeOffset createdDate { get; set; }
+        internal DateTimeOffset CreatedDate { get; set; }
         [JsonProperty("rankedDate")]
-        internal DateTimeOffset? rankedDate { get; set; }
+        internal DateTimeOffset? RankedDate { get; set; }
         [JsonProperty("qualifiedDate")]
-        internal DateTimeOffset? qualifiedDate { get; set; }
+        internal DateTimeOffset? QualifiedDate { get; set; }
         [JsonProperty("lovedDate")]
-        internal DateTimeOffset? lovedDate { get; set; }
+        internal DateTimeOffset? LovedDate { get; set; }
         [JsonProperty("ranked")]
-        internal bool ranked { get; set; }
+        internal bool Ranked { get; set; }
         [JsonProperty("qualified")]
-        internal bool qualified { get; set; }
+        internal bool Qualified { get; set; }
         [JsonProperty("loved")]
-        internal bool loved { get; set; }
+        internal bool Loved { get; set; }
         [JsonProperty("maxPP")]
-        internal double maxPP { get; set; }
+        internal double MaxPP { get; set; }
         [JsonProperty("stars")]
-        internal double stars { get; set; }
+        internal double Stars { get; set; }
         [JsonProperty("plays")]
-        internal int plays { get; set; }
+        internal int Plays { get; set; }
         [JsonProperty("dailyPlays")]
-        internal int dailyPlays { get; set; }
+        internal int DailyPlays { get; set; }
         [JsonProperty("coverImage")]
-        internal string coverImage { get; set; }
+        internal string CoverImage { get; set; }
         [JsonProperty("positiveModifiers")]
-        internal bool positiveModifiers { get; set; }
+        internal bool PositiveModifiers { get; set; }
         [JsonProperty("playerScore")]
-        internal Score playerScore { get; set; }
+        internal Score PlayerScore { get; set; }
     }
 
     internal class Difficulty {
         [JsonProperty("leaderboardId")]
-        internal int leaderboardId { get; set; }
+        internal int LeaderboardId { get; set; }
         [JsonProperty("difficulty")]
-        internal int difficulty { get; set; }
+        internal int Diff { get; set; }
         [JsonProperty("gameMode")]
-        internal string gameMode { get; set; }
+        internal string GameMode { get; set; }
         [JsonProperty("difficultyRaw")]
-        internal string difficultyRaw { get; set; }
+        internal string DifficultyRaw { get; set; }
     }
 
     internal class Score {
         [JsonProperty("id")]
-        internal int id { get; set; }
+        internal int Id { get; set; }
         [JsonProperty("leaderboardPlayerInfo")]
-        internal LeaderboardPlayer leaderboardPlayerInfo { get; set; }
+        internal LeaderboardPlayer LeaderboardPlayerInfo { get; set; }
         [JsonProperty("rank")]
-        internal int rank { get; set; }
+        internal int Rank { get; set; }
         [JsonProperty("baseScore")]
-        internal int baseScore { get; set; }
+        internal int BaseScore { get; set; }
         [JsonProperty("modifiedScore")]
-        internal int modifiedScore { get; set; }
+        internal int ModifiedScore { get; set; }
         [JsonProperty("pp")]
-        internal double pp { get; set; }
+        internal double PP { get; set; }
         [JsonProperty("weight")]
-        internal double weight { get; set; }
+        internal double Weight { get; set; }
         [JsonProperty("modifiers")]
-        internal string modifiers { get; set; }
+        internal string Modifiers { get; set; }
         [JsonProperty("multiplier")]
-        internal double multiplier { get; set; }
+        internal double Multiplier { get; set; }
         [JsonProperty("badCuts")]
-        internal int badCuts { get; set; }
+        internal int BadCuts { get; set; }
         [JsonProperty("missedNotes")]
-        internal int missedNotes { get; set; }
+        internal int MissedNotes { get; set; }
         [JsonProperty("maxCombo")]
-        internal int maxCombo { get; set; }
+        internal int MaxCombo { get; set; }
         [JsonProperty("fullCombo")]
-        internal bool fullCombo { get; set; }
+        internal bool FullCombo { get; set; }
         [JsonProperty("hmd")]
-        internal int hmd { get; set; }
+        internal int Hmd { get; set; }
         [JsonProperty("timeSet")]
-        internal DateTime timeSet { get; set; }
+        internal DateTime TimeSet { get; set; }
         [JsonProperty("hasReplay")]
-        internal bool hasReplay { get; set; }
+        internal bool HasReplay { get; set; }
     }
 
     internal class LeaderboardPlayer {
         [JsonProperty("id")]
-        internal string id { get; set; }
+        internal string Id { get; set; }
         [JsonProperty("name")]
-        internal string name { get; set; }
+        internal string Name { get; set; }
         [JsonProperty("profilePicture")]
-        internal string profilePicture { get; set; }
+        internal string ProfilePicture { get; set; }
         [JsonProperty("country")]
-        internal string country { get; set; }
+        internal string Country { get; set; }
         [JsonProperty("permissions")]
-        internal int permissions { get; set; }
+        internal int Permissions { get; set; }
         [JsonProperty("role")]
-        internal string role { get; set; }
+        internal string Role { get; set; }
     }
 }

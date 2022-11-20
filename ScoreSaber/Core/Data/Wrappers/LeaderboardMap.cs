@@ -8,20 +8,22 @@ using System.Linq;
 
 namespace ScoreSaber.Core.Data.Wrappers {
     internal class LeaderboardMap {
-        internal LeaderboardInfoMap leaderboardInfoMap { get; set; }
-        internal ScoreMap[] scores { get; set; }
+        internal LeaderboardInfoMap LeaderboardInfoMap { get; set; }
+        internal ScoreMap[] Scores { get; set; }
 
         internal LeaderboardMap(Leaderboard leaderboard, IDifficultyBeatmap difficultyBeatmap, IReadonlyBeatmapData beatmapData) {
-            leaderboardInfoMap = new LeaderboardInfoMap(leaderboard.leaderboardInfo, difficultyBeatmap);
-            scores = new ScoreMap[leaderboard.scores.Length];
-            for (int i = 0; i < leaderboard.scores.Length; i++) {
-                scores[i] = new ScoreMap(leaderboard.scores[i], leaderboardInfoMap, beatmapData);
+
+            LeaderboardInfoMap = new LeaderboardInfoMap(leaderboard.LeaderboardInfo, difficultyBeatmap);
+            Scores = new ScoreMap[leaderboard.Scores.Length];
+            for (int i = 0; i < leaderboard.Scores.Length; i++) {
+                Scores[i] = new ScoreMap(leaderboard.Scores[i], LeaderboardInfoMap, beatmapData);
             }
         }
 
         internal List<LeaderboardTableView.ScoreData> ToScoreData() {
-            return scores.Select(scoreMap => new LeaderboardTableView.ScoreData(scoreMap.score.modifiedScore,
-                scoreMap.formattedPlayerName, scoreMap.score.rank, false)).ToList();
+
+            return Scores.Select(scoreMap => new LeaderboardTableView.ScoreData(scoreMap.Score.ModifiedScore,
+                scoreMap.FormattedPlayerName, scoreMap.Score.Rank, false)).ToList();
         }
     }
 }

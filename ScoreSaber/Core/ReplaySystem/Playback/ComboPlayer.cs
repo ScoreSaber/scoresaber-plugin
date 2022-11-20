@@ -25,12 +25,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedComboEvents.Length; c++) {
-                if (!(_sortedComboEvents[c].Time >= newTime)) {
-                    continue;
+                if (_sortedComboEvents[c].Time >= newTime) {
+                    UpdateCombo(newTime, c != 0 ? _sortedComboEvents[c - 1].Combo : 0);
+                    return;
                 }
-
-                UpdateCombo(newTime, c != 0 ? _sortedComboEvents[c - 1].Combo : 0);
-                return;
             }
             UpdateCombo(newTime, _sortedComboEvents.LastOrDefault().Combo);
         }

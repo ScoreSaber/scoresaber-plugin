@@ -8,68 +8,68 @@ namespace ScoreSaber.Core.Data.Models {
 
     internal class Metadata {
         [JsonProperty("total")]
-        internal int total { get; set; }
+        internal int Total { get; set; }
         [JsonProperty("page")]
-        internal int page { get; set; }
+        internal int Page { get; set; }
         [JsonProperty("itemsPerPage")]
-        internal int itemsPerPage { get; set; }
+        internal int ItemsPerPage { get; set; }
     }
 
     internal class PlayerCollection {
         [JsonProperty("players")]
-        internal PlayerInfo[] players { get; set; }
+        internal PlayerInfo[] Players { get; set; }
         [JsonProperty("metadata")]
-        internal Metadata metdata { get; set; }
+        internal Metadata Metadata { get; set; }
     }
 
     internal class PlayerInfo {
         [JsonProperty("id")]
-        internal string id { get; set; }
+        internal string Id { get; set; }
         [JsonProperty("name")]
-        internal string name { get; set; }
+        internal string Name { get; set; }
         [JsonProperty("profilePicture")]
-        internal string profilePicture { get; set; }
+        internal string ProfilePicture { get; set; }
         [JsonProperty("country")]
-        internal string country { get; set; }
+        internal string Country { get; set; }
         [JsonProperty("pp")]
-        internal double pp { get; set; }
+        internal double PP { get; set; }
         [JsonProperty("rank")]
-        internal int rank { get; set; }
+        internal int Rank { get; set; }
         [JsonProperty("countryRank")]
-        internal int countryRank { get; set; }
+        internal int CountryRank { get; set; }
         [JsonProperty("role")]
-        internal string role { get; set; }
+        internal string Role { get; set; }
         [JsonProperty("badges")]
-        internal Badge[] badges { get; set; }
+        internal Badge[] Badges { get; set; }
         [JsonProperty("histories")]
-        internal string histories { get; set; }
+        internal string Histories { get; set; }
         [JsonProperty("permissions")]
-        internal int permissions { get; set; }
+        internal int Permissions { get; set; }
         [JsonProperty("banned")]
-        internal bool banned { get; set; }
+        internal bool Banned { get; set; }
         [JsonProperty("inactive")]
-        internal bool inactive { get; set; }
+        internal bool Inactive { get; set; }
         [JsonProperty("scoreStats")]
-        internal ScoreStats scoreStats { get; set; }
+        internal ScoreStats ScoreStats { get; set; }
     }
 
     internal class Badge {
         [JsonProperty("description")]
-        internal string description { get; set; }
+        internal string Description { get; set; }
         [JsonProperty("image")]
-        internal string image { get; set; }
+        internal string Image { get; set; }
     }
 
     internal class ScoreStats {
         [JsonProperty("totalScore")]
-        internal long totalScore { get; set; }
+        internal long TotalScore { get; set; }
         [JsonProperty("totalRankedScore")]
-        internal long totalRankedScore { get; set; }
+        internal long TotalRankedScore { get; set; }
         [JsonProperty("averageRankedAccuracy")]
-        internal double averageRankedAccuracy { get; set; }
+        internal double AverageRankedAccuracy { get; set; }
         [JsonProperty("totalPlayCount")]
-        internal int totalPlayCount { get; set; }
+        internal int TotalPlayCount { get; set; }
         [JsonProperty("rankedPlayCount")]
-        internal int rankedPlayCount { get; set; }
+        internal int RankedPlayCount { get; set; }
     }
 }

@@ -54,9 +54,6 @@ namespace ScoreSaber.UI.Elements {
             _profileClicked = onActivateProfile;
             _countryText = $"{country}";
             _flagUrl = $"https://cdn.scoresaber.com/flags/{country.ToLower()}.png";
-            if (id == PlayerIDs.Williums) {
-                _username = "<color=#FF0000>w</color><color=#FF7F00>i</color><color=#FFFF00>l</color><color=#00FF00>l</color><color=#0000FF>i</color><color=#4B0082>u</color><color=#8B00FF>m</color><color=#FF0000>s</color>";
-            }
         }
 
         [UIAction("profile-clicked")]

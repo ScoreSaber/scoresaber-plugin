@@ -93,10 +93,6 @@ namespace ScoreSaber.UI.Elements.Team {
 
         public TeamUserInfo(string _profilePicture, string _username, string _discord = null, string _github = null, string _twitch = null, string _twitter = null, string _youtube = null) {
 
-            if (_username == "williums") {
-                _username = "<color=#FF0000>w</color><color=#FF7F00>i</color><color=#FFFF00>l</color><color=#00FF00>l</color><color=#0000FF>i</color><color=#4B0082>u</color><color=#8B00FF>m</color><color=#FF0000>s</color>";
-            }
-
             _profilePictureTemp = _profilePicture;
             UsernameText = _username;
             DiscordLink = _discord;
@@ -108,14 +104,12 @@ namespace ScoreSaber.UI.Elements.Team {
 
         public void LoadImage() {
             
-            if (_loaded) {
-                return;
+            if (!_loaded) {
+                if (_profilePictureTemp != null) {
+                    SetImage(_profilePictureTemp);
+                }
+                _loaded = true;
             }
-
-            if (_profilePictureTemp != null) {
-                SetImage(_profilePictureTemp);
-            }
-            _loaded = true;
         }
 
         private void SetImage(string image) {
@@ -130,24 +124,22 @@ namespace ScoreSaber.UI.Elements.Team {
         public int clickCounter;
         [UIAction("username-click")]
         public void UsernameClick() {
-            
-            if (UsernameText != "Umbranox") {
-                return;
-            }
 
-            if (clickCounter < 5) {
-                clickCounter++;
-                return;
+            if (UsernameText == "Umbranox") {
+                if (clickCounter < 5) {
+                    clickCounter++;
+                }
+                if (clickCounter == 5) {
+                    SetImage("r.jpg");
+                    UsernameText = "🌧 Rain ❤";
+                    DiscordLink = "128460955272216576";
+                    TwitterLink = "VaporRain";
+                    TwitchLink = "inkierain";
+                    NotifyPropertyChanged("profilePicture");
+                    YoutubeLink = null;
+                    GithubLink = null;
+                }
             }
-
-            SetImage("r.jpg");
-            UsernameText = "🌧 Rain ❤";
-            DiscordLink = "128460955272216576";
-            TwitterLink = "VaporRain";
-            TwitchLink = "inkierain";
-            NotifyPropertyChanged("profilePicture");
-            YoutubeLink = null;
-            GithubLink = null;
         }
 
         [UIAction("#post-parse")]

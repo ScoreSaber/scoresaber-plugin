@@ -25,13 +25,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
             if (_gameEnergyUIPanel == null) { return; }
             for (int c = 0; c < _sortedEnergyEvents.Length; c++) {
-                if (!(_sortedEnergyEvents[c].Time >= newTime)) {
-                    continue;
+                if (_sortedEnergyEvents[c].Time >= newTime) {
+                    float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : 0.5f;
+                    UpdateEnergy(energy);
+                    return;
                 }
-
-                float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : 0.5f;
-                UpdateEnergy(energy);
-                return;
             }
             UpdateEnergy(0.5f);
             var lastEvent = _sortedEnergyEvents.LastOrDefault();

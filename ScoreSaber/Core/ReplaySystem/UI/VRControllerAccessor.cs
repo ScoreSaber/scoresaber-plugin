@@ -1,12 +1,12 @@
 ﻿namespace ScoreSaber.Core.ReplaySystem.UI {
     internal class VRControllerAccessor {
-        public VRController leftController { get; }
-        public VRController rightController { get; }
+        public VRController LeftController { get; }
+        public VRController RightController { get; }
 
         public VRControllerAccessor(PauseMenuManager pauseMenuManager) {
 
-            leftController = pauseMenuManager.transform.Find("MenuControllers/ControllerLeft").GetComponent<VRController>();
-            rightController = pauseMenuManager.transform.Find("MenuControllers/ControllerRight").GetComponent<VRController>();
+            LeftController = pauseMenuManager.transform.Find("MenuControllers/ControllerLeft").GetComponent<VRController>();
+            RightController = pauseMenuManager.transform.Find("MenuControllers/ControllerRight").GetComponent<VRController>();
         }
     }
 }

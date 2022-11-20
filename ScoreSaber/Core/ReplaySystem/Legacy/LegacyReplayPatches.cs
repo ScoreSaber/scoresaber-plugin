@@ -10,7 +10,6 @@ using Zenject;
 namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
     internal class LegacyReplayPatches : IInitializable, IAffinity {
-
         private readonly LegacyReplayPlayer _legacyReplayPlayer;
 
         public LegacyReplayPatches(LegacyReplayPlayer legacyReplayPlayer) {

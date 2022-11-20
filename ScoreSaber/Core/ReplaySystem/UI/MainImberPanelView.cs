@@ -17,7 +17,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
     [HotReload(RelativePathToLayout = @"imber-panel.bsml")]
     [ViewDefinition("ScoreSaber.Core.ReplaySystem.UI.imber-panel.bsml")]
     internal class MainImberPanelView : BSMLAutomaticViewController {
-        private FloatingScreen _floatingScreen;
+        private FloatingScreen floatingScreen;
         public event Action<bool> DidPositionTabVisibilityChange;
         public event Action<string> DidPositionPreviewChange;
         public event Action<XRNode> HandDidSwitchEvent;
@@ -35,17 +35,17 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private static readonly Color _ehColor = Color.yellow;
         private static readonly Color _noColor = Color.red;
 
-        public bool didParse { get; private set; }
+        public bool DidParse { get; private set; }
 
         public Transform Transform {
-            get => _floatingScreen.transform;
+            get => floatingScreen.transform;
         }
 
         public Pose defaultPosition { get; set; }
 
         private float _timeSync;
         [UIValue("time-sync")]
-        public float timeSync {
+        public float TimeSync {
             get => _timeSync;
             set {
                 _timeSync = Mathf.Approximately(_initialTime, value) ? _initialTime : value;
@@ -53,13 +53,13 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
         }
 
-        public bool visibility {
-            set => _floatingScreen.SetRootViewController(value ? this : null, value ? AnimationType.In : AnimationType.Out);
+        public bool Visibility {
+            set => floatingScreen.SetRootViewController(value ? this : null, value ? AnimationType.In : AnimationType.Out);
         }
 
         private string _playPauseText = "PAUSE";
         [UIValue("play-pause-text")]
-        public string playPauseText {
+        public string PlayPauseText {
             get => _playPauseText;
             set {
                 _playPauseText = value;
@@ -69,7 +69,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private string _loopText = "LOOP";
         [UIValue("loop-text")]
-        public string loopText {
+        public string LoopText {
             get => _loopText;
             set {
                 _loopText = value;
@@ -79,7 +79,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private string _location = "";
         [UIValue("location")]
-        public string location {
+        public string Location {
             get => _location;
             protected set {
                 _location = value;
@@ -87,7 +87,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
         }
 
-        public int fps {
+        public int FPS {
             set {
                 fpsText.text = value.ToString();
                 if (value > 0.85f * _targetFPS)
@@ -99,14 +99,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
         }
 
-        public float leftSaberSpeed {
+        public float LeftSaberSpeed {
             set {
                 leftSpeedText.text = $"{value:0.0} m/s";
                 leftSpeedText.color = value >= 2f ? _goodColor : _noColor; // 2 is the min. saber speed to hit a note
             }
         }
 
-        public float rightSaberSpeed {
+        public float RightSaberSpeed {
             set {
                 rightSpeedText.text = $"{value:0.0} m/s";
                 rightSpeedText.color = value >= 2f ? _goodColor : _noColor; // 2 is the min. saber speed to hit a note
@@ -131,10 +131,10 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [Inject]
         protected void Construct() {
 
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(60f, 45f), false, defaultPosition.position, defaultPosition.rotation);
-            _floatingScreen.GetComponent<Canvas>().sortingOrder = 31;
-            _floatingScreen.name = "Imber Replay Panel (Screen)";
-            _floatingScreen.transform.localScale /= 2f;
+            floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(60f, 45f), false, defaultPosition.position, defaultPosition.rotation);
+            floatingScreen.GetComponent<Canvas>().sortingOrder = 31;
+            floatingScreen.name = "Imber Replay Panel (Screen)";
+            floatingScreen.transform.localScale /= 2f;
             name = "Imber Replay Panel (View)";
         }
 
@@ -151,7 +151,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             tabSelector.textSegmentedControl.didSelectCellEvent += DidSelect;
-            didParse = true;
+            DidParse = true;
             if (firstActivation) {
                 tabSelector.transform.localScale *= .9f;
             }

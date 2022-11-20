@@ -2,7 +2,7 @@
 
 #region
 
-using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
 using System;
@@ -16,7 +16,6 @@ using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
 
 namespace ScoreSaber.Core.Daemons {
     internal class MockUploadDaemon : IUploadDaemon {
-        
         public bool Uploading { get; set; }
         public event Action<UploadStatus, string> UploadStatusChanged;
 
@@ -61,7 +60,6 @@ namespace ScoreSaber.Core.Daemons {
 
         private void ProcessUpload(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults, bool practicing) {
 
-        
             var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
             if (!practiceViewController.isInViewControllerHierarchy) {
                 if (gameMode != "Solo" && gameMode != "Multiplayer") {
@@ -86,8 +84,8 @@ namespace ScoreSaber.Core.Daemons {
 
 
                 if (difficultyBeatmap.level is CustomBeatmapLevel) {
-                    if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore != null) {
-                        if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore.modifiedScore) {
+                    if (_leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.leaderboardInfo.PlayerScore != null) {
+                        if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.leaderboardInfo.PlayerScore.ModifiedScore) {
                             UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
                             return;
                         }
@@ -109,8 +107,8 @@ namespace ScoreSaber.Core.Daemons {
 
             byte[] serializedReplay = await _replayService.WriteSerializedReplay();
 
-            if (Plugin.Settings.saveLocalReplays) {
-                string replayPath = $@"{Settings.replayPath}\{_playerService.LocalPlayerInfo.playerId}-{beatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{beatmap.difficulty.SerializedName()}-{beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{beatmap.level.levelID}.dat";
+            if (Plugin.Settings.SaveLocalReplays) {
+                string replayPath = $@"{Settings.ReplayPath}\{_playerService.LocalPlayerInfo.PlayerId}-{beatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{beatmap.difficulty.SerializedName()}-{beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{beatmap.level.levelID}.dat";
                 File.WriteAllBytes(replayPath, serializedReplay);
             }
             Uploading = false;

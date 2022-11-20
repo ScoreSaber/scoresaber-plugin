@@ -102,13 +102,11 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         }
 
         public void HideInfoButtons() {
-            if (buttons == null) {
-                return;
-            }
 
-            foreach (var button in buttons)
-            {
-                button.gameObject.SetActive(false);
+            if (buttons != null) {
+                foreach (var button in buttons) {
+                    button.gameObject.SetActive(false);
+                }
             }
         }
     }

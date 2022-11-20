@@ -67,8 +67,8 @@ namespace ScoreSaber.Core.Data.Models {
             data.levelAuthorName = difficultyBeatmap.level.levelAuthorName;
             data.bpm = Convert.ToInt32(difficultyBeatmap.level.beatsPerMinute);
 
-            data.playerName = playerInfo.playerName;
-            data.playerId = playerInfo.playerId;
+            data.playerName = playerInfo.PlayerName;
+            data.playerId = playerInfo.PlayerId;
 
             data.badCutsCount = results.badCutsCount;
             data.missedCount = results.missedCount;

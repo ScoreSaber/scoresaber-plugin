@@ -18,6 +18,7 @@ namespace ScoreSaber.Core.Services {
         }
 
         public GlobalLeaderboardService() {
+
             Plugin.Log.Debug("GlobalLeaderboardService Setup");
         }
 
@@ -27,7 +28,7 @@ namespace ScoreSaber.Core.Services {
 
             var response = await Plugin.HttpInstance.GetAsync(url);
             var globalLeaderboardData = JsonConvert.DeserializeObject<PlayerCollection>(response);
-            return globalLeaderboardData.players;
+            return globalLeaderboardData.Players;
         }
 
         private string BuildUrl(GlobalPlayerScope scope, int page) {

@@ -49,30 +49,28 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         protected void OnGUI() {
             
-            if (Plugin.Settings.hideReplayUI) {
-                return;
+            if (!Plugin.Settings.HideReplayUI) {
+                _currentPosition = 0;
+                DrawLabel("Replay Controls -", header: true);
+                DrawLabel("Pause: Space");
+                DrawLabel("Seek: 1-9");
+                DrawLabel("Increase Time Scale: +");
+                DrawLabel("Decrease Time Scale: -");
+                DrawLabel("Hide Sabers: H");
+                DrawLabel("Hide Desktop Replay UI: C");
+                DrawLabel("Replay Player Status -", header: true);
+                DrawLabel($"Current Song Time: {(int)_audioTimeSyncController.songTime / 60}:{_audioTimeSyncController.songTime % 60f:00}");
+                DrawLabel($"Current Time Scale: {_audioTimeSyncController.timeScale:P0}");
+                DrawLabel($"Player's FPS: {_fps}");
+                DrawLabel($"Left Saber Speed: {_leftSaberSpeed}");
+                DrawLabel($"Right Saber Speed: {_rightSaberSpeed}");
             }
-
-            _currentPosition = 0;
-            DrawLabel("Replay Controls -", header: true);
-            DrawLabel("Pause: Space");
-            DrawLabel("Seek: 1-9");
-            DrawLabel("Increase Time Scale: +");
-            DrawLabel("Decrease Time Scale: -");
-            DrawLabel("Hide Sabers: H");
-            DrawLabel("Hide Desktop Replay UI: C");
-            DrawLabel("Replay Player Status -", header: true);
-            DrawLabel($"Current Song Time: {(int)_audioTimeSyncController.songTime / 60}:{_audioTimeSyncController.songTime % 60f:00}");
-            DrawLabel($"Current Time Scale: {_audioTimeSyncController.timeScale:P0}");
-            DrawLabel($"Player's FPS: {_fps}");
-            DrawLabel($"Left Saber Speed: {_leftSaberSpeed}");
-            DrawLabel($"Right Saber Speed: {_rightSaberSpeed}");
         }
 
         protected void Update() {
 
             if (Input.GetKeyDown(KeyCode.C)) {
-                Plugin.Settings.hideReplayUI = !Plugin.Settings.hideReplayUI;
+                Plugin.Settings.HideReplayUI = !Plugin.Settings.HideReplayUI;
             }
         }
 

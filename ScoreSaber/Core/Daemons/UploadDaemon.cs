@@ -1,10 +1,8 @@
 ﻿#if RELEASE
 using Newtonsoft.Json;
 using ScoreSaber.Core.AC;
-using ScoreSaber.Core.Data.Internal;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
-using ScoreSaber.Core.Utils;
 using ScoreSaber.Extensions;
 using System;
 using System.IO;
@@ -13,7 +11,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using ScoreSaber.Core.Utils;
 using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
+using ScoreSaber.Core.Data.Internal;
 
 namespace ScoreSaber.Core.Daemons {
 
@@ -24,14 +24,15 @@ namespace ScoreSaber.Core.Daemons {
 
         public bool Uploading { get; set; }
 
-        private readonly PlayerService _playerService;
-        private readonly ReplayService _replayService;
-        private readonly LeaderboardService _leaderboardService;
+        private readonly PlayerService _playerService = null;
+        private readonly ReplayService _replayService = null;
+        private readonly LeaderboardService _leaderboardService = null;
 
-        private readonly PlayerDataModel _playerDataModel;
-        private readonly CustomLevelLoader _customLevelLoader;
+        private readonly PlayerDataModel _playerDataModel = null;
+        private readonly CustomLevelLoader _customLevelLoader = null;
 
         public UploadDaemon(PlayerService playerService, LeaderboardService leaderboardService, ReplayService replayService, PlayerDataModel playerDataModel, CustomLevelLoader customLevelLoader) {
+
             _playerService = playerService;
             _replayService = replayService;
             _leaderboardService = leaderboardService;
@@ -47,6 +48,7 @@ namespace ScoreSaber.Core.Daemons {
         /// by linking them to <see cref="StandardSceneTransition"/> and <see cref="MultiplayerSceneTransition"/>
         /// </summary>
         private void SetupUploader() {
+
             var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
             var multiTransitionSetup = Resources.FindObjectsOfTypeAll<MultiplayerLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
@@ -69,6 +71,7 @@ namespace ScoreSaber.Core.Daemons {
         /// This method prepare standard <c>data</c> and <c>results</c> to be sent to <see cref="ReplayHandler"/>
         /// </summary>
         public void StandardSceneTransition(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results) {
+
             ReplayHandler(data.gameMode, data.difficultyBeatmap, results, data.practiceSettings != null);
         }
 
@@ -76,6 +79,7 @@ namespace ScoreSaber.Core.Daemons {
         /// This method prepare multiplayer <c>data</c> and <c>results</c> to be sent to <see cref="ReplayHandler"/>
         /// </summary>
         public void MultiplayerSceneTransition(MultiplayerLevelScenesTransitionSetupDataSO data, MultiplayerResultsData results) {
+
             if (data.difficultyBeatmap == null) {
                 return;
             }
@@ -97,12 +101,13 @@ namespace ScoreSaber.Core.Daemons {
         /// otherwise <c>beatmap</c> and <c>results</c> get sent to <see cref="PreUpload"/>
         /// </summary>
         public void ReplayHandler(string gameMode, IDifficultyBeatmap levelCasted, LevelCompletionResults results, bool practiceMode) {
+
             try {
                 if (Plugin.ReplayState.IsPlaybackEnabled) {
                     return;
                 }
 
-                PracticeViewController practiceViewController =
+                var practiceViewController =
                     Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
                 if (!practiceViewController.isInViewControllerHierarchy) {
                     if (gameMode != "Solo" && gameMode != "Multiplayer") {
@@ -143,13 +148,14 @@ namespace ScoreSaber.Core.Daemons {
         /// The data get sent to <see cref="UploadScore"/>
         /// </summary>
         async void PreUpload(IDifficultyBeatmap levelCasted, LevelCompletionResults results) {
+
             if (!(levelCasted.level is CustomBeatmapLevel)) {
                 return;
             }
 
-            EnvironmentInfoSO defaultEnvironment = _customLevelLoader.LoadEnvironmentInfo(null, false);
+            var defaultEnvironment = _customLevelLoader.LoadEnvironmentInfo(null, false);
 
-            IReadonlyBeatmapData beatmapData =
+            var beatmapData =
                 await levelCasted.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
 
             if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
@@ -172,7 +178,7 @@ namespace ScoreSaber.Core.Daemons {
 
                 // TODO: Simplify now that we're open source
                 
-                byte[] encodedPassword = new UTF8Encoding().GetBytes($"f0b4a81c9bd3ded1081b365f7628781f-{_playerService.LocalPlayerInfo.playerKey}-{_playerService.LocalPlayerInfo.playerId}-f0b4a81c9bd3ded1081b365f7628781f");
+                byte[] encodedPassword = new UTF8Encoding().GetBytes($"f0b4a81c9bd3ded1081b365f7628781f-{_playerService.LocalPlayerInfo.PlayerKey}-{_playerService.LocalPlayerInfo.PlayerId}-f0b4a81c9bd3ded1081b365f7628781f");
 
                 byte[] keyHash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
                 
@@ -194,14 +200,15 @@ namespace ScoreSaber.Core.Daemons {
         /// Finally, attempt to upload the score. On success, <see cref="SaveLocalReplay"/> is called.
         /// </summary>
         public async Task UploadScore(ScoreSaberUploadData rawDataCasted, string data, IDifficultyBeatmap levelCasted, LevelCompletionResults results) {
+
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Checking leaderboard ranked status...");
 
                 var currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(levelCasted);
 
                 if (currentLeaderboard != null) {
-                    if (currentLeaderboard.leaderboardInfo.playerScore != null) {
-                        if (results.modifiedScore < currentLeaderboard.leaderboardInfo.playerScore.modifiedScore) {
+                    if (currentLeaderboard.LeaderboardInfo.PlayerScore != null) {
+                        if (results.modifiedScore < currentLeaderboard.LeaderboardInfo.PlayerScore.ModifiedScore) {
                             UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
                             UploadStatusChanged?.Invoke(UploadStatus.Done, "");
                             Uploading = false;
@@ -241,9 +248,9 @@ namespace ScoreSaber.Core.Daemons {
                     try {
                         response = await Plugin.HttpInstance.PostAsync("/game/upload", form);
                     } catch (HttpErrorException httpException) {
-                        Plugin.Log.Error(httpException.isScoreSaberError
-                            ? $"Failed to upload score: {httpException.scoreSaberError.errorMessage}:{httpException}"
-                            : $"Failed to upload score: {httpException.isNetworkError}:{httpException.isHttpError}:{httpException}");
+                        Plugin.Log.Error(httpException.IsScoreSaberError
+                            ? $"Failed to upload score: {httpException.ScoreSaberError.ErrorMessage}:{httpException}"
+                            : $"Failed to upload score: {httpException.IsNetworkError}:{httpException.IsHttpError}:{httpException}");
                     } catch (Exception ex) {
                         Plugin.Log.Error($"Failed to upload score: {ex}");
                     }
@@ -279,10 +286,10 @@ namespace ScoreSaber.Core.Daemons {
                 {
                     SaveLocalReplay(rawDataCasted, levelCasted, serializedReplay);
                     Plugin.Log.Info("Score uploaded!");
-                    UploadStatusChanged?.Invoke(UploadStatus.Success, "Score uploaded!");
+                    UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
                 }
                 else {
-                    UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score.");
+                    UploadStatusChanged?.Invoke(UploadStatus.Error, $"Failed to upload score.");
                 }
 
                 Uploading = false;
@@ -301,12 +308,12 @@ namespace ScoreSaber.Core.Daemons {
 
             try {
                 if (replay != null) {
-                    if (!Plugin.Settings.saveLocalReplays) {
+                    if (!Plugin.Settings.SaveLocalReplays) {
                         return;
                     }
 
                     string replayPath =
-                        $@"{Settings.replayPath}\{rawDataCasted.playerId}-{rawDataCasted.songName.ReplaceInvalidChars().Truncate(155)}-{levelCasted.difficulty.SerializedName()}-{levelCasted.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{rawDataCasted.leaderboardId}.dat";
+                        $@"{Settings.ReplayPath}\{rawDataCasted.playerId}-{rawDataCasted.songName.ReplaceInvalidChars().Truncate(155)}-{levelCasted.difficulty.SerializedName()}-{levelCasted.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{rawDataCasted.leaderboardId}.dat";
                     File.WriteAllBytes(replayPath, replay);
                 } else {
                     Plugin.Log.Error("Failed to write local replay; replay is null");
@@ -317,6 +324,7 @@ namespace ScoreSaber.Core.Daemons {
         }
 
         public void Dispose() {
+
             Plugin.Log.Info("Upload service successfully deconstructed");
             var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
             if (transitionSetup != null) {

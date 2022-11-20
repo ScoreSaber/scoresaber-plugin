@@ -41,9 +41,7 @@ namespace ScoreSaber.Core.Services {
                     var leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
                     return leaderboardData;
                 } catch (Exception) {
-                    // ignored
                 }
-
                 attempts++;
                 await Task.Delay(1000);
             }
@@ -55,7 +53,7 @@ namespace ScoreSaber.Core.Services {
             string url = "/game/leaderboard";
             string leaderboardId = difficultyBeatmap.level.levelID.Split('_')[2];
             string gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
-            string difficulty = difficultyBeatmap.difficulty.DefaultRating().ToString();
+            string difficulty = BeatmapDifficultyMethods.DefaultRating(difficultyBeatmap.difficulty).ToString();
 
             if (!filterAroundCountry) {
                 switch (scope) {
@@ -73,7 +71,7 @@ namespace ScoreSaber.Core.Services {
                 url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
             }
 
-            if (Plugin.Settings.hideNAScoresFromLeaderboard) {
+            if (Plugin.Settings.HideNAScoresFromLeaderboard) {
                 url = $"{url}&hideNA=1";
             }
 

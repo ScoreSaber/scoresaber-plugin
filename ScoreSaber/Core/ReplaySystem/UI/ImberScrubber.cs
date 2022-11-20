@@ -21,7 +21,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             get => _parent;
         }
 
-        public bool loopMode {
+        public bool LoopMode {
             get => _loopMode;
             set {
                 _loopMode = value;
@@ -29,17 +29,17 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 _bar.AssignNodeToPercent(_loopNode, Mathf.Min(_maxPercent, 1f));
                 MainNode_PositionDidChange(_bar.GetNodePercent(_mainNode));
 
-                _mainNode.max = _maxPercent; // uwu owo owo uwu EVENTUALLY REPLACE WITH LEVEL FAILED TIME YEA YEA 
+                _mainNode.Max = _maxPercent; // uwu owo owo uwu EVENTUALLY REPLACE WITH LEVEL FAILED TIME YEA YEA 
             }
         }
 
-        public bool visibility {
+        public bool Visibility {
             set {
                 _bar.gameObject.SetActive(value);
             }
         }
 
-        public float mainNodeValue {
+        public float MainNodeValue {
             get => _bar.GetNodePercent(_mainNode);
             set => _bar.AssignNodeToPercent(_mainNode, value);
         }
@@ -78,12 +78,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             _bar.transform.localScale = Vector3.one * 0.001f;
 
             float initialSongTime = _audioTimeSyncController.songTime / _audioTimeSyncController.songEndTime;
-            _bar.barFill = _audioTimeSyncController.songTime / _audioTimeSyncController.songEndTime;
+            _bar.BarFill = _audioTimeSyncController.songTime / _audioTimeSyncController.songEndTime;
             _bar.RegisterNode(_mainNode = CreateSlideNode(_bar.transform as RectTransform));
             _bar.RegisterNode(_loopNode = CreateSlideNode(_bar.transform as RectTransform));
             _bar.AssignNodeToPercent(_mainNode, initialSongTime);
-            _bar.endTime = _audioTimeSyncController.songEndTime;
-            loopMode = _loopMode;
+            _bar.EndTime = _audioTimeSyncController.songEndTime;
+            LoopMode = _loopMode;
 
             _mainNode.PositionDidChange += MainNode_PositionDidChange;
             _loopNode.PositionDidChange += LoopNode_PositionDidChange;
@@ -94,47 +94,47 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             if (_levelFailTime != 0f) {
                 _failNode = CreateTextNode(_bar.transform as RectTransform, "FAILED", new Color(0.7f, 0.1f, 0.15f, 1f));
                 _failNode.name = "Imber Text Node";
-                _failNode.moveable = false;
+                _failNode.Moveable = false;
                 if (!_allowPast)
                     _maxPercent = _levelFailTime / _audioTimeSyncController.songEndTime;
                 _bar.AssignNodeToPercent(_failNode, _levelFailTime / _audioTimeSyncController.songEndTime);
                 _bar.AssignNodeToPercent(_loopNode, _maxPercent);
-                _loopNode.max = _maxPercent;
+                _loopNode.Max = _maxPercent;
             }
 
-            _mainNode.max = _bar.GetNodePercent(_loopNode) - _minNodeDistance;
-            _loopNode.min = _bar.GetNodePercent(_mainNode) + _minNodeDistance;
+            _mainNode.Max = _bar.GetNodePercent(_loopNode) - _minNodeDistance;
+            _loopNode.Min = _bar.GetNodePercent(_mainNode) + _minNodeDistance;
 
             var gameObject = new GameObject("Imber Scrubber Wrapper");
             _bar.gameObject.transform.SetParent(gameObject.transform, false);
             _parent = gameObject.transform;
             gameObject.layer = 5;
 
-            visibility = false;
+            Visibility = false;
         }
 
         private void MainNode_PositionDidChange(float value) {
 
-            _bar.barFill = value;
+            _bar.BarFill = value;
             DidCalculateNewTime?.Invoke(_audioTimeSyncController.songLength * value);
-            _bar.currentTime = _audioTimeSyncController.songLength * value;
-            _loopNode.min = value + _minNodeDistance;
+            _bar.CurrentTime = _audioTimeSyncController.songLength * value;
+            _loopNode.Min = value + _minNodeDistance;
         }
 
         private void LoopNode_PositionDidChange(float value) {
 
-            _mainNode.max = Mathf.Min(_maxPercent, value) - _minNodeDistance;
+            _mainNode.Max = Mathf.Min(_maxPercent, value) - _minNodeDistance;
         }
 
         public void Tick() {
 
             float currentAudioProgress = _audioTimeSyncController.songTime / _audioTimeSyncController.songEndTime;
-            if (!_mainNode.isBeingDragged) {
+            if (!_mainNode.IsBeingDragged) {
                 if (!_loopMode) {
-                    mainNodeValue = currentAudioProgress;
+                    MainNodeValue = currentAudioProgress;
                 }
-                _bar.currentTime = _audioTimeSyncController.songTime;
-                _bar.barFill = currentAudioProgress;
+                _bar.CurrentTime = _audioTimeSyncController.songTime;
+                _bar.BarFill = currentAudioProgress;
             }
 
             if (!_loopMode) {
@@ -142,7 +142,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
 
             if (currentAudioProgress >= _bar.GetNodePercent(_loopNode)) {
-                MainNode_PositionDidChange(mainNodeValue);
+                MainNode_PositionDidChange(MainNodeValue);
             }
         }
 
@@ -220,7 +220,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private void ClickedBackground(float value) {
 
-            if (!_mainNode.isBeingDragged) {
+            if (!_mainNode.IsBeingDragged) {
                 DidCalculateNewTime?.Invoke(_audioTimeSyncController.songLength * value);
             }
         }

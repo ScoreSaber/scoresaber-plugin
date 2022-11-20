@@ -69,7 +69,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         protected readonly Button _watchReplayButton = null;
         [UIComponent("show-profile-button")]
         protected readonly Button _showProfileButton = null;
-        [UIAction("show-profile-click")] private void ShowProfileClicked() => showProfile?.Invoke(_currentScore.score.leaderboardPlayerInfo.id);
+        [UIAction("show-profile-click")] private void ShowProfileClicked() => showProfile?.Invoke(_currentScore.Score.LeaderboardPlayerInfo.Id);
         [UIAction("replay-click")] private void ReplayClicked() => StartReplay();
         #endregion
 
@@ -92,22 +92,22 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         public void SetScoreInfo(ScoreMap scoreMap, bool replayDownloading) {
 
             _currentScore = scoreMap;
-            Score score = scoreMap.score;
-            SetCrowns(score.leaderboardPlayerInfo.id);
-            _nameText.text = $"{score.leaderboardPlayerInfo.name}'s score";
-            _deviceText.SetFancyText("Device", HMD.GetFriendlyName(score.hmd));
-            _scoreText.SetFancyText("Score", $"{score.modifiedScore:n0} (<color=#FFD42A>{scoreMap.accuracy}%</color>)");
-            _ppText.SetFancyText("Performance Points", $"<color=#6772E5>{score.pp}pp</color>");
-            _maxComboText.SetFancyText("Combo", score.maxCombo != 0 ? score.maxCombo.ToString() : "N/A");
-            _fullComboText.SetFancyText("Full Combo", score.maxCombo != 0 ? score.fullCombo ? "<color=#9EDBB1>Yes</color>" : "<color=#FF0000>No</color>" : "N/A");
-            _badCutsText.SetFancyText("Bad Cuts", score.maxCombo != 0 ? score.badCuts > 0 ? $"<color=#FF0000>{score.badCuts}</color>" : score.badCuts.ToString() : "N/A");
-            _missedNotesText.SetFancyText("Missed Notes", score.maxCombo != 0 ? score.missedNotes > 0 ? $"<color=#FF0000>{score.missedNotes}</color>" : score.missedNotes.ToString() : "N/A");
-            _modifiersText.SetFancyText("Modifiers", score.modifiers);
-            _timeText.SetFancyText("Time Set", new TimeSpan(DateTime.UtcNow.Ticks - score.timeSet.Ticks).ToNaturalTime(2, true) + " ago");
+            Score score = scoreMap.Score;
+            SetCrowns(score.LeaderboardPlayerInfo.Id);
+            _nameText.text = $"{score.LeaderboardPlayerInfo.Name}'s score";
+            _deviceText.SetFancyText("Device", HMD.GetFriendlyName(score.Hmd));
+            _scoreText.SetFancyText("Score", $"{string.Format("{0:n0}", score.ModifiedScore)} (<color=#FFD42A>{scoreMap.Accuracy}%</color>)");
+            _ppText.SetFancyText("Performance Points", $"<color=#6772E5>{score.PP}pp</color>");
+            _maxComboText.SetFancyText("Combo", score.MaxCombo != 0 ? score.MaxCombo.ToString() : "N/A");
+            _fullComboText.SetFancyText("Full Combo", score.MaxCombo != 0 ? score.FullCombo ? "<color=#9EDBB1>Yes</color>" : "<color=#FF0000>No</color>" : "N/A");
+            _badCutsText.SetFancyText("Bad Cuts", score.MaxCombo != 0 ? score.BadCuts > 0 ? $"<color=#FF0000>{score.BadCuts}</color>" : score.BadCuts.ToString() : "N/A");
+            _missedNotesText.SetFancyText("Missed Notes", score.MaxCombo != 0 ? score.MissedNotes > 0 ? $"<color=#FF0000>{score.MissedNotes}</color>" : score.MissedNotes.ToString() : "N/A");
+            _modifiersText.SetFancyText("Modifiers", score.Modifiers);
+            _timeText.SetFancyText("Time Set", new TimeSpan(DateTime.UtcNow.Ticks - score.TimeSet.Ticks).ToNaturalTime(2, true) + " ago");
 
-            if (score.maxCombo == 0) { _fullComboText.text = "N/A"; }
+            if (score.MaxCombo == 0) { _fullComboText.text = "N/A"; }
             if (!replayDownloading) {
-                SetButtonState(_watchReplayButton, score.hasReplay && _allowReplayWatching);
+                SetButtonState(_watchReplayButton, score.HasReplay && _allowReplayWatching);
             }
         }
 
@@ -117,33 +117,31 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             ScoreInfoHoverHint.enabled = false;
             Tuple<string, string> crownDetails = LeaderboardUtils.GetCrownDetails(playerId);
 
-            if (string.IsNullOrEmpty(crownDetails.Item1)) {
-                return;
+            if (!string.IsNullOrEmpty(crownDetails.Item1)) {
+                ScoreInfoHoverHint.enabled = true;
+                scoreInfoPrefixPicture = crownDetails.Item1;
+                ScoreInfoHoverHint.text = crownDetails.Item2;
             }
-
-            ScoreInfoHoverHint.enabled = true;
-            scoreInfoPrefixPicture = crownDetails.Item1;
-            ScoreInfoHoverHint.text = crownDetails.Item2;
         }
 
         private void StartReplay() {
+
             _watchReplayButton.interactable = false;
             startReplay?.Invoke(_currentScore);
         }
 
         public void AllowReplayWatching(bool value) {
-            _allowReplayWatching = value;
 
+            _allowReplayWatching = value;
             SetButtonState(_watchReplayButton, value);
         }
 
         private void SetButtonState(Button button, bool value) {
 
-            if (button == null)
-                return;
-
-            button.interactable = value;
-            button.gameObject.GetComponent<HoverHint>().enabled = value;
+            if (button != null) {
+                button.interactable = value;
+                button.gameObject.GetComponent<HoverHint>().enabled = value;
+            }
         }
     }
 }

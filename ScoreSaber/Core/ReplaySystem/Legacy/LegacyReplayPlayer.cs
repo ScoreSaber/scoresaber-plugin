@@ -16,7 +16,6 @@ using Object = UnityEngine.Object;
 namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
     internal class LegacyReplayPlayer : IInitializable, ITickable, IDisposable {
-
         private ScoreController _scoreController;
         private readonly ScoreUIController _scoreUIController;
         private readonly RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
@@ -38,8 +37,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         private int _multiplierIncreaseMaxProgress;
         private int _playbackPreviousCombo;
         private int _playbackPreviousScore;
-        private bool _initialFPFCState;
-        private List<LegacyReplayFile.Keyframe> _keyframes;
+        private readonly bool _initialFPFCState;
+        private readonly List<LegacyReplayFile.Keyframe> _keyframes;
 
         internal LegacyReplayPlayer(List<LegacyReplayFile.Keyframe> keyframes, ScoreController scoreController,
             RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter, AudioTimeSyncController audioTimeSyncController,
@@ -65,12 +64,12 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         public void Initialize() {
             
             SetupCameras();
-            _fpfcSettings.Changed += fpfcSettings_Changed;
+            _fpfcSettings.Changed += FpfcSettings_Changed;
             ScoreUIController.InitData data = new ScoreUIController.InitData(scoreDisplayType: ScoreUIController.ScoreDisplayType.MultipliedScore);
             _scoreUIController.SetField("_initData", data);
         }
 
-        private void fpfcSettings_Changed(IFPFCSettings fpfcSettings) {
+        private void FpfcSettings_Changed(IFPFCSettings fpfcSettings) {
 
             if (fpfcSettings.Enabled) {
                 _desktopCamera.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -85,7 +84,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             _desktopCamera = Resources.FindObjectsOfTypeAll<Camera>().First(x => (x.name == "RecorderCamera"));
 
             //Desktop Camera
-            _desktopCamera.fieldOfView = Plugin.Settings.replayCameraFOV;
+            _desktopCamera.fieldOfView = Plugin.Settings.ReplayCameraFOV;
             _desktopCamera.transform.position = new Vector3(_desktopCamera.transform.position.x, _desktopCamera.transform.position.y, _desktopCamera.transform.position.z);
             _desktopCamera.gameObject.SetActive(true);
             _desktopCamera.tag = "MainCamera";
@@ -107,12 +106,12 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             _spectatorCamera.depth = 0;
             _spectatorCamera.transform.SetParent(spectatorObject.transform);
 
-            if (!Plugin.Settings.enableReplayFrameRenderer) {
+            if (!Plugin.Settings.EnableReplayFrameRenderer) {
                 return;
             }
 
             var ss = Resources.FindObjectsOfTypeAll<ScreenshotRecorder>().Last();
-            ss.SetField("_folder", Plugin.Settings.replayFramePath);
+            ss.SetField("_folder", Plugin.Settings.ReplayFramePath);
             ss.enabled = true;
             _desktopCamera.depth = 1;
             var gc = Resources.FindObjectsOfTypeAll<DisableGCWhileEnabled>().Last();
@@ -149,25 +148,21 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             var rot = Quaternion.Lerp(keyframe1._rot3, keyframe2._rot3, t);
             Accessors.HeadTransform(ref _playerTransforms).SetPositionAndRotation(pos, rot);
             var eulerAngles = rot.eulerAngles;
-            var headRotationOffset = new Vector3(Plugin.Settings.replayCameraXRotation, Plugin.Settings.replayCameraYRotation, Plugin.Settings.replayCameraZRotation);
+            var headRotationOffset = new Vector3(Plugin.Settings.ReplayCameraXRotation, Plugin.Settings.ReplayCameraYRotation, Plugin.Settings.ReplayCameraZRotation);
             eulerAngles += headRotationOffset;
             rot.eulerAngles = eulerAngles;
 
             float t2 = Time.deltaTime * 6f;
 
-            pos.x += Plugin.Settings.replayCameraXOffset;
-            pos.y += Plugin.Settings.replayCameraYOffset;
-            pos.z += Plugin.Settings.replayCameraZOffset;
+            pos.x += Plugin.Settings.ReplayCameraXOffset;
+            pos.y += Plugin.Settings.ReplayCameraYOffset;
+            pos.z += Plugin.Settings.ReplayCameraZOffset;
 
             if (!_fpfcSettings.Enabled) {
                 _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
             }
 
-            if (_scoreController == null) {
-                return;
-            }
-
-            if (cutOrMissedNotes < 1) {
+            if (_scoreController == null || cutOrMissedNotes < 1) {
                 return;
             }
 
@@ -271,7 +266,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         }
 
         public void Dispose() {
-            _fpfcSettings.Changed -= fpfcSettings_Changed;
+
+            _fpfcSettings.Changed -= FpfcSettings_Changed;
             _fpfcSettings.Enabled = _initialFPFCState;
         }
     }

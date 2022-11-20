@@ -99,7 +99,6 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         #region Custom Properties
         private PlayerInfo _playerInfo { get; set; }
-        private bool _isCyan { get; set; }
 
         private readonly HoverHint _profileHoverHint = null;
         private HoverHint profileHoverHint {
@@ -116,12 +115,14 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         [Inject]
         private void Construct(PlayerService playerService) {
+
             _playerService = playerService;
         }
 
         [UIAction("profile-url-click")]
         private void ProfileURLClicked() {
-            Application.OpenURL($"https://scoresaber.com/u/{_playerInfo.id}");
+
+            Application.OpenURL($"https://scoresaber.com/u/{_playerInfo.Id}");
         }
 
         [UIAction("#post-parse")]
@@ -148,22 +149,23 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
 
         internal async Task ShowProfile(string playerId) {
+
             SetCrowns("0");
             SetLoadingState(true);
 
             _playerInfo = await _playerService.GetPlayerInfo(playerId, full: true);
 
-            playerNameText.text = _playerInfo.name;
-            profilePicture.SetImage(_playerInfo.profilePicture);
+            playerNameText.text = _playerInfo.Name;
+            profilePicture.SetImage(_playerInfo.ProfilePicture);
 
-            rankText.text = $"#{_playerInfo.rank:n0}";
-            ppText.text = $"<color=#6772E5>{_playerInfo.pp:n0}pp</color>";
+            rankText.text = $"#{_playerInfo.Rank:n0}";
+            ppText.text = $"<color=#6772E5>{_playerInfo.PP:n0}pp</color>";
 
-            rankedAccText.text = $"{Math.Round(_playerInfo.scoreStats.averageRankedAccuracy, 2)}%";
-            totalScoreText.text = $"{_playerInfo.scoreStats.totalScore:n0}";
+            rankedAccText.text = $"{Math.Round(_playerInfo.ScoreStats.AverageRankedAccuracy, 2)}%";
+            totalScoreText.text = $"{_playerInfo.ScoreStats.TotalScore:n0}";
 
-            SetProfileBadges(_playerInfo.badges
-                .Select(badge => new Tuple<string, string>(badge.image, badge.description)).ToArray());
+            SetProfileBadges(_playerInfo.Badges
+                .Select(badge => new Tuple<string, string>(badge.Image, badge.Description)).ToArray());
             SetCrowns(playerId);
             SetLoadingState(false);
         }
@@ -188,6 +190,7 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
 
         public void SetLoadingState(bool loading) {
+
             profileSet = !loading;
             profileSetLoading = loading;
         }
@@ -198,16 +201,15 @@ namespace ScoreSaber.UI.Elements.Profile {
             profileHoverHint.enabled = false;
             Tuple<string, string> crownDetails = LeaderboardUtils.GetCrownDetails(playerId);
 
-            if (string.IsNullOrEmpty(crownDetails.Item1)) {
-                return;
+            if (!string.IsNullOrEmpty(crownDetails.Item1)) {
+                profileHoverHint.enabled = true;
+                profilePrefixPicture = crownDetails.Item1;
+                profileHoverHint.text = crownDetails.Item2;
             }
-
-            profileHoverHint.enabled = true;
-            profilePrefixPicture = crownDetails.Item1;
-            profileHoverHint.text = crownDetails.Item2;
         }
 
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") {
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

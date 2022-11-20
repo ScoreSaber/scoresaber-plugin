@@ -101,13 +101,12 @@ namespace ScoreSaber.UI.Leaderboard {
         private TimeTweeningManager _timeTweeningManager;
         private PlatformLeaderboardViewController _platformLeaderboardViewController;
 
-        private Color _scoreSaberBlue;
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
         internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
 
         [Inject]
         protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager, PlatformLeaderboardViewController platformLeaderboardViewController) {
-            _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
+
             _playerService = playerService;
             _timeTweeningManager = timeTweeningManager;
             _platformLeaderboardViewController = platformLeaderboardViewController;
@@ -157,7 +156,7 @@ namespace ScoreSaber.UI.Leaderboard {
             ImageSkew(ref _separator) = 0.18f;
             _separator.SetVerticesDirty();
 
-            if (!Plugin.Settings.hasClickedScoreSaberLogo) {
+            if (!Plugin.Settings.HasClickedScoreSaberLogo) {
                 BlinkLogo().RunTask();
             }
         }
@@ -165,8 +164,8 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIAction("clicked-logo")]
         protected void PressedLogo() {
 
-            if (!Plugin.Settings.hasClickedScoreSaberLogo) {
-                Plugin.Settings.hasClickedScoreSaberLogo = true;
+            if (!Plugin.Settings.HasClickedScoreSaberLogo) {
+                Plugin.Settings.HasClickedScoreSaberLogo = true;
                 _scoresaberLogoClickable.DefaultColor = Color.white;
                 Settings.SaveSettings(Plugin.Settings);
             }
@@ -192,7 +191,7 @@ namespace ScoreSaber.UI.Leaderboard {
         private async Task BlinkLogo() {
 
             var selectedColor = new Color(0.60f, 0.80f, 1);
-            while (!Plugin.Settings.hasClickedScoreSaberLogo) {
+            while (!Plugin.Settings.HasClickedScoreSaberLogo) {
                 _scoresaberLogoClickable.DefaultColor = _scoresaberLogoClickable.DefaultColor == Color.white
                     ? selectedColor
                     : Color.white;
@@ -246,7 +245,7 @@ namespace ScoreSaber.UI.Leaderboard {
         public void SetPrompt(string status, bool showLoadingIndicator, float dismissTime = -1f) {
 
             try {
-                if (!Plugin.Settings.showStatusText) { return; }
+                if (!Plugin.Settings.ShowStatusText) { return; }
                 if (_promptRoot == null) { return; };
                 if (_timeTweeningManager == null) { return; }
                 if (_promptText == null) { return; }
@@ -292,6 +291,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         private void ChangePromptState(float value) {
+
             const float fullY = 10.30f;
             const float hiddenY = 4.30f;
             _promptCanvasGroup.alpha = value;
@@ -305,7 +305,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         protected void Update() {
-
+            // Remove?
         }
 
         public async Task RankUpdater() {
@@ -322,17 +322,17 @@ namespace ScoreSaber.UI.Leaderboard {
 
             try {
                 Loaded(false);
-                _currentPlayerInfo = await _playerService.GetPlayerInfo(_playerService.LocalPlayerInfo.playerId, full: false);
-                SetGlobalRanking(Plugin.Settings.showLocalPlayerRank
-                    ? $"#{_currentPlayerInfo.rank:n0}<size=75%> (<color=#6772E5>{_currentPlayerInfo.pp:n0}pp</color>)"
+                _currentPlayerInfo = await _playerService.GetPlayerInfo(_playerService.LocalPlayerInfo.PlayerId, full: false);
+                SetGlobalRanking(Plugin.Settings.ShowLocalPlayerRank
+                    ? $"#{_currentPlayerInfo.Rank:n0}<size=75%> (<color=#6772E5>{_currentPlayerInfo.PP:n0}pp</color>)"
                     : "Hidden");
                 Loaded(true);
             } catch (HttpErrorException ex) {
-                if (ex.isScoreSaberError) {
+                if (ex.IsScoreSaberError) {
                     SetGlobalRanking(
-                        ex.scoreSaberError.errorMessage == "Player not found"
+                        ex.ScoreSaberError.ErrorMessage == "Player not found"
                             ? "Welcome to ScoreSaber! Set a score to create a profile"
-                            : $"Failed to load player ranking: {ex.scoreSaberError.errorMessage}", false);
+                            : $"Failed to load player ranking: {ex.ScoreSaberError.ErrorMessage}", false);
                 } else {
                     SetGlobalRanking("", false);
                     SetPromptError("Failed to update local player ranking", false, 1.5f);
