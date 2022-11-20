@@ -4,7 +4,7 @@ using IPA.Utilities.Async;
 using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.Utils;
-using SevenZip.Compression.LZMAAlone;
+using SevenZip.Compression.LZMA;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -136,7 +136,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             var scrubberOffset = _handTrack == XRNode.LeftHand ? new Vector3(0.46f, -0.06f, 0.25f) : new Vector3(-0.46f, -0.06f, 0.25f);
 
             _mainImberPanelView.Transform.SetLocalPositionAndRotation(controller.transform.TransformPoint(viewOffset), controller.transform.rotation);
-            _imberScrubber.transform.SetLocalPositionAndRotation(controller.transform.TransformPoint(scrubberOffset), controller.transform.rotation);
+            _imberScrubber.Transform.SetLocalPositionAndRotation(controller.transform.TransformPoint(scrubberOffset), controller.transform.rotation);
         }
 
         private void OpenedUI() {

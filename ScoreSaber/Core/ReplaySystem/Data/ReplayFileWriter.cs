@@ -1,6 +1,6 @@
 ﻿#region
 
-using SevenZip.Compression.LZMAAlone;
+using SevenZip.Compression.LZMA;
 using System;
 using System.Collections.Generic;
 using System.IO;

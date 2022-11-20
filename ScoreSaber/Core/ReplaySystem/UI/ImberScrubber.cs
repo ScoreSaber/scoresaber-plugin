@@ -17,7 +17,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         public event Action<float> DidCalculateNewTime;
         private static Color _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
 
-        public Transform transform {
+        public Transform Transform {
             get => _parent;
         }
 
@@ -29,7 +29,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 _bar.AssignNodeToPercent(_loopNode, Mathf.Min(_maxPercent, 1f));
                 MainNode_PositionDidChange(_bar.GetNodePercent(_mainNode));
 
-                _mainNode.Max = _maxPercent; // uwu owo owo uwu EVENTUALLY REPLACE WITH LEVEL FAILED TIME YEA YEA 
+                _mainNode.Max = _maxPercent; // Eventually replace with level failed time
             }
         }
 

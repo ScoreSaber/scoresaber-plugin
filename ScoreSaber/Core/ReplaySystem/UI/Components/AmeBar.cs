@@ -21,11 +21,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI.Components {
         }
 
         public float CurrentTime {
-            set => _currentTimeText.text = string.Format("{0}:{1:00}", (int)value / 60, value % 60f);
+            set => _currentTimeText.text = $"{(int)value / 60}:{value % 60f:00}";
         }
 
         public float EndTime {
-            set => _endTimeText.text = string.Format("{0}:{1:00}", (int)value / 60, value % 60f);
+            set => _endTimeText.text = $"{(int)value / 60}:{value % 60f:00}";
         }
 
         private RectTransform _otherTransform;

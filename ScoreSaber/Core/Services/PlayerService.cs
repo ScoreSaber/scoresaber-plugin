@@ -61,7 +61,7 @@ namespace ScoreSaber.Core.Services {
                     bool authenticated = await AuthenticateWithScoreSaber(steamInfo);
                     if (authenticated) {
                         LocalPlayerInfo = steamInfo;
-                        ChangeLoginStatus(LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
+                        ChangeLoginStatus(LoginStatus.Success, "Successfully signed into ScoreSaber!");
                         break;
                     } else {
                         ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
@@ -99,7 +99,7 @@ namespace ScoreSaber.Core.Services {
                                         bool authenticated = await AuthenticateWithScoreSaber(oculusInfo);
                                         if (authenticated) {
                                             LocalPlayerInfo = oculusInfo;
-                                            ChangeLoginStatus(LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
+                                            ChangeLoginStatus(LoginStatus.Success, "Successfully signed into ScoreSaber!");
                                         } else {
                                             ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
                                         }

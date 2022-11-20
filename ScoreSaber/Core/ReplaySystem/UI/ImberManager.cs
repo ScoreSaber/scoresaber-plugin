@@ -150,10 +150,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private void MainImberPanelView_DidClickLoop() {
 
             _imberScrubber.LoopMode = !_imberScrubber.LoopMode;
-
-            const string oddLoopID = "76561198114011987";
-            string unloopText = "playerID" == oddLoopID || "replayPlayerID" == oddLoopID ? "ODDLOOP" : "UNLOOP";
-            _mainImberPanelView.LoopText = _imberScrubber.LoopMode ? unloopText : "LOOP";
+            _mainImberPanelView.LoopText = "LOOP";
         }
 
         private void MainImberPanelView_DidClickRestart() {
@@ -203,7 +200,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             _mainImberPanelView.DidClickPausePlay -= MainImberPanelView_DidClickPausePlay;
             _mainImberPanelView.DidClickRestart -= MainImberPanelView_DidClickRestart;
             _mainImberPanelView.DidPositionJump -= MainImberPanelView_DidPositionJump;
-            _mainImberPanelView.DidClickLoop -= MainImberPanelView_DidClickLoop;
         }
     }
 }

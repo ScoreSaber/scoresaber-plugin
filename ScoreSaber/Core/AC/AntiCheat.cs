@@ -1,9 +1,14 @@
 ﻿#if RELEASE
+
+#region
+
 using IPA.Utilities;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+
+#endregion
 
 namespace ScoreSaber.Core.AC {
     internal class AntiCheat {

@@ -251,4 +251,8 @@
   <ItemGroup>
     <EditorConfigFiles Remove="C:\Users\Laure\source\repos\ScoreSaber-Plugin\ScoreSaber\Patches\.editorconfig" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Libraries\" />
+  </ItemGroup>
 </Project>
