@@ -200,6 +200,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             _mainImberPanelView.DidClickPausePlay -= MainImberPanelView_DidClickPausePlay;
             _mainImberPanelView.DidClickRestart -= MainImberPanelView_DidClickRestart;
             _mainImberPanelView.DidPositionJump -= MainImberPanelView_DidPositionJump;
+            _mainImberPanelView.DidClickLoop -= MainImberPanelView_DidClickLoop;
         }
     }
 }
