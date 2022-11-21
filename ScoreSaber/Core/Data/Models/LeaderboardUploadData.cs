@@ -48,36 +48,31 @@ namespace ScoreSaber.Core.Data.Models {
         [JsonProperty("hmd")]
         internal int hmd;
 
-        internal static ScoreSaberUploadData Create(object type, object rType, object lType, object iH) {
-
-            var data = new ScoreSaberUploadData();
-
-            var difficultyBeatmap = (IDifficultyBeatmap)type;
-            var results = (LevelCompletionResults)rType;
-            var playerInfo = (LocalPlayerInfo)lType;
+        internal static ScoreSaberUploadData Create(IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results, LocalPlayerInfo playerInfo, string infoHash) {
 
             string[] levelInfo = difficultyBeatmap.level.levelID.Split('_');
-            data.gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
-            data.difficulty = difficultyBeatmap.difficulty.DefaultRating();
-            data.infoHash = iH.ToString();
-            data.leaderboardId = levelInfo[2];
-            data.songName = difficultyBeatmap.level.songName;
-            data.songSubName = difficultyBeatmap.level.songSubName;
-            data.songAuthorName = difficultyBeatmap.level.songAuthorName;
-            data.levelAuthorName = difficultyBeatmap.level.levelAuthorName;
-            data.bpm = Convert.ToInt32(difficultyBeatmap.level.beatsPerMinute);
 
-            data.playerName = playerInfo.PlayerName;
-            data.playerId = playerInfo.PlayerId;
+            var data = new ScoreSaberUploadData {
+                gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}",
+                difficulty = difficultyBeatmap.difficulty.DefaultRating(),
+                infoHash = infoHash.ToString(),
+                leaderboardId = levelInfo[2],
+                songName = difficultyBeatmap.level.songName,
+                songSubName = difficultyBeatmap.level.songSubName,
+                songAuthorName = difficultyBeatmap.level.songAuthorName,
+                levelAuthorName = difficultyBeatmap.level.levelAuthorName,
+                bpm = Convert.ToInt32(difficultyBeatmap.level.beatsPerMinute),
+                playerName = playerInfo.PlayerName,
+                playerId = playerInfo.PlayerId,
+                badCutsCount = results.badCutsCount,
+                missedCount = results.missedCount,
+                maxCombo = results.maxCombo,
+                fullCombo = results.fullCombo,
+                score = results.multipliedScore,
+                modifiers = LeaderboardUtils.GetModifierList(results),
+                hmd = HMD.Get()
+            };
 
-            data.badCutsCount = results.badCutsCount;
-            data.missedCount = results.missedCount;
-            data.maxCombo = results.maxCombo;
-            data.fullCombo = results.fullCombo;
-
-            data.score = results.multipliedScore;
-            data.modifiers = LeaderboardUtils.GetModifierList(rType);
-            data.hmd = HMD.Get();
             return data;
         }
     }

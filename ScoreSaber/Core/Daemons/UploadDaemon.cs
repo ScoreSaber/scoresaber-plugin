@@ -100,7 +100,7 @@ namespace ScoreSaber.Core.Daemons {
         /// This method handle replay in situation where the score can't be uploaded,
         /// otherwise <c>beatmap</c> and <c>results</c> get sent to <see cref="PreUpload"/>
         /// </summary>
-        public void ReplayHandler(string gameMode, IDifficultyBeatmap levelCasted, LevelCompletionResults results, bool practiceMode) {
+        public void ReplayHandler(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results, bool practiceMode) {
 
             try {
                 if (Plugin.ReplayState.IsPlaybackEnabled) {
@@ -114,7 +114,7 @@ namespace ScoreSaber.Core.Daemons {
                         return;
                     }
 
-                    Plugin.Log.Debug($"Starting upload process for {levelCasted.level.levelID}:{levelCasted.level.songName}");
+                    Plugin.Log.Debug($"Starting upload process for {difficultyBeatmap.level.levelID}:{difficultyBeatmap.level.songName}");
 
                     if (practiceMode) {
                         // If practice write replay at this point
@@ -132,7 +132,7 @@ namespace ScoreSaber.Core.Daemons {
                         return;
                     }
 
-                    PreUpload(levelCasted, results);
+                    PreUpload(difficultyBeatmap, results);
                 } else {
                     // If practice write replay at this point
                     _replayService.WriteSerializedReplay().RunTask();
@@ -147,16 +147,16 @@ namespace ScoreSaber.Core.Daemons {
         /// This method prepare and verify the data to be uploaded. It also encode the score data with MD5 in UTF8.
         /// The data get sent to <see cref="UploadScore"/>
         /// </summary>
-        async void PreUpload(IDifficultyBeatmap levelCasted, LevelCompletionResults results) {
+        async void PreUpload(IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results) {
 
-            if (!(levelCasted.level is CustomBeatmapLevel)) {
+            if (!(difficultyBeatmap.level is CustomBeatmapLevel)) {
                 return;
             }
 
             var defaultEnvironment = _customLevelLoader.LoadEnvironmentInfo(null, false);
 
             var beatmapData =
-                await levelCasted.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
+                await difficultyBeatmap.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
 
             if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
                 UploadStatusChanged?.Invoke(UploadStatus.Error, "New note type not supported, not uploading");
@@ -173,7 +173,7 @@ namespace ScoreSaber.Core.Daemons {
 
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging score...");
-                var data = ScoreSaberUploadData.Create(levelCasted, results, _playerService.LocalPlayerInfo, new AntiCheat().AC());
+                var data = ScoreSaberUploadData.Create(difficultyBeatmap, results, _playerService.LocalPlayerInfo, new AntiCheat().AC());
                 string scoreData = JsonConvert.SerializeObject(data);
 
                 // TODO: Simplify now that we're open source
@@ -188,7 +188,7 @@ namespace ScoreSaber.Core.Daemons {
 
                 string scoreDataHex = BitConverter.ToString(Swap(Encoding.UTF8.GetBytes(scoreData), Encoding.UTF8.GetBytes(key))).Replace("-", "");
 
-                UploadScore(data, scoreDataHex, levelCasted, results).RunTask();
+                UploadScore(data, scoreDataHex, difficultyBeatmap, results).RunTask();
             } catch (Exception ex) {
                 UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score, error written to log.");
                 Plugin.Log.Error($"Failed to upload score: {ex}");
@@ -199,12 +199,12 @@ namespace ScoreSaber.Core.Daemons {
         /// This method verify the leaderboard and rank status of the level. Proceed to package the replay and upload it.
         /// Finally, attempt to upload the score. On success, <see cref="SaveLocalReplay"/> is called.
         /// </summary>
-        public async Task UploadScore(ScoreSaberUploadData rawDataCasted, string data, IDifficultyBeatmap levelCasted, LevelCompletionResults results) {
+        public async Task UploadScore(ScoreSaberUploadData rawDataCasted, string data, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results) {
 
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Checking leaderboard ranked status...");
 
-                var currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(levelCasted);
+                var currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(difficultyBeatmap);
 
                 if (currentLeaderboard != null) {
                     if (currentLeaderboard.LeaderboardInfo.PlayerScore != null) {
@@ -283,7 +283,7 @@ namespace ScoreSaber.Core.Daemons {
                 }
 
                 if (!failed) {
-                    SaveLocalReplay(rawDataCasted, levelCasted, serializedReplay);
+                    SaveLocalReplay(rawDataCasted, difficultyBeatmap, serializedReplay);
                     Plugin.Log.Info("Score uploaded!");
                     UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
                 } else {
@@ -302,7 +302,7 @@ namespace ScoreSaber.Core.Daemons {
         /// This method write the local replay in the UserData/ScoreSaber/Replays folder following the specific format:
         /// Player ID - Song Name - Difficulty - BeatmapCharacteristic - LeaderboardID
         /// </summary>
-        private void SaveLocalReplay(ScoreSaberUploadData rawDataCasted, IDifficultyBeatmap levelCasted, byte[] replay) {
+        private void SaveLocalReplay(ScoreSaberUploadData rawDataCasted, IDifficultyBeatmap difficultyBeatmap, byte[] replay) {
 
             try {
                 if (replay != null) {
@@ -311,7 +311,7 @@ namespace ScoreSaber.Core.Daemons {
                     }
 
                     string replayPath =
-                        $@"{Settings.ReplayPath}\{rawDataCasted.playerId}-{rawDataCasted.songName.ReplaceInvalidChars().Truncate(155)}-{levelCasted.difficulty.SerializedName()}-{levelCasted.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{rawDataCasted.leaderboardId}.dat";
+                        $@"{Settings.ReplayPath}\{rawDataCasted.playerId}-{rawDataCasted.songName.ReplaceInvalidChars().Truncate(155)}-{difficultyBeatmap.difficulty.SerializedName()}-{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{rawDataCasted.leaderboardId}.dat";
                     File.WriteAllBytes(replayPath, replay);
                 } else {
                     Plugin.Log.Error("Failed to write local replay; replay is null");
