@@ -75,15 +75,15 @@ namespace ScoreSaber.UI.Elements.Team {
         private bool _loaded;
 
         [UIValue("discord")]
-        private bool _hasDiscord => _discordLink != null;
+        private bool HasDiscord => _discordLink != null;
         [UIValue("github")]
-        private bool _hasGithub => _githubLink != null;
+        private bool HasGithub => _githubLink != null;
         [UIValue("twitch")]
-        private bool _hasTwitch => _twitchLink != null;
+        private bool HasTwitch => _twitchLink != null;
         [UIValue("twitter")]
-        private bool _hasTwitter => _twitterLink != null;
+        private bool HasTwitter => _twitterLink != null;
         [UIValue("youtube")]
-        private bool _hasYoutube => _youtubeLink != null;
+        private bool HasYoutube => _youtubeLink != null;
 
         [UIComponent("username-text")]
         protected readonly CurvedTextMeshPro _usernameTextComponent = null;

@@ -52,8 +52,8 @@ namespace ScoreSaber.UI.Leaderboard {
 #endif
         #endregion
 
-        public bool activated { get; private set; }
-        public int leaderboardPage { get; set; } = 1;
+        public bool Activated { get; private set; }
+        public int LeaderboardPage { get; set; } = 1;
 
         private bool _filterAroundCountry;
         private bool _replayDownloading;
@@ -108,10 +108,10 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void Initialize() {
 
-            _scoreDetailView.showProfile += ScoreDetailView_showProfile;
-            _scoreDetailView.startReplay += ScoreDetailView_startReplay;
+            _scoreDetailView.ShowProfile += ScoreDetailView_showProfile;
+            _scoreDetailView.StartReplay += ScoreDetailView_startReplay;
             _playerService.LoginStatusChanged += PlayerService_LoginStatusChanged;
-            _infoButtons.infoButtonClicked += InfoButtons_infoButtonClicked;
+            _infoButtons.InfoButtonClicked += InfoButtons_infoButtonClicked;
             _uploadDaemon.UploadStatusChanged += UploadDaemon_UploadStatusChanged;
             _platformLeaderboardViewController.didActivateEvent += LeaderboardViewActivate;
         }
@@ -123,12 +123,12 @@ namespace ScoreSaber.UI.Leaderboard {
             _downButton.transform.localScale *= .5f;
             _root.name = "ScoreSaberLeaderboardElements";
             _infoButtons.HideInfoButtons();
-            activated = true;
+            Activated = true;
         }
 
         public void AllowReplayWatching(bool value) {
 
-            _scoreDetailView.AllowReplayWatching(value);
+            _scoreDetailView.AllowWatchingReplay(value);
         }
 
         private void LeaderboardViewActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
@@ -153,7 +153,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _panelView.statusWasSelected = delegate {
                 if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
                 _parserParams.EmitEvent("close-modals");
-                Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.leaderboardInfo.Id}");
+                Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.LeaderboardInfo.Id}");
             };
 
             _panelView.rankingWasSelected = delegate {
@@ -238,7 +238,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             try {
                 _currentLeaderboardRefreshId = refreshId;
-                if (_uploadDaemon.Uploading || !activated) { return; }
+                if (_uploadDaemon.Uploading || !Activated) { return; }
 
                 if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer) {
                     _upButton.interactable = false;
@@ -269,8 +269,8 @@ namespace ScoreSaber.UI.Leaderboard {
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
                 if (_currentLeaderboardRefreshId == refreshId) {
-                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
-                    SetRankedStatus(leaderboardData.LeaderboardInfoMap.leaderboardInfo);
+                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, LeaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
+                    SetRankedStatus(leaderboardData.LeaderboardInfoMap.LeaderboardInfo);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
@@ -287,7 +287,7 @@ namespace ScoreSaber.UI.Leaderboard {
                         }
                     } else {
                         SetErrorState(tableView, loadingControl, null, null,
-                            leaderboardPage > 1
+                            LeaderboardPage > 1
                                 ? "No scores on this page"
                                 : "No scores on this leaderboard, be the first!");
                     }
@@ -354,9 +354,9 @@ namespace ScoreSaber.UI.Leaderboard {
         public void DirectionalButtonClicked(bool down) {
 
             if (down) {
-                leaderboardPage++;
+                LeaderboardPage++;
             } else {
-                leaderboardPage--;
+                LeaderboardPage--;
             }
             RefreshLeaderboard();
             CheckPage();
@@ -365,7 +365,7 @@ namespace ScoreSaber.UI.Leaderboard {
         public void ChangePageButtonsEnabledState(bool state) {
 
             if (state) {
-                if (leaderboardPage > 1) {
+                if (LeaderboardPage > 1) {
                     _upButton.interactable = state;
                 }
                 _downButton.interactable = state;
@@ -377,12 +377,12 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void CheckPage() {
 
-            _upButton.interactable = leaderboardPage > 1;
+            _upButton.interactable = LeaderboardPage > 1;
         }
 
         public void RefreshLeaderboard() {
 
-            if (!activated)
+            if (!Activated)
                 return;
 
             _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
@@ -390,12 +390,12 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void ChangeScope(bool filterAroundCountry) {
 
-            if (!activated) {
+            if (!Activated) {
                 return;
             }
 
             _filterAroundCountry = filterAroundCountry;
-            leaderboardPage = 1;
+            LeaderboardPage = 1;
             RefreshLeaderboard();
             CheckPage();
         }
@@ -407,7 +407,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             try {
                 _panelView.SetPromptInfo("Downloading Replay...", true);
-                byte[] replay = await _playerService.GetReplayData(score.Parent.DifficultyBeatmap, score.Parent.leaderboardInfo.Id, score);
+                byte[] replay = await _playerService.GetReplayData(score.Parent.DifficultyBeatmap, score.Parent.LeaderboardInfo.Id, score);
                 _panelView.SetPromptInfo("Replay downloaded! Unpacking...", true);
                 await _replayLoader.Load(replay, score.Parent.DifficultyBeatmap, score.GameplayModifiers, score.Score.LeaderboardPlayerInfo.Name);
                 _panelView.SetPromptSuccess("Replay Started!", false, 1f);
@@ -423,9 +423,9 @@ namespace ScoreSaber.UI.Leaderboard {
             _platformLeaderboardViewController.didActivateEvent -= LeaderboardViewActivate;
             _playerService.LoginStatusChanged -= PlayerService_LoginStatusChanged;
             _uploadDaemon.UploadStatusChanged -= UploadDaemon_UploadStatusChanged;
-            _infoButtons.infoButtonClicked -= InfoButtons_infoButtonClicked;
-            _scoreDetailView.startReplay -= ScoreDetailView_startReplay;
-            _scoreDetailView.showProfile -= ScoreDetailView_showProfile;
+            _infoButtons.InfoButtonClicked -= InfoButtons_infoButtonClicked;
+            _scoreDetailView.StartReplay -= ScoreDetailView_startReplay;
+            _scoreDetailView.ShowProfile -= ScoreDetailView_showProfile;
         }
 
         // Currently broken

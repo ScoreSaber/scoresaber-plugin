@@ -32,11 +32,10 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
             int? endIndex = null;
             int count = 0;
 
-#pragma warning disable CS0252 // Possible unintended reference comparison; left hand side needs cast
             for (int i = 0; i < codes.Count; i++) {
-
+                
                 if (!startIndex.HasValue) {
-                    if (codes[i].opcode != OpCodes.Ldfld || codes[i].operand != _multScore) {
+                    if (codes[i].opcode != OpCodes.Ldfld || (FieldInfo)codes[i].operand != _multScore) {
                         continue;
                     }
 
@@ -45,7 +44,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches {
                 } else if (!endIndex.HasValue) {
 
                     count++;
-                    if (codes[i].opcode == OpCodes.Stfld && codes[i].operand == _immediateScore) {
+                    if (codes[i].opcode == OpCodes.Stfld && (FieldInfo)codes[i].operand == _immediateScore) {
 
                         endIndex = i;
                     }

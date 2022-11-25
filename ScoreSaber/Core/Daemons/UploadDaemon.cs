@@ -1,4 +1,7 @@
 ﻿#if RELEASE
+
+#region
+
 using Newtonsoft.Json;
 using ScoreSaber.Core.AC;
 using ScoreSaber.Core.Data.Internal;
@@ -14,6 +17,8 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
+
+#endregion
 
 namespace ScoreSaber.Core.Daemons {
 
@@ -173,7 +178,7 @@ namespace ScoreSaber.Core.Daemons {
 
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging score...");
-                var data = ScoreSaberUploadData.Create(difficultyBeatmap, results, _playerService.LocalPlayerInfo, new AntiCheat().AC());
+                var data = ScoreSaberUploadData.Create(difficultyBeatmap, results, _playerService.LocalPlayerInfo, new Hash().Create());
                 string scoreData = JsonConvert.SerializeObject(data);
 
                 // TODO: Simplify now that we're open source
@@ -199,7 +204,7 @@ namespace ScoreSaber.Core.Daemons {
         /// This method verify the leaderboard and rank status of the level. Proceed to package the replay and upload it.
         /// Finally, attempt to upload the score. On success, <see cref="SaveLocalReplay"/> is called.
         /// </summary>
-        public async Task UploadScore(ScoreSaberUploadData rawDataCasted, string data, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results) {
+        public async Task UploadScore(ScoreSaberUploadData rawData, string data, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results) {
 
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Checking leaderboard ranked status...");
@@ -283,7 +288,7 @@ namespace ScoreSaber.Core.Daemons {
                 }
 
                 if (!failed) {
-                    SaveLocalReplay(rawDataCasted, difficultyBeatmap, serializedReplay);
+                    SaveLocalReplay(rawData, difficultyBeatmap, serializedReplay);
                     Plugin.Log.Info("Score uploaded!");
                     UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
                 } else {
@@ -300,9 +305,9 @@ namespace ScoreSaber.Core.Daemons {
 
         /// <summary>
         /// This method write the local replay in the UserData/ScoreSaber/Replays folder following the specific format:
-        /// Player ID - Song Name - Difficulty - BeatmapCharacteristic - LeaderboardID
+        /// Player Id - Song Name - Difficulty - BeatmapCharacteristic - LeaderboardId
         /// </summary>
-        private void SaveLocalReplay(ScoreSaberUploadData rawDataCasted, IDifficultyBeatmap difficultyBeatmap, byte[] replay) {
+        private void SaveLocalReplay(ScoreSaberUploadData rawData, IDifficultyBeatmap difficultyBeatmap, byte[] replay) {
 
             try {
                 if (replay != null) {
@@ -311,7 +316,7 @@ namespace ScoreSaber.Core.Daemons {
                     }
 
                     string replayPath =
-                        $@"{Settings.ReplayPath}\{rawDataCasted.playerId}-{rawDataCasted.songName.ReplaceInvalidChars().Truncate(155)}-{difficultyBeatmap.difficulty.SerializedName()}-{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{rawDataCasted.leaderboardId}.dat";
+                        $@"{Settings.ReplayPath}\{rawData.PlayerId}-{rawData.SongName.ReplaceInvalidChars().Truncate(155)}-{difficultyBeatmap.difficulty.SerializedName()}-{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{rawData.LeaderboardId}.dat";
                     File.WriteAllBytes(replayPath, replay);
                 } else {
                     Plugin.Log.Error("Failed to write local replay; replay is null");

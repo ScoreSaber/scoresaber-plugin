@@ -18,9 +18,9 @@ namespace ScoreSaber.Core.Data.Wrappers {
         internal GameplayModifiers GameplayModifiers { get; set; }
         internal string FormattedPlayerName { get; set; }
 
-        internal ScoreMap(Score _score, LeaderboardInfoMap customLeaderboardInfo, IReadonlyBeatmapData beatmapData) {
+        internal ScoreMap(Score score, LeaderboardInfoMap customLeaderboardInfo, IReadonlyBeatmapData beatmapData) {
 
-            Score = _score;
+            Score = score;
 
             var replayMods = new GameplayModifiersMap();
             if (!string.IsNullOrEmpty(Score.Modifiers)) {

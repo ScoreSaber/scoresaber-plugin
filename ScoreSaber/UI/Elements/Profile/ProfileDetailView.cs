@@ -46,7 +46,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         [UIComponent("profile-prefix-picture")]
         protected readonly ImageView _profilePrefixPicture = null;
-        public string profilePrefixPicture {
+        public string ProfilePrefixPicture {
             set {
                 if (value == null) {
                     _profilePrefixPicture.gameObject.SetActive(false);
@@ -79,7 +79,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         private bool _profileSet;
         [UIValue("profile-set")]
-        public bool profileSet {
+        public bool ProfileSet {
             get => _profileSet;
             set {
                 _profileSet = value;
@@ -88,7 +88,7 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
         private bool _profileSetLoading;
         [UIValue("profile-set-loading")]
-        public bool profileSetLoading {
+        public bool ProfileSetLoading {
             get => _profileSetLoading;
             set {
                 _profileSetLoading = value;
@@ -98,10 +98,10 @@ namespace ScoreSaber.UI.Elements.Profile {
         #endregion
 
         #region Custom Properties
-        private PlayerInfo _playerInfo { get; set; }
+        private PlayerInfo PlayerInfo { get; set; }
 
         private readonly HoverHint _profileHoverHint = null;
-        private HoverHint profileHoverHint {
+        private HoverHint ProfileHoverHint {
             get {
                 if (_profileHoverHint == null) {
                     return _profilePrefixPicture.gameObject.GetComponent<HoverHint>();
@@ -113,6 +113,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         private PlayerService _playerService;
 
+#pragma warning disable IDE0051 // Remove unused private members
         [Inject]
         private void Construct(PlayerService playerService) {
 
@@ -122,8 +123,9 @@ namespace ScoreSaber.UI.Elements.Profile {
         [UIAction("profile-url-click")]
         private void ProfileURLClicked() {
 
-            Application.OpenURL($"https://scoresaber.com/u/{_playerInfo.Id}");
+            Application.OpenURL($"https://scoresaber.com/u/{PlayerInfo.Id}");
         }
+#pragma warning restore IDE0051 // Remove unused private members
 
         [UIAction("#post-parse")]
         protected void Parsed() {
@@ -153,18 +155,18 @@ namespace ScoreSaber.UI.Elements.Profile {
             SetCrowns("0");
             SetLoadingState(true);
 
-            _playerInfo = await _playerService.GetPlayerInfo(playerId, full: true);
+            PlayerInfo = await _playerService.GetPlayerInfo(playerId, full: true);
 
-            playerNameText.text = _playerInfo.Name;
-            profilePicture.SetImage(_playerInfo.ProfilePicture);
+            playerNameText.text = PlayerInfo.Name;
+            profilePicture.SetImage(PlayerInfo.ProfilePicture);
 
-            rankText.text = $"#{_playerInfo.Rank:n0}";
-            ppText.text = $"<color=#6772E5>{_playerInfo.PP:n0}pp</color>";
+            rankText.text = $"#{PlayerInfo.Rank:n0}";
+            ppText.text = $"<color=#6772E5>{PlayerInfo.PP:n0}pp</color>";
 
-            rankedAccText.text = $"{Math.Round(_playerInfo.ScoreStats.AverageRankedAccuracy, 2)}%";
-            totalScoreText.text = $"{_playerInfo.ScoreStats.TotalScore:n0}";
+            rankedAccText.text = $"{Math.Round(PlayerInfo.ScoreStats.AverageRankedAccuracy, 2)}%";
+            totalScoreText.text = $"{PlayerInfo.ScoreStats.TotalScore:n0}";
 
-            SetProfileBadges(_playerInfo.Badges
+            SetProfileBadges(PlayerInfo.Badges
                 .Select(badge => new Tuple<string, string>(badge.Image, badge.Description)).ToArray());
             SetCrowns(playerId);
             SetLoadingState(false);
@@ -191,20 +193,20 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         public void SetLoadingState(bool loading) {
 
-            profileSet = !loading;
-            profileSetLoading = loading;
+            ProfileSet = !loading;
+            ProfileSetLoading = loading;
         }
 
         private void SetCrowns(string playerId) {
 
-            profilePrefixPicture = null;
-            profileHoverHint.enabled = false;
+            ProfilePrefixPicture = null;
+            ProfileHoverHint.enabled = false;
             Tuple<string, string> crownDetails = LeaderboardUtils.GetCrownDetails(playerId);
 
             if (!string.IsNullOrEmpty(crownDetails.Item1)) {
-                profileHoverHint.enabled = true;
-                profilePrefixPicture = crownDetails.Item1;
-                profileHoverHint.text = crownDetails.Item2;
+                ProfileHoverHint.enabled = true;
+                ProfilePrefixPicture = crownDetails.Item1;
+                ProfileHoverHint.text = crownDetails.Item2;
             }
         }
 

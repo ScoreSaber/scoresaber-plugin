@@ -44,7 +44,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         [UIComponent("prefix-image")]
         private readonly ImageView _scoreInfoPrefixPicture = null;
-        public string scoreInfoPrefixPicture {
+        public string ScoreInfoPrefixPicture {
             set {
                 if (value == null) {
                     _scoreInfoPrefixPicture.gameObject.SetActive(false);
@@ -69,16 +69,16 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         protected readonly Button _watchReplayButton = null;
         [UIComponent("show-profile-button")]
         protected readonly Button _showProfileButton = null;
-        [UIAction("show-profile-click")] private void ShowProfileClicked() => showProfile?.Invoke(_currentScore.Score.LeaderboardPlayerInfo.Id);
-        [UIAction("replay-click")] private void ReplayClicked() => StartReplay();
+        [UIAction("show-profile-click")] private void ShowProfileClicked() => ShowProfile?.Invoke(CurrentScore.Score.LeaderboardPlayerInfo.Id);
+        [UIAction("replay-click")] private void ReplayClicked() => ReplayStart();
         #endregion
 
-        public event Action<string> showProfile;
-        public event Action<ScoreMap> startReplay;
+        public event Action<string> ShowProfile;
+        public event Action<ScoreMap> StartReplay;
 
-        private bool _allowReplayWatching = true;
+        private bool AllowReplayWatching { get; set; } = true;
 
-        private ScoreMap _currentScore { get; set; }
+        private ScoreMap CurrentScore { get; set; }
 
         [UIAction("#post-parse")]
         public void Parsed() {
@@ -91,7 +91,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         public void SetScoreInfo(ScoreMap scoreMap, bool replayDownloading) {
 
-            _currentScore = scoreMap;
+            CurrentScore = scoreMap;
             Score score = scoreMap.Score;
             SetCrowns(score.LeaderboardPlayerInfo.Id);
             _nameText.text = $"{score.LeaderboardPlayerInfo.Name}'s score";
@@ -107,32 +107,32 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
             if (score.MaxCombo == 0) { _fullComboText.text = "N/A"; }
             if (!replayDownloading) {
-                SetButtonState(_watchReplayButton, score.HasReplay && _allowReplayWatching);
+                SetButtonState(_watchReplayButton, score.HasReplay && AllowReplayWatching);
             }
         }
 
         private void SetCrowns(string playerId) {
 
-            scoreInfoPrefixPicture = null;
+            ScoreInfoPrefixPicture = null;
             ScoreInfoHoverHint.enabled = false;
             Tuple<string, string> crownDetails = LeaderboardUtils.GetCrownDetails(playerId);
 
             if (!string.IsNullOrEmpty(crownDetails.Item1)) {
                 ScoreInfoHoverHint.enabled = true;
-                scoreInfoPrefixPicture = crownDetails.Item1;
+                ScoreInfoPrefixPicture = crownDetails.Item1;
                 ScoreInfoHoverHint.text = crownDetails.Item2;
             }
         }
 
-        private void StartReplay() {
+        private void ReplayStart() {
 
             _watchReplayButton.interactable = false;
-            startReplay?.Invoke(_currentScore);
+            StartReplay?.Invoke(CurrentScore);
         }
 
-        public void AllowReplayWatching(bool value) {
+        public void AllowWatchingReplay(bool value) {
 
-            _allowReplayWatching = value;
+            AllowReplayWatching = value;
             SetButtonState(_watchReplayButton, value);
         }
 

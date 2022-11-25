@@ -39,26 +39,26 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         protected Button buttonPPv3Replay = null;
 #endif
         //Info modal click handlers
-        [UIAction("b-1-click")] private void B1Clicked() => InfoButtonClicked(0);
-        [UIAction("b-2-click")] private void B2Clicked() => InfoButtonClicked(1);
-        [UIAction("b-3-click")] private void B3Clicked() => InfoButtonClicked(2);
-        [UIAction("b-4-click")] private void B4Clicked() => InfoButtonClicked(3);
-        [UIAction("b-5-click")] private void B5Clicked() => InfoButtonClicked(4);
-        [UIAction("b-6-click")] private void B6Clicked() => InfoButtonClicked(5);
-        [UIAction("b-7-click")] private void B7Clicked() => InfoButtonClicked(6);
-        [UIAction("b-8-click")] private void B8Clicked() => InfoButtonClicked(7);
-        [UIAction("b-9-click")] private void B9Clicked() => InfoButtonClicked(8);
-        [UIAction("b-10-click")] private void B10Clicked() => InfoButtonClicked(9);
+        [UIAction("b-1-click")] private void B1Clicked() => InfoButtonClick(0);
+        [UIAction("b-2-click")] private void B2Clicked() => InfoButtonClick(1);
+        [UIAction("b-3-click")] private void B3Clicked() => InfoButtonClick(2);
+        [UIAction("b-4-click")] private void B4Clicked() => InfoButtonClick(3);
+        [UIAction("b-5-click")] private void B5Clicked() => InfoButtonClick(4);
+        [UIAction("b-6-click")] private void B6Clicked() => InfoButtonClick(5);
+        [UIAction("b-7-click")] private void B7Clicked() => InfoButtonClick(6);
+        [UIAction("b-8-click")] private void B8Clicked() => InfoButtonClick(7);
+        [UIAction("b-9-click")] private void B9Clicked() => InfoButtonClick(8);
+        [UIAction("b-10-click")] private void B10Clicked() => InfoButtonClick(9);
         #endregion
 
-        private List<Button> buttons { get; set; }
-        public event Action<int> infoButtonClicked;
+        private List<Button> Buttons { get; set; }
+        public event Action<int> InfoButtonClicked;
 
 
         [UIAction("#post-parse")]
         public void Parsed() {
             const float buttonScale = .425f;
-            buttons = new List<Button>();
+            Buttons = new List<Button>();
             ChangeButtonScale(button1, buttonScale);
             ChangeButtonScale(button2, buttonScale);
             ChangeButtonScale(button3, buttonScale);
@@ -80,31 +80,31 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         private void ChangeButtonScale(Button button, float scale) {
             button.transform.localScale *= scale;
-            buttons.Add(button);
+            Buttons.Add(button);
         }
 
-        private void InfoButtonClicked(int index) {
+        private void InfoButtonClick(int index) {
 
-            infoButtonClicked?.Invoke(index);
+            InfoButtonClicked?.Invoke(index);
         }
 
         public void UpdateInfoButtonState(int enabled) {
 
             int enabledButtons = 0;
             for (int i = 0; i < enabled; i++) {
-                buttons[i].gameObject.SetActive(true);
+                Buttons[i].gameObject.SetActive(true);
                 enabledButtons = i;
             }
             enabledButtons++;
             for (int x = enabledButtons; x < 10; x++) {
-                buttons[x].gameObject.SetActive(false);
+                Buttons[x].gameObject.SetActive(false);
             }
         }
 
         public void HideInfoButtons() {
 
-            if (buttons != null) {
-                foreach (var button in buttons) {
+            if (Buttons != null) {
+                foreach (var button in Buttons) {
                     button.gameObject.SetActive(false);
                 }
             }

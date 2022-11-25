@@ -54,16 +54,24 @@ namespace ScoreSaber.Core.Utils {
         internal static Tuple<string, string> GetCrownDetails(string playerId) {
 
             switch (playerId) {
-                case PlayerIDs.woops:
+                case PlayerId.woops:
                     return new Tuple<string, string>("ScoreSaber.Resources.crown-bronze.png", "Beat Saber Invitational 3rd place");
-                case PlayerIDs.Jones:
+                case PlayerId.Jones:
                     return new Tuple<string, string>("ScoreSaber.Resources.crown-silver.png", "Beat Saber Invitational 2nd place");
-                case PlayerIDs.Umbranox:
+                case PlayerId.Umbranox:
                     return new Tuple<string, string>("ScoreSaber.Resources.crown-umby.png", "Owner of ScoreSaber");
-                case PlayerIDs.Rain:
+                case PlayerId.Rain:
                     return new Tuple<string, string>("ScoreSaber.Resources.crown-rain.png", "Owner of Umbranox's heart");
             }
             return new Tuple<string, string>("", "");
+        }
+
+        internal static class PlayerId {
+            internal const string Umbranox = "76561198283584459";
+            internal const string Jones = "76561198066901156";
+            internal const string Williums = "76561198182060577";
+            internal const string woops = "76561198077062414";
+            internal const string Rain = "76561198066644109";
         }
 
         internal static GameplayModifiersMap GetModifierFromStrings(string[] modifiers, bool isPositiveModifiersEnabled) {

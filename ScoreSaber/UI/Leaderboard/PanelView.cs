@@ -1,4 +1,7 @@
-﻿using BeatSaberMarkupLanguage;
+﻿
+#region
+
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
@@ -15,6 +18,8 @@ using System.Threading.Tasks;
 using Tweening;
 using UnityEngine;
 using Zenject;
+
+#endregion
 
 namespace ScoreSaber.UI.Leaderboard {
     [HotReload]
@@ -44,7 +49,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private string _globalLeaderboardRanking = "<b><color=#FFDE1A>Global Ranking: </color></b> Loading...";
         [UIValue("global-leaderboard-ranking")]
-        protected string globalLeaderboardRanking {
+        protected string GlobalLeaderboardRanking {
             get => _globalLeaderboardRanking;
             set {
                 _globalLeaderboardRanking = value;
@@ -54,7 +59,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private string _leaderboardRankedStatus = "<b><color=#FFDE1A>Ranked Status:</color></b> Loading...";
         [UIValue("leaderboard-ranked-status")]
-        protected string leaderboardRankedStatus {
+        protected string LeaderboardRankedStatus {
             get => _leaderboardRankedStatus;
             set {
                 _leaderboardRankedStatus = $"<b><color=#FFDE1A>Ranked Status:</color></b> {value}";
@@ -64,7 +69,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private bool _isPromptLoading;
         [UIValue("prompt-loader-active")]
-        protected bool promptLoading {
+        protected bool PromptLoading {
             get => _isPromptLoading;
             set {
                 _isPromptLoading = value;
@@ -73,15 +78,15 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         [UIValue("is-loading")]
-        protected bool isLoading => !isLoaded;
+        protected bool IsLoading => !IsLoaded;
         private bool _isLoaded;
         [UIValue("is-loaded")]
-        protected bool isLoaded {
+        protected bool IsLoaded {
             get => _isLoaded;
             set {
                 _isLoaded = value;
                 NotifyPropertyChanged();
-                NotifyPropertyChanged(nameof(isLoading));
+                NotifyPropertyChanged(nameof(IsLoading));
             }
         }
         #endregion
@@ -216,13 +221,13 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void SetGlobalRanking(string globalRanking, bool withPrefix = true) {
 
-            globalLeaderboardRanking =
+            GlobalLeaderboardRanking =
                 withPrefix ? $"<b><color=#FFDE1A>Global Ranking: </color></b>{globalRanking}" : globalRanking;
         }
 
         public void SetRankedStatus(string rankedStatus) {
 
-            leaderboardRankedStatus = rankedStatus;
+            LeaderboardRankedStatus = rankedStatus;
         }
 
         public void SetPromptInfo(string status, bool showLoadingIndicator, float dismissTime = -1f) {
@@ -254,7 +259,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 _promptText.text = status ?? _promptText.text;
                 bool dismissable = dismissTime != -1;
                 _activeDisableTween = null;
-                promptLoading = showLoadingIndicator;
+                PromptLoading = showLoadingIndicator;
                 _promptText.text = status ?? _promptText.text;
                 _timeTweeningManager.KillAllTweens(_promptRoot);
 
@@ -301,7 +306,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void Loaded(bool value) {
 
-            isLoaded = value;
+            IsLoaded = value;
         }
 
         protected void Update() {

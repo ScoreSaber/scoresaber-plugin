@@ -84,8 +84,8 @@ namespace ScoreSaber.Core.Daemons {
 
 
                 if (difficultyBeatmap.level is CustomBeatmapLevel) {
-                    if (_leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.leaderboardInfo.PlayerScore != null) {
-                        if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.leaderboardInfo.PlayerScore.ModifiedScore) {
+                    if (_leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.LeaderboardInfo.PlayerScore != null) {
+                        if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.LeaderboardInfoMap.LeaderboardInfo.PlayerScore.ModifiedScore) {
                             UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
                             return;
                         }

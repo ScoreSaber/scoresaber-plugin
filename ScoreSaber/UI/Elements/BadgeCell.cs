@@ -16,7 +16,7 @@ namespace ScoreSaber.UI.Elements {
 
         private string _hoverHint = "";
         [UIValue("hover-hint")]
-        protected string hoverHint {
+        protected string HoverHint {
             get => _hoverHint;
             set {
                 _hoverHint = value;
@@ -27,7 +27,7 @@ namespace ScoreSaber.UI.Elements {
         public void SetData(string imageURL, string hoverHintText) {
 
             _image.SetImage(imageURL);
-            hoverHint = hoverHintText;
+            HoverHint = hoverHintText;
         }
 
         public void SetActive(bool value) {
