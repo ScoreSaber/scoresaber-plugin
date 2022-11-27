@@ -77,16 +77,17 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
+        // Can't rename _isLoaded without breaking LeaderboardCore
         [UIValue("is-loading")]
-        protected bool IsLoading => !IsLoaded;
+        protected bool isLoading => !isLoaded;
         private bool _isLoaded;
         [UIValue("is-loaded")]
-        protected bool IsLoaded {
+        protected bool isLoaded {
             get => _isLoaded;
             set {
                 _isLoaded = value;
                 NotifyPropertyChanged();
-                NotifyPropertyChanged(nameof(IsLoading));
+                NotifyPropertyChanged(nameof(isLoading));
             }
         }
         #endregion
@@ -306,7 +307,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void Loaded(bool value) {
 
-            IsLoaded = value;
+            isLoaded = value;
         }
 
         protected void Update() {
