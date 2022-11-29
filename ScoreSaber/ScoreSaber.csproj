@@ -209,21 +209,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="manifest.json" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Include=".editorconfig" />
+    <None Include="ILRepack.targets" Condition="Exists('ILRepack.targets')" Visible="false" />
     <None Include="ScoreSaber.csproj.user" Condition="Exists('ScoreSaber.csproj.user')" Visible="false" />
+    <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="Resources\Logo.png" />
+    <EditorConfigFiles Remove=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IDisposableAnalyzers" Version="4.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="ILRepack" Version="2.0.18" />
     <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13" />
     <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta4">
       <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="PropertyChanged.SourceGenerator" Version="1.0.5">
+    <PackageReference Include="PropertyChanged.SourceGenerator" Version="1.0.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <CopyLocal>True</CopyLocal>
@@ -234,5 +243,5 @@
   </ItemGroup>
 
   <Import Project="ILRepack.targets" />
-
+  
 </Project>
