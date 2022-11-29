@@ -1,22 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{844132E4-CDFC-49D3-950D-38F62ED8B513}</ProjectGuid>
-    <TargetFramework>net472</TargetFramework>
-    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
     <LangVersion>10</LangVersion>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
-    <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
-    <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    
     <AssemblyName>ScoreSaber</AssemblyName>
     <RootNamespace>ScoreSaber</RootNamespace>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    
     <BSMTProjectType>BSIPA</BSMTProjectType>
-    <SignAssembly>false</SignAssembly>
+    <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
+    
     <ErrorReport>prompt</ErrorReport>
+    <SignAssembly>false</SignAssembly>
     <Configurations>Debug;Release;</Configurations>
-    <Nullable>enable</Nullable>
+    <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+    <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -34,10 +36,6 @@
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Menu\Views\PlatformPanelView.bsml" />
-  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="BSML">
@@ -212,34 +210,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-    <EmbeddedResource Include="Core\ReplaySystem\UI\imber-panel.bsml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\country.png" />
-    <EmbeddedResource Include="Resources\cyanisa.furry" />
-    <EmbeddedResource Include="Resources\info.png" />
-    <EmbeddedResource Include="Resources\pixel.png" />
-    <EmbeddedResource Include="Resources\replay.png" />
-    <EmbeddedResource Include="Resources\user.png" />
-    <EmbeddedResource Include="Resources\discord.png" />
-    <EmbeddedResource Include="Resources\github.png" />
-    <EmbeddedResource Include="Resources\twitch.png" />
-    <EmbeddedResource Include="Resources\twitter.png" />
-    <EmbeddedResource Include="Resources\youtube.png" />
-    <EmbeddedResource Include="Resources\logo.png" />
-    <EmbeddedResource Include="Resources\bsmg.jpg" />
-    <EmbeddedResource Include="Resources\logo-flushed.png" />
-    <EmbeddedResource Include="Resources\cmb.png" />
-    <EmbeddedResource Include="Resources\cmb-blush.png" />
-    <EmbeddedResource Include="Resources\logo-large.png" />
-    <EmbeddedResource Include="Resources\bri-ish.png" />
-    <EmbeddedResource Include="Resources\crown-bronze.png" />
-    <EmbeddedResource Include="Resources\crown-gold.png" />
-    <EmbeddedResource Include="Resources\crown-silver.png" />
-    <EmbeddedResource Include="Resources\crown-umby.png" />
-    <EmbeddedResource Include="Resources\crown-rain.png" />
-    <EmbeddedResource Include="Menu\Views\PlatformPanelView.bsml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -265,57 +235,4 @@
 
   <Import Project="ILRepack.targets" />
 
-  <ItemGroup>
-    <Reference Update="System">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Core">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Data">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Drawing">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.IO.Compression.FileSystem">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Numerics">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Runtime.Serialization">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Xml">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Update="System.Xml.Linq">
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
 </Project>
