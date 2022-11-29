@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>10</LangVersion>
     <OutputType>Library</OutputType>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     
     <AssemblyName>ScoreSaber</AssemblyName>
@@ -40,6 +40,10 @@
   <ItemGroup>
     <Reference Include="BSML">
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="LeaderboardCore">
+      <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SiraUtil">
@@ -213,12 +217,18 @@
     <None Include="ILRepack.targets" Condition="Exists('ILRepack.targets')" Visible="false" />
     <None Include="ScoreSaber.csproj.user" Condition="Exists('ScoreSaber.csproj.user')" Visible="false" />
     <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="Resources\Country.png" />
     <EmbeddedResource Include="Resources\Logo.png" />
+    <EmbeddedResource Include="UI\Menu\Views\ScoreView.bsml" />
+    <EmbeddedResource Include="UI\Menu\Views\PanelView.bsml" />
     <EditorConfigFiles Remove=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Country.png" />
     <None Remove="Resources\Logo.png" />
+    <None Remove="UI\Menu\Views\PanelView.bsml" />
+    <None Remove="UI\Menu\Views\ScoreView.bsml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,13 @@
+﻿<vertical
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd"
+  bg="round-rect-panel" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="90" pref-height="60" anchor-pos-y="5" bg-color="#ff000000"
+  >
+  <horizontal horizontal-fit="Unconstrained" vertical-fit="Unconstrained" spacing="4">
+    <vertical bg="round-rect-panel" bg-color="#ffffffaa" pref-width="8" pref-height="35" vertical-fit="PreferredSize">
+      <icon-segments id="ScopesSegmentedControl" data="Scopes" />
+    </vertical>
+    <horizontal pref-width="70">
+      <text text="Hello" />
+    </horizontal>
+  </horizontal>
+</vertical>
