@@ -2,12 +2,61 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd"
   bg="round-rect-panel" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="90" pref-height="60" anchor-pos-y="5" bg-color="#ff000000"
   >
-  <horizontal horizontal-fit="Unconstrained" vertical-fit="Unconstrained" spacing="4">
+  <horizontal horizontal-fit="Unconstrained" vertical-fit="Unconstrained" spacing="2">
     <vertical bg="round-rect-panel" bg-color="#ffffffaa" pref-width="8" pref-height="35" vertical-fit="PreferredSize">
       <icon-segments id="ScopesSegmentedControl" data="Scopes" />
     </vertical>
-    <horizontal pref-width="70">
-      <text text="Hello" />
-    </horizontal>
+    <vertical pref-width="80" pref-height="60" child-align="UpperLeft" child-control-height="false" child-expand-height="false" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+      </bg>
+    </vertical>
   </horizontal>
 </vertical>
