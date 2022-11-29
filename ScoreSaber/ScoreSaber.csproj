@@ -219,6 +219,7 @@
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="Resources\Country.png" />
     <EmbeddedResource Include="Resources\Logo.png" />
+    <EmbeddedResource Include="Resources\Pixel.png" />
     <EmbeddedResource Include="UI\Menu\Views\ScoreView.bsml" />
     <EmbeddedResource Include="UI\Menu\Views\PanelView.bsml" />
     <EditorConfigFiles Remove=".editorconfig" />
@@ -227,6 +228,7 @@
   <ItemGroup>
     <None Remove="Resources\Country.png" />
     <None Remove="Resources\Logo.png" />
+    <None Remove="Resources\Pixel.png" />
     <None Remove="UI\Menu\Views\PanelView.bsml" />
     <None Remove="UI\Menu\Views\ScoreView.bsml" />
   </ItemGroup>

@@ -1,10 +1,10 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
-using IPA.Utilities;
 using PropertyChanged.SourceGenerator;
+using ScoreSaber.UI.Menu.Models;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 using UnityEngine.UI;
 
 namespace ScoreSaber.UI.Menu;
@@ -15,6 +15,9 @@ internal sealed partial class ScoreViewController : BSMLAutomaticViewController
 {
     [Notify]
     private List<IconSegmentedControl.DataItem> _scopes = new();
+
+    [Notify]
+    private List<ScoreTableCell> _cells = Enumerable.Range(0, 10).Select(_ => new ScoreTableCell()).ToList();
 
     [UIComponent("ScopesSegmentedControl")]
     private readonly IconSegmentedControl _scopesSegmentedControl = null!;
@@ -28,7 +31,6 @@ internal sealed partial class ScoreViewController : BSMLAutomaticViewController
             var friends = BeatSaberMarkupLanguage.Utilities.FindSpriteCached("FriendsIcon");
             var country = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Country.png");
 
-
             _scopes.Add(new IconSegmentedControl.DataItem(global, "Global"));
             _scopes.Add(new IconSegmentedControl.DataItem(player, "Player"));
             _scopes.Add(new IconSegmentedControl.DataItem(friends, "Friends"));
@@ -36,7 +38,6 @@ internal sealed partial class ScoreViewController : BSMLAutomaticViewController
         }
 
         base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-
     }
 
     [UIAction("#post-parse")]

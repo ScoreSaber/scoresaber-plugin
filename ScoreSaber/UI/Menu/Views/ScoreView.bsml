@@ -6,57 +6,17 @@
     <vertical bg="round-rect-panel" bg-color="#ffffffaa" pref-width="8" pref-height="35" vertical-fit="PreferredSize">
       <icon-segments id="ScopesSegmentedControl" data="Scopes" />
     </vertical>
-    <vertical pref-width="80" pref-height="60" child-align="UpperLeft" child-control-height="false" child-expand-height="false" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
-      <bg horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
-        <text text="1" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-        <text text="abcbadq" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
-        <text text="127 001" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
-      </bg>
+    <vertical pref-height="60" child-align="UpperCenter" child-expand-height="false">
+      <vertical pref-width="80" child-align="UpperLeft" child-control-height="false" child-expand-height="false" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+        <macro.for-each items="Cells">
+          <bg active="~Visible" horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
+            <text text="~Rank" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
+            <text text="~Name" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+            <text text="~Score" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
+            <img src="#RectVMiddle" size-delta-x="79" size-delta-y="0.2" anchor-pos-y="-2.7" img-color="#aaaaaacc" />
+          </bg>
+        </macro.for-each>
+      </vertical>
     </vertical>
   </horizontal>
 </vertical>
