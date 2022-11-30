@@ -1,5 +1,4 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
 using PropertyChanged.SourceGenerator;
@@ -14,10 +13,10 @@ internal sealed partial class ScoreScopeHost
     [Notify(set: Setter.Private)]
     private List<IconSegmentedControl.DataItem> _scopes = new()
     {
-        new IconSegmentedControl.DataItem(Utilities.FindSpriteCached("GlobalIcon"), "Global"),
-        new IconSegmentedControl.DataItem(Utilities.FindSpriteCached("PlayerIcon"), "Player"),
-        new IconSegmentedControl.DataItem(Utilities.FindSpriteCached("FriendsIcon"), "Friends"),
-        new IconSegmentedControl.DataItem(Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Country.png"), "Country"),
+        new IconSegmentedControl.DataItem(BeatSaberMarkupLanguage.Utilities.FindSpriteCached("GlobalIcon"), "Global"),
+        new IconSegmentedControl.DataItem(BeatSaberMarkupLanguage.Utilities.FindSpriteCached("PlayerIcon"), "Player"),
+        new IconSegmentedControl.DataItem(BeatSaberMarkupLanguage.Utilities.FindSpriteCached("FriendsIcon"), "Friends"),
+        new IconSegmentedControl.DataItem(BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Country.png"), "Country"),
     };
 
     [UIComponent("ScopesSegmentedControl")]

@@ -10,6 +10,7 @@ internal sealed class ScoreSaberMenuUIInstaller : Installer
     public override void InstallBindings()
     {
         Container.Bind<ScoreSaberLeaderboard>().AsSingle();
+        Container.BindInterfacesTo<VisualLeaderboardManager>().AsSingle();
         Container.BindInterfacesTo<ScoreSaberLeaderboardManager>().AsSingle();
 
         Container.Bind<PanelViewController>().FromNewComponentAsViewController().AsSingle();
