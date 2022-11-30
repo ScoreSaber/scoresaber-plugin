@@ -13,6 +13,13 @@
     <!--The score table (currently, 1 through 10)-->
     <macro.as-host host="ScoreTableHost">
       <vertical pref-height="60" child-align="UpperCenter" child-expand-height="false">
+
+        <!--Table Loading Indicator-->
+        <vertical active="~Loading" pref-width="80" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+          <loading-indicator preserve-aspect="true" pref-width="15" pref-height="15" />
+        </vertical>
+
+        <!--Table Container and Elements-->
         <vertical active="~Loaded" pref-width="80" child-align="UpperLeft" child-control-height="false" child-expand-height="false" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
           <macro.for-each items="Cells">
             <bg active="~Visible" horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
@@ -23,11 +30,9 @@
             </bg>
           </macro.for-each>
         </vertical>
-        <vertical active="~Loading" pref-width="80" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
-          <loading-indicator preserve-aspect="true" pref-width="15" pref-height="15" />
-        </vertical>
+        
       </vertical>
     </macro.as-host>
-    
+
   </horizontal>
 </vertical>
