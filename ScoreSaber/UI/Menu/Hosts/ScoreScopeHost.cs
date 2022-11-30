@@ -10,8 +10,8 @@ namespace ScoreSaber.UI.Menu.Hosts;
 
 internal sealed partial class ScoreScopeHost
 {
-    [Notify]
     [UsedImplicitly]
+    [Notify(set: Setter.Private)]
     private List<IconSegmentedControl.DataItem> _scopes = new()
     {
         new IconSegmentedControl.DataItem(Utilities.FindSpriteCached("GlobalIcon"), "Global"),

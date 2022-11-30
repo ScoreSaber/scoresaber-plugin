@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using PropertyChanged.SourceGenerator;
 using ScoreSaber.UI.Menu.Models;
 using System.Collections.Generic;
@@ -10,13 +10,13 @@ internal sealed partial class ScoreTableHost
 {
     private const int MaximumCellCount = 10;
 
-    [Notify]
-    [UsedImplicitly]
+    [Notify(set: Setter.Private)]
     private List<ScoreTableCell> _cells = Enumerable.Range(0, MaximumCellCount).Select(_ => new ScoreTableCell()).ToList();
 
-    [Notify]
+    [Notify(Getter.Private, Setter.Private)]
     [AlsoNotify(nameof(Loaded))]
     private bool _loading;
 
-    public bool Loaded => !Loading;
+    [UIValue(nameof(Loaded))]
+    private bool Loaded => !Loading;
 }
