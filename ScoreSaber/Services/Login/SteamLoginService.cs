@@ -52,6 +52,11 @@ internal class SteamLoginService : IPlatformLoginService
                 break;
         }
 
+        if (attempts >= 4)
+        {
+            _siraLog.Error("Tried too many times!");
+        }
+
         return userInfo;
     }
 }

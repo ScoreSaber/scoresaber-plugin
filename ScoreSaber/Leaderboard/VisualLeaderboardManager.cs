@@ -55,7 +55,7 @@ internal sealed class VisualLeaderboardManager : IVisualLeaderboardManager, INot
                 // do the leaderboard fetch
                 OnLeaderboardChanged?.Invoke(leaderboard);
 
-                _siraLog.Notice(leaderboard.Info.SongName);
+                _siraLog.Notice($"Loaded Leaderboard {leaderboard.Info.SongName} ({leaderboard.Info.Id})");
             }
             catch (Exception ex)
             {

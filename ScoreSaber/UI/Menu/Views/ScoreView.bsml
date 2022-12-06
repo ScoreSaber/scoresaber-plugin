@@ -24,7 +24,7 @@
           <macro.for-each items="Cells">
             <bg active="~Visible" horizontal-fit="Unconstrained" vertical-fit="Unconstrained" size-delta-x="80" size-delta-y="6">
               <text text="~Rank" font-size="4" align="Left" word-wrapping="true" size-delta-x="7" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-35" />
-              <text text="~Name" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
+              <text id="name" text="~Name" font-size="4" align="Left" word-wrapping="true" size-delta-x="50" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="-5" />
               <text text="~Score" font-size="4" align="Right" word-wrapping="true" size-delta-x="16" size-delta-y="6" overflow-mode="Ellipsis" anchor-pos-x="31" />
               <img src="#RectVMiddle" size-delta-x="79" size-delta-y="0.2" anchor-pos-y="-2.7" img-color="#aaaaaacc" />
             </bg>

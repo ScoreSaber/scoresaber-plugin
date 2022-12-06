@@ -19,4 +19,9 @@ internal sealed partial class ScoreTableHost
 
     [UIValue(nameof(Loaded))]
     private bool Loaded => !Loading;
+
+    public void SetLoadingIndicator(bool loading)
+    {
+        Loading = loading;
+    }
 }
