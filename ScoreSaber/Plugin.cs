@@ -9,10 +9,14 @@ using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.Installers;
 using ScoreSaber.UI.Elements.Profile;
 using SiraUtil.Zenject;
+using System;
 using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -35,6 +39,7 @@ namespace ScoreSaber {
         internal static Material NonFurry;
         internal static Material NoGlowMatRound;
 
+        internal System.Version LibVersion;
         internal Harmony harmony;
 
         [Init]
@@ -54,11 +59,11 @@ namespace ScoreSaber {
             zenjector.Install<RecordInstaller, MultiplayerLocalActivePlayerInstaller>();
             zenjector.UseAutoBinder();
 
-            var libVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
             BSMLParser.instance.RegisterTypeHandler(new ProfileDetailViewTypeHandler());
             BSMLParser.instance.RegisterTag(new ProfileDetailViewTag(metadata.Assembly));
-            
-            HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = libVersion });
+
+            HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
         }
 
         [OnEnable]
