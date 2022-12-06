@@ -1,4 +1,4 @@
-name: .NET
+name: Upload Release Binary
 
 on:
   push:
