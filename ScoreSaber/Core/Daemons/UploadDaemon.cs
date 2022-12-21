@@ -306,23 +306,10 @@ namespace ScoreSaber.Core.Daemons {
             return T;
         }
 
-        internal string GetVersionHash() {
-            string localPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "Plugins", "ScoreSaber.dll");
-
+        internal static string GetVersionHash() {
             using (var md5 = MD5.Create()) {
-
-                string localHash = string.Empty;
-                string mainHash = string.Empty;
-
-                using (var stream = File.OpenRead(localPath)) {
-                    var hasher = md5.ComputeHash(stream);
-                    localHash = BitConverter.ToString(hasher).Replace("-", "").ToLowerInvariant();
-                }
-
-                string versionString = string.Format("{0}{1}{2}", localHash, Plugin.Instance.LibVersion, Application.version);
+                string versionString = string.Format("{0}{1}", Plugin.Instance.LibVersion, Application.version);
                 string hash = BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(versionString))).Replace("-", "").ToLowerInvariant();
-                Plugin.Log.Info(versionString);
-                Plugin.Log.Info(hash);
                 return hash;
             }
         }
