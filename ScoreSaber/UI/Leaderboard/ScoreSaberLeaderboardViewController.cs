@@ -232,7 +232,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
       
 
-                if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer) {
+                if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer && !_filterAroundCountry) {
                     _upButton.interactable = false;
                     _downButton.interactable = false;
                 } else {
@@ -269,7 +269,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
-                        if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer && playerScoreIndex == -1) {
+                        if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer && playerScoreIndex == -1 && !_filterAroundCountry) {
                             SetErrorState(tableView, loadingControl, null, null, "You haven't set a score on this leaderboard");
                         } else {
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
