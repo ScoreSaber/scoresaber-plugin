@@ -55,7 +55,7 @@ namespace ScoreSaber.Core.Services {
                     bool authenticated = await AuthenticateWithScoreSaber(steamInfo);
                     if (authenticated) {
                         localPlayerInfo = steamInfo;
-                        string successText = "Sucessfully signed into ScoreSaber!";
+                        string successText = "Successfully signed into ScoreSaber!";
                         if (localPlayerInfo.playerId == PlayerIDs.Denyah) {
                             successText = "Wagwan piffting wots ur bbm pin?";
                         }
@@ -97,7 +97,7 @@ namespace ScoreSaber.Core.Services {
                                         bool authenticated = await AuthenticateWithScoreSaber(oculusInfo);
                                         if (authenticated) {
                                             localPlayerInfo = oculusInfo;
-                                            ChangeLoginStatus(LoginStatus.Success, "Sucessfully signed into ScoreSaber!");
+                                            ChangeLoginStatus(LoginStatus.Success, "Successfully signed into ScoreSaber!");
                                         } else {
                                             ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
                                         }
