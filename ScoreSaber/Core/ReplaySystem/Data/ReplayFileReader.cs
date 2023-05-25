@@ -27,22 +27,30 @@ namespace ScoreSaber.Core.ReplaySystem.Data
 
             List<byte> temp = new List<byte>();
             temp.AddRange(input);
+            if (temp.GetRange(0, 28).ToArray().Equals(Encoding.UTF8.GetBytes("ScoreSaber Replay 👌🤠\r\n"))) {
+                throw new Exception("Unknown replay magic bytes");
+            }
             temp.RemoveRange(0, 28);
             _input = temp.ToArray();
             _input = SevenZipHelper.Decompress(_input);
             Pointers pointers = ReadPointers();
 
-            var file = new ReplayFile() {
-                metadata = ReadMetadata(ref pointers.metadata),
-                poseKeyframes = ReadPoseGroupList(ref pointers.poseKeyframes),
-                heightKeyframes = ReadHeightChangeList(ref pointers.heightKeyframes),
-                noteKeyframes = ReadNoteEventList(ref pointers.noteKeyframes),
-                scoreKeyframes = ReadScoreEventList(ref pointers.scoreKeyframes),
-                comboKeyframes = ReadComboEventList(ref pointers.comboKeyframes),
-                multiplierKeyframes = ReadMultiplierEventList(ref pointers.multiplierKeyframes),
-                energyKeyframes = ReadEnergyEventList(ref pointers.energyKeyframes)
-            };
-            return file;
+            var metadata = ReadMetadata(ref pointers.metadata);
+
+            if (metadata.Version == "2.0.0") {
+                return new ReplayFile() {
+                    metadata = metadata,
+                    poseKeyframes = ReadPoseGroupList(ref pointers.poseKeyframes),
+                    heightKeyframes = ReadHeightChangeList(ref pointers.heightKeyframes),
+                    noteKeyframes = ReadNoteEventList(ref pointers.noteKeyframes),
+                    scoreKeyframes = ReadScoreEventList(ref pointers.scoreKeyframes),
+                    comboKeyframes = ReadComboEventList(ref pointers.comboKeyframes),
+                    multiplierKeyframes = ReadMultiplierEventList(ref pointers.multiplierKeyframes),
+                    energyKeyframes = ReadEnergyEventList(ref pointers.energyKeyframes)
+                };
+            } else {
+                throw new Exception("Unknown replay version");
+            }
         }
 
         private Pointers ReadPointers() {
