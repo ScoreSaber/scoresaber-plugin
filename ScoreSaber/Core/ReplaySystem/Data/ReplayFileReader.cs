@@ -48,6 +48,17 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                     multiplierKeyframes = ReadMultiplierEventList(ref pointers.multiplierKeyframes),
                     energyKeyframes = ReadEnergyEventList(ref pointers.energyKeyframes)
                 };
+            } else if (metadata.Version == "3.0.0") {
+                return new ReplayFile() {
+                    metadata = metadata,
+                    poseKeyframes = ReadPoseGroupList(ref pointers.poseKeyframes),
+                    heightKeyframes = ReadHeightChangeList(ref pointers.heightKeyframes),
+                    noteKeyframes = ReadNoteEventList_v3(ref pointers.noteKeyframes),
+                    scoreKeyframes = ReadScoreEventList_v3(ref pointers.scoreKeyframes),
+                    comboKeyframes = ReadComboEventList(ref pointers.comboKeyframes),
+                    multiplierKeyframes = ReadMultiplierEventList(ref pointers.multiplierKeyframes),
+                    energyKeyframes = ReadEnergyEventList(ref pointers.energyKeyframes)
+                };
             } else {
                 throw new Exception("Unknown replay version");
             }
@@ -128,6 +139,34 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             };
         }
 
+        private NoteEvent ReadNoteEvent_v3(ref int offset) {
+
+            return new NoteEvent() {
+                NoteID = ReadNoteID_v3(ref offset),
+                EventType = (NoteEventType)ReadInt(ref offset),
+                CutPoint = ReadVRPosition(ref offset),
+                CutNormal = ReadVRPosition(ref offset),
+                SaberDirection = ReadVRPosition(ref offset),
+                SaberType = ReadInt(ref offset),
+                DirectionOK = ReadBool(ref offset),
+                SaberSpeed = ReadFloat(ref offset),
+                CutAngle = ReadFloat(ref offset),
+                CutDistanceToCenter = ReadFloat(ref offset),
+                CutDirectionDeviation = ReadFloat(ref offset),
+                BeforeCutRating = ReadFloat(ref offset),
+                AfterCutRating = ReadFloat(ref offset),
+                Time = ReadFloat(ref offset),
+                UnityTimescale = ReadFloat(ref offset),
+                TimeSyncTimescale = ReadFloat(ref offset),
+
+                TimeDeviation = ReadFloat(ref offset),
+                WorldRotation = ReadVRRotation(ref offset),
+                InverseWorldRotation = ReadVRRotation(ref offset),
+                NoteRotation = ReadVRRotation(ref offset),
+                NotePosition = ReadVRPosition(ref offset)
+            };
+        }
+
         private NoteID ReadNoteID(ref int offset) {
 
             return new NoteID() {
@@ -136,6 +175,20 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                 LineIndex = ReadInt(ref offset),
                 ColorType = ReadInt(ref offset),
                 CutDirection = ReadInt(ref offset)
+            };
+        }
+
+        private NoteID ReadNoteID_v3(ref int offset) {
+
+            return new NoteID() {
+                Time = ReadFloat(ref offset),
+                LineLayer = ReadInt(ref offset),
+                LineIndex = ReadInt(ref offset),
+                ColorType = ReadInt(ref offset),
+                CutDirection = ReadInt(ref offset),
+                GameplayType = ReadInt(ref offset),
+                ScoringType = ReadInt(ref offset),
+                CutDirectionAngleOffset = ReadFloat(ref offset)
             };
         }
 
@@ -152,6 +205,15 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             return new ScoreEvent() {
                 Score = ReadInt(ref offset),
                 Time = ReadFloat(ref offset)
+            };
+        }
+
+        private ScoreEvent ReadScoreEvent_v3(ref int offset) {
+
+            return new ScoreEvent() {
+                Score = ReadInt(ref offset),
+                Time = ReadFloat(ref offset),
+                ImmediateMaxPossibleScore = ReadInt(ref offset)
             };
         }
 
@@ -221,12 +283,32 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             return values;
         }
 
+        private List<NoteEvent> ReadNoteEventList_v3(ref int offset) {
+
+            int size = ReadInt(ref offset);
+            List<NoteEvent> values = new List<NoteEvent>();
+            for (int i = 0; i < size; i++) {
+                values.Add(ReadNoteEvent_v3(ref offset));
+            }
+            return values;
+        }
+
         private List<ScoreEvent> ReadScoreEventList(ref int offset) {
 
             int size = ReadInt(ref offset);
             List<ScoreEvent> values = new List<ScoreEvent>();
             for (int i = 0; i < size; i++) {
                 values.Add(ReadScoreEvent(ref offset));
+            }
+            return values;
+        }
+
+        private List<ScoreEvent> ReadScoreEventList_v3(ref int offset) {
+
+            int size = ReadInt(ref offset);
+            List<ScoreEvent> values = new List<ScoreEvent>();
+            for (int i = 0; i < size; i++) {
+                values.Add(ReadScoreEvent_v3(ref offset));
             }
             return values;
         }

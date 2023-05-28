@@ -31,12 +31,16 @@ namespace ScoreSaber.Core.ReplaySystem
         internal static readonly FieldAccessor<SaberSwingRatingCounter, float>.Accessor AfterCutRating = FieldAccessor<SaberSwingRatingCounter, float>.GetAccessor("_afterCutRating");
         internal static readonly FieldAccessor<SaberSwingRatingCounter, float>.Accessor BeforeCutRating = FieldAccessor<SaberSwingRatingCounter, float>.GetAccessor("_beforeCutRating");
         internal static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.Accessor BombNotePool = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BombNoteController>>.GetAccessor("_bombNotePoolContainer");
+        internal static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.Accessor BurstSliderHeadNotePool = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.GetAccessor("_burstSliderHeadGameNotePoolContainer");
+        internal static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BurstSliderGameNoteController>>.Accessor BurstSliderNotePool = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<BurstSliderGameNoteController>>.GetAccessor("_burstSliderGameNotePoolContainer");
         internal static readonly FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.Accessor GameNotePool = FieldAccessor<BasicBeatmapObjectManager, MemoryPoolContainer<GameNoteController>>.GetAccessor("_basicGameNotePoolContainer");
         internal static readonly FieldAccessor<SaberSwingRatingCounter, LazyCopyHashSet<ISaberSwingRatingCounterDidChangeReceiver>>.Accessor ChangeReceivers = FieldAccessor<SaberSwingRatingCounter, LazyCopyHashSet<ISaberSwingRatingCounterDidChangeReceiver>>.GetAccessor("_didChangeReceivers");
 
         internal static readonly FieldAccessor<ScoreController, int>.Accessor MultipliedScore = FieldAccessor<ScoreController, int>.GetAccessor("_multipliedScore");
+        internal static readonly FieldAccessor<ScoreController, int>.Accessor ImmediateMultipliedPossible = FieldAccessor<ScoreController, int>.GetAccessor("_immediateMaxPossibleMultipliedScore");
+        internal static readonly FieldAccessor<ScoreController, int>.Accessor ModifiedScore = FieldAccessor<ScoreController, int>.GetAccessor("_modifiedScore");
+        internal static readonly FieldAccessor<ScoreController, int>.Accessor ImmediateModifiedPossible = FieldAccessor<ScoreController, int>.GetAccessor("_immediateMaxPossibleModifiedScore");
         internal static readonly FieldAccessor<ScoreController, float >.Accessor GameplayMultiplier = FieldAccessor<ScoreController, float>.GetAccessor("_prevMultiplierFromModifiers");
-        internal static readonly FieldAccessor<ScoreController, int>.Accessor ImmediatePossible = FieldAccessor<ScoreController, int>.GetAccessor("_immediateMaxPossibleMultipliedScore");
         internal static readonly FieldAccessor<ScoreController, GameplayModifiersModelSO>.Accessor ModifiersModelSO = FieldAccessor<ScoreController, GameplayModifiersModelSO>.GetAccessor("_gameplayModifiersModel");
         internal static readonly FieldAccessor<ScoreController, List<GameplayModifierParamsSO>>.Accessor ModifierPanelsSO = FieldAccessor<ScoreController, List<GameplayModifierParamsSO>>.GetAccessor("_gameplayModifierParams");
 

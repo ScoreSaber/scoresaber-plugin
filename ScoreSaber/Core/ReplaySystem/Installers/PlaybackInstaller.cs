@@ -26,9 +26,9 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
                     Container.BindInstance(Plugin.ReplayState.LoadedReplayFile).AsSingle();
                     Container.BindInterfacesAndSelfTo<PosePlayer>().AsSingle();
                     Container.BindInterfacesTo<NotePlayer>().AsSingle();
+                    Container.BindInterfacesTo<EnergyPlayer>().AsSingle(); // needs to be injected before the ScorePlayer to make the TimeUpdate methods run in the correct order
                     Container.BindInterfacesTo<ScorePlayer>().AsSingle();
                     Container.BindInterfacesTo<ComboPlayer>().AsSingle();
-                    Container.BindInterfacesTo<EnergyPlayer>().AsSingle();
                     Container.BindInterfacesTo<MultiplierPlayer>().AsSingle();
                     if (_gameplayCoreSceneSetupData.playerSpecificSettings.automaticPlayerHeight)
                         Container.BindInterfacesTo<HeightPlayer>().AsSingle();

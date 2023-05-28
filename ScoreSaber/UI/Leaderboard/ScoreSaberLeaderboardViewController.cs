@@ -244,11 +244,6 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
-                if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
-                    SetErrorState(tableView,loadingControl, null, null, "Maps with new note types currently not supported", false);
-                    return;
-                }
-
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
                     return;

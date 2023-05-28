@@ -46,6 +46,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
     internal struct ScoreEvent
     {
         public int Score;
+        public int? ImmediateMaxPossibleScore;
         public float Time;
     };
 
@@ -73,6 +74,13 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal float Time;
         internal float UnityTimescale;
         internal float TimeSyncTimescale;
+
+        // stored but not replayed
+        internal float? TimeDeviation;
+        internal VRRotation? WorldRotation;
+        internal VRRotation? InverseWorldRotation;
+        internal VRRotation? NoteRotation;
+        internal VRPosition? NotePosition;
     };
 
     internal enum NoteEventType
@@ -91,6 +99,25 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal int LineIndex;
         internal int ColorType;
         internal int CutDirection;
+        internal int? GameplayType;
+        internal int? ScoringType;
+        internal float? CutDirectionAngleOffset;
+
+        public bool Matches(NoteData n) {
+            if (!Mathf.Approximately(Time, n.time) || LineIndex != n.lineIndex || LineLayer != (int)n.noteLineLayer || ColorType != (int)n.colorType || CutDirection != (int)n.cutDirection)
+                return false;
+
+            if (GameplayType is int gameplayType && gameplayType != (int)n.gameplayType)
+                return false;
+
+            if (ScoringType is int scoringType && scoringType != (int)n.scoringType)
+                return false;
+
+            if (CutDirectionAngleOffset is float cutDirectionAngleOffset && !Mathf.Approximately(cutDirectionAngleOffset, n.cutDirectionAngleOffset))
+                return false;
+
+            return true;
+        }
 
         public static bool operator ==(NoteID a, NoteID b) {
             return Mathf.Approximately(a.Time, b.Time) && a.LineIndex == b.LineIndex && a.LineLayer == b.LineLayer && a.ColorType == b.ColorType && a.CutDirection == b.CutDirection;

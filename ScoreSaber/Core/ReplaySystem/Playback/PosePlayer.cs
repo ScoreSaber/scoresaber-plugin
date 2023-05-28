@@ -11,7 +11,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 {
     internal class PosePlayer : TimeSynchronizer, IInitializable, ITickable, IScroller, IDisposable
     {
-        private int _lastIndex = 0;
+        private int _nextIndex = 0;
         private readonly MainCamera _mainCamera;
         private readonly SaberManager _saberManager;
         private readonly VRPoseGroup[] _sortedPoses;
@@ -105,21 +105,21 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             }
 
             bool foundPoseThisFrame = false;
-            while (audioTimeSyncController.songTime >= _sortedPoses[_lastIndex].Time) {
+            while (audioTimeSyncController.songTime >= _sortedPoses[_nextIndex].Time) {
                 foundPoseThisFrame = true;
-                VRPoseGroup activePose = _sortedPoses[_lastIndex++];
+                VRPoseGroup activePose = _sortedPoses[_nextIndex++];
 
                 if (ReachedEnd())
                     return;
 
-                VRPoseGroup nextPose = _sortedPoses[_lastIndex + 1];
+                VRPoseGroup nextPose = _sortedPoses[_nextIndex];
                 UpdatePoses(activePose, nextPose);
             }
             if (foundPoseThisFrame) {
                 return;
-            } else if (_lastIndex > 0 && !ReachedEnd()) {
-                VRPoseGroup previousGroup = _sortedPoses[_lastIndex - 1];
-                UpdatePoses(previousGroup, _sortedPoses[_lastIndex]);
+            } else if (_nextIndex > 0 && !ReachedEnd()) {
+                VRPoseGroup previousGroup = _sortedPoses[_nextIndex - 1];
+                UpdatePoses(previousGroup, _sortedPoses[_nextIndex]);
             }
         }
 
@@ -170,18 +170,19 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         }
 
         private bool ReachedEnd() {
-            return _lastIndex >= _sortedPoses.Length - 1;
+            return _nextIndex >= _sortedPoses.Length;
         }
 
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedPoses.Length; c++) {
-                if (_sortedPoses[c].Time >= newTime) {
-                    _lastIndex = c;
+                if (_sortedPoses[c].Time > newTime) {
+                    _nextIndex = c;
                     Tick();
                     return;
                 }
             }
+            _nextIndex = _sortedPoses.Length;
         }
 
         public void SetSpectatorOffset(Vector3 value) {

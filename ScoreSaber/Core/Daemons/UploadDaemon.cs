@@ -126,16 +126,11 @@ namespace ScoreSaber.Core.Daemons {
                 var defaultEnvironment = _customLevelLoader.LoadEnvironmentInfo(null, false);
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
+                int maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData);
 
-                if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
-                    UploadStatusChanged?.Invoke(UploadStatus.Error, "New note type not supported, not uploading");
-                    return;
-                }
-
-                double maxScore = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(beatmapData.cuttableNotesCount);
-                maxScore *= 1.12;
-
-                if (levelCompletionResults.modifiedScore > maxScore) {
+                if (levelCompletionResults.multipliedScore > maxScore) {
+                    UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload (score was impossible)");
+                    Plugin.Log.Debug($"Score was better than possible, not uploading!");
                     return;
                 }
 

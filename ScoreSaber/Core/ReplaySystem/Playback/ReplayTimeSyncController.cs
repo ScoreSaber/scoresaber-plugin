@@ -97,7 +97,24 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             CancelAllHitSounds();
 
             // Forcibly enabling all the note/obstacle components to ensure their dissolve coroutine executes (it no likey when game pausey).
+            // TODO: do we have to do this for arcs aswell?
             foreach (var item in Accessors.GameNotePool(ref _basicBeatmapObjectManager).activeItems) {
+
+                item.Hide(false);
+                item.Pause(false);
+                item.enabled = true;
+                item.gameObject.SetActive(true);
+                item.Dissolve(0f);
+            }
+            foreach (var item in Accessors.BurstSliderHeadNotePool(ref _basicBeatmapObjectManager).activeItems) {
+
+                item.Hide(false);
+                item.Pause(false);
+                item.enabled = true;
+                item.gameObject.SetActive(true);
+                item.Dissolve(0f);
+            }
+            foreach (var item in Accessors.BurstSliderNotePool(ref _basicBeatmapObjectManager).activeItems) {
 
                 item.Hide(false);
                 item.Pause(false);

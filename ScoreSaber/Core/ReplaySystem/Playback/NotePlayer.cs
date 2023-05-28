@@ -11,11 +11,13 @@ using Zenject;
 namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class NotePlayer : TimeSynchronizer, ITickable, IScroller, IAffinity
     {
-        private int _lastIndex = 0;
+        private int _nextIndex = 0;
         private readonly SiraLog _siraLog;
         private readonly SaberManager _saberManager;
         private readonly NoteEvent[] _sortedNoteEvents;
         private readonly MemoryPoolContainer<GameNoteController> _gameNotePool;
+        private readonly MemoryPoolContainer<GameNoteController> _burstSliderHeadNotePool;
+        private readonly MemoryPoolContainer<BurstSliderGameNoteController> _burstSliderNotePool;
         private readonly MemoryPoolContainer<BombNoteController> _bombNotePool;
 
         private readonly Dictionary<NoteCutInfo, NoteEvent> _recognizedNoteCutInfos = new Dictionary<NoteCutInfo, NoteEvent>();
@@ -25,49 +27,51 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             _siraLog = siraLog;
             _saberManager = saberManager;
             _gameNotePool = Accessors.GameNotePool(ref basicBeatmapObjectManager);
+            _burstSliderHeadNotePool = Accessors.BurstSliderHeadNotePool(ref basicBeatmapObjectManager);
+            _burstSliderNotePool = Accessors.BurstSliderNotePool(ref basicBeatmapObjectManager);
             _bombNotePool = Accessors.BombNotePool(ref basicBeatmapObjectManager);
             _sortedNoteEvents = file.noteKeyframes.OrderBy(nk => nk.Time).ToArray();
         }
 
         public void Tick() {
 
-            if (_lastIndex >= _sortedNoteEvents.Length)
-                return;
-
-            while (audioTimeSyncController.songTime >= _sortedNoteEvents[_lastIndex].Time) {
+            while (_nextIndex < _sortedNoteEvents.Length && audioTimeSyncController.songTime >= _sortedNoteEvents[_nextIndex].Time) {
                 
-                NoteEvent activeEvent = _sortedNoteEvents[_lastIndex++];
+                NoteEvent activeEvent = _sortedNoteEvents[_nextIndex++];
                 ProcessEvent(activeEvent);
-
-                if (_lastIndex >= _sortedNoteEvents.Length)
-                    break;
             }
         }
 
-        private bool ProcessEvent(NoteEvent activeEvent) {
+        private void ProcessEvent(NoteEvent activeEvent) {
 
-            bool foundNote = false;
             if (activeEvent.EventType == NoteEventType.GoodCut || activeEvent.EventType == NoteEventType.BadCut) {
                 foreach (var noteController in _gameNotePool.activeItems) {
                     if (HandleEvent(activeEvent, noteController)) {
-                        foundNote = true;
-                        break;
+                        return;
+                    }
+                }
+                foreach (var noteController in _burstSliderHeadNotePool.activeItems) {
+                    if (HandleEvent(activeEvent, noteController)) {
+                        return;
+                    }
+                }
+                foreach (var noteController in _burstSliderNotePool.activeItems) {
+                    if (HandleEvent(activeEvent, noteController)) {
+                        return;
                     }
                 }
             } else if (activeEvent.EventType == NoteEventType.Bomb) {
                 foreach (var bombController in _bombNotePool.activeItems) {
                     if (HandleEvent(activeEvent, bombController)) {
-                        foundNote = true;
-                        break;
+                        return;
                     }
                 }
             }
-            return foundNote;
         }
 
         private bool HandleEvent(NoteEvent activeEvent, NoteController noteController) {
 
-            if (DoesNoteMatchID(activeEvent.NoteID, noteController.noteData)) {
+            if (activeEvent.NoteID.Matches(noteController.noteData)) {
 
                 Saber correctSaber = noteController.noteData.colorType == ColorType.ColorA ? _saberManager.leftSaber : _saberManager.rightSaber;
                 var noteTransform = noteController.noteTransform;
@@ -127,21 +131,15 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             }
         }
 
-        private static bool DoesNoteMatchID(NoteID id, NoteData note) {
-
-            return new NoteID { Time = note.time, LineIndex = note.lineIndex, LineLayer = (int)note.noteLineLayer, ColorType = (int)note.colorType, CutDirection = (int)note.cutDirection } == id;
-        }
-
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedNoteEvents.Length; c++) {
-                if (_sortedNoteEvents[c].Time >= newTime) {
-                    _lastIndex = c;
-                    Tick();
+                if (_sortedNoteEvents[c].Time > newTime) {
+                    _nextIndex = c;
                     return;
                 }
             }
-            _lastIndex = _sortedNoteEvents.Count() != 0 ? _sortedNoteEvents.Length - 1 : 0;
+            _nextIndex = _sortedNoteEvents.Length;
         }
     }
 }

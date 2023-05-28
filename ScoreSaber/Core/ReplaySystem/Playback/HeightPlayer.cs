@@ -9,7 +9,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 {
     internal class HeightPlayer : TimeSynchronizer, IInitializable, ITickable, IScroller
     {
-        private int _lastIndex = 0;
+        private int _nextIndex = 0;
         private readonly HeightEvent[] _sortedHeightEvents;
         private readonly PlayerHeightDetector _playerHeightDetector;
 
@@ -26,25 +26,25 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         public void Tick() {
 
-            if (_lastIndex >= _sortedHeightEvents.Length - 1)
-                return;
-
-            HeightEvent activeEvent = _sortedHeightEvents[_lastIndex];
-            if (audioTimeSyncController.songEndTime >= activeEvent.Time) {
-                _lastIndex++;
-                FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(activeEvent.Height);
+            float? newHeight = null;
+            while (_nextIndex < _sortedHeightEvents.Length && audioTimeSyncController.songEndTime >= _sortedHeightEvents[_nextIndex].Time) {
+                newHeight = _sortedHeightEvents[_nextIndex].Height;
+                _nextIndex++;
+            }
+            if (newHeight.HasValue) {
+                FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(newHeight.Value);
             }
         }
 
         public void TimeUpdate(float newTime) {
 
             for (int c = 0; c < _sortedHeightEvents.Length; c++) {
-                if (_sortedHeightEvents[c].Time >= newTime) {
-                    _lastIndex = c;
-                    Tick();
+                if (_sortedHeightEvents[c].Time > newTime) {
+                    _nextIndex = c;
                     return;
                 }
             }
+            _nextIndex = _sortedHeightEvents.Length;
             FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(_sortedHeightEvents.LastOrDefault().Height);
         }
     }

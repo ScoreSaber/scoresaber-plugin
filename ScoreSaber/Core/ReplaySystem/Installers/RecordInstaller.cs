@@ -9,23 +9,7 @@ namespace ScoreSaber.Core.ReplaySystem.Installers
 {
     internal class RecordInstaller : Installer
     {
-        private readonly SiraLog _siraLog;
-        private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
-
-        public RecordInstaller(SiraLog siraLog, GameplayCoreSceneSetupData gameplayCoreSceneSetupData) {
-
-            _siraLog = siraLog;
-            _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
-        }
-
         public override void InstallBindings() {
-
-            bool hasV3Stuff = LeaderboardUtils.ContainsV3Stuff(_gameplayCoreSceneSetupData.transformedBeatmapData);
-
-            if (hasV3Stuff) {
-                _siraLog.Warn("This map contains Beatmap V3 sliders! Not recording...");
-                return;
-            }
 
             if (!Plugin.ReplayState.IsPlaybackEnabled) {
                 Plugin.Log.Debug("Installing replay recorders");

@@ -38,7 +38,16 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
         private void ScoreController_scoringForNoteFinishedEvent(ScoringElement element) {
 
             var noteData = element.noteData;
-            NoteID noteID = new NoteID() { Time = noteData.time, LineIndex = noteData.lineIndex, LineLayer = (int)noteData.noteLineLayer, ColorType = (int)noteData.colorType, CutDirection = (int)noteData.cutDirection };
+            NoteID noteID = new NoteID() { 
+                Time = noteData.time,
+                LineIndex = noteData.lineIndex,
+                LineLayer = (int)noteData.noteLineLayer,
+                ColorType = (int)noteData.colorType,
+                CutDirection = (int)noteData.cutDirection,
+                GameplayType = (int)noteData.gameplayType,
+                ScoringType = (int)noteData.scoringType,
+                CutDirectionAngleOffset = noteData.cutDirectionAngleOffset,
+            };
 
             if (element is GoodCutScoringElement goodCut) {
 
@@ -63,7 +72,13 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
                     AfterCutRating = goodCut.cutScoreBuffer.afterCutSwingRating,
                     Time = cutTime,
                     UnityTimescale = UnityEngine.Time.timeScale,
-                    TimeSyncTimescale = audioTimeSyncController.timeScale
+                    TimeSyncTimescale = audioTimeSyncController.timeScale,
+
+                    TimeDeviation = noteCutInfo.timeDeviation,
+                    WorldRotation = noteCutInfo.worldRotation.Convert(),
+                    InverseWorldRotation = noteCutInfo.inverseWorldRotation.Convert(),
+                    NoteRotation = noteCutInfo.noteRotation.Convert(),
+                    NotePosition = noteCutInfo.notePosition.Convert(),
                 });
 
 
@@ -89,7 +104,13 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
                     AfterCutRating = 0f,
                     Time = audioTimeSyncController.songTime,
                     UnityTimescale = UnityEngine.Time.timeScale,
-                    TimeSyncTimescale = audioTimeSyncController.timeScale
+                    TimeSyncTimescale = audioTimeSyncController.timeScale,
+
+                    TimeDeviation = noteCutInfo.timeDeviation,
+                    WorldRotation = noteCutInfo.worldRotation.Convert(),
+                    InverseWorldRotation = noteCutInfo.inverseWorldRotation.Convert(),
+                    NoteRotation = noteCutInfo.noteRotation.Convert(),
+                    NotePosition = noteCutInfo.notePosition.Convert(),
                 });
             
             } else if (noteData.colorType != ColorType.None /* not bomb */ && element is MissScoringElement) {
@@ -110,7 +131,14 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
                     AfterCutRating = 0f,
                     Time = audioTimeSyncController.songTime,
                     UnityTimescale = UnityEngine.Time.timeScale,
-                    TimeSyncTimescale = audioTimeSyncController.timeScale
+                    TimeSyncTimescale = audioTimeSyncController.timeScale,
+
+                    // I couldn't find where to grab these for misses
+                    TimeDeviation = 0f,
+                    WorldRotation = new VRRotation(),
+                    InverseWorldRotation = new VRRotation(),
+                    NoteRotation = new VRRotation(),
+                    NotePosition = new VRPosition(),
                 });
             }
         }

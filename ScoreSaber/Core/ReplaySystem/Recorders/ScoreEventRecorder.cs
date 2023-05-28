@@ -38,7 +38,13 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
 
         private void ScoreController_scoreDidChangeEvent(int rawScore, int score) {
 
-            _scoreKeyframes.Add(new ScoreEvent() { Score = rawScore, Time = audioTimeSyncController.songTime });
+            var scoreController = _scoreController;
+
+            _scoreKeyframes.Add(new ScoreEvent() { 
+                Score = rawScore,
+                Time = audioTimeSyncController.songTime,
+                ImmediateMaxPossibleScore = Accessors.ImmediateMultipliedPossible(ref scoreController)
+        });
         }
 
         private void ComboController_comboDidChangeEvent(int combo) {

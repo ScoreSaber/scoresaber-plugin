@@ -1,5 +1,6 @@
 ﻿#if DEV
 using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Extensions;
 using System;
@@ -54,9 +55,8 @@ namespace ScoreSaber.Core.Daemons {
             ProcessUpload(multiplayerLevelScenesTransitionSetupDataSO.gameMode, multiplayerLevelScenesTransitionSetupDataSO.difficultyBeatmap, multiplayerResultsData.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
         }
 
-        private void ProcessUpload(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults, bool practicing) {
+        private async void ProcessUpload(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults, bool practicing) {
 
-        
             var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
             if (!practiceViewController.isInViewControllerHierarchy) {
                 if (gameMode == "Solo" || gameMode == "Multiplayer") {
@@ -77,14 +77,22 @@ namespace ScoreSaber.Core.Daemons {
                         return;
                     }
 
+                    
+                    bool ranked = true;
+                    Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(difficultyBeatmap);
 
-                    if (difficultyBeatmap.level is CustomBeatmapLevel) {
-                        if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore != null) {
-                            if (levelCompletionResults.modifiedScore < _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.playerScore.modifiedScore) {
+                    if (currentLeaderboard != null) {
+                        ranked = currentLeaderboard.leaderboardInfo.ranked;
+                        if (currentLeaderboard.leaderboardInfo.playerScore != null) {
+                            if (levelCompletionResults.modifiedScore < currentLeaderboard.leaderboardInfo.playerScore.modifiedScore) {
                                 UploadStatusChanged?.Invoke(UploadStatus.Error, "Didn't beat score, not uploading.");
+                                UploadStatusChanged?.Invoke(UploadStatus.Done, "");
+                                uploading = false;
                                 return;
                             }
                         }
+                    } else {
+                        Plugin.Log.Debug("Failed to get leaderboards ranked status");
                     }
 
                     // We good, "upload" the score

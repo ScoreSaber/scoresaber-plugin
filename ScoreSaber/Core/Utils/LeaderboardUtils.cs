@@ -220,14 +220,5 @@ namespace ScoreSaber.Core.Utils {
             }
             return result;
         }
-
-        public static bool ContainsV3Stuff(IReadonlyBeatmapData readonlyBeatmapData) {
-             
-    
-            foreach (var item in readonlyBeatmapData.allBeatmapDataItems)
-                if (item.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && item is SliderData)
-                    return true;
-            return false;
-        }
     }
 }
