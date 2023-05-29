@@ -40,20 +40,21 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         public void TimeUpdate(float newTime) {
 
             UpdateMultiplier();
+
+            _nextIndex = _sortedScoreEvents.Length;
             for (int c = 0; c < _sortedScoreEvents.Length; c++) {
                 if (_sortedScoreEvents[c].Time > newTime) {
                     _nextIndex = c;
-                    if (c != 0) {
-                        UpdateScore(_sortedScoreEvents[c - 1].Score, _sortedScoreEvents[c - 1].ImmediateMaxPossibleScore, newTime);
-                    } else {
-                        UpdateScore(0, 0, newTime);
-                    }
-                    return;
+                    break;
                 }
             }
-            _nextIndex = _sortedScoreEvents.Length;
-            var scoreEvent = _sortedScoreEvents.LastOrDefault();
-            UpdateScore(scoreEvent.Score, scoreEvent.ImmediateMaxPossibleScore, newTime);
+
+            if (_nextIndex > 0) {
+                var scoreEvent = _sortedScoreEvents[_nextIndex - 1];
+                UpdateScore(scoreEvent.Score, scoreEvent.ImmediateMaxPossibleScore, newTime);
+            } else {
+                UpdateScore(0, 0, newTime);
+            }
         }
 
         private void UpdateMultiplier() {
