@@ -27,9 +27,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                     return;
                 }
             }
-            // TODO: should break if _sortedMultiplerEvents are empty
-            var lastEvent = _sortedMultiplierEvents.LastOrDefault();
-            UpdateMultiplier(lastEvent.Multiplier, lastEvent.NextMultiplierProgress);
+            if (_sortedMultiplierEvents.Length > 0) {
+                var lastEvent = _sortedMultiplierEvents.LastOrDefault();
+                UpdateMultiplier(lastEvent.Multiplier, lastEvent.NextMultiplierProgress);
+            }
         }
 
         private void UpdateMultiplier(int multiplier, float progress) {
