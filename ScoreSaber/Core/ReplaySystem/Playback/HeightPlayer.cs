@@ -38,14 +38,16 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         public void TimeUpdate(float newTime) {
 
+            _nextIndex = _sortedHeightEvents.Length;
             for (int c = 0; c < _sortedHeightEvents.Length; c++) {
                 if (_sortedHeightEvents[c].Time > newTime) {
                     _nextIndex = c;
-                    return;
+                    break;
                 }
             }
-            _nextIndex = _sortedHeightEvents.Length;
-            FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(_sortedHeightEvents.LastOrDefault().Height);
+            if (_nextIndex > 0) {
+                FieldAccessor<PlayerHeightDetector, Action<float>>.Get(_playerHeightDetector, "playerHeightDidChangeEvent").Invoke(_sortedHeightEvents[_nextIndex - 1].Height);
+            }
         }
     }
 }
