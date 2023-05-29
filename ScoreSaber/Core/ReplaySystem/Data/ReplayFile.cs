@@ -103,24 +103,9 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal int? ScoringType;
         internal float? CutDirectionAngleOffset;
 
-        public bool Matches(NoteData n) {
-            if (!Mathf.Approximately(Time, n.time) || LineIndex != n.lineIndex || LineLayer != (int)n.noteLineLayer || ColorType != (int)n.colorType || CutDirection != (int)n.cutDirection)
-                return false;
-
-            if (GameplayType is int gameplayType && gameplayType != (int)n.gameplayType)
-                return false;
-
-            if (ScoringType is int scoringType && scoringType != (int)n.scoringType)
-                return false;
-
-            if (CutDirectionAngleOffset is float cutDirectionAngleOffset && !Mathf.Approximately(cutDirectionAngleOffset, n.cutDirectionAngleOffset))
-                return false;
-
-            return true;
-        }
-
         public static bool operator ==(NoteID a, NoteID b) {
-            return Mathf.Approximately(a.Time, b.Time) && a.LineIndex == b.LineIndex && a.LineLayer == b.LineLayer && a.ColorType == b.ColorType && a.CutDirection == b.CutDirection;
+            return Mathf.Approximately(a.Time, b.Time) && a.LineIndex == b.LineIndex && a.LineLayer == b.LineLayer && a.ColorType == b.ColorType && a.CutDirection == b.CutDirection
+                && a.GameplayType == b.GameplayType && a.ScoringType == b.ScoringType && a.CutDirectionAngleOffset == b.CutDirectionAngleOffset;
         }
 
         public static bool operator !=(NoteID a, NoteID b) {

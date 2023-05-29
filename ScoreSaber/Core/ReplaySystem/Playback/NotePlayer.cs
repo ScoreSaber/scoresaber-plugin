@@ -6,7 +6,9 @@ using SiraUtil.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 using Zenject;
+using static NoteData;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback {
     internal class NotePlayer : TimeSynchronizer, ITickable, IScroller, IAffinity
@@ -71,8 +73,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
         private bool HandleEvent(NoteEvent activeEvent, NoteController noteController) {
 
-            if (activeEvent.NoteID.Matches(noteController.noteData)) {
-
+            if (DoesNoteMatchID(activeEvent.NoteID, noteController.noteData)) {
                 Saber correctSaber = noteController.noteData.colorType == ColorType.ColorA ? _saberManager.leftSaber : _saberManager.rightSaber;
                 var noteTransform = noteController.noteTransform;
 
@@ -104,6 +105,23 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                 return true;
             }
             return false;
+        }
+
+        bool DoesNoteMatchID(NoteID id, NoteData noteData) {
+
+            if (!Mathf.Approximately(id.Time, noteData.time) || id.LineIndex != noteData.lineIndex || id.LineLayer != (int)noteData.noteLineLayer || id.ColorType != (int)noteData.colorType || id.CutDirection != (int)noteData.cutDirection)
+                return false;
+
+            if (id.GameplayType is int gameplayType && gameplayType != (int)noteData.gameplayType)
+                return false;
+
+            if (id.ScoringType is int scoringType && scoringType != (int)noteData.scoringType)
+                return false;
+
+            if (id.CutDirectionAngleOffset is float cutDirectionAngleOffset && !Mathf.Approximately(cutDirectionAngleOffset, noteData.cutDirectionAngleOffset))
+                return false;
+
+            return true;
         }
 
         [AffinityPostfix, AffinityPatch(typeof(GoodCutScoringElement), nameof(GoodCutScoringElement.Init))]
