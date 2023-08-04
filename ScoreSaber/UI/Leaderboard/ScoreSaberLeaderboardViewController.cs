@@ -33,8 +33,8 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIComponent("down-button")]
         protected readonly Button _downButton = null;
 
-        [UIValue("info-buttons-view")]
-        protected readonly InfoButtonsView _infoButtons = null;
+        [UIValue("entry-holder")]
+        internal readonly EntryHolder _infoButtons = null;
         [UIValue("score-detail-view")]
         protected readonly ScoreDetailView _scoreDetailView = null;
         [UIComponent("profile-detail-view")]
@@ -79,7 +79,6 @@ namespace ScoreSaber.UI.Leaderboard {
             get { return _isOST; }
             set {
                 if (!_isOST && value == true) {
-                    _infoButtons.HideInfoButtons();
                     _panelView.SetRankedStatus("N/A (Not Custom Song)");
                 }
                 _isOST = value;
@@ -98,7 +97,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             _platformLeaderboardViewController = platformLeaderboardViewController;
 
-            _infoButtons = new InfoButtonsView();
+            _infoButtons = new EntryHolder();
             _scoreDetailView = new ScoreDetailView();
         }
 
@@ -117,7 +116,6 @@ namespace ScoreSaber.UI.Leaderboard {
             _upButton.transform.localScale *= .5f;
             _downButton.transform.localScale *= .5f;
             _root.name = "ScoreSaberLeaderboardElements";
-            _infoButtons.HideInfoButtons();
             activated = true;
         }
 
@@ -240,8 +238,6 @@ namespace ScoreSaber.UI.Leaderboard {
                     _downButton.interactable = true;
                 }
 
-                _infoButtons.HideInfoButtons();
-
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
                 if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
@@ -275,7 +271,6 @@ namespace ScoreSaber.UI.Leaderboard {
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
                             loadingControl.ShowText("", false);
                             loadingControl.Hide();
-                            _infoButtons.UpdateInfoButtonState(leaderboardTableScoreData.Count);
                             if (_uploadDaemon.uploading) {
                                 _panelView.DismissPrompt();
                             }
