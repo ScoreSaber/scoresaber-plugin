@@ -55,6 +55,7 @@ namespace ScoreSaber.Patches {
                     _playerNameText.richText = false;
                 } else {
                     _playerNameText.richText = true;
+                    _playerNameText.text = "  " + _playerNameText.text;
                 }
             }
         }
