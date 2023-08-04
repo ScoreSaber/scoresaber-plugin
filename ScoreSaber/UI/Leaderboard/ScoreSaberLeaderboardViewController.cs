@@ -35,6 +35,8 @@ namespace ScoreSaber.UI.Leaderboard {
 
         [UIValue("info-buttons-view")]
         protected readonly InfoButtonsView _infoButtons = null;
+        [UIValue("profile-picture-lb-view")]
+        protected readonly ProfilePictureView _profileImages = null;
         [UIValue("score-detail-view")]
         protected readonly ScoreDetailView _scoreDetailView = null;
         [UIComponent("profile-detail-view")]
@@ -99,6 +101,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _platformLeaderboardViewController = platformLeaderboardViewController;
 
             _infoButtons = new InfoButtonsView();
+            _profileImages = new ProfilePictureView();
             _scoreDetailView = new ScoreDetailView();
         }
 
@@ -118,6 +121,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _downButton.transform.localScale *= .5f;
             _root.name = "ScoreSaberLeaderboardElements";
             _infoButtons.HideInfoButtons();
+            _profileImages.HideImageViews();
             activated = true;
         }
 
@@ -241,6 +245,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 }
 
                 _infoButtons.HideInfoButtons();
+                _profileImages.HideImageViews();
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
@@ -258,7 +263,6 @@ namespace ScoreSaber.UI.Leaderboard {
                     return; 
                 }
 
-            
 
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
@@ -273,6 +277,11 @@ namespace ScoreSaber.UI.Leaderboard {
                             SetErrorState(tableView, loadingControl, null, null, "You haven't set a score on this leaderboard");
                         } else {
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
+                            List<string> avatarURLS = new List<string>();
+                            for (int i = 0; i < leaderboardTableScoreData.Count; i++) {
+                                avatarURLS.Add(leaderboardData.scores[i].score.leaderboardPlayerInfo.profilePicture);
+                            }
+                            _profileImages.SetImages(avatarURLS);
                             loadingControl.ShowText("", false);
                             loadingControl.Hide();
                             _infoButtons.UpdateInfoButtonState(leaderboardTableScoreData.Count);
