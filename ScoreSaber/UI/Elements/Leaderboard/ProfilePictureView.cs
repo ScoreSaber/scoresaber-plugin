@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ScoreSaber.UI.Elements.Leaderboard {
     internal class ProfilePictureView {
@@ -50,6 +51,26 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 imageView9,
                 imageView10
             };
+
+            Material[] allMaterials = Resources.FindObjectsOfTypeAll<Material>();
+            Material cool = null;
+
+            foreach (Material material in allMaterials) {
+                if (material == null) continue;
+                if (material.name.Contains("UINoGlowRoundEdge")) {
+                    cool = material;
+                    break;
+                }
+            }
+
+            if (cool == null) {
+                Plugin.Log.Error("Material 'UINoGlowRoundEdge' not found.");
+                return;
+            }
+
+            foreach (ImageView imageView in imageViews) {
+                imageView.material = cool;
+            }
         }
 
         public void HideImageViews() {
