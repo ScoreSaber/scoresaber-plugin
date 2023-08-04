@@ -62,7 +62,7 @@ namespace ScoreSaber.UI.Leaderboard {
         private readonly PlayerService _playerService;
         private readonly LeaderboardService _leaderboardService;
         private readonly PlayerDataModel _playerDataModel;
-        private readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
+        internal readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         // TODO: Put this somewhere nicer?
         public enum UploadStatus {
@@ -230,7 +230,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
 
-      
+
 
                 if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer && !_filterAroundCountry) {
                     _upButton.interactable = false;
@@ -245,7 +245,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
                 if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
-                    SetErrorState(tableView,loadingControl, null, null, "Maps with new note types currently not supported", false);
+                    SetErrorState(tableView, loadingControl, null, null, "Maps with new note types currently not supported", false);
                     return;
                 }
 
@@ -255,10 +255,9 @@ namespace ScoreSaber.UI.Leaderboard {
                 }
 
                 if (_playerService.loginStatus != PlayerService.LoginStatus.Success) {
-                    return; 
+                    return;
                 }
 
-            
 
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
@@ -289,7 +288,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     }
                 }
             } catch (HttpErrorException httpError) {
-                SetErrorState(tableView,loadingControl, httpError);
+                SetErrorState(tableView, loadingControl, httpError);
             } catch (Exception exception) {
                 SetErrorState(tableView, loadingControl, null, exception);
             }
@@ -326,7 +325,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private void SetErrorState(LeaderboardTableView tableView, LoadingControl loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
 
-           
+
             if (httpErrorException != null) {
                 if (httpErrorException.isNetworkError) {
                     errorText = "Failed to load leaderboard due to a network error, score won't upload";
@@ -385,7 +384,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             if (!activated)
                 return;
-            
+
             _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
         }
 

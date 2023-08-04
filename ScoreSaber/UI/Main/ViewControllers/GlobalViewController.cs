@@ -87,7 +87,20 @@ namespace ScoreSaber.UI.Main.ViewControllers
         [UIAction("global-scope-click")] private void GlobalScopeClicked() => ScopeClicked(GlobalPlayerScope.Global);
         [UIAction("player-scope-click")] private void PlayerScopeClicked() => ScopeClicked(GlobalPlayerScope.AroundPlayer);
         [UIAction("friends-scope-click")] private void FriendsScopeClicked() => ScopeClicked(GlobalPlayerScope.Friends);
-        [UIAction("country-scope-click")] private void CountryScopeClicked() => ScopeClicked(GlobalPlayerScope.Country);
+        
+        [UIAction("location-scope-click")]
+        private void LocationScopeClicked() {
+            if(Plugin.Settings.locationFilterMode.ToLower() == "country") {
+                ScopeClicked(GlobalPlayerScope.Country);
+            }
+            else if(Plugin.Settings.locationFilterMode.ToLower() == "region") {
+                ScopeClicked(GlobalPlayerScope.Region);
+            }
+            else {
+                Plugin.Log.Error("Invalid location filter mode, falling back to country");
+                ScopeClicked(GlobalPlayerScope.Country);
+            }
+        }
         [UIAction("more-info-click")] private void MoreInfoClicked() => Application.OpenURL("http://bit.ly/2X8Anko");
         #endregion
 
@@ -157,6 +170,9 @@ namespace ScoreSaber.UI.Main.ViewControllers
                     _friendsScopeImage.DefaultColor = _selectedColor;
                     break;
                 case GlobalPlayerScope.Country:
+                    _countryScopeImage.DefaultColor = _selectedColor;
+                    break;
+                case GlobalPlayerScope.Region:
                     _countryScopeImage.DefaultColor = _selectedColor;
                     break;
             }

@@ -64,7 +64,15 @@ namespace ScoreSaber.Core.Services {
                         break;
                 }
             } else {
-                url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                if(Plugin.Settings.locationFilterMode.ToLower() == "region") {
+                    url = $"{url}/around-region/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                }
+                else if(Plugin.Settings.locationFilterMode.ToLower() == "country") {
+                    url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                } else {
+                    Plugin.Log.Error("Invalid location filter mode, falling back to country");
+                    url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                }
             }
 
             if (Plugin.Settings.hideNAScoresFromLeaderboard) {
