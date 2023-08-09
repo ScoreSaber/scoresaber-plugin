@@ -11,6 +11,7 @@ using ScoreSaber.UI.Elements.Profile;
 using SiraUtil.Zenject;
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 using IPALogger = IPA.Logging.Logger;
 
 namespace ScoreSaber {
@@ -38,6 +40,8 @@ namespace ScoreSaber {
         internal static Material Furry;
         internal static Material NonFurry;
         internal static Material NoGlowMatRound;
+
+        internal static DiContainer Container; // Workaround to access the Zenject container in SceneLoaded
 
         internal System.Version LibVersion;
         internal Harmony harmony;
@@ -83,7 +87,7 @@ namespace ScoreSaber {
         private void SceneLoaded(Scene scene, LoadSceneMode mode) {
 
             if (scene.name == "MainMenu") {
-                SharedCoroutineStarter.instance.StartCoroutine(WaitForLeaderboard());
+                Container.Resolve<CoroutineStarter>().StartCoroutine(WaitForLeaderboard());
             }
         }
 

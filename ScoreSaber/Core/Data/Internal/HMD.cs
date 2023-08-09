@@ -40,11 +40,19 @@ namespace ScoreSaber.Core.Data
                         return Index;
                     }
                 }
-#pragma warning disable CS0618 // Type or member is obsolete
-                return Get(XRDevice.model);
-#pragma warning restore CS0618 // Type or member is obsolete
+
+                // TODO: verify all the strings for different HMDs
+                var headDevices = new List<InputDevice>();
+                InputDevices.GetDeviceAtXRNode(XRNode.Head);
+                foreach (var device in headDevices) {
+                    int hmd = Get(device.name);
+                    if(hmd != Unknown) {
+                        return hmd;
+                    }
+                }
+                return Unknown;
             } catch (Exception) {
-                return 0;
+                return Unknown;
             }
         }
 
