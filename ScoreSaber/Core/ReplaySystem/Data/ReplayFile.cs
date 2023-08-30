@@ -46,8 +46,8 @@ namespace ScoreSaber.Core.ReplaySystem.Data
     internal struct ScoreEvent
     {
         public int Score;
-        public int? ImmediateMaxPossibleScore;
         public float Time;
+        public int? ImmediateMaxPossibleScore;
     };
 
     internal struct ComboEvent
