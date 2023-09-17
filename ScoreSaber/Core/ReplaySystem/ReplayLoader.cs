@@ -130,7 +130,7 @@ namespace ScoreSaber.Core.ReplaySystem {
                 }
 
                 UnityMainThreadTaskScheduler.Factory.StartNew(() => _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level,
-                    playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetSelectedColorScheme(), beatmapOverrideColorScheme,
+                    playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetOverrideColorScheme(), beatmapOverrideColorScheme,
                     LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers,
                     playerSettings, null, "Exit Replay", false, false, null, ReplayEnd,null));
             });
