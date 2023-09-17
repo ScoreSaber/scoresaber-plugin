@@ -23,7 +23,7 @@
   </macro.as-host>
 
   <!-- Score info modal -->
-  <modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="50">
+  <modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="52">
     <macro.as-host host="score-detail-view">
       <vertical pref-width="55" pad="3" vertical-fit="PreferredSize" spacing="0.8">
         <horizontal pref-width="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
@@ -40,7 +40,9 @@
         </horizontal>
         <image src="ScoreSaber.Resources.pixel.png" size-delta-x="48" pref-height="0.4" />
         <vertical pref-width="50" pref-height="40">
-          <text id="device-text" text="" font-size="3.5" />
+          <text id="devicehmd-text" text="" font-size="3.5" />
+          <text id="devicecontrollerleft-text" text="" font-size="3.5" />
+          <text id="devicecontrollerright-text" text="" font-size="3.5" />
           <text id="score-text" text="" font-size="3.5" />
           <text id="pp-text" text="" font-size="3.5" />
           <text id="max-combo-text" text="" font-size="3.5" />

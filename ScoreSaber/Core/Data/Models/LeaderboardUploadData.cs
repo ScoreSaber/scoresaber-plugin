@@ -42,15 +42,17 @@ namespace ScoreSaber.Core.Data.Models {
         [JsonProperty("fullCombo")]
         internal bool fullCombo;
         [JsonProperty("hmd")]
-        internal int hmd;
+        internal int? hmd;
+        [JsonProperty("deviceHmdIdentifier")]
+        internal string deviceHmdIdentifier;
+        [JsonProperty("deviceControllerLeftIdentifier")]
+        internal string deviceControllerLeftIdentifier;
+        [JsonProperty("deviceControllerRightIdentifier")]
+        internal string deviceControllerRightIdentifier;
 
         internal static ScoreSaberUploadData Create(IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results, LocalPlayerInfo playerInfo, string infoHash) {
 
             ScoreSaberUploadData data = new ScoreSaberUploadData();
-
-            IDifficultyBeatmap difficultyBeatmap = (IDifficultyBeatmap)type;
-            LevelCompletionResults results = (LevelCompletionResults)rType;
-            LocalPlayerInfo playerInfo = (LocalPlayerInfo)lType;
 
             string[] levelInfo = difficultyBeatmap.level.levelID.Split('_');
             data.gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
@@ -73,7 +75,10 @@ namespace ScoreSaber.Core.Data.Models {
 
             data.score = results.multipliedScore;
             data.modifiers = LeaderboardUtils.GetModifierList(results);
-            data.hmd = HMD.Get();
+            data.hmd = null; // we can't generate the legacy hmd data anymore
+            data.deviceHmdIdentifier = VRDevices.GetDeviceHMD();
+            data.deviceControllerLeftIdentifier = VRDevices.GetDeviceControllerLeft();
+            data.deviceControllerRightIdentifier = VRDevices.GetDeviceControllerRight();
             return data;
         }
     }

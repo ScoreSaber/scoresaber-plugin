@@ -19,8 +19,12 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         protected readonly CurvedTextMeshPro _prefixText = null;
         [UIComponent("name-text")]
         protected readonly CurvedTextMeshPro _nameText = null;
-        [UIComponent("device-text")]
-        protected readonly CurvedTextMeshPro _deviceText = null;
+        [UIComponent("devicehmd-text")]
+        protected readonly CurvedTextMeshPro _deviceHmdText = null;
+        [UIComponent("devicecontrollerleft-text")]
+        protected readonly CurvedTextMeshPro _deviceControllerLeftText = null;
+        [UIComponent("devicecontrollerright-text")]
+        protected readonly CurvedTextMeshPro _deviceControllerRightText = null;
         [UIComponent("score-text")]
         protected readonly CurvedTextMeshPro _scoreText = null;
         [UIComponent("pp-text")]
@@ -91,7 +95,9 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             Score score = scoreMap.score;
             SetCrowns(score.leaderboardPlayerInfo.id);
             _nameText.text = $"{score.leaderboardPlayerInfo.name}'s score";
-            _deviceText.SetFancyText("Device", HMD.GetFriendlyName(score.hmd));
+            _deviceHmdText.SetFancyText("HMD", score.deviceHmd ?? VRDevices.GetLegacyHmdFriendlyName(score.hmd));
+            _deviceControllerLeftText.SetFancyText("Left Controller", score.deviceControllerLeft ?? "N/A");
+            _deviceControllerRightText.SetFancyText("Right Controller", score.deviceControllerRight ?? "N/A");
             _scoreText.SetFancyText("Score", $"{string.Format("{0:n0}", score.modifiedScore)} (<color=#FFD42A>{scoreMap.accuracy}%</color>)");
             _ppText.SetFancyText("Performance Points", $"<color=#6772E5>{score.pp}pp</color>");
             _maxComboText.SetFancyText("Combo", score.maxCombo != 0 ? score.maxCombo.ToString() : "N/A");
@@ -101,7 +107,6 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             _modifiersText.SetFancyText("Modifiers", score.modifiers);
             _timeText.SetFancyText("Time Set", new TimeSpan(DateTime.UtcNow.Ticks - score.timeSet.Ticks).ToNaturalTime(2, true) + " ago");
 
-            if (score.maxCombo == 0) { _fullComboText.text = "N/A"; }
             if (!replayDownloading) {
                 SetButtonState(_watchReplayButton, score.hasReplay && _allowReplayWatching);
             }
