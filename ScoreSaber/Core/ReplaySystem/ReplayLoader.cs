@@ -120,7 +120,8 @@ namespace ScoreSaber.Core.ReplaySystem {
                     localPlayerSettings.noteJumpFixedDuration, localPlayerSettings.noteJumpStartBeatOffset, localPlayerSettings.hideNoteSpawnEffect,
                     localPlayerSettings.adaptiveSfx, localPlayerSettings.arcsHapticFeedback, localPlayerSettings.arcVisibility,
                     localPlayerSettings.environmentEffectsFilterDefaultPreset,
-                    localPlayerSettings.environmentEffectsFilterExpertPlusPreset);
+                    localPlayerSettings.environmentEffectsFilterExpertPlusPreset,
+                    localPlayerSettings.headsetHapticIntensity);
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
 
