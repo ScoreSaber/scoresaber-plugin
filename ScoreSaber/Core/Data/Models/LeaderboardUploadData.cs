@@ -44,7 +44,7 @@ namespace ScoreSaber.Core.Data.Models {
         [JsonProperty("hmd")]
         internal int hmd;
 
-        internal static ScoreSaberUploadData Create(object type, object rType, object lType, object iH) {
+        internal static ScoreSaberUploadData Create(IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results, LocalPlayerInfo playerInfo, string infoHash) {
 
             ScoreSaberUploadData data = new ScoreSaberUploadData();
 
@@ -55,7 +55,7 @@ namespace ScoreSaber.Core.Data.Models {
             string[] levelInfo = difficultyBeatmap.level.levelID.Split('_');
             data.gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
             data.difficulty = BeatmapDifficultyMethods.DefaultRating(difficultyBeatmap.difficulty);
-            data.infoHash = iH.ToString();
+            data.infoHash = infoHash;
             data.leaderboardId = levelInfo[2];
             data.songName = difficultyBeatmap.level.songName;
             data.songSubName = difficultyBeatmap.level.songSubName;
@@ -72,7 +72,7 @@ namespace ScoreSaber.Core.Data.Models {
             data.fullCombo = results.fullCombo;
 
             data.score = results.multipliedScore;
-            data.modifiers = LeaderboardUtils.GetModifierList(rType);
+            data.modifiers = LeaderboardUtils.GetModifierList(results);
             data.hmd = HMD.Get();
             return data;
         }
