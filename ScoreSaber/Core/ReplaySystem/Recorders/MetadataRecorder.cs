@@ -106,9 +106,6 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
             if (modifiers.smallCubes) {
                 result.Add("SC");
             }
-            if (modifiers.strictAngles) {
-                result.Add("SA");
-            }
             if (modifiers.proMode) {
                 result.Add("PM");
             }

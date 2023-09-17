@@ -119,9 +119,6 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
             if (gameplayModifiers.smallCubes) {
                 result.Add("SC");
             }
-            if (gameplayModifiers.strictAngles) {
-                result.Add("SA");
-            }
             if (gameplayModifiers.proMode) {
                 result.Add("PM");
             }

@@ -209,9 +209,6 @@ namespace ScoreSaber.Core.Utils {
             if (results.gameplayModifiers.smallCubes) {
                 result.Add("SC");
             }
-            if (results.gameplayModifiers.strictAngles) {
-                result.Add("SA");
-            }
             if (results.gameplayModifiers.proMode) {
                 result.Add("PM");
             }
