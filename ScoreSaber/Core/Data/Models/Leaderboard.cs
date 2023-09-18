@@ -97,6 +97,12 @@ namespace ScoreSaber.Core.Data.Models {
         internal bool fullCombo { get; set; }
         [JsonProperty("hmd")]
         internal int hmd { get; set; }
+        [JsonProperty("deviceHmd")]
+        internal string deviceHmd { get; set; }
+        [JsonProperty("deviceControllerLeft")]
+        internal string deviceControllerLeft { get; set; }
+        [JsonProperty("deviceControllerRight")]
+        internal string deviceControllerRight { get; set; }
         [JsonProperty("timeSet")]
         internal DateTime timeSet { get; set; }
         [JsonProperty("hasReplay")]

@@ -166,9 +166,7 @@ namespace ScoreSaber.Core.Utils {
             return num * 115;
         }
 
-        internal static List<string> GetModifierList(object rType) {
-
-            LevelCompletionResults results = (LevelCompletionResults)rType;
+        internal static List<string> GetModifierList(LevelCompletionResults results) {
             List<string> result = new List<string>();
             if (results.gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) {
                 result.Add("BE");

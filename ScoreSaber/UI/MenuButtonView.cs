@@ -24,7 +24,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
 		public void Initialize() {
 			_playerService.LoginStatusChanged += playerService_LoginStatusChanged;
-			PersistentSingleton<MenuButtons>.instance.RegisterButton(_menuButton);
+            MenuButtons.instance.RegisterButton(_menuButton);
 			_menuButton.Interactable = false;
 		}
 
@@ -40,10 +40,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
 		public void Dispose() {
 			_playerService.LoginStatusChanged -= playerService_LoginStatusChanged;
-			bool isSingletonAvailable = PersistentSingleton<MenuButtons>.IsSingletonAvailable;
-			if (isSingletonAvailable) {
-				PersistentSingleton<MenuButtons>.instance.UnregisterButton(this._menuButton);
-			}
+            MenuButtons.instance.UnregisterButton(this._menuButton);
 		}
 	}
 }
