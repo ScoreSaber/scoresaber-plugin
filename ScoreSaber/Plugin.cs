@@ -9,20 +9,17 @@ using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.Installers;
 using ScoreSaber.UI.Elements.Profile;
 using SiraUtil.Zenject;
-using System;
 using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
 using IPALogger = IPA.Logging.Logger;
+using ScoreSaber.Core.Utils;
 
 namespace ScoreSaber {
     [Plugin(RuntimeOptions.DynamicInit)]
@@ -68,6 +65,8 @@ namespace ScoreSaber {
             BSMLParser.instance.RegisterTag(new ProfileDetailViewTag(metadata.Assembly));
 
             HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
+            OpenXRManager.Initialize();
+            SteamSettings.Initialize();
         }
 
         [OnEnable]

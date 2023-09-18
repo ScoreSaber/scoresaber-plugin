@@ -23,7 +23,7 @@ namespace ScoreSaber.Core.Utils {
         private delegate ulong xrGetCurrentInstanceDelegate();
 
         // XrSystemProperties structure https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrSystemProperties.html
-        struct XrSystemProperties {
+        private struct XrSystemProperties {
             public ulong type;      // 64 bit
             public void* next;      // 64 bit
             public ulong systemId;  // 64 bit
@@ -34,20 +34,20 @@ namespace ScoreSaber.Core.Utils {
         };
 
         // XrSystemGraphicsProperties structure https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrSystemGraphicsProperties.html
-        struct XrSystemGraphicsProperties {
+        private struct XrSystemGraphicsProperties {
             public uint maxSwapchainImageHeight;
             public uint maxSwapchainImageWidth;
             public uint maxLayerCount;
         };
 
         // XrSystemTrackingProperties structure https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrSystemTrackingProperties.html
-        struct XrSystemTrackingProperties {
+        private struct XrSystemTrackingProperties {
             public uint orientationTracking;
             public uint positionTracking;
         };
 
         // XrSystemGetInfo structure https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrSystemGetInfo.html
-        struct XrSystemGetInfo {
+        private struct XrSystemGetInfo {
             public ulong type;      // 64 bit
             public void* next;      // 64 bit
             public ulong formFactor;// 64 bit
@@ -61,46 +61,55 @@ namespace ScoreSaber.Core.Utils {
         private const int XR_TYPE_SYSTEM_PROPERTIES = 5;
         private const int XR_MAX_SYSTEM_NAME_SIZE = 256;
 
-        internal static string GetDevice() {
-            var openXRLoaderBaseAddress = GetModuleHandle("openxr_loader");
+        internal static string hmdName = null;
 
-            if (openXRLoaderBaseAddress == IntPtr.Zero) {
+        internal static void Initialize() {
+            hmdName = AttemptGetHmd();
+        }
+
+        private static string AttemptGetHmd() {
+
+            try {
+                var openXRLoaderBaseAddress = GetModuleHandle("openxr_loader");
+
+                // Get our xrInstance
+                var xrGetCurrentInstance = Marshal.GetDelegateForFunctionPointer<xrGetCurrentInstanceDelegate>(openXRLoaderBaseAddress + 0x38980);
+                var xrCurrentInstance = new IntPtr(*(long*)xrGetCurrentInstance());
+                var xrInstance = *(ulong*)new IntPtr((byte*)xrCurrentInstance.ToPointer() + 8);
+
+                // Get our systemId
+                var info = new XrSystemGetInfo {
+                    type = XR_TYPE_SYSTEM_GET_INFO,
+                    formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY
+                };
+
+                ulong systemId = 0;
+                var xrGetSystem = Marshal.GetDelegateForFunctionPointer<xrGetSystemDelegate>(openXRLoaderBaseAddress + 0x2D0B);
+                var getSystemResult = xrGetSystem(xrInstance, &info, &systemId);
+
+                // Get our system properties
+                var xrGetInstanceProcAddr = Marshal.GetDelegateForFunctionPointer<xrGetInstanceProcAddrDelegate>(openXRLoaderBaseAddress + 0x5AE2);
+                IntPtr xrGetSystemPropertiesAddr;
+                ulong result = xrGetInstanceProcAddr(xrInstance, new StringBuilder("xrGetSystemProperties"), &xrGetSystemPropertiesAddr);
+                var getSystemPropertiesAddr = Marshal.GetDelegateForFunctionPointer<xrGetSystemPropertiesDelegate>(xrGetSystemPropertiesAddr);
+
+                XrSystemProperties properties;
+                properties.type = XR_TYPE_SYSTEM_PROPERTIES;
+                result = getSystemPropertiesAddr(xrInstance, systemId, &properties);
+
+                var systemName = "";
+                for (int charIndex = 0; charIndex < XR_MAX_SYSTEM_NAME_SIZE; charIndex++) {
+                    if (properties.systemName[charIndex] == 0) {
+                        break;
+                    }
+                    systemName += ((char)properties.systemName[charIndex]);
+                }
+                return systemName;
+            } catch (Exception ex) {
+                Plugin.Log.Info($"Failed to get hmd from OpenXR {ex}");
                 return null;
             }
 
-            // Get our xrInstance
-            var xrGetCurrentInstance = Marshal.GetDelegateForFunctionPointer<xrGetCurrentInstanceDelegate>(openXRLoaderBaseAddress + 0x38980);
-            var xrCurrentInstance = new IntPtr(*(long*)xrGetCurrentInstance());
-            var xrInstance = *(ulong*)new IntPtr((byte*)xrCurrentInstance.ToPointer() + 8);
-
-            // Get our systemId
-            var info = new XrSystemGetInfo {
-                type = XR_TYPE_SYSTEM_GET_INFO,
-                formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY
-            };
-
-            ulong systemId = 0;
-            var xrGetSystem = Marshal.GetDelegateForFunctionPointer<xrGetSystemDelegate>(openXRLoaderBaseAddress + 0x2D0B);
-            var getSystemResult = xrGetSystem(xrInstance, &info, &systemId);
-
-            // Get our system properties
-            var xrGetInstanceProcAddr = Marshal.GetDelegateForFunctionPointer<xrGetInstanceProcAddrDelegate>(openXRLoaderBaseAddress + 0x5AE2);
-            IntPtr xrGetSystemPropertiesAddr;
-            ulong result = xrGetInstanceProcAddr(xrInstance, new StringBuilder("xrGetSystemProperties"), &xrGetSystemPropertiesAddr);
-            var getSystemPropertiesAddr = Marshal.GetDelegateForFunctionPointer<xrGetSystemPropertiesDelegate>(xrGetSystemPropertiesAddr);
-
-            XrSystemProperties properties;
-            properties.type = XR_TYPE_SYSTEM_PROPERTIES;
-            result = getSystemPropertiesAddr(xrInstance, systemId, &properties);
-
-            var systemName = "";
-            for (int charIndex = 0; charIndex < XR_MAX_SYSTEM_NAME_SIZE; charIndex++) {
-                if (properties.systemName[charIndex] == 0) {
-                    break;
-                }
-                systemName += ((char)properties.systemName[charIndex]);
-            }
-            return systemName;
         }
     }
 }

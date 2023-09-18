@@ -2,28 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine.XR;
 
-namespace ScoreSaber.Core.Data
-{
-    internal static class VRDevices 
-    {
+namespace ScoreSaber.Core.Data {
+    internal static class VRDevices {
         internal static string GetDeviceHMD() {
-            return OpenXRManager.GetDevice();
+
+            var currentRuntime = UnityEngine.XR.OpenXR.OpenXRRuntime.name.ToLower();
+
+            var hmd = GetDeviceName(XRNode.Head);
+
+            if (currentRuntime.Contains("steam")) {
+                if (SteamSettings.hmdName != null)
+                    hmd = $"{hmd}:(steamcfg):{SteamSettings.hmdName}";
+            }
+
+            if (OpenXRManager.hmdName != null)
+                hmd = $"{hmd}:(openxr):{OpenXRManager.hmdName}";
+
+            return $"{UnityEngine.XR.OpenXR.OpenXRRuntime.name}:{hmd}" ;
         }
 
         internal static string GetDeviceControllerLeft() {
-            var devices = new List<InputDevice>();
-            InputDevices.GetDevicesAtXRNode(XRNode.LeftHand, devices);
-            if (devices.Count == 0)
-                return null;
-            return devices[0].name;
+            return $"{UnityEngine.XR.OpenXR.OpenXRRuntime.name}:{GetDeviceName(XRNode.LeftHand)}";
         }
 
         internal static string GetDeviceControllerRight() {
+            return $"{UnityEngine.XR.OpenXR.OpenXRRuntime.name}:{GetDeviceName(XRNode.RightHand)}";
+        }
+
+        private static string GetDeviceName(XRNode node) {
             var devices = new List<InputDevice>();
-            InputDevices.GetDevicesAtXRNode(XRNode.RightHand, devices);
-            if (devices.Count == 0)
+            InputDevices.GetDevicesAtXRNode(node, devices);
+            if (devices.Count == 0) {
                 return null;
-            return devices[0].name;
+            }
+            return "(xrnode):" + devices[0].name;
         }
 
         internal static string GetLegacyHmdFriendlyName(int hmd) {
