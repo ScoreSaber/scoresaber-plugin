@@ -3,6 +3,7 @@ using ScoreSaber.Core.ReplaySystem.Data;
 using System;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback
 {
@@ -12,17 +13,15 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private GameEnergyUIPanel _gameEnergyUIPanel;
         private readonly EnergyEvent[] _sortedEnergyEvents;
 
-        public EnergyPlayer(ReplayFile file, GameEnergyCounter gameEnergyCounter, GameEnergyUIPanel gameEnergyUIPanel) {
+        public EnergyPlayer(ReplayFile file, GameEnergyCounter gameEnergyCounter, DiContainer container) {
 
             _gameEnergyCounter = gameEnergyCounter;
-            _gameEnergyUIPanel = gameEnergyUIPanel;
+            _gameEnergyUIPanel = container.TryResolve<GameEnergyUIPanel>();
             _sortedEnergyEvents = file.energyKeyframes.ToArray();
         }
 
         public void TimeUpdate(float newTime) {
 
-            // TODO: How would this ever be null? We get the object via Zenject and that would fail if it was null
-            if (_gameEnergyUIPanel == null) { return; }
             for (int c = 0; c < _sortedEnergyEvents.Length; c++) {
                 // TODO: this has potential to have problems if _sortedEnergyEvents[c].Time is within an epsilon of newTime, potentially applying energy changes twice or not at all
                 if (_sortedEnergyEvents[c].Time > newTime) {
@@ -40,7 +39,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private void UpdateEnergy(float energy) {
 
-            if (_gameEnergyUIPanel == null) { return; }
             bool isFailingEnergy = energy <= Mathf.Epsilon;
 
             bool noFail = _gameEnergyCounter.noFail;
@@ -51,14 +49,15 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             Accessors.ActiveEnergy(ref _gameEnergyCounter, energy);
             Accessors.NoFailPropertyUpdater(ref _gameEnergyCounter, noFail);
 
-            _gameEnergyUIPanel.Init();
-            var director = Accessors.Director(ref _gameEnergyUIPanel);
-            director.Stop();
-            director.Evaluate();
-            Accessors.EnergyBar(ref _gameEnergyUIPanel).enabled = !isFailingEnergy;
+            if (_gameEnergyUIPanel != null) {
+                _gameEnergyUIPanel.Init();
+                var director = Accessors.Director(ref _gameEnergyUIPanel);
+                director.Stop();
+                director.Evaluate();
+                Accessors.EnergyBar(ref _gameEnergyUIPanel).enabled = !isFailingEnergy;
+            }
 
             FieldAccessor<GameEnergyCounter, Action<float>>.Get(_gameEnergyCounter, "gameEnergyDidChangeEvent").Invoke(energy);
-            return;
         }
     }
 }
