@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ScoreSaber.Core.Utils;
+using System.Collections.Generic;
 using UnityEngine.XR;
 
 namespace ScoreSaber.Core.Data
@@ -6,11 +7,7 @@ namespace ScoreSaber.Core.Data
     internal static class VRDevices 
     {
         internal static string GetDeviceHMD() {
-            var devices = new List<InputDevice>();
-            InputDevices.GetDevicesAtXRNode(XRNode.Head, devices);
-            if (devices.Count == 0)
-                return null;
-            return devices[0].name;
+            return OpenXRManager.GetDevice();
         }
 
         internal static string GetDeviceControllerLeft() {
