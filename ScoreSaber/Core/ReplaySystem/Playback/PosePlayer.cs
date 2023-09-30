@@ -5,6 +5,7 @@ using SiraUtil.Tools.FPFC;
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SpatialTracking;
 using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback
@@ -83,6 +84,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             };
             _spectatorCamera.transform.rotation = rotation;
             _spectatorCamera.stereoTargetEye = StereoTargetEyeMask.Both;
+            _mainCamera.gameObject.GetComponent<TrackedPoseDriver>().CopyComponent<TrackedPoseDriver>(_spectatorCamera.gameObject);
             _spectatorCamera.gameObject.SetActive(true);
             _spectatorCamera.depth = 0;
             _spectatorCamera.transform.SetParent(spectatorObject.transform);
