@@ -86,7 +86,7 @@ namespace ScoreSaber {
         private void SceneLoaded(Scene scene, LoadSceneMode mode) {
 
             if (scene.name == "MainMenu") {
-                Container.Resolve<CoroutineStarter>().StartCoroutine(WaitForLeaderboard());
+                Container.Resolve<ICoroutineStarter>().StartCoroutine(WaitForLeaderboard());
             }
         }
 
