@@ -10,6 +10,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
         private readonly VRController _controllerLeft;
         private readonly VRController _controllerRight;
         private readonly List<VRPoseGroup> _vrPoseGroup;
+        private bool _recording;
 
         public PoseRecorder(MainCamera mainCamera, SaberManager saberManager) {
 
@@ -17,9 +18,17 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
             _controllerLeft = saberManager.leftSaber.transform.parent.GetComponent<VRController>();
             _controllerRight = saberManager.rightSaber.transform.parent.GetComponent<VRController>();
             _vrPoseGroup = new List<VRPoseGroup>();
+            _recording = true;
+        }
+
+        public void StopRecording() {
+            _recording = false;
         }
 
         public void Tick() {
+
+            if (!_recording)
+                return;
 
             _vrPoseGroup.Add(new VRPoseGroup() {
                 Head = new VRPose() {

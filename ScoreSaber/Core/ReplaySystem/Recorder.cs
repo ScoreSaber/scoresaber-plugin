@@ -36,6 +36,10 @@ namespace ScoreSaber.Core.ReplaySystem
             _replayService.NewPlayStarted(_id, this);
         }
 
+        public void StopRecording() {
+            _poseRecorder.StopRecording();
+        }
+
         public ReplayFile Export() {
 
             return new ReplayFile() {

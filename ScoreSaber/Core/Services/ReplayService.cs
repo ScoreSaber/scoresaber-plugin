@@ -19,6 +19,8 @@ namespace ScoreSaber.Core.Daemons {
         }
 
         public async Task<byte[]> WriteSerializedReplay() {
+            _replayRecorder.StopRecording();
+
             ReplayFileWriter writer = new ReplayFileWriter();
             byte[] serializedReplay = null;
             Plugin.Log.Debug($"Writing replay with id: {_currentPlayId}");
