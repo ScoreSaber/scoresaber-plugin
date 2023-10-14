@@ -82,7 +82,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             Quaternion rotation = new Quaternion {
                 eulerAngles = new Vector3(0.0f, _mainSettingsModelSO.roomRotation.value, 0.0f)
             };
-            _spectatorCamera.transform.rotation = rotation;
+            spectatorObject.transform.rotation = rotation;
             _spectatorCamera.stereoTargetEye = StereoTargetEyeMask.Both;
             _mainCamera.gameObject.GetComponent<TrackedPoseDriver>().CopyComponent<TrackedPoseDriver>(_spectatorCamera.gameObject);
             _spectatorCamera.gameObject.SetActive(true);
