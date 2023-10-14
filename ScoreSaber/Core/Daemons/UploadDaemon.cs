@@ -104,7 +104,11 @@ namespace ScoreSaber.Core.Daemons {
                         return;
                     }
                     if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.None) {
+                        if (levelCompletionResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart) {
+                            Plugin.Log.Debug("Level was restarted before it was finished, don't write replay");
+                        } else {
                         _replayService.WriteSerializedReplay().RunTask();
+                        }
                         return;
                     }
                     if (levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared) {
