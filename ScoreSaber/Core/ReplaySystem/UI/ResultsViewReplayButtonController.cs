@@ -51,6 +51,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 watchReplayButton.transform.localScale *= 0.4f;
                 watchReplayButton.transform.localPosition = new Vector2(42.5f, 27f);
             }
+            watchReplayButton.interactable = _serializedReplay != null;
             _difficultyBeatmap = Accessors.resultsViewControllerDifficultyBeatmap(ref _resultsViewController);
             _levelCompletionResults = Accessors.resultsViewControllerLevelCompletionResults(ref _resultsViewController);
             WaitForReplay().RunTask();
