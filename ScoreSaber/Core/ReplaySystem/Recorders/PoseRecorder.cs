@@ -6,17 +6,13 @@ using Zenject;
 namespace ScoreSaber.Core.ReplaySystem.Recorders {
     internal class PoseRecorder : TimeSynchronizer, ITickable
     {
-        private readonly MainCamera _mainCamera;
-        private readonly VRController _controllerLeft;
-        private readonly VRController _controllerRight;
+        private readonly PlayerTransforms _playerTransforms;
         private readonly List<VRPoseGroup> _vrPoseGroup;
         private bool _recording;
 
-        public PoseRecorder(MainCamera mainCamera, SaberManager saberManager) {
+        public PoseRecorder(PlayerTransforms playerTransforms) {
 
-            _mainCamera = mainCamera;
-            _controllerLeft = saberManager.leftSaber.transform.parent.GetComponent<VRController>();
-            _controllerRight = saberManager.rightSaber.transform.parent.GetComponent<VRController>();
+            _playerTransforms = playerTransforms;
             _vrPoseGroup = new List<VRPoseGroup>();
             _recording = true;
         }
@@ -32,21 +28,27 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders {
 
             _vrPoseGroup.Add(new VRPoseGroup() {
                 Head = new VRPose() {
-                    Position = new VRPosition() { X = _mainCamera.position.x, Y = _mainCamera.position.y, Z = _mainCamera.position.z },
+                    Position = new VRPosition() { 
+                        X = _playerTransforms.headPseudoLocalPos.x, Y = _playerTransforms.headPseudoLocalPos.y, Z = _playerTransforms.headPseudoLocalPos.z
+                    },
                     Rotation = new VRRotation() {
-                        X = _mainCamera.rotation.x, Y = _mainCamera.rotation.y, Z = _mainCamera.rotation.z, W = _mainCamera.rotation.w
+                        X = _playerTransforms.headPseudoLocalRot.x, Y = _playerTransforms.headPseudoLocalRot.y, Z = _playerTransforms.headPseudoLocalRot.z, W = _playerTransforms.headPseudoLocalRot.w
                     }
                 },
                 Left = new VRPose() {
-                    Position = new VRPosition() { X = _controllerLeft.position.x, Y = _controllerLeft.position.y, Z = _controllerLeft.position.z },
+                    Position = new VRPosition() {
+                        X = _playerTransforms.leftHandPseudoLocalPos.x, Y = _playerTransforms.leftHandPseudoLocalPos.y, Z = _playerTransforms.leftHandPseudoLocalPos.z
+                    },
                     Rotation = new VRRotation() {
-                        X = _controllerLeft.rotation.x, Y = _controllerLeft.rotation.y, Z = _controllerLeft.rotation.z, W = _controllerLeft.rotation.w
+                        X = _playerTransforms.leftHandPseudoLocalRot.x, Y = _playerTransforms.leftHandPseudoLocalRot.y, Z = _playerTransforms.leftHandPseudoLocalRot.z, W = _playerTransforms.leftHandPseudoLocalRot.w
                     }
                 },
                 Right = new VRPose() {
-                    Position = new VRPosition() { X = _controllerRight.position.x, Y = _controllerRight.position.y, Z = _controllerRight.position.z },
+                    Position = new VRPosition() {
+                        X = _playerTransforms.rightHandPseudoLocalPos.x, Y = _playerTransforms.rightHandPseudoLocalPos.y, Z = _playerTransforms.rightHandPseudoLocalPos.z
+                    },
                     Rotation = new VRRotation() {
-                        X = _controllerRight.rotation.x, Y = _controllerRight.rotation.y, Z = _controllerRight.rotation.z, W = _controllerRight.rotation.w
+                        X = _playerTransforms.rightHandPseudoLocalRot.x, Y = _playerTransforms.rightHandPseudoLocalRot.y, Z = _playerTransforms.rightHandPseudoLocalRot.z, W = _playerTransforms.rightHandPseudoLocalRot.w
                     }
                 },
                 Time = audioTimeSyncController.songTime,
