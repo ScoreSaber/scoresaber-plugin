@@ -131,6 +131,12 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         public void setProfileImage(string url, int pos, CancellationToken cancellationToken) {
             try {
+                if (cachedSprites.ContainsKey(url)) {
+                    imageViews[pos].gameObject.SetActive(true);
+                    imageViews[pos].sprite = cachedSprites[url];
+                    loadingIndicators[pos].gameObject.SetActive(false);
+                    return;
+                }
                 loadingIndicators[pos].gameObject.SetActive(true);
                 SharedCoroutineStarter.instance.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
             } catch (OperationCanceledException) {
@@ -138,7 +144,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             }
         }
 
-        internal static IEnumerator GetSpriteAvatar(string url, Action<Sprite, int> onSuccess, Action<string, int> onFailure, CancellationToken cancellationToken, int pos) {
+        internal static IEnumerator GetSpriteAvatar(string url, Action<Sprite, int, string> onSuccess, Action<string, int> onFailure, CancellationToken cancellationToken, int pos) {
             var handler = new DownloadHandlerTexture();
             var www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET);
             www.downloadHandler = handler;
@@ -162,19 +168,23 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 yield break;
             }
             Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
-            onSuccess?.Invoke(sprite, pos);
+            onSuccess?.Invoke(sprite, pos, url);
         }
 
-        internal void OnAvatarDownloadSuccess(Sprite a, int pos) 
+        internal void OnAvatarDownloadSuccess(Sprite a, int pos, string url) 
         {
             imageViews[pos].gameObject.SetActive(true);
             imageViews[pos].sprite = a;
             loadingIndicators[pos].gameObject.SetActive(false);
+            cachedSprites.Add(url, a);
         }
 
         internal void OnAvatarDownloadFailure(string error, int pos) {
             loadingIndicators[pos].gameObject.SetActive(false);
             imageViews[pos].gameObject.SetActive(false);
         }
+
+        internal static Dictionary<string, Sprite> cachedSprites = new Dictionary<string, Sprite>();
+
     }
 }
