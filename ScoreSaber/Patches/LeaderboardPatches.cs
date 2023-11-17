@@ -1,4 +1,5 @@
 ﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Extensions;
@@ -9,6 +10,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Zenject;
 using static HMUI.IconSegmentedControl;
 
@@ -44,11 +47,22 @@ namespace ScoreSaber.Patches {
             }
         }
 
+        private int ohmylord = 0;
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
         void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
 
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
+
+                if (tableCell.gameObject.GetComponent<CellClicker>() == null) {
+                    CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
+                    cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
+                    Plugin.Log.Info($"{cellClicker.index.ToString()} nalls");
+                    cellClicker.index = ohmylord;
+                    ohmylord++;
+                    cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
+                }
+
                 TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
 
                 if (_scoresaberLeaderboardViewController.isOST) {
@@ -121,5 +135,58 @@ namespace ScoreSaber.Patches {
             _lastScopeIndex = cellNumber;
             _scoresaberLeaderboardViewController.ChangeScope(filterAroundCountry);
         }
+
+        // probably a better place to put this
+        public class CellClicker : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {
+            public Action<int> onClick;
+            public int index;
+            public ImageView seperator;
+            private Vector3 originalScale;
+            private bool isScaled = false;
+
+            private Color origColour;
+            private Color origColour0;
+            private Color origColour1;
+
+            private void Start() {
+                originalScale = seperator.transform.localScale;
+            }
+
+            public void OnPointerClick(PointerEventData data) {
+                BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
+                onClick(index);
+            }
+
+            public void OnPointerEnter(PointerEventData eventData) {
+                if (!isScaled) {
+                    seperator.transform.localScale = originalScale * 1.8f;
+                    isScaled = true;
+                }
+
+                origColour = seperator.color;
+                origColour0 = seperator.color0;
+                origColour1 = seperator.color1;
+
+
+                seperator.color = Color.white;
+                seperator.color0 = Color.white;
+                seperator.color1 = new Color(1, 1, 1, 0);
+            }
+
+            public void OnPointerExit(PointerEventData eventData) {
+                if (isScaled) {
+                    seperator.transform.localScale = originalScale;
+                    isScaled = false;
+                }
+                seperator.color = origColour;
+                seperator.color0 = origColour0;
+                seperator.color1 = origColour1;
+            }
+
+            private void OnDestroy() {
+                onClick = null;
+            }
+        }
+
     }
 }
