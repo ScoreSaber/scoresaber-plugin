@@ -82,7 +82,6 @@ namespace ScoreSaber.UI.Leaderboard {
             set {
                 if (!_isOST && value == true) {
                     _infoButtons.HideInfoButtons();
-                    _profileImages.HideImageViews();
                     _panelView.SetRankedStatus("N/A (Not Custom Song)");
                 }
                 _isOST = value;
@@ -253,13 +252,11 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
                     SetErrorState(tableView, loadingControl, null, null, "Maps with new note types currently not supported", false);
-                    _profileImages.HideImageViews();
                     return;
                 }
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
-                    _profileImages.HideImageViews();
                     return;
                 }
 
@@ -294,12 +291,12 @@ namespace ScoreSaber.UI.Leaderboard {
                             }
                         }
                     } else {
+                        _profileImages.HideImageViews();
                         if (leaderboardPage > 1) {
                             SetErrorState(tableView, loadingControl, null, null, "No scores on this page");
                         } else {
                             SetErrorState(tableView, loadingControl, null, null, "No scores on this leaderboard, be the first!");
                         }
-                        _profileImages.HideImageViews();
                     }
                 }
             } catch (HttpErrorException httpError) {
