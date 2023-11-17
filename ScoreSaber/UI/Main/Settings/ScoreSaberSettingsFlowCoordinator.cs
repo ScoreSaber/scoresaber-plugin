@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using HMUI;
 using ScoreSaber.Core.Data;
+using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main.Settings.ViewControllers;
 using ScoreSaber.UI.Main.ViewControllers;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace ScoreSaber.UI.Main {
 
         private FlowCoordinator _lastFlowCoordinator;
         private MainSettingsViewController _mainSettingsViewController;
+        private ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
@@ -23,9 +25,10 @@ namespace ScoreSaber.UI.Main {
         }
 
         [Inject]
-        internal void Construct(MainSettingsViewController mainSettingsViewController) {
+        internal void Construct(MainSettingsViewController mainSettingsViewController, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController) {
             
             _mainSettingsViewController = mainSettingsViewController;
+            _scoresaberLeaderboardViewController = scoreSaberLeaderboardViewController;
             Plugin.Log.Debug("ScoreSaberSettingsFlowCoordinator Setup");
         }
 
@@ -35,6 +38,7 @@ namespace ScoreSaber.UI.Main {
             SetRightScreenViewController(null, ViewController.AnimationType.None);
             Core.Data.Settings.SaveSettings(Plugin.Settings);
             _lastFlowCoordinator.DismissFlowCoordinator(this);
+            _scoresaberLeaderboardViewController.RefreshLeaderboard();
         }
 
         internal static void ShowSettingsFlowCoordinator() {

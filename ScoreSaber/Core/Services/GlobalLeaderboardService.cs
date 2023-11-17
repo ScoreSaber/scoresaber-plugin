@@ -11,7 +11,8 @@ namespace ScoreSaber.Core.Services {
             Global,
             AroundPlayer,
             Friends,
-            Country
+            Country,
+            Region
         }
 
         public GlobalLeaderboardService() {
@@ -42,6 +43,9 @@ namespace ScoreSaber.Core.Services {
                     break;
                 case GlobalPlayerScope.Country:
                     url = $"{url}/around-country?page={page}";
+                    break;
+                case GlobalPlayerScope.Region:
+                    url = $"{url}/around-region?page={page}";
                     break;
             }
             return url;

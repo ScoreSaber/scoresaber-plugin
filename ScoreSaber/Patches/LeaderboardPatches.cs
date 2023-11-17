@@ -93,7 +93,7 @@ namespace ScoreSaber.Patches {
                     new DataItem(____globalLeaderboardIcon, "Global"),
                     new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),
                     new DataItem(____friendsLeaderboardIcon, "Friends"),
-                    new DataItem(_countryIcon, "Country"),
+                    new DataItem(_countryIcon, "Location"),
                 });
 
             ____scopeSegmentedControl.didSelectCellEvent -= _platformLeaderboardViewController.HandleScopeSegmentedControlDidSelectCell;
