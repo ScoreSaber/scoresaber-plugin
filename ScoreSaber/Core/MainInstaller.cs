@@ -3,10 +3,14 @@ using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Patches;
+using ScoreSaber.UI.Elements.Leaderboard;
+using ScoreSaber.UI.Elements.Profile;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main;
 using ScoreSaber.UI.Main.ViewControllers;
 using ScoreSaber.UI.Multiplayer;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Zenject;
 
@@ -34,6 +38,9 @@ namespace ScoreSaber.Core {
             Container.BindInterfacesTo<ScoreSaberMultiplayerLevelSelectionLeaderboardFlowManager>().AsSingle();
 
             Container.BindInterfacesTo<ScoreSaberFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+
+            List<ProfilePictureView> Imageholder = Enumerable.Range(0, 10).Select(x => new ProfilePictureView(x)).ToList();
+            Container.Bind<List<ProfilePictureView>>().FromInstance(Imageholder).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();
 
             Container.BindInterfacesAndSelfTo<ScoreSaberLeaderboardViewController>().AsSingle().NonLazy();
             Container.BindInterfacesTo<LeaderboardPatches>().AsSingle();
