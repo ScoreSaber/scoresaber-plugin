@@ -53,7 +53,12 @@ namespace ScoreSaber.Patches {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
 
-                if (tableCell.gameObject.GetComponent<CellClicker>() == null) {
+                CellClicker existingCellClicker = tableCell.gameObject.GetComponent<CellClicker>();
+                if (existingCellClicker == null || existingCellClicker.index != row) {
+                    if (existingCellClicker != null) {
+                        GameObject.Destroy(existingCellClicker);
+                    }
+
                     CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
                     cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
                     cellClicker.index = row;
