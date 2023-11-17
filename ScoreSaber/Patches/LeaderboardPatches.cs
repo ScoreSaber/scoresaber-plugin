@@ -6,6 +6,7 @@ using ScoreSaber.Extensions;
 using ScoreSaber.UI.Leaderboard;
 using SiraUtil.Affinity;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using TMPro;
@@ -47,19 +48,15 @@ namespace ScoreSaber.Patches {
             }
         }
 
-        private int ohmylord = 0;
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
-        void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
+        void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result, int row) {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
-
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
 
                 if (tableCell.gameObject.GetComponent<CellClicker>() == null) {
                     CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
                     cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
-                    Plugin.Log.Info($"{cellClicker.index.ToString()} nalls");
-                    cellClicker.index = ohmylord;
-                    ohmylord++;
+                    cellClicker.index = row;
                     cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
                 }
 
@@ -69,6 +66,7 @@ namespace ScoreSaber.Patches {
                     _playerNameText.richText = false;
                 } else {
                     _playerNameText.richText = true;
+                    tableCell.showSeparator = true;
                 }
             }
         }
@@ -144,9 +142,9 @@ namespace ScoreSaber.Patches {
             private Vector3 originalScale;
             private bool isScaled = false;
 
-            private Color origColour;
-            private Color origColour0;
-            private Color origColour1;
+            private Color origColour = new Color(1, 1, 1, 1);
+            private Color origColour0 = new Color(1, 1, 1, 0.2509804f);
+            private Color origColour1 = new Color(1, 1, 1, 0);
 
             private void Start() {
                 originalScale = seperator.transform.localScale;
@@ -163,14 +161,14 @@ namespace ScoreSaber.Patches {
                     isScaled = true;
                 }
 
-                origColour = seperator.color;
-                origColour0 = seperator.color0;
-                origColour1 = seperator.color1;
+                Color targetColor = Color.white;
+                Color targetColor0 = Color.white;
+                Color targetColor1 = new Color(1, 1, 1, 0);
 
+                float lerpDuration = 0.15f;
 
-                seperator.color = Color.white;
-                seperator.color0 = Color.white;
-                seperator.color1 = new Color(1, 1, 1, 0);
+                StopAllCoroutines();
+                StartCoroutine(LerpColors(seperator, seperator.color, targetColor, seperator.color0, targetColor0, seperator.color1, targetColor1, lerpDuration));
             }
 
             public void OnPointerExit(PointerEventData eventData) {
@@ -178,9 +176,27 @@ namespace ScoreSaber.Patches {
                     seperator.transform.localScale = originalScale;
                     isScaled = false;
                 }
-                seperator.color = origColour;
-                seperator.color0 = origColour0;
-                seperator.color1 = origColour1;
+
+                float lerpDuration = 0.05f;
+
+                StopAllCoroutines();
+                StartCoroutine(LerpColors(seperator, seperator.color, origColour, seperator.color0, origColour0, seperator.color1, origColour1, lerpDuration));
+            }
+
+
+            private IEnumerator LerpColors(ImageView target, Color startColor, Color endColor, Color startColor0, Color endColor0, Color startColor1, Color endColor1, float duration) {
+                float elapsedTime = 0f;
+                while (elapsedTime < duration) {
+                    float t = elapsedTime / duration;
+                    target.color = Color.Lerp(startColor, endColor, t);
+                    target.color0 = Color.Lerp(startColor0, endColor0, t);
+                    target.color1 = Color.Lerp(startColor1, endColor1, t);
+                    elapsedTime += Time.deltaTime;
+                    yield return null;
+                }
+                target.color = endColor;
+                target.color0 = endColor0;
+                target.color1 = endColor1;
             }
 
             private void OnDestroy() {
