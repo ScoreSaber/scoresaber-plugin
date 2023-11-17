@@ -3,11 +3,14 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace ScoreSaber.UI.Elements.Leaderboard {
     internal class ProfilePictureView {
@@ -35,7 +38,30 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         [UIComponent("pfpimageView10")]
         protected ImageView imageView10 = null;
 
+        [UIObject("pfploadingIndicator1")]
+        protected GameObject loadingIndicator1 = null;
+        [UIObject("pfploadingIndicator2")]
+        protected GameObject loadingIndicator2 = null;
+        [UIObject("pfploadingIndicator3")]
+        protected GameObject loadingIndicator3 = null;
+        [UIObject("pfploadingIndicator4")]
+        protected GameObject loadingIndicator4 = null;
+        [UIObject("pfploadingIndicator5")]
+        protected GameObject loadingIndicator5 = null;
+        [UIObject("pfploadingIndicator6")]
+        protected GameObject loadingIndicator6 = null;
+        [UIObject("pfploadingIndicator7")]
+        protected GameObject loadingIndicator7 = null;
+        [UIObject("pfploadingIndicator8")]
+        protected GameObject loadingIndicator8 = null;
+        [UIObject("pfploadingIndicator9")]
+        protected GameObject loadingIndicator9 = null;
+        [UIObject("pfploadingIndicator10")]
+        protected GameObject loadingIndicator10 = null;
+
+
         private List<ImageView> imageViews { get; set; }
+        private List<GameObject> loadingIndicators { get; set; }
 
         [UIAction("#post-parse")]
         public void Parsed() {
@@ -50,6 +76,19 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 imageView8,
                 imageView9,
                 imageView10
+            };
+
+            loadingIndicators = new List<GameObject> {
+                loadingIndicator1,
+                loadingIndicator2,
+                loadingIndicator3,
+                loadingIndicator4,
+                loadingIndicator5,
+                loadingIndicator6,
+                loadingIndicator7,
+                loadingIndicator8,
+                loadingIndicator9,
+                loadingIndicator10
             };
 
             Material[] allMaterials = Resources.FindObjectsOfTypeAll<Material>();
@@ -81,14 +120,61 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             }
         }
 
-        public void SetImages(List<string> urls) {
+        public void SetImages(List<string> urls, CancellationToken cancellationToken) {
             for (int i = 0; i < urls.Count; i++) {
-                imageViews[i].gameObject.SetActive(true);
-                imageViews[i].SetImage(urls[i]);
+                setProfileImage(urls[i], i, cancellationToken);
             }
             for (int i = urls.Count + 1; i < imageViews.Count; i++) {
                 imageViews[i].gameObject.SetActive(false);
             }
+        }
+
+        public void setProfileImage(string url, int pos, CancellationToken cancellationToken) {
+            try {
+                loadingIndicators[pos].gameObject.SetActive(true);
+                SharedCoroutineStarter.instance.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
+            } catch (OperationCanceledException) {
+                OnAvatarDownloadFailure("Cancelled", pos);
+            }
+        }
+
+        internal static IEnumerator GetSpriteAvatar(string url, Action<Sprite, int> onSuccess, Action<string, int> onFailure, CancellationToken cancellationToken, int pos) {
+            var handler = new DownloadHandlerTexture();
+            var www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET);
+            www.downloadHandler = handler;
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return www.SendWebRequest();
+
+            while (!www.isDone) {
+                if (cancellationToken.IsCancellationRequested) {
+                    onFailure?.Invoke("Cancelled", pos);
+                    yield break;
+                }
+
+                yield return null;
+            }
+            if (www.isHttpError || www.isNetworkError) {
+                onFailure?.Invoke(www.error, pos);
+                yield break;
+            }
+            if (!string.IsNullOrEmpty(www.error)) {
+                onFailure?.Invoke(www.error, pos);
+                yield break;
+            }
+            Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
+            onSuccess?.Invoke(sprite, pos);
+        }
+
+        internal void OnAvatarDownloadSuccess(Sprite a, int pos) 
+        {
+            imageViews[pos].gameObject.SetActive(true);
+            imageViews[pos].sprite = a;
+            loadingIndicators[pos].gameObject.SetActive(false);
+        }
+
+        internal void OnAvatarDownloadFailure(string error, int pos) {
+            loadingIndicators[pos].gameObject.SetActive(false);
+            imageViews[pos].gameObject.SetActive(false);
         }
     }
 }

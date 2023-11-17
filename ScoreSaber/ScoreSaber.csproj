@@ -17,23 +17,19 @@
     <ErrorReport>prompt</ErrorReport>
     <Configurations>Debug;Release;Dev</Configurations>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>RELEASE</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <Optimize>true</Optimize>
   </PropertyGroup>
-  
   <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(NCrunch)' == '1'">
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="BSML">
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
@@ -58,7 +54,7 @@
     </Reference>
     <Reference Include="Core">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Core.dll</HintPath>
-        <Private>False</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="GameplayCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
@@ -159,6 +155,11 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="UnityEngine.UnityWebRequestWWWModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
       <Private>False</Private>
@@ -200,7 +201,6 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
@@ -212,7 +212,6 @@
     <EmbeddedResource Include="UI\Elements\Team\TeamHost.bsml" />
     <EmbeddedResource Include="Core\ReplaySystem\UI\imber-panel.bsml" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Resources\country.png" />
     <EmbeddedResource Include="Resources\cyanisa.furry" />
@@ -238,15 +237,13 @@
     <EmbeddedResource Include="Resources\crown-umby.png" />
     <EmbeddedResource Include="Resources\crown-rain.png" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="ScoreSaber.csproj.user" Condition="Exists('ScoreSaber.csproj.user')" Visible="false" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta4">
       <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 </Project>

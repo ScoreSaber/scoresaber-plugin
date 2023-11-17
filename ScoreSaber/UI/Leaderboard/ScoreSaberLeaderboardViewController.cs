@@ -18,6 +18,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 using ScoreSaber.Core.Utils;
+using System.Threading;
 
 namespace ScoreSaber.UI.Leaderboard {
 
@@ -228,6 +229,8 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
+        private CancellationTokenSource cancellationToken;
+
         public async Task RefreshLeaderboard(IDifficultyBeatmap difficultyBeatmap, LeaderboardTableView tableView, PlatformLeaderboardsModel.ScoresScope scope, LoadingControl loadingControl, string refreshId) {
 
             try {
@@ -235,8 +238,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 _currentLeaderboardRefreshId = refreshId;
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
-
-
 
                 if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer && !_filterAroundCountry) {
                     _upButton.interactable = false;
@@ -248,6 +249,12 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 _infoButtons.HideInfoButtons();
                 _profileImages.HideImageViews();
+
+                if(cancellationToken != null) {
+                    cancellationToken.Cancel();
+                    cancellationToken.Dispose();
+                }
+                cancellationToken = new CancellationTokenSource();
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
@@ -285,7 +292,7 @@ namespace ScoreSaber.UI.Leaderboard {
                             for (int i = 0; i < leaderboardTableScoreData.Count; i++) {
                                 avatarURLS.Add(leaderboardData.scores[i].score.leaderboardPlayerInfo.profilePicture);
                             }
-                            _profileImages.SetImages(avatarURLS);
+                            _profileImages.SetImages(avatarURLS, cancellationToken.Token);
                             loadingControl.ShowText("", false);
                             loadingControl.Hide();
                             _infoButtons.UpdateInfoButtonState(leaderboardTableScoreData.Count);
