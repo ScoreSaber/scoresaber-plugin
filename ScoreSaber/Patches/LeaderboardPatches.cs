@@ -44,9 +44,6 @@ namespace ScoreSaber.Patches {
             }
         }
 
-        private bool obtainedAnchor = false;
-        private Vector2 normalAnchor = Vector2.zero;
-
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
         void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
@@ -54,18 +51,10 @@ namespace ScoreSaber.Patches {
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
                 TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
 
-                if (!obtainedAnchor) {
-                    normalAnchor = _playerNameText.rectTransform.anchoredPosition;
-                    obtainedAnchor = true;
-                }
-
                 if (_scoresaberLeaderboardViewController.isOST) {
                     _playerNameText.richText = false;
-                    _playerNameText.rectTransform.anchoredPosition = normalAnchor;
                 } else {
                     _playerNameText.richText = true;
-                    Vector2 newPosition = new Vector2(normalAnchor.x + 2.5f, 0f);
-                    _playerNameText.rectTransform.anchoredPosition = newPosition;
                 }
             }
         }

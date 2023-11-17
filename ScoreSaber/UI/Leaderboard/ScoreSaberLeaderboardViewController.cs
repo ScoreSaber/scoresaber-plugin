@@ -35,8 +35,6 @@ namespace ScoreSaber.UI.Leaderboard {
 
         [UIValue("info-buttons-view")]
         protected readonly InfoButtonsView _infoButtons = null;
-        [UIValue("profile-picture-lb-view")]
-        protected readonly ProfilePictureView _profileImages = null;
         [UIValue("score-detail-view")]
         protected readonly ScoreDetailView _scoreDetailView = null;
         [UIComponent("profile-detail-view")]
@@ -82,7 +80,6 @@ namespace ScoreSaber.UI.Leaderboard {
             set {
                 if (!_isOST && value == true) {
                     _infoButtons.HideInfoButtons();
-                    _profileImages.HideImageViews();
                     _panelView.SetRankedStatus("N/A (Not Custom Song)");
                 }
                 _isOST = value;
@@ -102,7 +99,6 @@ namespace ScoreSaber.UI.Leaderboard {
             _platformLeaderboardViewController = platformLeaderboardViewController;
 
             _infoButtons = new InfoButtonsView();
-            _profileImages = new ProfilePictureView();
             _scoreDetailView = new ScoreDetailView();
         }
 
@@ -122,7 +118,6 @@ namespace ScoreSaber.UI.Leaderboard {
             _downButton.transform.localScale *= .5f;
             _root.name = "ScoreSaberLeaderboardElements";
             _infoButtons.HideInfoButtons();
-            _profileImages.HideImageViews();
             activated = true;
         }
 
@@ -207,7 +202,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 case UploadStatus.Packaging:
                     _panelView.Loaded(false);
                     _panelView.SetPromptInfo(statusText, true);
-                    _profileImages.HideImageViews();
                     break;
                 case UploadStatus.Uploading:
                     _panelView.SetPromptInfo(statusText, true);
@@ -247,19 +241,16 @@ namespace ScoreSaber.UI.Leaderboard {
                 }
 
                 _infoButtons.HideInfoButtons();
-                _profileImages.HideImageViews();
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
                 if (LeaderboardUtils.ContainsV3Stuff(beatmapData)) {
                     SetErrorState(tableView, loadingControl, null, null, "Maps with new note types currently not supported", false);
-                    _profileImages.HideImageViews();
                     return;
                 }
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
-                    _profileImages.HideImageViews();
                     return;
                 }
 
@@ -281,11 +272,6 @@ namespace ScoreSaber.UI.Leaderboard {
                             SetErrorState(tableView, loadingControl, null, null, "You haven't set a score on this leaderboard");
                         } else {
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
-                            List<string> avatarURLS = new List<string>();
-                            for (int i = 0; i < leaderboardTableScoreData.Count; i++) {
-                                avatarURLS.Add(leaderboardData.scores[i].score.leaderboardPlayerInfo.profilePicture);
-                            }
-                            _profileImages.SetImages(avatarURLS);
                             loadingControl.ShowText("", false);
                             loadingControl.Hide();
                             _infoButtons.UpdateInfoButtonState(leaderboardTableScoreData.Count);
@@ -299,7 +285,6 @@ namespace ScoreSaber.UI.Leaderboard {
                         } else {
                             SetErrorState(tableView, loadingControl, null, null, "No scores on this leaderboard, be the first!");
                         }
-                        _profileImages.HideImageViews();
                     }
                 }
             } catch (HttpErrorException httpError) {
@@ -360,7 +345,6 @@ namespace ScoreSaber.UI.Leaderboard {
             loadingControl.Hide();
             loadingControl.ShowText(errorText, showRefreshButton);
             tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
-            _profileImages.HideImageViews();
         }
 
         public void DirectionalButtonClicked(bool down) {

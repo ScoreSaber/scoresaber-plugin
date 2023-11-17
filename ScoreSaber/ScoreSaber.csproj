@@ -35,6 +35,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="UI\Elements\Leaderboard\ProfilePictureView.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="UI\Main\Settings\ViewControllers\MainSettingsViewController.bsml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="BSML">
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
     </Reference>
@@ -204,6 +212,7 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
+    <EmbeddedResource Include="UI\Main\Settings\ViewControllers\MainSettingsViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\GlobalViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\TeamViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\FAQViewController.bsml" />

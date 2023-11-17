@@ -14,6 +14,9 @@
       <clickable-text text="~global-leaderboard-ranking" on-click="clicked-ranking" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" />
       <clickable-text text="~leaderboard-ranked-status" on-click="clicked-status" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" hover-hint="Opens in browser" />
     </vertical>
+	  <vertical ignore-layout="true" anchor-pos-x="35">
+		  <clickable-image src="#SettingsIcon" on-click="clicked-settings" preserve-aspect="true" size-delta-x="5" size-delta-y="5" pref-width="5" pref-height="5" hover-hint="Opens the ScoreSaber settings menu"/>
+	  </vertical>  
     <horizontal active="~is-loading" pref-width="70" pref-height="10">
       <vertical pref-width="10" pref-height="10">
         <loading-indicator preserve-aspect="true" />
