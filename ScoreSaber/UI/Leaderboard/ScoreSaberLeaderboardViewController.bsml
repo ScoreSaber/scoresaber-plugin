@@ -24,16 +24,16 @@
 
   <!-- Profile Pictures -->
   <macro.as-host host="profile-picture-lb-view">
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView1" size-delta-x="4" size-delta-y="4"   pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="26" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView2" size-delta-x="4" size-delta-y="4"  pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="20" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView3" size-delta-x="4" size-delta-y="4"  pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="14" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView4" size-delta-x="4" size-delta-y="4"  pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="8" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView5" size-delta-x="4" size-delta-y="4"  pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="2" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView6" size-delta-x="4" size-delta-y="4"  pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="-4" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView7" size-delta-x="4" size-delta-y="4"  pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="-10" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView8" size-delta-x="4" size-delta-y="4" pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="-16" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView9" size-delta-x="4" size-delta-y="4" pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="-22" preserve-aspect="true"/>
-	<image src="ScoreSaber.Resources.info.png" id="pfpimageView10" size-delta-x="4" size-delta-y="4" pref-width="4" pref-height="4"   anchor-pos-x="-22.5" anchor-pos-y="-28" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView1" size-delta-x="5" size-delta-y="5"   pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="26" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView2" size-delta-x="5" size-delta-y="5"  pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="20" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView3" size-delta-x="5" size-delta-y="5"  pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="14" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView4" size-delta-x="5" size-delta-y="5"  pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="8" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView5" size-delta-x="5" size-delta-y="5"  pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="2" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView6" size-delta-x="5" size-delta-y="5"  pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="-4" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView7" size-delta-x="5" size-delta-y="5"  pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="-10" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView8" size-delta-x="5" size-delta-y="5" pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="-16" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView9" size-delta-x="5" size-delta-y="5" pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="-22" preserve-aspect="true"/>
+	<image src="ScoreSaber.Resources.info.png" id="pfpimageView10" size-delta-x="5" size-delta-y="5" pref-width="5" pref-height="5"   anchor-pos-x="-23.5" anchor-pos-y="-28" preserve-aspect="true"/>
   </macro.as-host>
 
   <!-- Score info modal -->
