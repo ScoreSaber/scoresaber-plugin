@@ -65,9 +65,6 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 imageViews[i].gameObject.SetActive(true);
                 imageViews[i].SetImage(urls[i]);
             }
-            for(int i = urls.Count + 1; i < imageViews.Count;i++) {
-                imageViews[i].gameObject.SetActive(false);
-            }
         }
     }
 }

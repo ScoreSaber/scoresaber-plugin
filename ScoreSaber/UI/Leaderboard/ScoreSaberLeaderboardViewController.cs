@@ -206,7 +206,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 case UploadStatus.Packaging:
                     _panelView.Loaded(false);
                     _panelView.SetPromptInfo(statusText, true);
-                    _profileImages.HideImageViews();
                     break;
                 case UploadStatus.Uploading:
                     _panelView.SetPromptInfo(statusText, true);
@@ -291,7 +290,6 @@ namespace ScoreSaber.UI.Leaderboard {
                             }
                         }
                     } else {
-                        _profileImages.HideImageViews();
                         if (leaderboardPage > 1) {
                             SetErrorState(tableView, loadingControl, null, null, "No scores on this page");
                         } else {
@@ -357,7 +355,6 @@ namespace ScoreSaber.UI.Leaderboard {
             loadingControl.Hide();
             loadingControl.ShowText(errorText, showRefreshButton);
             tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
-            _profileImages.HideImageViews();
         }
 
         public void DirectionalButtonClicked(bool down) {
