@@ -161,6 +161,9 @@ namespace ScoreSaber.Core.Daemons {
 
         public async Task Seven(ScoreSaberUploadData scoreSaberUploadData, string uploadData, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results) {
             try {
+                UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging replay...");
+                byte[] serializedReplay = await _replayService.WriteSerializedReplay();
+
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Checking leaderboard ranked status...");
 
                 bool ranked = true;
