@@ -18,6 +18,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 using ScoreSaber.Core.Utils;
+using ScoreSaber.Core.ReplaySystem.Data;
 
 namespace ScoreSaber.UI.Leaderboard {
 
@@ -405,6 +406,9 @@ namespace ScoreSaber.UI.Leaderboard {
                 _panelView.SetPromptInfo("Replay downloaded! Unpacking...", true);
                 await _replayLoader.Load(replay, score.parent.difficultyBeatmap, score.gameplayModifiers, score.score.leaderboardPlayerInfo.name);
                 _panelView.SetPromptSuccess("Replay Started!", false, 1f);
+            } catch (ReplayVersionException ex) {
+                _panelView.SetPromptError("Unsupported replay version", false);
+                Plugin.Log.Error($"Failed to start replay (unsupported version): {ex}");
             } catch (Exception ex) {
                 _panelView.SetPromptError("Failed to start replay! Error written to log.", false);
                 Plugin.Log.Error($"Failed to start replay: {ex}");

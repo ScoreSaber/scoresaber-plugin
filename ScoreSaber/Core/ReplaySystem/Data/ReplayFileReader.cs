@@ -19,6 +19,12 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal int fpsKeyframes;
     }
 
+    internal class ReplayVersionException : Exception {
+        public ReplayVersionException() { }
+        public ReplayVersionException(string message) : base(message) { }
+        public ReplayVersionException(string message, Exception innerException) : base(message, innerException) { }
+    }
+
     internal class ReplayFileReader
     {
         private byte[] _input;
@@ -28,7 +34,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             List<byte> temp = new List<byte>();
             temp.AddRange(input);
             if (temp.GetRange(0, 28).ToArray().Equals(Encoding.UTF8.GetBytes("ScoreSaber Replay 👌🤠\r\n"))) {
-                throw new Exception("Unknown replay magic bytes");
+                throw new ReplayVersionException("Unknown replay magic bytes");
             }
             temp.RemoveRange(0, 28);
             _input = temp.ToArray();
@@ -60,7 +66,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                     energyKeyframes = ReadEnergyEventList(ref pointers.energyKeyframes)
                 };
             } else {
-                throw new Exception("Unknown replay version");
+                throw new ReplayVersionException("Unknown replay version");
             }
         }
 
