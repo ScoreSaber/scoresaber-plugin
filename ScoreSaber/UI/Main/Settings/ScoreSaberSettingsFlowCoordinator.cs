@@ -2,6 +2,7 @@
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Core.Data;
+using ScoreSaber.Extensions;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main.Settings.ViewControllers;
 using ScoreSaber.UI.Main.ViewControllers;
@@ -17,6 +18,7 @@ namespace ScoreSaber.UI.Main {
         private FlowCoordinator _lastFlowCoordinator;
         private MainSettingsViewController _mainSettingsViewController;
         private ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
+        private PanelView _panelView;
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
@@ -28,10 +30,11 @@ namespace ScoreSaber.UI.Main {
         }
 
         [Inject]
-        internal void Construct(MainSettingsViewController mainSettingsViewController, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController) {
+        internal void Construct(MainSettingsViewController mainSettingsViewController, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController, PanelView panelView) {
             
             _mainSettingsViewController = mainSettingsViewController;
             _scoresaberLeaderboardViewController = scoreSaberLeaderboardViewController;
+            _panelView = panelView;
             Plugin.Log.Debug("ScoreSaberSettingsFlowCoordinator Setup");
         }
 
@@ -56,6 +59,11 @@ namespace ScoreSaber.UI.Main {
                     new DataItem(dataItems[2].icon, "Friends"),
                     Plugin.Settings.locationFilterMode.ToLower() == "country" ? new DataItem(_countryIcon, "Country") : Plugin.Settings.locationFilterMode.ToLower() == "region" ? new DataItem(_countryIcon, "Region") : new DataItem(_countryIcon, "Country")
                 });
+            if (Plugin.Settings.showLocalPlayerRank) {
+                _panelView.SetGlobalRanking($"#{string.Format("{0:n0}", _panelView._currentPlayerInfo.rank)}<size=75%> (<color=#6772E5>{string.Format("{0:n0}", _panelView._currentPlayerInfo.pp)}pp</color>)");
+            } else {
+                _panelView.SetGlobalRanking("Hidden");
+            }
         }
 
 

@@ -93,7 +93,7 @@ namespace ScoreSaber.UI.Leaderboard {
         private Sprite _denyahSprite;
         private ImageView _background;
         private Tween _activeDisableTween;
-        private PlayerInfo _currentPlayerInfo;
+        internal PlayerInfo _currentPlayerInfo;
         private CanvasGroup _promptCanvasGroup;
         private FloatingScreen _floatingScreen;
 
