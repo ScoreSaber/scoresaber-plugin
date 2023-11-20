@@ -57,15 +57,17 @@ namespace ScoreSaber.Patches {
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
 
                 CellClicker existingCellClicker = tableCell.gameObject.GetComponent<CellClicker>();
-                if (existingCellClicker == null || existingCellClicker.index != row) {
+                if (existingCellClicker == null || existingCellClicker.index != row || _scoresaberLeaderboardViewController.isOST) {
                     if (existingCellClicker != null) {
                         GameObject.Destroy(existingCellClicker);
                     }
 
-                    CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
-                    cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
-                    cellClicker.index = row;
-                    cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
+                    if (!_scoresaberLeaderboardViewController.isOST) {
+                        CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
+                        cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
+                        cellClicker.index = row;
+                        cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
+                    }
                 }
 
                 TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
@@ -78,6 +80,9 @@ namespace ScoreSaber.Patches {
                 if (_scoresaberLeaderboardViewController.isOST) {
                     _playerNameText.richText = false;
                     _playerNameText.rectTransform.anchoredPosition = normalAnchor;
+                    if (row == 9)
+                        tableCell.showSeparator = false;
+                    tableCell.interactable = false;
                 } else {
                     _playerNameText.richText = true;
                     Vector2 newPosition = new Vector2(normalAnchor.x + 2.5f, 0f);
@@ -103,8 +108,8 @@ namespace ScoreSaber.Patches {
                 _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
             }
             if (Plugin.Settings.enableCountryLeaderboards) {
-                ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
                 UpdateScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon, ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
+                ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
             }
         }
 
