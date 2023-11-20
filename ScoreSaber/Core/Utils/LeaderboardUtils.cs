@@ -33,10 +33,10 @@ namespace ScoreSaber.Core.Utils {
 
             bool hasMods = !string.IsNullOrEmpty(scoreMap.score.modifiers);
 
-            string name = $"<size=85%>{scoreMap.score.leaderboardPlayerInfo.name}</size>";
-            string accuracy = $"<size=75%>(<color=#FFD42A>{scoreMap.accuracy}%</color>)</size>";
-            string pp = $"<size=75%>(<color=#6772E5>{scoreMap.score.pp}<size=45%>pp</size></color>)</size>";
-            string modifiers = $"<size=75%><color=#6F6F6F>[{scoreMap.score.modifiers}]</color></size>";
+            string name = $"<size=80%>{scoreMap.score.leaderboardPlayerInfo.name}</size>";
+            string accuracy = $"<size=70%>(<color=#FFD42A>{scoreMap.accuracy}%</color>)</size>";
+            string pp = $"<size=70%>(<color=#6772E5>{scoreMap.score.pp}<size=45%>pp</size></color>)</size>";
+            string modifiers = $"<size=70%><color=#6F6F6F>[{scoreMap.score.modifiers}]</color></size>";
 
             string formattedName = $"{name} - {accuracy}";
 

@@ -19,6 +19,7 @@ using UnityEngine.UI;
 using Zenject;
 using ScoreSaber.Core.Utils;
 using ScoreSaber.Core.ReplaySystem.Data;
+using System.Threading;
 
 namespace ScoreSaber.UI.Leaderboard {
 
@@ -36,6 +37,8 @@ namespace ScoreSaber.UI.Leaderboard {
 
         [UIValue("info-buttons-view")]
         protected readonly InfoButtonsView _infoButtons = null;
+        [UIValue("imageHolders")]
+        internal List<ProfilePictureView> _ImageHolders = null;
         [UIValue("score-detail-view")]
         protected readonly ScoreDetailView _scoreDetailView = null;
         [UIComponent("profile-detail-view")]
@@ -81,13 +84,14 @@ namespace ScoreSaber.UI.Leaderboard {
             set {
                 if (!_isOST && value == true) {
                     _infoButtons.HideInfoButtons();
+                    ByeImages();
                     _panelView.SetRankedStatus("N/A (Not Custom Song)");
                 }
                 _isOST = value;
             }
         }
 
-        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlayerDataModel playerDataModel, PlatformLeaderboardViewController platformLeaderboardViewController, StandardLevelDetailViewController standardLevelDetailViewController) {
+        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlayerDataModel playerDataModel, PlatformLeaderboardViewController platformLeaderboardViewController, StandardLevelDetailViewController standardLevelDetailViewController, List<ProfilePictureView> profilePictureView) {
 
             _container = container;
             _panelView = panelView;
@@ -96,9 +100,8 @@ namespace ScoreSaber.UI.Leaderboard {
             _playerService = playerService;
             _playerDataModel = playerDataModel;
             _leaderboardService = leaderboardService;
-
+            _ImageHolders = profilePictureView;
             _platformLeaderboardViewController = platformLeaderboardViewController;
-
             _infoButtons = new InfoButtonsView();
             _scoreDetailView = new ScoreDetailView();
         }
@@ -119,6 +122,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _downButton.transform.localScale *= .5f;
             _root.name = "ScoreSaberLeaderboardElements";
             _infoButtons.HideInfoButtons();
+            ByeImages();
             activated = true;
         }
 
@@ -203,6 +207,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 case UploadStatus.Packaging:
                     _panelView.Loaded(false);
                     _panelView.SetPromptInfo(statusText, true);
+                    ByeImages();
                     break;
                 case UploadStatus.Uploading:
                     _panelView.SetPromptInfo(statusText, true);
@@ -223,6 +228,8 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
+        private CancellationTokenSource cancellationToken;
+
         public async Task RefreshLeaderboard(IDifficultyBeatmap difficultyBeatmap, LeaderboardTableView tableView, PlatformLeaderboardsModel.ScoresScope scope, LoadingControl loadingControl, string refreshId) {
 
             try {
@@ -230,8 +237,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 _currentLeaderboardRefreshId = refreshId;
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
-
-      
 
                 if (scope == PlatformLeaderboardsModel.ScoresScope.AroundPlayer && !_filterAroundCountry) {
                     _upButton.interactable = false;
@@ -242,19 +247,26 @@ namespace ScoreSaber.UI.Leaderboard {
                 }
 
                 _infoButtons.HideInfoButtons();
+                ByeImages();
+
+                if(cancellationToken != null) {
+                    cancellationToken.Cancel();
+                    cancellationToken.Dispose();
+                }
+                cancellationToken = new CancellationTokenSource();
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
+                    ByeImages();
                     return;
                 }
 
                 if (_playerService.loginStatus != PlayerService.LoginStatus.Success) {
-                    return; 
+                    return;
                 }
 
-            
 
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
@@ -269,6 +281,9 @@ namespace ScoreSaber.UI.Leaderboard {
                             SetErrorState(tableView, loadingControl, null, null, "You haven't set a score on this leaderboard");
                         } else {
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
+                            for (int i = 0; i < leaderboardTableScoreData.Count; i++) {
+                                _ImageHolders[i].setProfileImage(leaderboardData.scores[i].score.leaderboardPlayerInfo.profilePicture, i, cancellationToken.Token);
+                            }
                             loadingControl.ShowText("", false);
                             loadingControl.Hide();
                             _infoButtons.UpdateInfoButtonState(leaderboardTableScoreData.Count);
@@ -282,10 +297,11 @@ namespace ScoreSaber.UI.Leaderboard {
                         } else {
                             SetErrorState(tableView, loadingControl, null, null, "No scores on this leaderboard, be the first!");
                         }
+                        ByeImages();
                     }
                 }
             } catch (HttpErrorException httpError) {
-                SetErrorState(tableView,loadingControl, httpError);
+                SetErrorState(tableView, loadingControl, httpError);
             } catch (Exception exception) {
                 SetErrorState(tableView, loadingControl, null, exception);
             }
@@ -322,7 +338,6 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private void SetErrorState(LeaderboardTableView tableView, LoadingControl loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
 
-           
             if (httpErrorException != null) {
                 if (httpErrorException.isNetworkError) {
                     errorText = "Failed to load leaderboard due to a network error, score won't upload";
@@ -342,6 +357,7 @@ namespace ScoreSaber.UI.Leaderboard {
             loadingControl.Hide();
             loadingControl.ShowText(errorText, showRefreshButton);
             tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
+            ByeImages();
         }
 
         public void DirectionalButtonClicked(bool down) {
@@ -381,7 +397,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             if (!activated)
                 return;
-            
+
             _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
         }
 
@@ -394,6 +410,20 @@ namespace ScoreSaber.UI.Leaderboard {
                 CheckPage();
             }
         }
+
+        internal void ByeImages() {
+            _ImageHolders.ForEach(holder => holder.profileImage.sprite = nullSprite);
+        }
+
+        internal void HelloIMGLoader() {
+            _ImageHolders.ForEach(holder => holder.loadingIndicator.SetActive(true));
+        }
+
+        internal void ByeIMGLoader() {
+            _ImageHolders.ForEach(holder => holder.loadingIndicator.SetActive(false));
+        }
+
+        internal Sprite nullSprite = BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
 
         private async Task StartReplay(ScoreMap score) {
 
