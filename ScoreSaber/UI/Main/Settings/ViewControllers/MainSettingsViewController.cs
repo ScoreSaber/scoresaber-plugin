@@ -56,6 +56,12 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
             set => Plugin.Settings.saveLocalReplays = value;
         }
 
+        [UIValue("replayCameraSmoothing")]
+        public bool ReplayCameraSmoothing {
+            get => Plugin.Settings.replayCameraSmoothing;
+            set => Plugin.Settings.replayCameraSmoothing = value;
+        }
+
         [UIValue("replayCameraFOV")]
         public float ReplayCameraFOV {
             get => Plugin.Settings.replayCameraFOV;
