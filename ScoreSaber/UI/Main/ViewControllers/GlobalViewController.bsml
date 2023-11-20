@@ -13,7 +13,7 @@
         <clickable-image id="global-scope" src="#GlobalIcon" pref-width="4" pref-height="4" preserve-aspect="true" on-click="global-scope-click" hover-hint="Global" />
         <clickable-image id="player-scope" src="#PlayerIcon" pref-width="4" pref-height="4" preserve-aspect="true" on-click="player-scope-click" hover-hint="Around You" />
         <clickable-image id="friends-scope" src="#FriendsIcon" pref-width="4" pref-height="4" preserve-aspect="true" on-click="friends-scope-click" hover-hint="Friends" />
-        <clickable-image id="country-scope" src="ScoreSaber.Resources.country.png" pref-width="4" pref-height="4" on-click="location-scope-click" preserve-aspect="true" hover-hint="Country" />
+        <clickable-image id="location-scope" src="ScoreSaber.Resources.country.png" pref-width="4" pref-height="4" on-click="location-scope-click" preserve-aspect="true" hover-hint="Country" />
       </vertical>
 
       <page-button id="down-button" dir="Down" anchor-pos-y="-25" on-click="global-down"/>

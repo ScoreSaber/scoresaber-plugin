@@ -73,7 +73,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
         protected readonly ClickableImage _playerScopeImage = null;
         [UIComponent("friends-scope")]
         protected readonly ClickableImage _friendsScopeImage = null;
-        [UIComponent("country-scope")]
+        [UIComponent("location-scope")]
         protected readonly ClickableImage _countryScopeImage = null;
 
         private Color _selectedColor = new Color(0.60f, 0.80f, 1);
