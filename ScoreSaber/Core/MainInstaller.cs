@@ -40,7 +40,8 @@ namespace ScoreSaber.Core {
             Container.BindInterfacesTo<ScoreSaberFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 
             List<ProfilePictureView> Imageholder = Enumerable.Range(0, 10).Select(x => new ProfilePictureView(x)).ToList();
-            Container.Bind<List<ProfilePictureView>>().FromInstance(Imageholder).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();
+            Container.Bind<ProfilePictureView>().FromMethodMultiple(context => Imageholder).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();
+            Imageholder.ForEach(x => Container.QueueForInject(x));
 
             Container.BindInterfacesAndSelfTo<ScoreSaberLeaderboardViewController>().AsSingle().NonLazy();
             Container.BindInterfacesTo<LeaderboardPatches>().AsSingle();

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using Zenject;
 
 namespace ScoreSaber.UI.Elements.Leaderboard {
     internal class ProfilePictureView {
@@ -19,8 +20,15 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         public bool isLoading = false;
 
+        private ICoroutineStarter coroutineStarter;
+
         public ProfilePictureView(int index) {
             this.index = index;
+        }
+
+        [Inject]
+        public void Init(ICoroutineStarter coroutineStarter) {
+            this.coroutineStarter = coroutineStarter;
         }
 
         [UIComponent("profileImage")]
@@ -47,7 +55,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 }
 
                 loadingIndicator.gameObject.SetActive(true);
-                SharedCoroutineStarter.instance.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
+                coroutineStarter.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
             } catch (OperationCanceledException) {
                 OnAvatarDownloadFailure("Cancelled", pos);
             } finally {
@@ -70,7 +78,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
                 yield return null;
             }
-            if (www.isHttpError || www.isNetworkError) {
+            if (www.result == UnityWebRequest.Result.ProtocolError || www.result == UnityWebRequest.Result.ConnectionError) {
                 onFailure?.Invoke(www.error, pos);
                 yield break;
             }
