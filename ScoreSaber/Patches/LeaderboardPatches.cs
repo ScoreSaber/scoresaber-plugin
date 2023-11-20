@@ -82,7 +82,7 @@ namespace ScoreSaber.Patches {
             }
         }
 
-        private void SetupScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
+        internal void SetupScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
 
             Texture2D countryTexture = new Texture2D(64, 64);
             countryTexture.LoadImage(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png"));
@@ -93,7 +93,7 @@ namespace ScoreSaber.Patches {
                     new DataItem(____globalLeaderboardIcon, "Global"),
                     new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),
                     new DataItem(____friendsLeaderboardIcon, "Friends"),
-                    new DataItem(_countryIcon, "Location"),
+                    Plugin.Settings.locationFilterMode.ToLower() == "country" ? new DataItem(_countryIcon, "Country") : Plugin.Settings.locationFilterMode.ToLower() == "region" ? new DataItem(_countryIcon, "Region") : new DataItem(_countryIcon, "Country")
                 });
 
             ____scopeSegmentedControl.didSelectCellEvent -= _platformLeaderboardViewController.HandleScopeSegmentedControlDidSelectCell;
