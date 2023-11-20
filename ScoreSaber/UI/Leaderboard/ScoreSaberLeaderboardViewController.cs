@@ -409,7 +409,10 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         internal void ByeImages() {
-            _ImageHolders.ForEach(holder => holder.profileImage.sprite = nullSprite);
+            _ImageHolders.ForEach(holder => {
+                if (holder.profileImage != null)
+                    holder.profileImage.sprite = nullSprite;
+                });
         }
 
         internal void HelloIMGLoader() {
