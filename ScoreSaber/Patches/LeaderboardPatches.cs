@@ -72,6 +72,7 @@ namespace ScoreSaber.Patches {
                 } else {
                     _playerNameText.richText = true;
                     tableCell.showSeparator = true;
+                    tableCell.interactable = true;
                 }
             }
         }
@@ -156,7 +157,6 @@ namespace ScoreSaber.Patches {
             }
 
             public void OnPointerClick(PointerEventData data) {
-                BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
                 onClick(index);
             }
 
