@@ -289,6 +289,9 @@ namespace ScoreSaber.UI.Leaderboard {
                             for (int i = 0; i < leaderboardTableScoreData.Count; i++) {
                                 _ImageHolders[i].setProfileImage(leaderboardData.scores[i].score.leaderboardPlayerInfo.profilePicture, i, cancellationToken.Token);
                             }
+                            for (int i = leaderboardTableScoreData.Count; i < _ImageHolders.Count; i++) {
+                                _ImageHolders[i].Clear();
+                            }
                             loadingControl.ShowText("", false);
                             loadingControl.Hide();
                             _infoButtons.UpdateInfoButtonState(leaderboardTableScoreData.Count);
@@ -418,7 +421,9 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         internal void ByeImages() {
-            _ImageHolders.ForEach(holder => holder.profileImage.sprite = nullSprite);
+            _ImageHolders.ForEach(holder => {
+                holder.Clear();
+            });
         }
 
         internal void HelloIMGLoader() {

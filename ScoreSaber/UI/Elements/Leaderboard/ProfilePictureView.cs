@@ -49,13 +49,13 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 loadingIndicator.gameObject.SetActive(true);
                 SharedCoroutineStarter.instance.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
             } catch (OperationCanceledException) {
-                OnAvatarDownloadFailure("Cancelled", pos);
+                OnAvatarDownloadFailure("Cancelled", pos, cancellationToken);
             } finally {
                 SpriteCache.MaintainSpriteCache();
             }
         }
 
-        internal static IEnumerator GetSpriteAvatar(string url, Action<Sprite, int, string> onSuccess, Action<string, int> onFailure, CancellationToken cancellationToken, int pos) {
+        internal static IEnumerator GetSpriteAvatar(string url, Action<Sprite, int, string, CancellationToken> onSuccess, Action<string, int, CancellationToken> onFailure, CancellationToken cancellationToken, int pos) {
             var handler = new DownloadHandlerTexture();
             var www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET);
             www.downloadHandler = handler;
@@ -64,34 +64,42 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
             while (!www.isDone) {
                 if (cancellationToken.IsCancellationRequested) {
-                    onFailure?.Invoke("Cancelled", pos);
+                    onFailure?.Invoke("Cancelled", pos, cancellationToken);
                     yield break;
                 }
 
                 yield return null;
             }
             if (www.isHttpError || www.isNetworkError) {
-                onFailure?.Invoke(www.error, pos);
+                onFailure?.Invoke(www.error, pos, cancellationToken);
                 yield break;
             }
             if (!string.IsNullOrEmpty(www.error)) {
-                onFailure?.Invoke(www.error, pos);
+                onFailure?.Invoke(www.error, pos, cancellationToken);
                 yield break;
             }
             Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
-            onSuccess?.Invoke(sprite, pos, url);
+            onSuccess?.Invoke(sprite, pos, url, cancellationToken);
         }
 
-        internal void OnAvatarDownloadSuccess(Sprite a, int pos, string url) {
+        internal void OnAvatarDownloadSuccess(Sprite a, int pos, string url, CancellationToken cancellationToken) {
+            if (cancellationToken == null || cancellationToken.IsCancellationRequested) {
+                Clear();
+                return;
+            }
             profileImage.gameObject.SetActive(true);
             profileImage.sprite = a;
             loadingIndicator.gameObject.SetActive(false);
             SpriteCache.AddSpriteToCache(url, a);
         }
 
-        internal void OnAvatarDownloadFailure(string error, int pos) {
+        internal void OnAvatarDownloadFailure(string error, int pos, CancellationToken cancellationToken) {
+            Clear();
+        }
+
+        internal void Clear() {
+            profileImage.sprite = BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
             loadingIndicator.gameObject.SetActive(false);
-            profileImage.gameObject.SetActive(false);
         }
         
     }
