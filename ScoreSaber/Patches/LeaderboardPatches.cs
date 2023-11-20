@@ -1,14 +1,18 @@
 ﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Extensions;
 using ScoreSaber.UI.Leaderboard;
 using SiraUtil.Affinity;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Zenject;
 using static HMUI.IconSegmentedControl;
 
@@ -48,10 +52,22 @@ namespace ScoreSaber.Patches {
         private Vector2 normalAnchor = Vector2.zero;
 
         [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.CellForIdx))]
-        void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result) {
+        void PatchLeaderboardTableView(ref LeaderboardTableView __instance, TableCell __result, int row) {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
-
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
+
+                CellClicker existingCellClicker = tableCell.gameObject.GetComponent<CellClicker>();
+                if (existingCellClicker == null || existingCellClicker.index != row) {
+                    if (existingCellClicker != null) {
+                        GameObject.Destroy(existingCellClicker);
+                    }
+
+                    CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
+                    cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
+                    cellClicker.index = row;
+                    cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
+                }
+
                 TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
 
                 if (!obtainedAnchor) {
@@ -66,6 +82,8 @@ namespace ScoreSaber.Patches {
                     _playerNameText.richText = true;
                     Vector2 newPosition = new Vector2(normalAnchor.x + 2.5f, 0f);
                     _playerNameText.rectTransform.anchoredPosition = newPosition;
+                    tableCell.showSeparator = true;
+                    tableCell.interactable = true;
                 }
             }
         }
@@ -130,5 +148,75 @@ namespace ScoreSaber.Patches {
             _lastScopeIndex = cellNumber;
             _scoresaberLeaderboardViewController.ChangeScope(filterAroundCountry);
         }
+
+        // probably a better place to put this
+        public class CellClicker : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {
+            public Action<int> onClick;
+            public int index;
+            public ImageView seperator;
+            private Vector3 originalScale;
+            private bool isScaled = false;
+
+            private Color origColour = new Color(1, 1, 1, 1);
+            private Color origColour0 = new Color(1, 1, 1, 0.2509804f);
+            private Color origColour1 = new Color(1, 1, 1, 0);
+
+            private void Start() {
+                originalScale = seperator.transform.localScale;
+            }
+
+            public void OnPointerClick(PointerEventData data) {
+                onClick(index);
+            }
+
+            public void OnPointerEnter(PointerEventData eventData) {
+                if (!isScaled) {
+                    seperator.transform.localScale = originalScale * 1.8f;
+                    isScaled = true;
+                }
+
+                Color targetColor = Color.white;
+                Color targetColor0 = Color.white;
+                Color targetColor1 = new Color(1, 1, 1, 0);
+
+                float lerpDuration = 0.15f;
+
+                StopAllCoroutines();
+                StartCoroutine(LerpColors(seperator, seperator.color, targetColor, seperator.color0, targetColor0, seperator.color1, targetColor1, lerpDuration));
+            }
+
+            public void OnPointerExit(PointerEventData eventData) {
+                if (isScaled) {
+                    seperator.transform.localScale = originalScale;
+                    isScaled = false;
+                }
+
+                float lerpDuration = 0.05f;
+
+                StopAllCoroutines();
+                StartCoroutine(LerpColors(seperator, seperator.color, origColour, seperator.color0, origColour0, seperator.color1, origColour1, lerpDuration));
+            }
+
+
+            private IEnumerator LerpColors(ImageView target, Color startColor, Color endColor, Color startColor0, Color endColor0, Color startColor1, Color endColor1, float duration) {
+                float elapsedTime = 0f;
+                while (elapsedTime < duration) {
+                    float t = elapsedTime / duration;
+                    target.color = Color.Lerp(startColor, endColor, t);
+                    target.color0 = Color.Lerp(startColor0, endColor0, t);
+                    target.color1 = Color.Lerp(startColor1, endColor1, t);
+                    elapsedTime += Time.deltaTime;
+                    yield return null;
+                }
+                target.color = endColor;
+                target.color0 = endColor0;
+                target.color1 = endColor1;
+            }
+
+            private void OnDestroy() {
+                onClick = null;
+            }
+        }
+
     }
 }
