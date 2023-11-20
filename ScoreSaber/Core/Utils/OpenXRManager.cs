@@ -72,6 +72,10 @@ namespace ScoreSaber.Core.Utils {
             try {
                 var openXRLoaderBaseAddress = GetModuleHandle("openxr_loader");
 
+                if (openXRLoaderBaseAddress == IntPtr.Zero) {
+                    throw new Exception("openxr_loader not found");
+                }
+
                 // Get our xrInstance
                 var xrGetCurrentInstance = Marshal.GetDelegateForFunctionPointer<xrGetCurrentInstanceDelegate>(openXRLoaderBaseAddress + 0x38980);
                 var xrCurrentInstance = new IntPtr(*(long*)xrGetCurrentInstance());
