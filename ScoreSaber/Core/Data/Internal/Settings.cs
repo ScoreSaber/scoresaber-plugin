@@ -8,7 +8,7 @@ namespace ScoreSaber.Core.Data
 {
     internal class Settings
     {
-        private static int _currentVersion => 6;
+        private static int _currentVersion => 7;
 
         public bool hideReplayUI = false;
 
@@ -19,6 +19,7 @@ namespace ScoreSaber.Core.Data
         public bool showStatusText { get; set; }
         public bool saveLocalReplays { get; set; }
         public bool enableCountryLeaderboards { get; set; }
+        public string locationFilterMode { get; set; }
         public float replayCameraFOV { get; set; }
         public float replayCameraXOffset { get; set; }
         public float replayCameraYOffset { get; set; }
@@ -66,11 +67,12 @@ namespace ScoreSaber.Core.Data
 
         public void SetDefaultSpectatorPositions() {
 
-            spectatorPositions = new List<SpectatorPoseRoot>();
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 0f, -2f)), "Main"));
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 4f, 0f)), "Bird's Eye"));
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(-3f, 0f, 0f)), "Left"));
-            spectatorPositions.Add(new SpectatorPoseRoot(new SpectatorPose(new Vector3(3f, 0f, 0f)), "Right"));
+            spectatorPositions = new List<SpectatorPoseRoot> {
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 0f, -2f)), "Main"),
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(0f, 4f, 0f)), "Bird's Eye"),
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(-3f, 0f, 0f)), "Left"),
+                new SpectatorPoseRoot(new SpectatorPose(new Vector3(3f, 0f, 0f)), "Right")
+            };
         }
 
         internal static Settings LoadSettings() {
@@ -101,6 +103,9 @@ namespace ScoreSaber.Core.Data
                 if (decoded.fileVersion < _currentVersion) {
                     if (decoded.spectatorPositions == null) {
                         decoded.SetDefaultSpectatorPositions();
+                    }
+                    if(decoded.locationFilterMode == null) {
+                        decoded.locationFilterMode = "Country";
                     }
                     SaveSettings(decoded);
                 }

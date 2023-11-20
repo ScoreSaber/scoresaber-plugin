@@ -66,7 +66,7 @@ namespace ScoreSaber.UI.Leaderboard {
         private readonly PlayerService _playerService;
         private readonly LeaderboardService _leaderboardService;
         private readonly PlayerDataModel _playerDataModel;
-        private readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
+        internal readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         // TODO: Put this somewhere nicer?
         public enum UploadStatus {

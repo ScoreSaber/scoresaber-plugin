@@ -7,6 +7,7 @@ using ScoreSaber.UI.Elements.Leaderboard;
 using ScoreSaber.UI.Elements.Profile;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main;
+using ScoreSaber.UI.Main.Settings.ViewControllers;
 using ScoreSaber.UI.Main.ViewControllers;
 using ScoreSaber.UI.Multiplayer;
 using System.Collections.Generic;
@@ -32,12 +33,15 @@ namespace ScoreSaber.Core {
             Container.Bind<TeamViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<GlobalViewController>().FromNewComponentAsViewController().AsSingle();
 
+            Container.Bind<MainSettingsViewController>().FromNewComponentAsViewController().AsSingle();
+
             Container.BindInterfacesTo<ScoreSaberMultiplayerInitializer>().AsSingle();
             //Container.BindInterfacesTo<ScoreSaberMultiplayerLobbyLeaderboardFlowManager>().AsSingle();
             Container.BindInterfacesTo<ScoreSaberMultiplayerResultsLeaderboardFlowManager>().AsSingle();
             Container.BindInterfacesTo<ScoreSaberMultiplayerLevelSelectionLeaderboardFlowManager>().AsSingle();
 
             Container.BindInterfacesTo<ScoreSaberFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.BindInterfacesTo<ScoreSaberSettingsFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 
             List<ProfilePictureView> Imageholder = Enumerable.Range(0, 10).Select(x => new ProfilePictureView(x)).ToList();
             Container.Bind<ProfilePictureView>().FromMethodMultiple(context => Imageholder).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();

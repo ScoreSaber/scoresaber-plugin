@@ -83,17 +83,14 @@ namespace ScoreSaber.Patches {
         void PatchPlatformLeaderboardDidActivatePostfix(ref bool firstActivation, ref Sprite ____friendsLeaderboardIcon, ref Sprite ____globalLeaderboardIcon, ref Sprite ____aroundPlayerLeaderboardIcon, ref IconSegmentedControl ____scopeSegmentedControl) {
             if (firstActivation) {
                 _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
-
-                if (Plugin.Settings.enableCountryLeaderboards) {
-                    SetupScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon, ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
-                }
             }
             if (Plugin.Settings.enableCountryLeaderboards) {
                 ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
+                UpdateScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon, ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
             }
         }
 
-        private void SetupScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
+        internal void UpdateScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
 
             Texture2D countryTexture = new Texture2D(64, 64);
             countryTexture.LoadImage(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png"));
@@ -104,7 +101,7 @@ namespace ScoreSaber.Patches {
                     new DataItem(____globalLeaderboardIcon, "Global"),
                     new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),
                     new DataItem(____friendsLeaderboardIcon, "Friends"),
-                    new DataItem(_countryIcon, "Country"),
+                    Plugin.Settings.locationFilterMode.ToLower() == "country" ? new DataItem(_countryIcon, "Country") : Plugin.Settings.locationFilterMode.ToLower() == "region" ? new DataItem(_countryIcon, "Region") : new DataItem(_countryIcon, "Country")
                 });
 
             ____scopeSegmentedControl.didSelectCellEvent -= _platformLeaderboardViewController.HandleScopeSegmentedControlDidSelectCell;

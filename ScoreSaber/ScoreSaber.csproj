@@ -219,6 +219,7 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
+    <EmbeddedResource Include="UI\Main\Settings\ViewControllers\MainSettingsViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\GlobalViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\TeamViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\FAQViewController.bsml" />
