@@ -186,8 +186,6 @@ namespace ScoreSaber.Core.Daemons {
                 bool done = false;
                 bool failed = false;
                 int attempts = 1;
-                UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging replay...");
-                byte[] serializedReplay = await _replayService.WriteSerializedReplay();
 
                 // Create http packet
                 WWWForm form = new WWWForm();
