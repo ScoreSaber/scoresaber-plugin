@@ -1,14 +1,9 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Parser;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
@@ -21,6 +16,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         public bool isLoading = false;
 
         private ICoroutineStarter coroutineStarter;
+
+        internal Sprite nullSprite = BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
 
         public ProfilePictureView(int index) {
             this.index = index;
@@ -37,11 +34,11 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         [UIObject("profileloading")]
         public GameObject loadingIndicator = null;
 
-
         [UIAction("#post-parse")]
         public void Parsed() {
             profileImage.material = Plugin.NoGlowMatRound;
-            profileImage.gameObject.SetActive(false);
+            profileImage.sprite = nullSprite;
+            profileImage.gameObject.SetActive(true);
             loadingIndicator.gameObject.SetActive(false);
         }
 
@@ -102,6 +99,11 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             profileImage.gameObject.SetActive(false);
         }
         
+        public void ClearSprite() {
+            if (profileImage != null) {
+                profileImage.sprite = nullSprite;
+            }
+        }
     }
 
     internal static class SpriteCache {

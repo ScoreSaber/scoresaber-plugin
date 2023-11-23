@@ -409,10 +409,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         internal void ByeImages() {
-            _ImageHolders.ForEach(holder => {
-                if (holder.profileImage != null)
-                    holder.profileImage.sprite = nullSprite;
-                });
+            _ImageHolders.ForEach(holder => holder.ClearSprite());
         }
 
         internal void HelloIMGLoader() {
@@ -422,8 +419,6 @@ namespace ScoreSaber.UI.Leaderboard {
         internal void ByeIMGLoader() {
             _ImageHolders.ForEach(holder => holder.loadingIndicator.SetActive(false));
         }
-
-        internal Sprite nullSprite = BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
 
         private async Task StartReplay(ScoreMap score) {
 
