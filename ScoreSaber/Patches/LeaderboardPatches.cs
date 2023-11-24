@@ -224,7 +224,11 @@ namespace ScoreSaber.Patches {
             }
 
             private void OnDestroy() {
+                StopAllCoroutines();
                 onClick = null;
+                seperator.color = origColour;
+                seperator.color0 = origColour0;
+                seperator.color1 = origColour1;
             }
         }
 
