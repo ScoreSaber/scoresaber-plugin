@@ -67,6 +67,11 @@ namespace ScoreSaber.Patches {
                         cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
                         cellClicker.index = row;
                         cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
+                        if(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject.GetComponent<CellClicker>() != null)
+                        {
+                            GameObject.Destroy(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject.GetComponent<CellClicker>());
+                        }
+                        cellClicker.CopyComponent<CellClicker>(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject);
                     }
                 }
 
@@ -219,7 +224,11 @@ namespace ScoreSaber.Patches {
             }
 
             private void OnDestroy() {
+                StopAllCoroutines();
                 onClick = null;
+                seperator.color = origColour;
+                seperator.color0 = origColour0;
+                seperator.color1 = origColour1;
             }
         }
 
