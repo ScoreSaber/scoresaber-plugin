@@ -49,6 +49,7 @@ namespace ScoreSaber.Core.Data
             showStatusText = true;
             saveLocalReplays = true;
             enableCountryLeaderboards = true;
+            locationFilterMode = "Country";
             replayCameraSmoothing = true;
             replayCameraFOV = 70f;
             replayCameraXOffset = 0.0f;
