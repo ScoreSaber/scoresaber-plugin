@@ -85,8 +85,7 @@ namespace ScoreSaber.Patches {
                 if (_scoresaberLeaderboardViewController.isOST) {
                     _playerNameText.richText = false;
                     _playerNameText.rectTransform.anchoredPosition = normalAnchor;
-                    if (row == 9)
-                        tableCell.showSeparator = false;
+                    tableCell.showSeparator = row != __instance._scores.Count - 1;
                     tableCell.interactable = false;
                 } else {
                     _playerNameText.richText = true;
