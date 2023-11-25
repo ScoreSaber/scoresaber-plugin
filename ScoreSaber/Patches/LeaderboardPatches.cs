@@ -15,6 +15,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
 using static HMUI.IconSegmentedControl;
+using static ScoreSaber.Patches.LeaderboardPatches;
 
 namespace ScoreSaber.Patches {
     internal class LeaderboardPatches : IInitializable, IAffinity {
@@ -33,6 +34,14 @@ namespace ScoreSaber.Patches {
         [AffinityPatch(typeof(PlatformLeaderboardViewController), nameof(PlatformLeaderboardViewController.Refresh))]
         [AffinityPrefix]
         bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
+            // clean up cell clickers
+            foreach (var holder in _scoresaberLeaderboardViewController._cellClickingHolders) {
+                CellClicker existingCellClicker = holder?.cellClickerImage?.gameObject?.GetComponent<CellClicker>();
+                if (existingCellClicker != null) {
+                    GameObject.Destroy(existingCellClicker);
+                }
+            }
+            
             if (____difficultyBeatmap.level is CustomBeatmapLevel) {
                 ____hasScoresData = false;
                 ____scores.Clear();
@@ -56,18 +65,11 @@ namespace ScoreSaber.Patches {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
 
-                CellClicker existingCellClicker = _scoresaberLeaderboardViewController._cellClickingHolders[row].cellClickerImage.gameObject.GetComponent<CellClicker>();
-                if (existingCellClicker == null || existingCellClicker.index != row || _scoresaberLeaderboardViewController.isOST) {
-                    if (existingCellClicker != null) {
-                        GameObject.Destroy(existingCellClicker);
-                    }
-
-                    if (!_scoresaberLeaderboardViewController.isOST) {
-                        CellClicker cellClicker = _scoresaberLeaderboardViewController._cellClickingHolders[row].cellClickerImage.gameObject.AddComponent<CellClicker>();
-                        cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
-                        cellClicker.index = row;
-                        cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
-                    }
+                if (!_scoresaberLeaderboardViewController.isOST) {
+                    CellClicker cellClicker = _scoresaberLeaderboardViewController._cellClickingHolders[row].cellClickerImage.gameObject.AddComponent<CellClicker>();
+                    cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
+                    cellClicker.index = row;
+                    cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
                 }
 
                 TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
