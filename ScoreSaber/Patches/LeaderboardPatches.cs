@@ -121,7 +121,6 @@ namespace ScoreSaber.Patches {
         [AffinityPostfix]
         void PatchLeaderboardTableViewSetScoresPost(ref LeaderboardTableView __instance, List<LeaderboardTableView.ScoreData> ____scores) {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
-                Plugin.Log.Info("SET SCORES PATCH");
                     for(int i = ____scores.Count; i < 10; i++) {
                         _scoresaberLeaderboardViewController._ImageHolders[i].ClearSprite();
                     }
@@ -132,7 +131,6 @@ namespace ScoreSaber.Patches {
         [AffinityPrefix]
         void PatchLeaderboardTableViewSetScoresPre(ref LeaderboardTableView __instance) {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
-                Plugin.Log.Info("SET SCORES PATCH");
                     _scoresaberLeaderboardViewController.ByeImages();
             }
         }
