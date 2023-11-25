@@ -1,14 +1,7 @@
 name: Upload Release Binary
 
 on:
-  push:
-    branches:
-      - release
-      - release_1.29.1
-    paths:
-      - 'ScoreSaber/**'
-      - 'ScoreSaber.sln'
-      - '.github/workflows/release.yml'
+   workflow_dispatch:
 
 jobs:
   build:
