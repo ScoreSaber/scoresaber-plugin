@@ -47,6 +47,10 @@ namespace ScoreSaber.Core {
             Container.Bind<ProfilePictureView>().FromMethodMultiple(context => Imageholder).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();
             Imageholder.ForEach(x => Container.QueueForInject(x));
 
+            List<CellClickingView> clickingViews = Enumerable.Range(0, 10).Select(x => new CellClickingView(x)).ToList();
+            Container.Bind<CellClickingView>().FromMethodMultiple(context => clickingViews).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();
+            clickingViews.ForEach(y => Container.QueueForInject(y));
+
             Container.BindInterfacesAndSelfTo<ScoreSaberLeaderboardViewController>().AsSingle().NonLazy();
             Container.BindInterfacesTo<LeaderboardPatches>().AsSingle();
 
