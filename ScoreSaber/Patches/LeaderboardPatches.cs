@@ -56,14 +56,14 @@ namespace ScoreSaber.Patches {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
 
-                CellClicker existingCellClicker = tableCell.gameObject.GetComponent<CellClicker>();
+                CellClicker existingCellClicker = _scoresaberLeaderboardViewController._cellClickingHolders[row].cellClickerImage.gameObject.GetComponent<CellClicker>();
                 if (existingCellClicker == null || existingCellClicker.index != row || _scoresaberLeaderboardViewController.isOST) {
                     if (existingCellClicker != null) {
                         GameObject.Destroy(existingCellClicker);
                     }
 
                     if (!_scoresaberLeaderboardViewController.isOST) {
-                        CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
+                        CellClicker cellClicker = _scoresaberLeaderboardViewController._cellClickingHolders[row].cellClickerImage.gameObject.AddComponent<CellClicker>();
                         cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
                         cellClicker.index = row;
                         cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
@@ -86,13 +86,12 @@ namespace ScoreSaber.Patches {
                     _playerNameText.rectTransform.anchoredPosition = normalAnchor;
                     if (row == 9)
                         tableCell.showSeparator = false;
-                    tableCell.interactable = false;
+                        tableCell.interactable = false;
                 } else {
                     _playerNameText.richText = true;
                     Vector2 newPosition = new Vector2(normalAnchor.x + 2.5f, 0f);
                     _playerNameText.rectTransform.anchoredPosition = newPosition;
                     tableCell.showSeparator = true;
-                    tableCell.interactable = true;
                 }
             }
         }
@@ -193,6 +192,7 @@ namespace ScoreSaber.Patches {
             }
 
             public void OnPointerClick(PointerEventData data) {
+                BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
                 onClick(index);
             }
 
