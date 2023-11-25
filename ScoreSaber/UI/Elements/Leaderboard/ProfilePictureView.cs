@@ -44,13 +44,13 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         public void setProfileImage(string url, int pos, CancellationToken cancellationToken) {
             try {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (SpriteCache.cachedSprites.ContainsKey(url)) {
                     profileImage.gameObject.SetActive(true);
                     profileImage.sprite = SpriteCache.cachedSprites[url];
                     loadingIndicator.gameObject.SetActive(false);
                     return;
                 }
-
                 loadingIndicator.gameObject.SetActive(true);
                 coroutineStarter.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
             } catch (OperationCanceledException) {
@@ -68,13 +68,14 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             yield return www.SendWebRequest();
 
             while (!www.isDone) {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (cancellationToken.IsCancellationRequested) {
                     onFailure?.Invoke("Cancelled", pos);
                     yield break;
                 }
-
                 yield return null;
             }
+
             if (www.result == UnityWebRequest.Result.ProtocolError || www.result == UnityWebRequest.Result.ConnectionError) {
                 onFailure?.Invoke(www.error, pos);
                 yield break;
@@ -83,8 +84,13 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 onFailure?.Invoke(www.error, pos);
                 yield break;
             }
-            Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
-            onSuccess?.Invoke(sprite, pos, url);
+
+            // Check if cancelled properly???
+            if (!cancellationToken.IsCancellationRequested && cancellationToken != null) {
+                Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
+                onSuccess?.Invoke(sprite, pos, url);
+                yield break;
+            }
         }
 
         internal void OnAvatarDownloadSuccess(Sprite a, int pos, string url) {
