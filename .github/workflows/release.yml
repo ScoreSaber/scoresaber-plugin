@@ -2,7 +2,9 @@ name: Upload Release Binary
 
 on:
   push:
-    branches: [ release ]
+    branches:
+      - release
+      - release_1.29.1
     paths:
       - 'ScoreSaber/**'
       - 'ScoreSaber.sln'
