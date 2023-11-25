@@ -103,6 +103,9 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             if (profileImage != null) {
                 profileImage.sprite = nullSprite;
             }
+            if(loadingIndicator != null) {
+                loadingIndicator.gameObject.SetActive(false);
+            }
         }
     }
 

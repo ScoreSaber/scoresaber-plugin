@@ -15,6 +15,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
 using static HMUI.IconSegmentedControl;
+using static ScoreSaber.Patches.LeaderboardPatches;
 
 namespace ScoreSaber.Patches {
     internal class LeaderboardPatches : IInitializable, IAffinity {
@@ -33,6 +34,14 @@ namespace ScoreSaber.Patches {
         [AffinityPatch(typeof(PlatformLeaderboardViewController), nameof(PlatformLeaderboardViewController.Refresh))]
         [AffinityPrefix]
         bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
+            // clean up cell clickers
+            foreach (var holder in _scoresaberLeaderboardViewController._cellClickingHolders) {
+                CellClicker existingCellClicker = holder?.cellClickerImage?.gameObject?.GetComponent<CellClicker>();
+                if (existingCellClicker != null) {
+                    GameObject.Destroy(existingCellClicker);
+                }
+            }
+            
             if (____difficultyBeatmap.level is CustomBeatmapLevel) {
                 ____hasScoresData = false;
                 ____scores.Clear();
@@ -56,23 +65,11 @@ namespace ScoreSaber.Patches {
             if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
                 LeaderboardTableCell tableCell = (LeaderboardTableCell)__result;
 
-                CellClicker existingCellClicker = tableCell.gameObject.GetComponent<CellClicker>();
-                if (existingCellClicker == null || existingCellClicker.index != row || _scoresaberLeaderboardViewController.isOST) {
-                    if (existingCellClicker != null) {
-                        GameObject.Destroy(existingCellClicker);
-                    }
-
-                    if (!_scoresaberLeaderboardViewController.isOST) {
-                        CellClicker cellClicker = tableCell.gameObject.AddComponent<CellClicker>();
-                        cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
-                        cellClicker.index = row;
-                        cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
-                        if(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject.GetComponent<CellClicker>() != null)
-                        {
-                            GameObject.Destroy(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject.GetComponent<CellClicker>());
-                        }
-                        cellClicker.CopyComponent<CellClicker>(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject);
-                    }
+                if (!_scoresaberLeaderboardViewController.isOST) {
+                    CellClicker cellClicker = _scoresaberLeaderboardViewController._cellClickingHolders[row].cellClickerImage.gameObject.AddComponent<CellClicker>();
+                    cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
+                    cellClicker.index = row;
+                    cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
                 }
 
                 TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
@@ -87,13 +84,12 @@ namespace ScoreSaber.Patches {
                     _playerNameText.rectTransform.anchoredPosition = normalAnchor;
                     if (row == 9)
                         tableCell.showSeparator = false;
-                    tableCell.interactable = false;
+                        tableCell.interactable = false;
                 } else {
                     _playerNameText.richText = true;
                     Vector2 newPosition = new Vector2(normalAnchor.x + 2.5f, 0f);
                     _playerNameText.rectTransform.anchoredPosition = newPosition;
                     tableCell.showSeparator = true;
-                    tableCell.interactable = true;
                 }
             }
         }
@@ -115,6 +111,24 @@ namespace ScoreSaber.Patches {
             if (Plugin.Settings.enableCountryLeaderboards) {
                 UpdateScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon, ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
                 ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
+            }
+        }
+
+        [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.SetScores))]
+        [AffinityPostfix]
+        void PatchLeaderboardTableViewSetScoresPost(ref LeaderboardTableView __instance, List<LeaderboardTableView.ScoreData> ____scores) {
+            if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
+                    for(int i = ____scores.Count; i < 10; i++) {
+                        _scoresaberLeaderboardViewController._ImageHolders[i].ClearSprite();
+                    }
+                }
+        }
+
+        [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.SetScores))]
+        [AffinityPrefix]
+        void PatchLeaderboardTableViewSetScoresPre(ref LeaderboardTableView __instance) {
+            if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
+                    _scoresaberLeaderboardViewController.ByeImages();
             }
         }
 
@@ -176,6 +190,7 @@ namespace ScoreSaber.Patches {
             }
 
             public void OnPointerClick(PointerEventData data) {
+                BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
                 onClick(index);
             }
 

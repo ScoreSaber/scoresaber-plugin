@@ -37,6 +37,8 @@ namespace ScoreSaber.UI.Leaderboard {
 
         [UIValue("imageHolders")]
         internal List<ProfilePictureView> _ImageHolders = null;
+        [UIValue("cellClickerHolders")]
+        internal List<CellClickingView> _cellClickingHolders = null;
         [UIValue("entry-holder")]
         internal readonly EntryHolder _infoButtons = null;
         [UIValue("score-detail-view")]
@@ -90,7 +92,7 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlayerDataModel playerDataModel, PlatformLeaderboardViewController platformLeaderboardViewController, StandardLevelDetailViewController standardLevelDetailViewController, List<ProfilePictureView> profilePictureView) {
+        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlayerDataModel playerDataModel, PlatformLeaderboardViewController platformLeaderboardViewController, StandardLevelDetailViewController standardLevelDetailViewController, List<ProfilePictureView> profilePictureView, List<CellClickingView> cellClickingViews) {
 
             _container = container;
             _panelView = panelView;
@@ -100,6 +102,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _playerDataModel = playerDataModel;
             _leaderboardService = leaderboardService;
             _ImageHolders = profilePictureView;
+            _cellClickingHolders = cellClickingViews;
             _platformLeaderboardViewController = platformLeaderboardViewController;
 
             _infoButtons = new EntryHolder();
@@ -410,14 +413,6 @@ namespace ScoreSaber.UI.Leaderboard {
 
         internal void ByeImages() {
             _ImageHolders.ForEach(holder => holder.ClearSprite());
-        }
-
-        internal void HelloIMGLoader() {
-            _ImageHolders.ForEach(holder => holder.loadingIndicator.SetActive(true));
-        }
-
-        internal void ByeIMGLoader() {
-            _ImageHolders.ForEach(holder => holder.loadingIndicator.SetActive(false));
         }
 
         private async Task StartReplay(ScoreMap score) {

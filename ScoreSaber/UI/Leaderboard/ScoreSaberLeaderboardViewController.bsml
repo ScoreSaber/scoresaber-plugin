@@ -22,6 +22,18 @@
 		</macro.for-each>
 	</vertical>
 
+	<!-- Cell Clickers (please forgive me theres no other way) -->
+	<vertical anchor-pos-x="5"
+		  anchor-pos-y="-1" spacing="-20.25">
+		<macro.for-each hosts="cellClickerHolders">
+			<horizontal child-expand-height="true" child-align="MiddleCenter">
+				<stack>
+					<image id="cellClickerImage" pref-width="72" pref-height="5.75" preserve-aspect="true"/>
+				</stack>
+			</horizontal>
+		</macro.for-each>
+	</vertical>
+
 	<!-- Score info modal -->
 	<modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="50">
 		<macro.as-host host="score-detail-view">
