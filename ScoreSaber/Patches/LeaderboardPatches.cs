@@ -67,8 +67,7 @@ namespace ScoreSaber.Patches {
                         cellClicker.onClick = _scoresaberLeaderboardViewController._infoButtons.InfoButtonClicked;
                         cellClicker.index = row;
                         cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
-                        if(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject.GetComponent<CellClicker>() != null)
-                        {
+                        if (_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject.GetComponent<CellClicker>() != null) {
                             GameObject.Destroy(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject.GetComponent<CellClicker>());
                         }
                         cellClicker.CopyComponent<CellClicker>(_scoresaberLeaderboardViewController._ImageHolders[row].profileImage.gameObject);
@@ -115,6 +114,26 @@ namespace ScoreSaber.Patches {
             if (Plugin.Settings.enableCountryLeaderboards) {
                 UpdateScopeControl(____friendsLeaderboardIcon, ____globalLeaderboardIcon, ____aroundPlayerLeaderboardIcon, ____scopeSegmentedControl);
                 ____scopeSegmentedControl.SelectCellWithNumber(_lastScopeIndex);
+            }
+        }
+
+        [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.SetScores))]
+        [AffinityPostfix]
+        void PatchLeaderboardTableViewSetScoresPost(ref LeaderboardTableView __instance, List<LeaderboardTableView.ScoreData> ____scores) {
+            if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
+                Plugin.Log.Info("SET SCORES PATCH");
+                    for(int i = ____scores.Count; i < 10; i++) {
+                        _scoresaberLeaderboardViewController._ImageHolders[i].ClearSprite();
+                    }
+                }
+        }
+
+        [AffinityPatch(typeof(LeaderboardTableView), nameof(LeaderboardTableView.SetScores))]
+        [AffinityPrefix]
+        void PatchLeaderboardTableViewSetScoresPre(ref LeaderboardTableView __instance) {
+            if (__instance.transform.parent.transform.parent.name == "PlatformLeaderboardViewController") {
+                Plugin.Log.Info("SET SCORES PATCH");
+                    _scoresaberLeaderboardViewController.ByeImages();
             }
         }
 

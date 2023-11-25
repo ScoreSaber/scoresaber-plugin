@@ -412,14 +412,6 @@ namespace ScoreSaber.UI.Leaderboard {
             _ImageHolders.ForEach(holder => holder.ClearSprite());
         }
 
-        internal void HelloIMGLoader() {
-            _ImageHolders.ForEach(holder => holder.loadingIndicator.SetActive(true));
-        }
-
-        internal void ByeIMGLoader() {
-            _ImageHolders.ForEach(holder => holder.loadingIndicator.SetActive(false));
-        }
-
         private async Task StartReplay(ScoreMap score) {
 
             _parserParams.EmitEvent("close-modals");
