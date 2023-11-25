@@ -65,8 +65,10 @@ namespace ScoreSaber {
             BSMLParser.instance.RegisterTag(new ProfileDetailViewTag(metadata.Assembly));
 
             HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
-            OpenXRManager.Initialize();
             SteamSettings.Initialize();
+            Plugin.Log.Info("HMD: " + VRDevices.GetDeviceHMD());
+            Plugin.Log.Info("Left hand: " + VRDevices.GetDeviceControllerLeft());
+            Plugin.Log.Info("Right hand: " + VRDevices.GetDeviceControllerRight());
         }
 
         [OnEnable]
@@ -86,7 +88,7 @@ namespace ScoreSaber {
         private void SceneLoaded(Scene scene, LoadSceneMode mode) {
 
             if (scene.name == "MainMenu") {
-                Container.Resolve<ICoroutineStarter>().StartCoroutine(WaitForLeaderboard());
+                SharedCoroutineStarter.instance.StartCoroutine(WaitForLeaderboard());
             }
         }
 

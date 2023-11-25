@@ -6,27 +6,60 @@ namespace ScoreSaber.Core.Data {
     internal static class VRDevices {
         internal static string GetDeviceHMD() {
 
-            var currentRuntime = UnityEngine.XR.OpenXR.OpenXRRuntime.name.ToLower();
+#pragma warning disable CS0618 // Type or member is obsolete
+            var hmd = $"(xrdevice):{XRDevice.model}";
+#pragma warning restore CS0618 // Type or member is obsolete
 
-            var hmd = GetDeviceName(XRNode.Head);
-
-            if (currentRuntime.Contains("steam")) {
-                if (SteamSettings.hmdName != null)
-                    hmd = $"{hmd}:(steamcfg):{SteamSettings.hmdName}";
+            if (SteamSettings.hmdName != null) {
+                hmd = $"{hmd}:(steamcfg):{SteamSettings.hmdName}";
             }
 
-            if (OpenXRManager.hmdName != null)
-                hmd = $"{hmd}:(openxr):{OpenXRManager.hmdName}";
-
-            return $"{UnityEngine.XR.OpenXR.OpenXRRuntime.name}:{hmd}" ;
+            return $"legacy:{hmd}";
         }
 
         internal static string GetDeviceControllerLeft() {
-            return $"{UnityEngine.XR.OpenXR.OpenXRRuntime.name}:{GetDeviceName(XRNode.LeftHand)}";
+
+            var leftHandedControllers = new List<InputDevice>();
+            var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left | InputDeviceCharacteristics.Controller;
+            InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, leftHandedControllers);
+
+            string device = string.Empty;
+            if (leftHandedControllers[0] != null) {
+                device = $"(inputdevice):{leftHandedControllers[0].name}";
+            }
+
+            var leftXRNode = GetDeviceName(XRNode.LeftHand);
+            if (leftXRNode != null) {
+                device = $"{device}:{leftXRNode}";
+            }
+
+            if (device != string.Empty) {
+                return $"legacy:{device}";
+            }
+
+            return $"legacy:unknown";
         }
 
         internal static string GetDeviceControllerRight() {
-            return $"{UnityEngine.XR.OpenXR.OpenXRRuntime.name}:{GetDeviceName(XRNode.RightHand)}";
+            var rightHandedControllers = new List<InputDevice>();
+            var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
+            InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, rightHandedControllers);
+
+            string device = string.Empty;
+            if (rightHandedControllers[0] != null) {
+                device = $"(inputdevice):{rightHandedControllers[0].name}";
+            }
+
+            var rightXRNode = GetDeviceName(XRNode.RightHand);
+            if (rightXRNode != null) {
+                device = $"{device}:{rightXRNode}";
+            }
+
+            if (device != string.Empty) {
+                return $"legacy:{device}";
+            }
+
+            return $"legacy:unknown";
         }
 
         private static string GetDeviceName(XRNode node) {

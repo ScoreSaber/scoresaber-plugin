@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace ScoreSaber
-{
+namespace ScoreSaber {
     /// <summary>
     /// HTTP Options
     /// </summary>
-    internal struct HttpOptions
-    {
+    internal struct HttpOptions {
         /// <summary>
         /// Application Name
         /// </summary>
@@ -32,8 +30,7 @@ namespace ScoreSaber
 
     }
 
-    internal sealed class Http
-    {
+    internal sealed class Http {
         internal Dictionary<string, string> PersistentRequestHeaders { get; private set; }
         internal HttpOptions options;
 
@@ -73,7 +70,7 @@ namespace ScoreSaber
             using (UnityWebRequest request = UnityWebRequest.Get(url)) {
                 request.timeout = 5;
                 await SendHttpAsyncRequest(request);
-                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) {
+                if (request.isNetworkError || request.isHttpError) {
                     throw ThrowHttpException(request);
                 } else {
                     return Encoding.UTF8.GetString(request.downloadHandler.data);
@@ -87,7 +84,7 @@ namespace ScoreSaber
             using (UnityWebRequest request = UnityWebRequest.Get(url)) {
                 request.timeout = 5;
                 await SendHttpAsyncRequest(request);
-                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) {
+                if (request.isNetworkError || request.isHttpError) {
                     throw ThrowHttpException(request);
                 } else {
                     return Encoding.UTF8.GetString(request.downloadHandler.data);
@@ -100,7 +97,7 @@ namespace ScoreSaber
             url = $"{options.baseURL}{url}";
             using (UnityWebRequest request = UnityWebRequest.Get(url)) {
                 await SendHttpAsyncRequest(request);
-                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) {
+                if (request.isNetworkError || request.isHttpError) {
                     throw ThrowHttpException(request);
                 } else {
                     return request.downloadHandler.data;
@@ -114,7 +111,7 @@ namespace ScoreSaber
             using (UnityWebRequest request = UnityWebRequest.Post(url, form)) {
                 request.timeout = 120;
                 await SendHttpAsyncRequest(request);
-                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) {
+                if (request.isNetworkError || request.isHttpError) {
                     throw ThrowHttpException(request);
                 } else {
                     return Encoding.UTF8.GetString(request.downloadHandler.data);
@@ -124,16 +121,9 @@ namespace ScoreSaber
 
         internal HttpErrorException ThrowHttpException(UnityWebRequest request) {
             if (request.downloadHandler.data != null) {
-                return new HttpErrorException(
-                    request.result == UnityWebRequest.Result.ConnectionError,
-                    request.result == UnityWebRequest.Result.ProtocolError,
-                    Encoding.UTF8.GetString(request.downloadHandler.data)
-                ); // Epic
+                return new HttpErrorException(request.isNetworkError, request.isHttpError, Encoding.UTF8.GetString(request.downloadHandler.data)); // Epic
             } else {
-                return new HttpErrorException(
-                    request.result == UnityWebRequest.Result.ConnectionError,
-                    request.result == UnityWebRequest.Result.ProtocolError
-                ); // Epic
+                return new HttpErrorException(request.isNetworkError, request.isHttpError); // Epic
             }
         }
     }

@@ -6,7 +6,6 @@ using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using IPA.Utilities;
 using ScoreSaber.Core.Utils;
-using UnityEngine.SpatialTracking;
 
 namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
@@ -94,9 +93,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             Quaternion rotation = new Quaternion {
                 eulerAngles = new Vector3(0.0f, _mainSettingsModelSO.roomRotation.value, 0.0f)
             };
-            spectatorObject.transform.rotation = rotation;
+            _spectatorCamera.transform.rotation = rotation;
             _spectatorCamera.stereoTargetEye = StereoTargetEyeMask.Both;
-            _mainCamera.gameObject.GetComponent<TrackedPoseDriver>().CopyComponent<TrackedPoseDriver>(_spectatorCamera.gameObject);
             _spectatorCamera.gameObject.SetActive(true);
             _spectatorCamera.depth = 0;
             _spectatorCamera.transform.SetParent(spectatorObject.transform);

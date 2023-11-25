@@ -61,14 +61,8 @@ namespace ScoreSaber.Core.ReplaySystem {
                 if (gameplayModifiers == null) {
                     gameplayModifiers = new GameplayModifiers();
                 }
-
-                ColorScheme beatmapOverrideColorScheme = null;
-                if (difficultyBeatmap.level is CustomBeatmapLevel selectedBeatmapLevel && difficultyBeatmap is CustomDifficultyBeatmap selectedDifficultyBeatmap) {
-                    beatmapOverrideColorScheme = selectedBeatmapLevel.GetBeatmapLevelColorScheme(selectedDifficultyBeatmap.beatmapColorSchemeIdx);
-                }
-
                 _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings,
-                    playerData.colorSchemesSettings.GetSelectedColorScheme(), beatmapOverrideColorScheme, gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd, null);
+                    playerData.colorSchemesSettings.GetSelectedColorScheme(), gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd, null);
             });
         }
 
@@ -118,22 +112,15 @@ namespace ScoreSaber.Core.ReplaySystem {
                     localPlayerSettings.noTextsAndHuds, localPlayerSettings.noFailEffects, localPlayerSettings.advancedHud,
                     localPlayerSettings.autoRestart, localPlayerSettings.saberTrailIntensity, localPlayerSettings.noteJumpDurationTypeSettings,
                     localPlayerSettings.noteJumpFixedDuration, localPlayerSettings.noteJumpStartBeatOffset, localPlayerSettings.hideNoteSpawnEffect,
-                    localPlayerSettings.adaptiveSfx, localPlayerSettings.arcsHapticFeedback, localPlayerSettings.arcVisibility,
+                    localPlayerSettings.adaptiveSfx, localPlayerSettings.arcsHapticFeedback, localPlayerSettings.arcsVisible,
                     localPlayerSettings.environmentEffectsFilterDefaultPreset,
-                    localPlayerSettings.environmentEffectsFilterExpertPlusPreset,
-                    localPlayerSettings.headsetHapticIntensity);
+                    localPlayerSettings.environmentEffectsFilterExpertPlusPreset);
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
-
-                ColorScheme beatmapOverrideColorScheme = null;
-                if (difficultyBeatmap.level is CustomBeatmapLevel selectedBeatmapLevel && difficultyBeatmap is CustomDifficultyBeatmap selectedDifficultyBeatmap) {
-                    beatmapOverrideColorScheme = selectedBeatmapLevel.GetBeatmapLevelColorScheme(selectedDifficultyBeatmap.beatmapColorSchemeIdx);
-                }
-
                 UnityMainThreadTaskScheduler.Factory.StartNew(() => _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level,
-                    playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetOverrideColorScheme(), beatmapOverrideColorScheme,
+                    playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetOverrideColorScheme(),
                     LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers,
-                    playerSettings, null, "Exit Replay", false, false, null, ReplayEnd,null));
+                    playerSettings, null, "Exit Replay", false, false, null, ReplayEnd, null));
             });
         }
 

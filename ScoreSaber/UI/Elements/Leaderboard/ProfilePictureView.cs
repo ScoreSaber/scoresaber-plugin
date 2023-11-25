@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using Oculus.Platform;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,17 +16,11 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         public bool isLoading = false;
 
-        private ICoroutineStarter coroutineStarter;
 
         internal Sprite nullSprite = BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
 
         public ProfilePictureView(int index) {
             this.index = index;
-        }
-
-        [Inject]
-        public void Init(ICoroutineStarter coroutineStarter) {
-            this.coroutineStarter = coroutineStarter;
         }
 
         [UIComponent("profileImage")]
@@ -52,7 +47,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 }
 
                 loadingIndicator.gameObject.SetActive(true);
-                coroutineStarter.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
+                SharedCoroutineStarter.instance.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
             } catch (OperationCanceledException) {
                 OnAvatarDownloadFailure("Cancelled", pos);
             } finally {
@@ -75,7 +70,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
                 yield return null;
             }
-            if (www.result == UnityWebRequest.Result.ProtocolError || www.result == UnityWebRequest.Result.ConnectionError) {
+            if (www.isNetworkError || www.isHttpError) {
                 onFailure?.Invoke(www.error, pos);
                 yield break;
             }
