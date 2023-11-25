@@ -66,9 +66,6 @@ namespace ScoreSaber {
 
             HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
             SteamSettings.Initialize();
-            Plugin.Log.Info("HMD: " + VRDevices.GetDeviceHMD());
-            Plugin.Log.Info("Left hand: " + VRDevices.GetDeviceControllerLeft());
-            Plugin.Log.Info("Right hand: " + VRDevices.GetDeviceControllerRight());
         }
 
         [OnEnable]
