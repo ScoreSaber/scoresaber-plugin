@@ -5,35 +5,57 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup dotnet
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-    - name: Acquire SIRA References
-      uses: ProjectSIRA/download-sira-stripped@1.0.0
+      
+    - name: Read manifest and set game version
+      id: read-json
+      run: |
+        json_content=$(cat ${{github.workspace}}/ScoreSaber/manifest.json)
+        game_version=$(echo "$json_content" | jq -r .gameVersion)
+        echo "Game Version: $game_version"
+        echo "::set-output name=game_version::$game_version"  
+        
+    - name: Checkout stripped dlls
+      uses: actions/checkout@v4
       with:
-        manifest: ./ScoreSaber/manifest.json
-        sira-server-code: ${{ secrets.SIRA_SERVER_CODE }}
+        repository: ScoreSaber/scoresaber-pc-ci-stripped
+        token: ${{ secrets.CI_PAT }}
+        path: Stripped
+        sparse-checkout: |
+          Versions/${{ steps.read-json.outputs.game_version }}
+        sparse-checkout-cone-mode: false
+     
+    - name: Move stripped dlls to refs
+      run: mv Stripped/Versions/${{ steps.read-json.outputs.game_version }} Refs
+    
     - name: Acquire Mod References
       uses: Goobwabber/download-beatmods-deps@1.2
       with:
-        manifest: ./ScoreSaber/manifest.json
+        manifest: ${{github.workspace}}/ScoreSaber/manifest.json
+        
     - name: Build
       id: Build
       env:
         FrameworkPathOverride: /usr/lib/mono/4.8-api
-      run: dotnet build ScoreSaber/ScoreSaber.csproj --configuration Release
+      run: dotnet build --configuration Release
+      
     - name: Git Status
       run: git status
+      
     - name: Echo File Name
       run: echo $BUILDTEXT \($ASSEMBLYNAME\)
       env:
         BUILDTEXT: Filename=${{ steps.Build.outputs.filename }}
         ASSEMBLYNAME: AssemblyName=${{ steps.Build.outputs.assemblyname }}
+        
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
