@@ -39,35 +39,33 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         public void setProfileImage(string url, int pos, CancellationToken cancellationToken) {
             try {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (SpriteCache.cachedSprites.ContainsKey(url)) {
                     profileImage.gameObject.SetActive(true);
                     profileImage.sprite = SpriteCache.cachedSprites[url];
                     loadingIndicator.gameObject.SetActive(false);
                     return;
                 }
-
                 loadingIndicator.gameObject.SetActive(true);
                 SharedCoroutineStarter.instance.StartCoroutine(GetSpriteAvatar(url, OnAvatarDownloadSuccess, OnAvatarDownloadFailure, cancellationToken, pos));
             } catch (OperationCanceledException) {
-                OnAvatarDownloadFailure("Cancelled", pos);
+                OnAvatarDownloadFailure("Cancelled", pos, cancellationToken);
             } finally {
                 SpriteCache.MaintainSpriteCache();
             }
         }
 
-        internal static IEnumerator GetSpriteAvatar(string url, Action<Sprite, int, string> onSuccess, Action<string, int> onFailure, CancellationToken cancellationToken, int pos) {
+        internal static IEnumerator GetSpriteAvatar(string url, Action<Sprite, int, string, CancellationToken> onSuccess, Action<string, int, CancellationToken> onFailure, CancellationToken cancellationToken, int pos) {
             var handler = new DownloadHandlerTexture();
             var www = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET);
             www.downloadHandler = handler;
-            cancellationToken.ThrowIfCancellationRequested();
             yield return www.SendWebRequest();
 
             while (!www.isDone) {
                 if (cancellationToken.IsCancellationRequested) {
-                    onFailure?.Invoke("Cancelled", pos);
+                    onFailure?.Invoke("Cancelled", pos, cancellationToken);
                     yield break;
                 }
-
                 yield return null;
             }
             if (www.isNetworkError || www.isHttpError) {
@@ -75,23 +73,34 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 yield break;
             }
             if (!string.IsNullOrEmpty(www.error)) {
-                onFailure?.Invoke(www.error, pos);
+                onFailure?.Invoke(www.error, pos, cancellationToken);
                 yield break;
             }
+
             Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
-            onSuccess?.Invoke(sprite, pos, url);
+            onSuccess?.Invoke(sprite, pos, url, cancellationToken);
+            yield break;
         }
 
-        internal void OnAvatarDownloadSuccess(Sprite a, int pos, string url) {
+        internal void OnAvatarDownloadSuccess(Sprite a, int pos, string url, CancellationToken cancellationToken) {
+            SpriteCache.AddSpriteToCache(url, a);
+            if (cancellationToken != null) {
+                if (cancellationToken.IsCancellationRequested) {
+                    return;
+                }
+            }
             profileImage.gameObject.SetActive(true);
             profileImage.sprite = a;
             loadingIndicator.gameObject.SetActive(false);
-            SpriteCache.AddSpriteToCache(url, a);
         }
 
-        internal void OnAvatarDownloadFailure(string error, int pos) {
-            loadingIndicator.gameObject.SetActive(false);
-            profileImage.gameObject.SetActive(false);
+        internal void OnAvatarDownloadFailure(string error, int pos, CancellationToken cancellationToken) {
+            if (cancellationToken != null) {
+                if (cancellationToken.IsCancellationRequested) {
+                    return;
+                }
+            }
+            ClearSprite();
         }
         
         public void ClearSprite() {
