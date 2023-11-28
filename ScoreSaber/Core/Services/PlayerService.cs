@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
@@ -7,8 +6,6 @@ using ScoreSaber.Extensions;
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -38,99 +35,64 @@ namespace ScoreSaber.Core.Services {
         public void GetLocalPlayerInfo() {
 
             if (localPlayerInfo == null) {
-                if (File.Exists(Path.Combine(IPA.Utilities.UnityGame.InstallPath, "Beat Saber_Data", "Plugins", "x86_64", "steam_api64.dll"))) {
-                    GetLocalPlayerInfo1().RunTask();
-                } else {
-                    GetLocalPlayerInfo2();
-                }
+                SignIn().RunTask();
             }
         }
 
-        private async Task GetLocalPlayerInfo1() {
+        private async Task SignIn() {
 
             ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
+
+            var platformUserModel = Plugin.Container.TryResolve<IPlatformUserModel>();
+            var authToken = await platformUserModel.GetUserAuthToken();
+            var userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
+
+            var nonce = string.Empty;
+            var platform = string.Empty;
+
+            switch (userInfo.platform) {
+                case UserInfo.Platform.Steam:
+                    nonce = authToken.token;
+                    platform = "0";
+                    break;
+                case UserInfo.Platform.Oculus:
+                    nonce = authToken.token + "," + (await platformUserModel.RequestXPlatformAccessToken(CancellationToken.None)).token;
+                    platform = "1";
+                    break;
+            }
+
+            var playerId = userInfo.platformUserId;
+            var playerName = userInfo.userName;
+            var friendIds = await platformUserModel.GetUserFriendsUserIds(false);
+            var friends = string.Join(",", friendIds.Where(x => x != "0"));
+
+            var playerInfo = new LocalPlayerInfo(playerId, playerName, friends, platform, nonce);
 
             int attempts = 1;
 
             while (attempts < 4) {
-                LocalPlayerInfo steamInfo = await GetLocalSteamInfo();
-                if (steamInfo != null) {
-                    bool authenticated = await AuthenticateWithScoreSaber(steamInfo);
-                    if (authenticated) {
-                        localPlayerInfo = steamInfo;
-                        string successText = "Successfully signed into ScoreSaber!";
-                        if (localPlayerInfo.playerId == PlayerIDs.Denyah) {
-                            successText = "Wagwan piffting wots ur bbm pin?";
-                        }
-                        ChangeLoginStatus(LoginStatus.Success, successText);
-                        break;
-                    } else {
-                        ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
-                        attempts++;
-                        await Task.Delay(4000);
-                    }
-                } else {
-                    Plugin.Log.Error("Steamworks is not initialized!");
-                    ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting steam info");
+
+                var authenticated = await AuthenticateWithScoreSaber(playerInfo);
+
+                if (authenticated) {
+                    localPlayerInfo = playerInfo;
+                    string successText = "Successfully signed into ScoreSaber!";
+                    if (localPlayerInfo.playerId == PlayerIDs.Denyah)
+                        successText = "Wagwan piffting wots ur bbm pin?";
+
+                    ChangeLoginStatus(LoginStatus.Success, successText);
                     break;
+                } else {
+                    ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
+                    attempts++;
+                    await Task.Delay(4000);
                 }
+
             }
 
             if (loginStatus != LoginStatus.Success) {
                 ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
             }
-        }
-
-        private void GetLocalPlayerInfo2() {
-
-            ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
-#if !NO_OCULUS
-            Oculus.Platform.Users.GetLoggedInUser().OnComplete(delegate (Oculus.Platform.Message<Oculus.Platform.Models.User> loggedInMessage) {
-                if (!loggedInMessage.IsError) {
-                    Oculus.Platform.Users.GetLoggedInUserFriends().OnComplete(delegate (Oculus.Platform.Message<Oculus.Platform.Models.UserList> friendsMessage) {
-                        if (!friendsMessage.IsError) {
-                            Oculus.Platform.Users.GetUserProof().OnComplete(delegate (Oculus.Platform.Message<Oculus.Platform.Models.UserProof> userProofMessage) {
-                                if (!userProofMessage.IsError) {
-                                    Oculus.Platform.Users.GetAccessToken().OnComplete(async delegate (Oculus.Platform.Message<string> authTokenMessage) {
-                                        string playerId = loggedInMessage.Data.ID.ToString();
-                                        string playerName = loggedInMessage.Data.OculusID;
-                                        string friends = playerId + ",";
-                                        string nonce = userProofMessage.Data.Value + "," + authTokenMessage.Data;
-                                        LocalPlayerInfo oculusInfo = new LocalPlayerInfo(playerId, playerName, friends, "1", nonce);
-                                        bool authenticated = await AuthenticateWithScoreSaber(oculusInfo);
-                                        if (authenticated) {
-                                            localPlayerInfo = oculusInfo;
-                                            ChangeLoginStatus(LoginStatus.Success, "Successfully signed into ScoreSaber!");
-                                        } else {
-                                            ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
-                                        }
-                                    });
-                                   
-                                } else {
-                                    ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
-                                }
-                            });
-                        } else {
-                            ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
-                        }
-                    });
-                } else {
-                    ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
-                }
-            });
-#endif
-        }
-
-        private async Task<LocalPlayerInfo> GetLocalSteamInfo() {
-            var platformUserModel = Plugin.Container.TryResolve<IPlatformUserModel>();
-            var authToken = await platformUserModel.GetUserAuthToken();
-            var userInfo = await platformUserModel.GetUserInfo(new CancellationToken());
-
-            string playerId = userInfo.platformUserId;
-            string playerName = userInfo.userName;
-            var friendIds = await platformUserModel.GetUserFriendsUserIds(false);
-            string friends = string.Join(",", friendIds.Where(x => x != "0"));
-            return new LocalPlayerInfo(playerId, playerName, friends, "0", authToken.token);
         }
 
         private async Task<bool> AuthenticateWithScoreSaber(LocalPlayerInfo playerInfo) {

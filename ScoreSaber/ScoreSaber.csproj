@@ -49,10 +49,9 @@
     <Reference Include="BSML">
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
     </Reference>
-    <Reference Include="Platforms.PC.Steam">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Platforms.PC.Steam.dll</HintPath>
+    <Reference Include="Networking">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Networking.dll</HintPath>
       <Private>False</Private>
-      <Publicize>True</Publicize>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="PlatformUserModel">
@@ -105,20 +104,12 @@
       <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Oculus.Platform">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Oculus.Platform.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Polyglot">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Rendering">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Steamworks.NET">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Steamworks.NET.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Tweening">
