@@ -1,12 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using HarmonyLib;
+using Newtonsoft.Json;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Extensions;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -81,7 +84,7 @@ namespace ScoreSaber.Core.Services {
         private void GetLocalPlayerInfo2() {
 
             ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
-
+#if !NO_OCULUS
             Oculus.Platform.Users.GetLoggedInUser().OnComplete(delegate (Oculus.Platform.Message<Oculus.Platform.Models.User> loggedInMessage) {
                 if (!loggedInMessage.IsError) {
                     Oculus.Platform.Users.GetLoggedInUserFriends().OnComplete(delegate (Oculus.Platform.Message<Oculus.Platform.Models.UserList> friendsMessage) {
@@ -115,31 +118,19 @@ namespace ScoreSaber.Core.Services {
                     ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate! Error getting oculus info");
                 }
             });
+#endif
         }
 
         private async Task<LocalPlayerInfo> GetLocalSteamInfo() {
+            var platformUserModel = Plugin.Container.TryResolve<IPlatformUserModel>();
+            var authToken = await platformUserModel.GetUserAuthToken();
+            var userInfo = await platformUserModel.GetUserInfo(new CancellationToken());
 
-            await TaskEx.WaitUntil(() => SteamManager.Initialized);
-
-            string authToken = (await new SteamPlatformUserModel().GetUserAuthToken()).token;
-
-            LocalPlayerInfo steamInfo = await Task.Run(() => {
-                Steamworks.CSteamID steamID = Steamworks.SteamUser.GetSteamID();
-                string playerId = steamID.m_SteamID.ToString();
-                string playerName = Steamworks.SteamFriends.GetPersonaName();
-                string friends = playerId + ",";
-                for (int i = 0; i < Steamworks.SteamFriends.GetFriendCount(Steamworks.EFriendFlags.k_EFriendFlagAll); i++) {
-                    Steamworks.CSteamID friendSteamId = Steamworks.SteamFriends.GetFriendByIndex(i, Steamworks.EFriendFlags.k_EFriendFlagImmediate);
-                    if (friendSteamId.m_SteamID.ToString() != "0") {
-                        friends = friends + friendSteamId.m_SteamID.ToString() + ",";
-                    }
-                }
-                friends = friends.Remove(friends.Length - 1);
-                return new LocalPlayerInfo(playerId, playerName, friends, "0", authToken);
-            });
-
-
-            return steamInfo;
+            string playerId = userInfo.platformUserId;
+            string playerName = userInfo.userName;
+            var friendIds = await platformUserModel.GetUserFriendsUserIds(false);
+            string friends = string.Join(",", friendIds.Where(x => x != "0"));
+            return new LocalPlayerInfo(playerId, playerName, friends, "0", authToken.token);
         }
 
         private async Task<bool> AuthenticateWithScoreSaber(LocalPlayerInfo playerInfo) {

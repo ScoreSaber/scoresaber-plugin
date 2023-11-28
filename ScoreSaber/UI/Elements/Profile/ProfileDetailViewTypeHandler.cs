@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.TypeHandlers;
+using ScoreSaber.Extensions;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +25,7 @@ namespace ScoreSaber.UI.Elements.Profile {
         public override Dictionary<string, Action<ProfileDetailView, string>> Setters => new Dictionary<string, Action<ProfileDetailView, string>>()
         {
             { "name", new Action<ProfileDetailView, string>((profile, value) => profile.playerNameText.text = value) },
-            { "profileImageSource", new Action<ProfileDetailView, string>((profile, value) => profile.profilePicture.SetImage(value)) },
+            { "profileImageSource", new Action<ProfileDetailView, string>((profile, value) => profile.profilePicture.SetImageAsync(value).RunTask()) },
             { "rankedAccuracy", new Action<ProfileDetailView, string>((profile, value) => profile.rankedAccText.text = value) },
             { "performancePoints", new Action<ProfileDetailView, string>((profile, value) => profile.ppText.text  = value) },
             { "totalScore", new Action<ProfileDetailView, string>((profile, value) => profile.totalScoreText.text = value) },

@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using ScoreSaber.Extensions;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -132,7 +133,7 @@ namespace ScoreSaber.UI.Elements.Team {
         private void SetImage(string image) {
 
             if (_profilePictureComponent != null) {
-                _profilePictureComponent.SetImage($"https://raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/images/{image}");
+                _profilePictureComponent.SetImageAsync($"https://raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/images/{image}").RunTask();
             } else {
                 Plugin.Log.Info("ProfilePictureComponent is null");
             }

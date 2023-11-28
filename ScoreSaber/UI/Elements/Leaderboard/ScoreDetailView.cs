@@ -52,7 +52,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                     return;
                 }
                 _scoreInfoPrefixPicture.gameObject.SetActive(true);
-                _scoreInfoPrefixPicture.SetImage(value);
+                _scoreInfoPrefixPicture.SetImageAsync(value).RunTask();
             }
         }
 

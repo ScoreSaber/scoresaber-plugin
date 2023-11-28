@@ -133,7 +133,9 @@ namespace ScoreSaber.UI.Leaderboard {
                     return;
                 }
                 if (_denyahSprite == null) {
+#pragma warning disable CS0618 // Type or member is obsolete
                     _denyahSprite = Utilities.LoadSpriteRaw(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.bri-ish.png"));
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 _background.overrideSprite = _denyahSprite;
                 _isDenyah = value;

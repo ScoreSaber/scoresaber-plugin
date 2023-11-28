@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using ScoreSaber.Extensions;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -22,7 +23,7 @@ namespace ScoreSaber.UI.Other {
 
         public void SetData(string imageURL, string hoverHintText) {
 
-            _image.SetImage(imageURL);
+            _image.SetImageAsync(imageURL).RunTask();
             hoverHint = hoverHintText;
         }
 

@@ -4,6 +4,7 @@ using HMUI;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Core.Utils;
+using ScoreSaber.Extensions;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Other;
 using System;
@@ -49,7 +50,7 @@ namespace ScoreSaber.UI.Elements.Profile {
                     return;
                 }
                 _profilePrefixPicture.gameObject.SetActive(true);
-                _profilePrefixPicture.SetImage(value);
+                _profilePrefixPicture.SetImageAsync(value).RunTask();
             }
         }
 
@@ -152,7 +153,9 @@ namespace ScoreSaber.UI.Elements.Profile {
             await CheckCyanOrWimmiuls();
 
             playerNameText.text = _playerInfo.name;
+#pragma warning disable CS0612 // Type or member is obsolete
             profilePicture.SetImage(_playerInfo.profilePicture);
+#pragma warning restore CS0612 // Type or member is obsolete
 
             rankText.text = $"#{string.Format("{0:n0}", _playerInfo.rank)}";
             ppText.text = $"<color=#6772E5>{string.Format("{0:n0}", _playerInfo.pp)}pp</color>";

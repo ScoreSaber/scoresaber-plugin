@@ -89,7 +89,9 @@ namespace ScoreSaber.UI.Multiplayer {
             _container.InstantiateComponent<VRGraphicRaycaster>(gameObject);
 
             var imgBytes = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.logo.png");
+#pragma warning disable CS0618 // Type or member is obsolete
             image.sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(imgBytes);
+#pragma warning restore CS0618 // Type or member is obsolete
             image.sprite.texture.wrapMode = TextureWrapMode.Clamp;
 
             return image;
