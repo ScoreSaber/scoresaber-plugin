@@ -1,10 +1,10 @@
-name: Upload Release Binary
+name: Build
 
 on:
    workflow_dispatch:
 
 jobs:
-  build:
+  Build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -36,7 +36,7 @@ jobs:
     - name: Move stripped dlls to refs
       run: mv Stripped/Versions/${{ steps.read-json.outputs.game_version }} Refs
     
-    - name: Acquire Mod References
+    - name: Acquire mod references
       uses: Goobwabber/download-beatmods-deps@1.2
       with:
         manifest: ${{github.workspace}}/ScoreSaber/manifest.json
@@ -50,14 +50,14 @@ jobs:
     - name: Git Status
       run: git status
       
-    - name: Echo File Name
+    - name: Echo file name
       run: echo $BUILDTEXT \($ASSEMBLYNAME\)
       env:
         BUILDTEXT: Filename=${{ steps.Build.outputs.filename }}
         ASSEMBLYNAME: AssemblyName=${{ steps.Build.outputs.assemblyname }}
         
-    - name: Upload Artifact
+    - name: Upload artifact
       uses: actions/upload-artifact@v1
       with:
-        name: ScoreSaber
+        name: ${{ steps.Build.outputs.filename }}
         path: ${{ steps.Build.outputs.artifactpath }}
