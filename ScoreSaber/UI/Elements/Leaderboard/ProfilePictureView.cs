@@ -69,7 +69,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 yield return null;
             }
             if (www.isNetworkError || www.isHttpError) {
-                onFailure?.Invoke(www.error, pos);
+                onFailure?.Invoke(www.error, pos, cancellationToken);
                 yield break;
             }
             if (!string.IsNullOrEmpty(www.error)) {
