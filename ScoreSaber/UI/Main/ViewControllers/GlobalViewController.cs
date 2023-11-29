@@ -101,7 +101,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
                 ScopeClicked(GlobalPlayerScope.Country);
             }
         }
-        [UIAction("more-info-click")] private void MoreInfoClicked() => Application.OpenURL("http://bit.ly/2X8Anko");
+        [UIAction("more-info-click")] private void MoreInfoClicked() => Application.OpenURL("https://wiki.scoresaber.com/ranking-system.html");
         #endregion
 
         private int _page = 1;
