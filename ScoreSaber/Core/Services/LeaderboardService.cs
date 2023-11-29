@@ -51,6 +51,8 @@ namespace ScoreSaber.Core.Services {
             string gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
             string difficulty = BeatmapDifficultyMethods.DefaultRating(difficultyBeatmap.difficulty).ToString();
 
+            bool hasPage = true;
+
             if (!filterAroundCountry) {
                 switch (scope) {
                     case PlatformLeaderboardsModel.ScoresScope.Global:
@@ -58,6 +60,7 @@ namespace ScoreSaber.Core.Services {
                         break;
                     case PlatformLeaderboardsModel.ScoresScope.AroundPlayer:
                         url = $"{url}/around-player/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}";
+                        hasPage = false;
                         break;
                     case PlatformLeaderboardsModel.ScoresScope.Friends:
                         url = $"{url}/around-friends/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
@@ -76,7 +79,10 @@ namespace ScoreSaber.Core.Services {
             }
 
             if (Plugin.Settings.hideNAScoresFromLeaderboard) {
-                url = $"{url}&hideNA=1";
+                if (hasPage)
+                    url = $"{url}&hideNA=1";
+                else 
+                    url = $"{url}?hideNA=1";
             }
 
             return url;
