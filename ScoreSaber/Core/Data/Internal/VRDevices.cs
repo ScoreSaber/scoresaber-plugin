@@ -18,48 +18,55 @@ namespace ScoreSaber.Core.Data {
         }
 
         internal static string GetDeviceControllerLeft() {
+            try {
+                var leftHandedControllers = new List<InputDevice>();
+                var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left | InputDeviceCharacteristics.Controller;
+                InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, leftHandedControllers);
 
-            var leftHandedControllers = new List<InputDevice>();
-            var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Left | InputDeviceCharacteristics.Controller;
-            InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, leftHandedControllers);
+                string device = string.Empty;
+                if (leftHandedControllers != null && leftHandedControllers.Count > 0) {
+                    device = $"(inputdevice):{leftHandedControllers[0].name}";
+                }
 
-            string device = string.Empty;
-            if (leftHandedControllers[0] != null) {
-                device = $"(inputdevice):{leftHandedControllers[0].name}";
+                var leftXRNode = GetDeviceName(XRNode.LeftHand);
+                if (leftXRNode != null) {
+                    device = $"{device}:{leftXRNode}";
+                }
+
+                if (device != string.Empty) {
+                    return $"legacy:{device}";
+                }
+
+                return $"legacy:unknown";
+            } catch {
+                return $"legacy:unknown";
             }
-
-            var leftXRNode = GetDeviceName(XRNode.LeftHand);
-            if (leftXRNode != null) {
-                device = $"{device}:{leftXRNode}";
-            }
-
-            if (device != string.Empty) {
-                return $"legacy:{device}";
-            }
-
-            return $"legacy:unknown";
         }
 
         internal static string GetDeviceControllerRight() {
-            var rightHandedControllers = new List<InputDevice>();
-            var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
-            InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, rightHandedControllers);
+            try {
+                var rightHandedControllers = new List<InputDevice>();
+                var desiredCharacteristics = InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
+                InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, rightHandedControllers);
 
-            string device = string.Empty;
-            if (rightHandedControllers[0] != null) {
-                device = $"(inputdevice):{rightHandedControllers[0].name}";
+                string device = string.Empty;
+                if (rightHandedControllers != null && rightHandedControllers.Count > 0) {
+                    device = $"(inputdevice):{rightHandedControllers[0].name}";
+                }
+
+                var rightXRNode = GetDeviceName(XRNode.RightHand);
+                if (rightXRNode != null) {
+                    device = $"{device}:{rightXRNode}";
+                }
+
+                if (device != string.Empty) {
+                    return $"legacy:{device}";
+                }
+
+                return $"legacy:unknown";
+            } catch {
+                return $"legacy:unknown";
             }
-
-            var rightXRNode = GetDeviceName(XRNode.RightHand);
-            if (rightXRNode != null) {
-                device = $"{device}:{rightXRNode}";
-            }
-
-            if (device != string.Empty) {
-                return $"legacy:{device}";
-            }
-
-            return $"legacy:unknown";
         }
 
         private static string GetDeviceName(XRNode node) {
