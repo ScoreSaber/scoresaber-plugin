@@ -274,6 +274,9 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 if (_currentLeaderboardRefreshId == refreshId) {
                     LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
+                    if (_currentLeaderboardRefreshId != refreshId) {
+                        return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
+                    }
                     SetRankedStatus(leaderboardData.leaderboardInfoMap.leaderboardInfo);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
