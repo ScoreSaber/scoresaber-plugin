@@ -117,6 +117,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _infoButtons.infoButtonClicked += infoButtons_infoButtonClicked;
             _uploadDaemon.UploadStatusChanged += uploadDaemon_UploadStatusChanged;
             _platformLeaderboardViewController.didActivateEvent += LeaderboardViewActivate;
+            _platformLeaderboardViewController.didDeactivateEvent += LeaderboardViewDeactivate;
         }
 
         [UIAction("#post-parse")]
@@ -164,6 +165,11 @@ namespace ScoreSaber.UI.Leaderboard {
 
             _container.Inject(_profileDetailView);
             _playerService.GetLocalPlayerInfo();
+        }
+
+        private void LeaderboardViewDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+            if (_scoreDetailView.detailModalRoot != null) _scoreDetailView.detailModalRoot.Hide(false);
+            if (_profileDetailView.profileModalRoot != null) _profileDetailView.profileModalRoot.Hide(false);
         }
 
         private void infoButtons_infoButtonClicked(int index) {
@@ -442,6 +448,7 @@ namespace ScoreSaber.UI.Leaderboard {
         public void Dispose() {
 
             _platformLeaderboardViewController.didActivateEvent -= LeaderboardViewActivate;
+            _platformLeaderboardViewController.didDeactivateEvent -= LeaderboardViewDeactivate;
             _playerService.LoginStatusChanged -= playerService_LoginStatusChanged;
             _uploadDaemon.UploadStatusChanged -= uploadDaemon_UploadStatusChanged;
             _infoButtons.infoButtonClicked -= infoButtons_infoButtonClicked;
