@@ -8,10 +8,7 @@ using System.Text;
 // Adapted from https://forum.unity.com/threads/openxr-is-it-no-longer-possible-to-get-descriptive-device-names.1051493/#post-8316300
 
 namespace ScoreSaber.Core.Utils {
-    internal static unsafe class OpenXRManager {
-        [DllImport("kernel32", CharSet = CharSet.Auto)]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
-
+    internal static unsafe class OpenXRManager { 
         [DllImport("kernel32.dll")]
         public static extern bool ReadProcessMemory(IntPtr hProcess, ulong lpBaseAddress, byte[] lpBuffer, int dwSize, int lpNumberOfBytesRead = 0);
 
