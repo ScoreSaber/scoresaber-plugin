@@ -12,7 +12,7 @@
     </vertical>
     <vertical active="~is-loaded" pref-width="60" pref-height="10" spacing="-1">
       <clickable-text text="~global-leaderboard-ranking" on-click="clicked-ranking" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" />
-      <clickable-text text="~leaderboard-ranked-status" on-click="clicked-status" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" hover-hint="Opens in browser" />
+      <clickable-text text="~leaderboard-ranked-status" on-click="clicked-status" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" hover-hint="Opens the map info modal" />
     </vertical>
     <horizontal active="~is-loading" pref-width="60" pref-height="10">
       <vertical pref-width="60" pref-height="10">

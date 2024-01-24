@@ -43,6 +43,8 @@ namespace ScoreSaber.UI.Leaderboard {
         internal readonly EntryHolder _infoButtons = null;
         [UIValue("score-detail-view")]
         protected readonly ScoreDetailView _scoreDetailView = null;
+        [UIValue("map-info-view")]
+        protected readonly MapInfoView _mapInfoView = null;
         [UIComponent("profile-detail-view")]
         protected readonly ProfileDetailView _profileDetailView = null;
 
@@ -107,6 +109,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             _infoButtons = new EntryHolder();
             _scoreDetailView = new ScoreDetailView();
+            _mapInfoView = new MapInfoView();
         }
 
         public void Initialize() {
@@ -153,7 +156,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _panelView.statusWasSelected = delegate () {
                 if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
                 _parserParams.EmitEvent("close-modals");
-                Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
+                _parserParams.EmitEvent("present-map-info");
             };
 
             _panelView.rankingWasSelected = delegate () {
@@ -248,6 +251,10 @@ namespace ScoreSaber.UI.Leaderboard {
                     _downButton.interactable = true;
                 }
 
+                _mapInfoView.ResetName();
+                _mapInfoView.mapInfoSetLoading.gameObject.SetActive(true);
+                _mapInfoView.mapInfoSet.SetActive(false);
+
                 ByeImages();
 
                 if(cancellationToken != null) {
@@ -257,6 +264,10 @@ namespace ScoreSaber.UI.Leaderboard {
                 cancellationToken = new CancellationTokenSource();
 
                 var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
+
+                _mapInfoView._currentMap = null;
+                _mapInfoView._currentMapData = null;
+                _mapInfoView._currentMapInfo = null;
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
@@ -268,13 +279,15 @@ namespace ScoreSaber.UI.Leaderboard {
                     return;
                 }
 
-
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
-
 
                 if (_currentLeaderboardRefreshId == refreshId) {
                     LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
                     SetRankedStatus(leaderboardData.leaderboardInfoMap.leaderboardInfo);
+                    _mapInfoView._currentMapData = beatmapData;
+                    _mapInfoView._currentMap = difficultyBeatmap;
+                    _mapInfoView._currentMapInfo = leaderboardData.leaderboardInfoMap.leaderboardInfo;
+                    _mapInfoView.SetScoreInfo(_mapInfoView._currentMapInfo);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
