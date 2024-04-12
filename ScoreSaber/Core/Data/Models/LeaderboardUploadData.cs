@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using HarmonyLib;
+using Newtonsoft.Json;
 using ScoreSaber.Core.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace ScoreSaber.Core.Data.Models {
@@ -50,20 +52,20 @@ namespace ScoreSaber.Core.Data.Models {
         [JsonProperty("deviceControllerRightIdentifier")]
         internal string deviceControllerRightIdentifier;
 
-        internal static ScoreSaberUploadData Create(IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results, LocalPlayerInfo playerInfo, string infoHash) {
+        internal static ScoreSaberUploadData Create(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LevelCompletionResults results, LocalPlayerInfo playerInfo, string infoHash) {
 
             ScoreSaberUploadData data = new ScoreSaberUploadData();
 
-            string[] levelInfo = difficultyBeatmap.level.levelID.Split('_');
-            data.gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
-            data.difficulty = BeatmapDifficultyMethods.DefaultRating(difficultyBeatmap.difficulty);
+            string[] levelInfo = beatmapKey.levelId.Split('_');
+            data.gameMode = $"Solo{beatmapKey.beatmapCharacteristic.serializedName}";
+            data.difficulty = BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty);
             data.infoHash = infoHash;
             data.leaderboardId = levelInfo[2];
-            data.songName = difficultyBeatmap.level.songName;
-            data.songSubName = difficultyBeatmap.level.songSubName;
-            data.songAuthorName = difficultyBeatmap.level.songAuthorName;
-            data.levelAuthorName = difficultyBeatmap.level.levelAuthorName;
-            data.bpm = Convert.ToInt32(difficultyBeatmap.level.beatsPerMinute);
+            data.songName = beatmapLevel.songName;
+            data.songSubName = beatmapLevel.songSubName;
+            data.songAuthorName = beatmapLevel.songAuthorName;
+            data.levelAuthorName = friendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters);
+            data.bpm = Convert.ToInt32(beatmapLevel.beatsPerMinute);
 
             data.playerName = playerInfo.playerName;
             data.playerId = playerInfo.playerId;
@@ -80,6 +82,17 @@ namespace ScoreSaber.Core.Data.Models {
             data.deviceControllerLeftIdentifier = VRDevices.GetDeviceControllerLeft();
             data.deviceControllerRightIdentifier = VRDevices.GetDeviceControllerRight();
             return data;
+        }
+
+        static string friendlyLevelAuthorName(string[] mappers, string[] lighters) {
+            List<string> mappersAndLighters = new List<string>();
+            mappersAndLighters.AddRange(mappers);
+            mappersAndLighters.AddRange(lighters);
+
+            if(mappersAndLighters.Count <= 1) {
+                return mappersAndLighters.FirstOrDefault();
+            }
+            return $"{string.Join(", ", mappersAndLighters.Take(mappersAndLighters.Count - 1))} & {mappersAndLighters.Last()}";
         }
     }
 }

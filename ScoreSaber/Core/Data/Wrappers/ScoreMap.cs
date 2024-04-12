@@ -14,7 +14,7 @@ namespace ScoreSaber.Core.Data.Wrappers {
         internal GameplayModifiers gameplayModifiers { get; set; }
         internal string formattedPlayerName { get; set; }
 
-        internal ScoreMap(Score _score, LeaderboardInfoMap customLeaderboardInfo, IReadonlyBeatmapData beatmapData) {
+        internal ScoreMap(Score _score, LeaderboardInfoMap customLeaderboardInfo, int maxMultipliedScore) {
             score = _score;
 
             GameplayModifiersMap replayMods = new GameplayModifiersMap();
@@ -26,10 +26,10 @@ namespace ScoreSaber.Core.Data.Wrappers {
                 }
             }
 
-            double maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData) * replayMods.totalMultiplier;
+            double maxScore = maxMultipliedScore * replayMods.totalMultiplier;
 
             this.parent = customLeaderboardInfo;
-            this.hasLocalReplay = LeaderboardUtils.LocalReplayExists(customLeaderboardInfo.difficultyBeatmap, this);
+            this.hasLocalReplay = LeaderboardUtils.LocalReplayExists(customLeaderboardInfo.beatmapLevel, customLeaderboardInfo.beatmapKey, this);
             this.score.weight = Math.Round(score.weight * 100, 2);
             this.score.pp = Math.Round(score.pp, 2);
             this.accuracy = Math.Round((score.modifiedScore / maxScore) * 100, 2);

@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using IPA.Utilities;
+using ScoreSaber.Core.Utils;
 using ScoreSaber.Extensions;
 using ScoreSaber.UI.Leaderboard;
 using SiraUtil.Affinity;
@@ -9,31 +10,36 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
 using static HMUI.IconSegmentedControl;
+using static PlatformLeaderboardsModel;
 using static ScoreSaber.Patches.LeaderboardPatches;
 
 namespace ScoreSaber.Patches {
     internal class LeaderboardPatches : IInitializable, IAffinity {
 
         private readonly ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
+        private readonly BeatmapLevelsModel _beatmapLevelsModel;
         private PlatformLeaderboardViewController _platformLeaderboardViewController;
 
         private int _lastScopeIndex = -1;
 
-        public LeaderboardPatches(ScoreSaberLeaderboardViewController scoresaberLeaderboardViewController) {
+        public LeaderboardPatches(ScoreSaberLeaderboardViewController scoresaberLeaderboardViewController, BeatmapLevelsModel beatmapLevelsModel) {
             _scoresaberLeaderboardViewController = scoresaberLeaderboardViewController;
+            _beatmapLevelsModel = beatmapLevelsModel;
         }
 
         public void Initialize() { }
 
         [AffinityPatch(typeof(PlatformLeaderboardViewController), nameof(PlatformLeaderboardViewController.Refresh))]
         [AffinityPrefix]
-        bool PatchPlatformLeaderboardsRefresh(ref IDifficultyBeatmap ____difficultyBeatmap, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
+        bool PatchPlatformLeaderboardsRefresh(ref BeatmapKey ____beatmapKey, ref List<LeaderboardTableView.ScoreData> ____scores, ref bool ____hasScoresData, ref LeaderboardTableView ____leaderboardTableView, ref int[] ____playerScorePos, ref PlatformLeaderboardsModel.ScoresScope ____scoresScope, ref LoadingControl ____loadingControl) {
             // clean up cell clickers
             foreach (var holder in _scoresaberLeaderboardViewController._cellClickingHolders) {
                 CellClicker existingCellClicker = holder?.cellClickerImage?.gameObject?.GetComponent<CellClicker>();
@@ -42,14 +48,15 @@ namespace ScoreSaber.Patches {
                 }
             }
             
-            if (____difficultyBeatmap.level is CustomBeatmapLevel) {
+            if (____beatmapKey.levelId.StartsWith("custom_level_")) {
                 ____hasScoresData = false;
                 ____scores.Clear();
                 ____leaderboardTableView.SetScores(____scores, ____playerScorePos[(int)____scoresScope]);
                 ____loadingControl.ShowLoading();
 
                 _scoresaberLeaderboardViewController.isOST = false;
-                _scoresaberLeaderboardViewController.RefreshLeaderboard(____difficultyBeatmap, ____leaderboardTableView, ____scoresScope, ____loadingControl, Guid.NewGuid().ToString()).RunTask();
+                BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(____beatmapKey.levelId);
+                _scoresaberLeaderboardViewController.RefreshLeaderboard(beatmapLevel, ____beatmapKey, ____leaderboardTableView, ____scoresScope, ____loadingControl, Guid.NewGuid().ToString()).RunTask();
                 return false;
             } else {
                 _scoresaberLeaderboardViewController.isOST = true;

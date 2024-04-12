@@ -2,6 +2,7 @@
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Core.Services;
+using ScoreSaber.Core.Utils;
 using ScoreSaber.Patches;
 using ScoreSaber.UI.Elements.Leaderboard;
 using ScoreSaber.UI.Elements.Profile;
@@ -26,6 +27,8 @@ namespace ScoreSaber.Core {
             Container.Bind<GlobalLeaderboardService>().AsSingle();
             Container.Bind<LeaderboardService>().AsSingle();
             Container.Bind<PlayerService>().AsSingle();
+
+            Container.Bind<MaxScoreCache>().AsSingle();
           
 
             Container.Bind<PanelView>().FromNewComponentAsViewController().AsSingle();

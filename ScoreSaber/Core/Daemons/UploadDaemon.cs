@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using ScoreSaber.Core.Utils;
 using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
+using System.Threading;
 
 namespace ScoreSaber.Core.Daemons {
 
@@ -29,16 +30,16 @@ namespace ScoreSaber.Core.Daemons {
         private readonly LeaderboardService _leaderboardService = null;
 
         private readonly PlayerDataModel _playerDataModel = null;
-        private readonly CustomLevelLoader _customLevelLoader = null;
+        private readonly MaxScoreCache _maxScoreCache = null;
 
         private const string UPLOAD_SECRET = "f0b4a81c9bd3ded1081b365f7628781f";
 
-        public UploadDaemon(PlayerService playerService, LeaderboardService leaderboardService, ReplayService replayService, PlayerDataModel playerDataModel, CustomLevelLoader customLevelLoader) {
+        public UploadDaemon(PlayerService playerService, LeaderboardService leaderboardService, ReplayService replayService, PlayerDataModel playerDataModel, MaxScoreCache maxScoreCache) {
             _playerService = playerService;
             _replayService = replayService;
             _leaderboardService = leaderboardService;
             _playerDataModel = playerDataModel;
-            _customLevelLoader = customLevelLoader;
+            _maxScoreCache = maxScoreCache;
 
             SetupUploader();
             Plugin.Log.Debug("Upload service setup!");
@@ -63,13 +64,13 @@ namespace ScoreSaber.Core.Daemons {
 
         // Standard uploader
         public void Three(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO, LevelCompletionResults levelCompletionResults) {
-            Five(standardLevelScenesTransitionSetupDataSO.gameMode, standardLevelScenesTransitionSetupDataSO.difficultyBeatmap, levelCompletionResults, standardLevelScenesTransitionSetupDataSO.practiceSettings != null);
+            Five(standardLevelScenesTransitionSetupDataSO.gameMode, standardLevelScenesTransitionSetupDataSO.beatmapLevel, standardLevelScenesTransitionSetupDataSO.beatmapKey, levelCompletionResults, standardLevelScenesTransitionSetupDataSO.practiceSettings != null);
         }
 
         // Multiplayer uploader
         public void Four(MultiplayerLevelScenesTransitionSetupDataSO multiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData multiplayerResultsData) {
 
-            if (multiplayerLevelScenesTransitionSetupDataSO.difficultyBeatmap == null) {
+            if (multiplayerLevelScenesTransitionSetupDataSO.beatmapLevel == null) {
                 return;
             }
             if (multiplayerResultsData.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults == null) {
@@ -82,10 +83,10 @@ namespace ScoreSaber.Core.Daemons {
                 return;
             }
 
-            Five(multiplayerLevelScenesTransitionSetupDataSO.gameMode, multiplayerLevelScenesTransitionSetupDataSO.difficultyBeatmap, multiplayerResultsData.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
+            Five(multiplayerLevelScenesTransitionSetupDataSO.gameMode, multiplayerLevelScenesTransitionSetupDataSO.beatmapLevel, multiplayerLevelScenesTransitionSetupDataSO.beatmapKey, multiplayerResultsData.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
         }
 
-        public void Five(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults, bool practicing) {
+        public void Five(string gameMode, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LevelCompletionResults levelCompletionResults, bool practicing) {
             try {
 
                 if (Plugin.ReplayState.IsPlaybackEnabled) { return; }
@@ -97,7 +98,7 @@ namespace ScoreSaber.Core.Daemons {
                 }
 
                 if (gameMode == "Solo" || gameMode == "Multiplayer") {
-                    Plugin.Log.Debug($"Starting upload process for {difficultyBeatmap.level.levelID}:{difficultyBeatmap.level.songName}");
+                    Plugin.Log.Debug($"Starting upload process for {beatmapKey.levelId}:{beatmapLevel.songName}");
                     if (practicing) {
                         // If practice write replay at this point
                         _replayService.WriteSerializedReplay().RunTask();
@@ -115,7 +116,7 @@ namespace ScoreSaber.Core.Daemons {
                         _replayService.WriteSerializedReplay().RunTask();
                         return;
                     }
-                    Six(difficultyBeatmap, levelCompletionResults);
+                    Six(beatmapLevel, beatmapKey, levelCompletionResults);
                 }
             } catch (Exception ex) {
                 UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score, error written to log.");
@@ -124,13 +125,10 @@ namespace ScoreSaber.Core.Daemons {
         }
 
         //This starts the upload processs
-        async void Six(IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults) {
+        async void Six(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LevelCompletionResults levelCompletionResults) {
 
-            if (difficultyBeatmap.level is CustomBeatmapLevel) {
-                var defaultEnvironment = _customLevelLoader.LoadEnvironmentInfo(null, false);
-
-                var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
-                int maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData);
+            if (!beatmapLevel.hasPrecalculatedData) {
+                int maxScore = await _maxScoreCache.GetMaxScore(beatmapLevel, beatmapKey);
 
                 if (levelCompletionResults.multipliedScore > maxScore) {
                     UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload (score was impossible)");
@@ -140,7 +138,7 @@ namespace ScoreSaber.Core.Daemons {
 
                 try {
                     UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging score...");
-                    ScoreSaberUploadData data = ScoreSaberUploadData.Create(difficultyBeatmap, levelCompletionResults, _playerService.localPlayerInfo, GetVersionHash());
+                    ScoreSaberUploadData data = ScoreSaberUploadData.Create(beatmapLevel, beatmapKey, levelCompletionResults, _playerService.localPlayerInfo, GetVersionHash());
                     string scoreData = JsonConvert.SerializeObject(data);
 
                     // TODO: Simplify now that we're open source
@@ -151,7 +149,7 @@ namespace ScoreSaber.Core.Daemons {
                           .ToLower();
 
                     string scoreDataHex = BitConverter.ToString(Swap(Encoding.UTF8.GetBytes(scoreData), Encoding.UTF8.GetBytes(key))).Replace("-", "");
-                    Seven(data, scoreDataHex, difficultyBeatmap, levelCompletionResults).RunTask();
+                    Seven(data, scoreDataHex, beatmapLevel, beatmapKey, levelCompletionResults).RunTask();
                 } catch (Exception ex) {
                     UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score, error written to log.");
                     Plugin.Log.Error($"Failed to upload score: {ex}");
@@ -159,7 +157,7 @@ namespace ScoreSaber.Core.Daemons {
             }
         }
 
-        public async Task Seven(ScoreSaberUploadData scoreSaberUploadData, string uploadData, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults results) {
+        public async Task Seven(ScoreSaberUploadData scoreSaberUploadData, string uploadData, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LevelCompletionResults results) {
             try {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging replay...");
                 byte[] serializedReplay = await _replayService.WriteSerializedReplay();
@@ -167,7 +165,7 @@ namespace ScoreSaber.Core.Daemons {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Checking leaderboard ranked status...");
 
                 bool ranked = true;
-                Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(difficultyBeatmap);
+                Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(beatmapKey);
 
                 if (currentLeaderboard != null) {
                     ranked = currentLeaderboard.leaderboardInfo.ranked;
@@ -243,7 +241,7 @@ namespace ScoreSaber.Core.Daemons {
                 }
 
                 if (done && !failed) {
-                    SaveLocalReplay(scoreSaberUploadData, difficultyBeatmap, serializedReplay);
+                    SaveLocalReplay(scoreSaberUploadData, beatmapKey, serializedReplay);
                     Plugin.Log.Info("Score uploaded!");
                     UploadStatusChanged?.Invoke(UploadStatus.Success, $"Score uploaded!");
                 }
@@ -260,7 +258,7 @@ namespace ScoreSaber.Core.Daemons {
             }
         }
 
-        private void SaveLocalReplay(ScoreSaberUploadData scoreSaberUploadData, IDifficultyBeatmap difficultyBeatmap, byte[] replay) {
+        private void SaveLocalReplay(ScoreSaberUploadData scoreSaberUploadData, BeatmapKey beatmapKey, byte[] replay) {
 
             if (replay == null) {
                 Plugin.Log.Error("Failed to write local replay; replay is null");
@@ -269,7 +267,7 @@ namespace ScoreSaber.Core.Daemons {
 
             try {
                 if (Plugin.Settings.saveLocalReplays) {
-                    string replayPath = $@"{Settings.replayPath}\{scoreSaberUploadData.playerId}-{scoreSaberUploadData.songName.ReplaceInvalidChars().Truncate(155)}-{difficultyBeatmap.difficulty.SerializedName()}-{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{scoreSaberUploadData.leaderboardId}.dat";
+                    string replayPath = $@"{Settings.replayPath}\{scoreSaberUploadData.playerId}-{scoreSaberUploadData.songName.ReplaceInvalidChars().Truncate(155)}-{beatmapKey.difficulty.SerializedName()}-{beatmapKey.beatmapCharacteristic.serializedName}-{scoreSaberUploadData.leaderboardId}.dat";
                     File.WriteAllBytes(replayPath, replay);
                 }
             } catch (Exception ex) {

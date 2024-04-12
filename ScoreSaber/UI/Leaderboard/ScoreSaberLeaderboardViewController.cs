@@ -69,6 +69,7 @@ namespace ScoreSaber.UI.Leaderboard {
         private readonly LeaderboardService _leaderboardService;
         private readonly PlayerDataModel _playerDataModel;
         internal readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
+        private readonly MaxScoreCache _maxScoreCache;
 
         // TODO: Put this somewhere nicer?
         public enum UploadStatus {
@@ -92,7 +93,7 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlayerDataModel playerDataModel, PlatformLeaderboardViewController platformLeaderboardViewController, StandardLevelDetailViewController standardLevelDetailViewController, List<ProfilePictureView> profilePictureView, List<CellClickingView> cellClickingViews) {
+        public ScoreSaberLeaderboardViewController(DiContainer container, PanelView panelView, IUploadDaemon uploadDaemon, ReplayLoader replayLoader, PlayerService playerService, LeaderboardService leaderboardService, PlayerDataModel playerDataModel, PlatformLeaderboardViewController platformLeaderboardViewController, List<ProfilePictureView> profilePictureView, List<CellClickingView> cellClickingViews, MaxScoreCache maxScoreCache) {
 
             _container = container;
             _panelView = panelView;
@@ -104,6 +105,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _ImageHolders = profilePictureView;
             _cellClickingHolders = cellClickingViews;
             _platformLeaderboardViewController = platformLeaderboardViewController;
+            _maxScoreCache = maxScoreCache;
 
             _infoButtons = new EntryHolder();
             _scoreDetailView = new ScoreDetailView();
@@ -238,7 +240,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private CancellationTokenSource cancellationToken;
 
-        public async Task RefreshLeaderboard(IDifficultyBeatmap difficultyBeatmap, LeaderboardTableView tableView, PlatformLeaderboardsModel.ScoresScope scope, LoadingControl loadingControl, string refreshId) {
+        public async Task RefreshLeaderboard(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LeaderboardTableView tableView, PlatformLeaderboardsModel.ScoresScope scope, LoadingControl loadingControl, string refreshId) {
 
             try {
 
@@ -262,8 +264,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 }
                 cancellationToken = new CancellationTokenSource();
 
-                var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.level.environmentInfo, _playerDataModel.playerData.playerSpecificSettings);
-
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
                     SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
                     ByeImages();
@@ -279,7 +279,8 @@ namespace ScoreSaber.UI.Leaderboard {
 
 
                 if (_currentLeaderboardRefreshId == refreshId) {
-                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(difficultyBeatmap, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
+                    int maxMultipliedScore = await _maxScoreCache.GetMaxScore(beatmapLevel, beatmapKey);
+                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(maxMultipliedScore, beatmapLevel, beatmapKey, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings, _filterAroundCountry);
                     if (_currentLeaderboardRefreshId != refreshId) {
                         return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
                     }
@@ -431,9 +432,9 @@ namespace ScoreSaber.UI.Leaderboard {
 
             try {
                 _panelView.SetPromptInfo("Downloading Replay...", true);
-                byte[] replay = await _playerService.GetReplayData(score.parent.difficultyBeatmap, score.parent.leaderboardInfo.id, score);
+                byte[] replay = await _playerService.GetReplayData(score.parent.beatmapLevel, score.parent.beatmapKey, score.parent.leaderboardInfo.id, score);
                 _panelView.SetPromptInfo("Replay downloaded! Unpacking...", true);
-                await _replayLoader.Load(replay, score.parent.difficultyBeatmap, score.gameplayModifiers, score.score.leaderboardPlayerInfo.name);
+                await _replayLoader.Load(replay, score.parent.beatmapLevel, score.parent.beatmapKey, score.gameplayModifiers, score.score.leaderboardPlayerInfo.name);
                 _panelView.SetPromptSuccess("Replay Started!", false, 1f);
             } catch (ReplayVersionException ex) {
                 _panelView.SetPromptError("Unsupported replay version", false);

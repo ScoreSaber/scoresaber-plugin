@@ -21,8 +21,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
         private void CreateReplayUI() {
 
             string replayText = string.Format("REPLAY MODE - Watching {0} play {1} - {2} ({3})", Plugin.ReplayState.CurrentPlayerName, 
-                Plugin.ReplayState.CurrentLevel.level.songAuthorName, Plugin.ReplayState.CurrentLevel.level.songName,
-              Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentLevel.difficulty).Replace("ExpertPlus", "Expert+"));
+                Plugin.ReplayState.CurrentBeatmapLevel.songAuthorName, Plugin.ReplayState.CurrentBeatmapLevel.songName,
+              Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentBeatmapKey.difficulty).Replace("ExpertPlus", "Expert+"));
             float timeScale = 1f;
 
             if (!Plugin.ReplayState.IsLegacyReplay) {

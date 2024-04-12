@@ -6,7 +6,8 @@ namespace ScoreSaber.Core.ReplaySystem
     internal class ReplayState
     {
         // State management
-        internal IDifficultyBeatmap CurrentLevel;
+        internal BeatmapLevel CurrentBeatmapLevel;
+        internal BeatmapKey CurrentBeatmapKey;
         internal GameplayModifiers CurrentModifiers;
         internal string CurrentPlayerName;
 

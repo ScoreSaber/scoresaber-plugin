@@ -66,7 +66,6 @@ namespace ScoreSaber.Core.ReplaySystem
         internal static readonly PropertyAccessor<ColorNoteVisuals, bool>.Setter SetCircleVisibility = PropertyAccessor<ColorNoteVisuals, bool>.GetSetter("showCircle");
         internal static readonly FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.Accessor NoteMaterialBlocks = FieldAccessor<ColorNoteVisuals, MaterialPropertyBlockController[]>.GetAccessor("_materialPropertyBlockControllers");
 
-        internal static readonly FieldAccessor<ResultsViewController, IDifficultyBeatmap>.Accessor resultsViewControllerDifficultyBeatmap = FieldAccessor<ResultsViewController, IDifficultyBeatmap>.GetAccessor("_difficultyBeatmap");
         internal static readonly FieldAccessor<ResultsViewController, LevelCompletionResults>.Accessor resultsViewControllerLevelCompletionResults = FieldAccessor<ResultsViewController, LevelCompletionResults>.GetAccessor("_levelCompletionResults");
 
         internal static readonly FieldAccessor<ModalView, bool>.Accessor animateParentCanvas = FieldAccessor<ModalView, bool>.GetAccessor("_animateParentCanvas");

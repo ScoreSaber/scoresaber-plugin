@@ -4,6 +4,7 @@ using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.Utils;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,28 +19,32 @@ namespace ScoreSaber.Core.ReplaySystem {
         private readonly MenuTransitionsHelper _menuTransitionsHelper;
         private readonly StandardLevelScenesTransitionSetupDataSO _standardLevelScenesTransitionSetupDataSO;
         private readonly ReplayFileReader _replayFileReader;
-        public ReplayLoader(PlayerDataModel playerDataModel, MenuTransitionsHelper menuTransitionsHelper) {
+        private readonly EnvironmentsListModel _environmentsListModel;
+
+        public ReplayLoader(PlayerDataModel playerDataModel, MenuTransitionsHelper menuTransitionsHelper, EnvironmentsListModel environmentsListModel) {
 
             _playerDataModel = playerDataModel;
             _menuTransitionsHelper = menuTransitionsHelper;
             _standardLevelScenesTransitionSetupDataSO = Accessors.StandardLevelScenesTransitionSetupData(ref _menuTransitionsHelper);
             _replayFileReader = new ReplayFileReader();
+            _environmentsListModel = environmentsListModel;
         }
 
-        public async Task Load(byte[] replay, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers modifiers, string playerName) {
+        public async Task Load(byte[] replay, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers modifiers, string playerName) {
 
-            Plugin.ReplayState.CurrentLevel = difficultyBeatmap;
+            Plugin.ReplayState.CurrentBeatmapLevel = beatmapLevel;
+            Plugin.ReplayState.CurrentBeatmapKey = beatmapKey;
             Plugin.ReplayState.CurrentModifiers = modifiers;
             Plugin.ReplayState.CurrentPlayerName = playerName;
             if (replay[0] == 93 && replay[1] == 0 && replay[2] == 0 && replay[3] == 128) {
-                await LoadLegacyReplay(replay, difficultyBeatmap, modifiers);
+                await LoadLegacyReplay(replay, beatmapLevel, beatmapKey, modifiers);
             } else {
                 ReplayFile replayFile = await LoadReplay(replay);
-                await StartReplay(replayFile, difficultyBeatmap);
+                await StartReplay(replayFile, beatmapLevel, beatmapKey);
             }
         }
 
-        private async Task LoadLegacyReplay(byte[] replay, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers) {
+        private async Task LoadLegacyReplay(byte[] replay, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers gameplayModifiers) {
             await Task.Run(async () => {
                 byte[] decompressed = SevenZip.Compression.LZMA.SevenZipHelper.Decompress(replay);
                 BinaryFormatter formatter = new BinaryFormatter();
@@ -62,13 +67,25 @@ namespace ScoreSaber.Core.ReplaySystem {
                     gameplayModifiers = new GameplayModifiers();
                 }
 
-                ColorScheme beatmapOverrideColorScheme = null;
-                if (difficultyBeatmap.level is CustomBeatmapLevel selectedBeatmapLevel && difficultyBeatmap is CustomDifficultyBeatmap selectedDifficultyBeatmap) {
-                    beatmapOverrideColorScheme = selectedBeatmapLevel.GetBeatmapLevelColorScheme(selectedDifficultyBeatmap.beatmapColorSchemeIdx);
-                }
-
-                _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level, playerData.overrideEnvironmentSettings,
-                    playerData.colorSchemesSettings.GetSelectedColorScheme(), beatmapOverrideColorScheme, gameplayModifiers, playerSettings, null, "Exit Replay", false, false, null, ReplayEnd, null);
+                _menuTransitionsHelper.StartStandardLevel(
+                    gameMode: "Replay",
+                    beatmapKey: beatmapKey,
+                    beatmapLevel: beatmapLevel,
+                    overrideEnvironmentSettings: playerData.overrideEnvironmentSettings,
+                    overrideColorScheme: playerData.colorSchemesSettings.GetSelectedColorScheme(),
+                    beatmapOverrideColorScheme: beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty),
+                    gameplayModifiers: gameplayModifiers,
+                    playerSpecificSettings: playerSettings,
+                    practiceSettings: null,
+                    environmentsListModel: _environmentsListModel,
+                    backButtonText: "Exit Replay",
+                    useTestNoteCutSoundEffects: false,
+                    startPaused: false,
+                    beforeSceneSwitchCallback: null,
+                    afterSceneSwitchCallback: null,
+                    levelFinishedCallback: ReplayEnd,
+                    levelRestartedCallback: null
+                );
             });
         }
 
@@ -105,7 +122,7 @@ namespace ScoreSaber.Core.ReplaySystem {
         }
 
 
-        private async Task StartReplay(ReplayFile replay, IDifficultyBeatmap difficultyBeatmap) {
+        private async Task StartReplay(ReplayFile replay, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey) {
 
             await Task.Run(() => {
                 Plugin.ReplayState.IsLegacyReplay = false;
@@ -125,15 +142,25 @@ namespace ScoreSaber.Core.ReplaySystem {
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
 
-                ColorScheme beatmapOverrideColorScheme = null;
-                if (difficultyBeatmap.level is CustomBeatmapLevel selectedBeatmapLevel && difficultyBeatmap is CustomDifficultyBeatmap selectedDifficultyBeatmap) {
-                    beatmapOverrideColorScheme = selectedBeatmapLevel.GetBeatmapLevelColorScheme(selectedDifficultyBeatmap.beatmapColorSchemeIdx);
-                }
-
-                UnityMainThreadTaskScheduler.Factory.StartNew(() => _menuTransitionsHelper.StartStandardLevel("Replay", difficultyBeatmap, difficultyBeatmap.level,
-                    playerData.overrideEnvironmentSettings, playerData.colorSchemesSettings.GetOverrideColorScheme(), beatmapOverrideColorScheme,
-                    LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers,
-                    playerSettings, null, "Exit Replay", false, false, null, ReplayEnd,null));
+                _menuTransitionsHelper.StartStandardLevel(
+                    gameMode: "Replay",
+                    beatmapKey: beatmapKey,
+                    beatmapLevel: beatmapLevel,
+                    overrideEnvironmentSettings: playerData.overrideEnvironmentSettings,
+                    overrideColorScheme: playerData.colorSchemesSettings.GetSelectedColorScheme(),
+                    beatmapOverrideColorScheme: beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty),
+                    gameplayModifiers: LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers,
+                    playerSpecificSettings: playerSettings,
+                    practiceSettings: null,
+                    environmentsListModel: _environmentsListModel,
+                    backButtonText: "Exit Replay",
+                    useTestNoteCutSoundEffects: false,
+                    startPaused: false,
+                    beforeSceneSwitchCallback: null,
+                    afterSceneSwitchCallback: null,
+                    levelFinishedCallback: ReplayEnd,
+                    levelRestartedCallback: null
+                );
             });
         }
 

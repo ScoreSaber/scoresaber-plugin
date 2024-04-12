@@ -3,32 +3,33 @@ using System.Threading.Tasks;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Core.Data.Models;
 using System;
+using System.Linq;
 
 namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
 
         public LeaderboardMap currentLoadedLeaderboard = null;
+        public CustomLevelLoader customLevelLoader = null;
+        public BeatmapDataLoader beatmapDataLoader = null;
 
         public LeaderboardService() {
             Plugin.Log.Debug("LeaderboardService Setup");
         }
 
-        public async Task<LeaderboardMap> GetLeaderboardData(IDifficultyBeatmap difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings, bool filterAroundCountry = false) {
+        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, PlatformLeaderboardsModel.ScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings, bool filterAroundCountry = false) {
 
-            string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, scope, page, filterAroundCountry);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, scope, page, filterAroundCountry);
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
             Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
 
-            var beatmapData = await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.GetEnvironmentInfo(), playerSpecificSettings);
-
-            Plugin.Log.Debug($"Current leaderboard set to: {difficultyBeatmap.level.levelID}:{difficultyBeatmap.level.songName}");
-            currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, difficultyBeatmap, beatmapData);
+            Plugin.Log.Debug($"Current leaderboard set to: {beatmapKey.levelId}:{beatmapLevel.songName}");
+            currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, beatmapLevel, beatmapKey, maxMultipliedScore);
             return currentLoadedLeaderboard;
         }
 
-        public async Task<Leaderboard> GetCurrentLeaderboard(IDifficultyBeatmap difficultyBeatmap) {
+        public async Task<Leaderboard> GetCurrentLeaderboard(BeatmapKey beatmapKey) {
 
-            string leaderboardUrl = GetLeaderboardUrl(difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope.Global, 1, false);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, PlatformLeaderboardsModel.ScoresScope.Global, 1, false);
 
             int attempts = 0;
             while (attempts < 4) {
@@ -44,12 +45,12 @@ namespace ScoreSaber.Core.Services {
             return null;
         }
       
-        private string GetLeaderboardUrl(IDifficultyBeatmap difficultyBeatmap, PlatformLeaderboardsModel.ScoresScope scope, int page, bool filterAroundCountry) {
+        private string GetLeaderboardUrl(BeatmapKey beatmapKey, PlatformLeaderboardsModel.ScoresScope scope, int page, bool filterAroundCountry) {
 
             string url = "/game/leaderboard";
-            string leaderboardId = difficultyBeatmap.level.levelID.Split('_')[2];
-            string gameMode = $"Solo{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}";
-            string difficulty = BeatmapDifficultyMethods.DefaultRating(difficultyBeatmap.difficulty).ToString();
+            string leaderboardId = beatmapKey.levelId.Split('_')[2];
+            string gameMode = $"Solo{beatmapKey.beatmapCharacteristic.serializedName}";
+            string difficulty = BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty).ToString();
 
             bool hasPage = true;
 

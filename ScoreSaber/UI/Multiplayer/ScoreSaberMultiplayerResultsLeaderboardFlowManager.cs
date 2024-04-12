@@ -12,7 +12,7 @@ namespace ScoreSaber.UI.Multiplayer {
         private readonly MultiplayerResultsViewController _multiplayerResultsViewController;
         private readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
 
-        private IDifficultyBeatmap _lastCompletedBeatmap;
+        private BeatmapKey _lastCompletedBeatmapKey;
 
         public ScoreSaberMultiplayerResultsLeaderboardFlowManager(ILevelFinisher levelFinisher, MainFlowCoordinator mainFlowCoordinator, MultiplayerResultsViewController multiplayerResultsViewController, PlatformLeaderboardViewController platformLeaderboardViewController) {
 
@@ -35,19 +35,20 @@ namespace ScoreSaber.UI.Multiplayer {
             if (!(currentFlowCoordinator is GameServerLobbyFlowCoordinator))
                 return;
 
-            _platformLeaderboardViewController.SetData(_lastCompletedBeatmap);
+            _platformLeaderboardViewController.SetData(_lastCompletedBeatmapKey);
             ReflectionUtil.InvokeMethod<object, FlowCoordinator>(currentFlowCoordinator, "SetRightScreenViewController", _platformLeaderboardViewController, ViewController.AnimationType.In);
         }
 
         private void MultiplayerResultsViewController_didDeactivateEvent(bool removedFromHierarchy, bool screenSystemDisabling) {
 
-            if (removedFromHierarchy || screenSystemDisabling)
-                _lastCompletedBeatmap = null;
+            if (removedFromHierarchy || screenSystemDisabling) {
+                // TODO there used to be some setting _lastCompletedLevel to null
+            }
         }
 
         private void LevelFinisher_MultiplayerLevelDidFinish(MultiplayerLevelScenesTransitionSetupDataSO transitionSetupData, MultiplayerResultsData _) {
 
-            _lastCompletedBeatmap = transitionSetupData.difficultyBeatmap;
+            _lastCompletedBeatmapKey = transitionSetupData.beatmapKey;
         }
 
         public void Dispose() {

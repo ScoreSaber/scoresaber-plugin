@@ -16,7 +16,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         protected readonly Button watchReplayButton = null;
 
         private ResultsViewController _resultsViewController;
-        private IDifficultyBeatmap _difficultyBeatmap;
+        private BeatmapLevel _beatmapLevel;
+        private BeatmapKey _beatmapKey;
         private LevelCompletionResults _levelCompletionResults;
         private readonly PlayerService _playerService;
         private readonly ReplayLoader _replayLoader;
@@ -52,8 +53,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 watchReplayButton.transform.localPosition = new Vector2(42.5f, 27f);
             }
             watchReplayButton.interactable = _serializedReplay != null;
-            _difficultyBeatmap = Accessors.resultsViewControllerDifficultyBeatmap(ref _resultsViewController);
-            _levelCompletionResults = Accessors.resultsViewControllerLevelCompletionResults(ref _resultsViewController);
+            _beatmapLevel = _resultsViewController._beatmapLevel;
+            _beatmapKey = _resultsViewController._beatmapKey;
+            _levelCompletionResults = _resultsViewController._levelCompletionResults;
             WaitForReplay().RunTask();
         }
 
@@ -89,7 +91,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [UIAction("replay-click")]
         protected void ClickedReplayButton() {
 
-            _replayLoader.Load(_serializedReplay, _difficultyBeatmap, _levelCompletionResults.gameplayModifiers, _playerService.localPlayerInfo.playerName).RunTask();
+            _replayLoader.Load(_serializedReplay, _beatmapLevel, _beatmapKey, _levelCompletionResults.gameplayModifiers, _playerService.localPlayerInfo.playerName).RunTask();
             watchReplayButton.interactable = false;
        
         }

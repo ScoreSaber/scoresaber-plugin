@@ -138,10 +138,10 @@ namespace ScoreSaber.Core.Services {
             return playerStats;
         }
 
-        public async Task<byte[]> GetReplayData(IDifficultyBeatmap level, int leaderboardId, ScoreMap scoreMap) {
+        public async Task<byte[]> GetReplayData(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, int leaderboardId, ScoreMap scoreMap) {
 
             if (scoreMap.hasLocalReplay) {
-                string replayPath = GetReplayPath(scoreMap.parent.songHash, level.difficulty.SerializedName(), level.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName, scoreMap.score.leaderboardPlayerInfo.id, level.level.songName);
+                string replayPath = GetReplayPath(scoreMap.parent.songHash, beatmapKey.difficulty.SerializedName(), beatmapKey.beatmapCharacteristic.serializedName, scoreMap.score.leaderboardPlayerInfo.id, beatmapLevel.songName);
                 if (replayPath != null) {
                     return File.ReadAllBytes(replayPath);
                 }

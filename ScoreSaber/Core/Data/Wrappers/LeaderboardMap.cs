@@ -6,11 +6,11 @@ namespace ScoreSaber.Core.Data.Wrappers {
         internal LeaderboardInfoMap leaderboardInfoMap { get; set; }
         internal ScoreMap[] scores { get; set; }
 
-        internal LeaderboardMap(Leaderboard leaderboard, IDifficultyBeatmap difficultyBeatmap, IReadonlyBeatmapData beatmapData) {
-            this.leaderboardInfoMap = new LeaderboardInfoMap(leaderboard.leaderboardInfo, difficultyBeatmap);
+        internal LeaderboardMap(Leaderboard leaderboard, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, int maxMultipliedScore) {
+            this.leaderboardInfoMap = new LeaderboardInfoMap(leaderboard.leaderboardInfo, beatmapLevel, beatmapKey);
             this.scores = new ScoreMap[leaderboard.scores.Length];
             for (int i = 0; i < leaderboard.scores.Length; i++) {
-                this.scores[i] = new ScoreMap(leaderboard.scores[i], this.leaderboardInfoMap, beatmapData);
+                this.scores[i] = new ScoreMap(leaderboard.scores[i], this.leaderboardInfoMap, maxMultipliedScore);
             }
         }
 

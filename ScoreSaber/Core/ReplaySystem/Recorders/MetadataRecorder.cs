@@ -49,9 +49,9 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
 
             return new Metadata() {
                 Version = "3.0.0",
-                LevelID = _gameplayCoreSceneSetupData.difficultyBeatmap.level.levelID,
-                Difficulty = BeatmapDifficultyMethods.DefaultRating(_gameplayCoreSceneSetupData.difficultyBeatmap.difficulty),
-                Characteristic = _gameplayCoreSceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName,
+                LevelID = _gameplayCoreSceneSetupData.beatmapLevel.levelID,
+                Difficulty = BeatmapDifficultyMethods.DefaultRating(_gameplayCoreSceneSetupData.beatmapKey.difficulty),
+                Characteristic = _gameplayCoreSceneSetupData.beatmapKey.beatmapCharacteristic.serializedName,
                 Environment = _gameplayCoreSceneSetupData.environmentInfo.serializedName,
                 Modifiers = GetModifierList(_gameplayCoreSceneSetupData.gameplayModifiers),
                 NoteSpawnOffset = _beatmapObjectSpawnControllerInitData.noteJumpValue,

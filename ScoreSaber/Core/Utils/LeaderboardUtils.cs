@@ -9,24 +9,24 @@ using System.Reflection;
 namespace ScoreSaber.Core.Utils {
     internal static class LeaderboardUtils {
 
-        internal static bool LocalReplayExists(IDifficultyBeatmap difficultyBeatmap, ScoreMap score) {
+        internal static bool LocalReplayExists(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreMap score) {
 
-            if (File.Exists(GetReplayPath(difficultyBeatmap, score))) {
+            if (File.Exists(GetReplayPath(beatmapLevel, beatmapKey, score))) {
                 return true;
             }
 
-            if (File.Exists(GetLegacyReplayPath(difficultyBeatmap, score))) {
+            if (File.Exists(GetLegacyReplayPath(beatmapLevel, beatmapKey, score))) {
                 return true;
             }
             return false;
         }
 
-        internal static string GetReplayPath(IDifficultyBeatmap difficultyBeatmap, ScoreMap scoreMap) {
-            return $@"{Settings.replayPath}\{scoreMap.score.leaderboardPlayerInfo.id}-{difficultyBeatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{difficultyBeatmap.difficulty.SerializedName()}-{difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{scoreMap.parent.songHash}.dat";
+        internal static string GetReplayPath(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreMap scoreMap) {
+            return $@"{Settings.replayPath}\{scoreMap.score.leaderboardPlayerInfo.id}-{beatmapLevel.songName.ReplaceInvalidChars().Truncate(155)}-{beatmapKey.difficulty.SerializedName()}-{beatmapKey.beatmapCharacteristic.serializedName}-{scoreMap.parent.songHash}.dat";
         }
 
-        internal static string GetLegacyReplayPath(IDifficultyBeatmap difficultyBeatmap, ScoreMap scoreMap) {
-            return $@"{Settings.replayPath}\{scoreMap.score.leaderboardPlayerInfo.id}-{difficultyBeatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{scoreMap.parent.songHash}.dat";
+        internal static string GetLegacyReplayPath(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreMap scoreMap) {
+            return $@"{Settings.replayPath}\{scoreMap.score.leaderboardPlayerInfo.id}-{beatmapLevel.songName.ReplaceInvalidChars().Truncate(155)}-{scoreMap.parent.songHash}.dat";
         }
          
         internal static string GetFormattedName(ScoreMap scoreMap) {

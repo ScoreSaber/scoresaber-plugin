@@ -32,16 +32,17 @@ namespace ScoreSaber.UI.Multiplayer {
 
         private void LevelSelectionNavigationController_didChangeLevelDetailContentEvent(LevelSelectionNavigationController controller, StandardLevelDetailViewController.ContentType contentType) {
 
+            /* TODO is there any replacement for this? or is this even needed?
             if (controller.selectedDifficultyBeatmap == null) {
 
                 HideLeaderboard();
                 return;
-            }
+            }*/
                 
             ShowLeaderboard();
         }
 
-        private void LevelSelectionNavigationController_didChangeDifficultyBeatmapEvent(LevelSelectionNavigationController _, IDifficultyBeatmap beatmap) {
+        private void LevelSelectionNavigationController_didChangeDifficultyBeatmapEvent(LevelSelectionNavigationController _) {
 
             ShowLeaderboard();
         }
@@ -63,14 +64,7 @@ namespace ScoreSaber.UI.Multiplayer {
             if (!InMulti())
                 return;
 
-            var selected = _levelSelectionNavigationController.selectedDifficultyBeatmap;
-            if (selected == null) {
-
-                HideLeaderboard();
-                return;
-            }
-
-            _platformLeaderboardViewController.SetData(selected);
+            _platformLeaderboardViewController.SetData(_levelSelectionNavigationController.beatmapKey);
             var currentFlowCoordinator = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
             ReflectionUtil.InvokeMethod<object, FlowCoordinator>(currentFlowCoordinator, "SetRightScreenViewController", _platformLeaderboardViewController, ViewController.AnimationType.In);
             _serverPlayerListViewController.gameObject.SetActive(false); // This is a bandaid fix, first time startup it gets stuck while animating kinda like the issue we had before (TODO: Fix in 2024)
