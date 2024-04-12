@@ -42,7 +42,7 @@
 					<vertical pref-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
 						<horizontal preferred-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" child-align="MiddleLeft" child-expand-width="false" spacing="1">
 							<img id="prefix-image" preserve-aspect="true" preferred-width="5.5" pref-height="5.5" size-delta-y="5.5" hover-hint="" />
-							<text id="name-text" text="" font-size="4"  align="Left" overflow-mode="Ellipsis" />
+							<text id="name-text" text="" font-size="4"  align="Left" word-wrapping="true" />
 						</horizontal>
 					</vertical>
 					<horizontal pref-width="12" pref-height="5.5">

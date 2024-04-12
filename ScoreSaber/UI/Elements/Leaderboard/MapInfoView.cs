@@ -1,17 +1,9 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
-using ScoreSaber.Core.Data.Wrappers;
-using ScoreSaber.Core.Data;
-using ScoreSaber.Core.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Extensions;
 using System.Threading;
-using static StandardScoreSyncState;
 using ScoreSaber.UI.Leaderboard;
 using BeatSaberMarkupLanguage;
 using UnityEngine;
@@ -41,9 +33,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         #endregion
 
-        internal ScoreSaber.Core.Data.Models.LeaderboardInfo _currentMapInfo { get; set; }
-        internal IDifficultyBeatmap _currentMap { get; set; }
-        internal IReadonlyBeatmapData _currentMapData { get; set; }
+        internal LeaderboardInfo _currentMapInfo { get; set; }
+        internal BeatmapLevel _currentMap { get; set; }
 
         [UIAction("#post-parse")]
         public void Parsed() {
@@ -54,7 +45,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             PanelView.ImageSkew(ref _mapInfoLineBorder) = 0f;
             PanelView.ImageSkew(ref _mapInfoTop) = 0f;
 
-            modalPic.material = Plugin.NoGlowMatRound ?? Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlowRoundEdge").First();
+            modalPic.material = Plugin.NoGlowMatRound;
         }
 
         [UIObject("map-info-set")]
@@ -73,8 +64,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             _mapNameText.text = "Loading...";
         }
 
-        public void SetImage(IDifficultyBeatmap diff) {
-            _mapInfoPicture.sprite = diff.level.GetCoverImageAsync(CancellationToken.None).Result;
+        public void SetImage(BeatmapLevel level) {
+            _mapInfoPicture.sprite = level.previewMediaData.GetCoverSpriteAsync(CancellationToken.None).Result;
         }
 
         internal string GetMapStatusString() {
@@ -95,7 +86,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 return string.Empty;
         }
 
-        public void SetScoreInfo(Core.Data.Models.LeaderboardInfo mapInfo) {
+        public void SetScoreInfo(LeaderboardInfo mapInfo) {
             if (mapInfo == null || _currentMap == null) return;
             try {
                 _currentMapInfo = mapInfo;

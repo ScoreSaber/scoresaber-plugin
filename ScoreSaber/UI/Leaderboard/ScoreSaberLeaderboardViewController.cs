@@ -272,7 +272,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 cancellationToken = new CancellationTokenSource();
 
                 _mapInfoView._currentMap = null;
-                _mapInfoView._currentMapData = null;
                 _mapInfoView._currentMapInfo = null;
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
@@ -294,10 +293,8 @@ namespace ScoreSaber.UI.Leaderboard {
                         return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
                     }
                     SetRankedStatus(leaderboardData.leaderboardInfoMap.leaderboardInfo);
-                    _mapInfoView._currentMapData = beatmapData;
-                    _mapInfoView._currentMap = difficultyBeatmap;
-                    _mapInfoView._currentMapInfo = leaderboardData.leaderboardInfoMap.leaderboardInfo;
-                    _mapInfoView.SetScoreInfo(_mapInfoView._currentMapInfo);
+                    _mapInfoView._currentMap = beatmapLevel;
+                    _mapInfoView.SetScoreInfo(leaderboardData.leaderboardInfoMap.leaderboardInfo);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
