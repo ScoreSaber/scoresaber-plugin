@@ -42,7 +42,7 @@
 					<vertical pref-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
 						<horizontal preferred-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" child-align="MiddleLeft" child-expand-width="false" spacing="1">
 							<img id="prefix-image" preserve-aspect="true" preferred-width="5.5" pref-height="5.5" size-delta-y="5.5" hover-hint="" />
-							<text id="name-text" text="" font-size="4"  align="Left" word-wrapping="true" />
+							<text id="name-text" text="" font-size="4"  align="Left" overflow-mode="Ellipsis" />
 						</horizontal>
 					</vertical>
 					<horizontal pref-width="12" pref-height="5.5">
@@ -82,7 +82,7 @@
 						<vertical pad-left="2" pref-width="35">
 							<img id="map-info-picture" preserve-aspect="true" />
 						</vertical>
-						<text id="map-author-text" text="Loading..." align="Center" overflow-mode="Ellipsis"/>
+						<text id="map-author-text" text="Loading..." align="Center" word-wrapping="true"/>
 					</vertical>
 					<vertical pref-width=".75" pref-height="40">
 						<img id="map-info-line-border" src="ScoreSaber.Resources.pixel.png" size-delta-x=".75" size-delta-y="45" />
