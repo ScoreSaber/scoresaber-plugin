@@ -278,7 +278,8 @@ namespace ScoreSaber.Core.Daemons {
         public void Dispose() {
             Plugin.Log.Info("Upload service succesfully deconstructed");
             var transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-            transitionSetup.didFinishEvent -= Three;
+            if (transitionSetup != null)
+                transitionSetup.didFinishEvent -= Three;
         }
 
         private byte[] Swap(byte[] panda1, byte[] panda2) {
