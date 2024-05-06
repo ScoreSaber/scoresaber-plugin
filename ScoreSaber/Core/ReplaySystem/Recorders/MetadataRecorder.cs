@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ScoreSaber.Core.ReplaySystem.Data;
 using UnityEngine;
 using Zenject;
+using BeatSaber.GameSettings;
 
 namespace ScoreSaber.Core.ReplaySystem.Recorders
 {
@@ -10,16 +11,16 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
     {
         BeatmapObjectSpawnController.InitData _beatmapObjectSpawnControllerInitData;
         private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
-        private readonly MainSettingsModelSO _mainSettingsModelSO;
+        private readonly MainSettingsHandler _mainSettingsHandler;
         private readonly IGameEnergyCounter _gameEnergyCounter;
         private float _failTime;
 
-        public MetadataRecorder(GameplayCoreSceneSetupData gameplayCoreSceneSetupData, BeatmapObjectSpawnController.InitData beatmapObjectSpawnControllerInitData, IGameEnergyCounter gameEnergyCounter) {
+        public MetadataRecorder(GameplayCoreSceneSetupData gameplayCoreSceneSetupData, BeatmapObjectSpawnController.InitData beatmapObjectSpawnControllerInitData, IGameEnergyCounter gameEnergyCounter, MainSettingsHandler mainSettingsHandler) {
 
             _beatmapObjectSpawnControllerInitData = beatmapObjectSpawnControllerInitData;
-            _mainSettingsModelSO = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>()[0];
             _gameEnergyCounter = gameEnergyCounter;
             _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
+            _mainSettingsHandler = mainSettingsHandler;
         }
 
 
@@ -42,9 +43,9 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
         public Metadata Export() {
 
             VRPosition roomCenter = new VRPosition() {
-                X = _mainSettingsModelSO.roomCenter.value.x,
-                Y = _mainSettingsModelSO.roomCenter.value.y,
-                Z = _mainSettingsModelSO.roomCenter.value.z
+                X = _mainSettingsHandler.instance.roomCenter.x,
+                Y = _mainSettingsHandler.instance.roomCenter.y,
+                Z = _mainSettingsHandler.instance.roomCenter.z
             };
 
             return new Metadata() {
@@ -57,7 +58,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
                 NoteSpawnOffset = _beatmapObjectSpawnControllerInitData.noteJumpValue,
                 LeftHanded = _gameplayCoreSceneSetupData.playerSpecificSettings.leftHanded,
                 InitialHeight = _gameplayCoreSceneSetupData.playerSpecificSettings.playerHeight,
-                RoomRotation = _mainSettingsModelSO.roomRotation,
+                RoomRotation = _mainSettingsHandler.instance.roomRotation,
                 RoomCenter = roomCenter,
                 FailTime = _failTime
             };

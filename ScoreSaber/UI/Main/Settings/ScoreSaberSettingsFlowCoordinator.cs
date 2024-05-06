@@ -16,7 +16,7 @@ namespace ScoreSaber.UI.Main {
     internal class ScoreSaberSettingsFlowCoordinator : FlowCoordinator, IInitializable {
 
         private FlowCoordinator _lastFlowCoordinator;
-        private MainSettingsViewController _mainSettingsViewController;
+        private MainSettingsViewController _mainSettingsHandlerViewController;
         private ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
         private PanelView _panelView;
 
@@ -25,14 +25,14 @@ namespace ScoreSaber.UI.Main {
             if (firstActivation) {
                 SetTitle("ScoreSaber Settings");
                 showBackButton = true;
-                ProvideInitialViewControllers(_mainSettingsViewController);
+                ProvideInitialViewControllers(_mainSettingsHandlerViewController);
             }
         }
 
         [Inject]
         internal void Construct(MainSettingsViewController mainSettingsViewController, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController, PanelView panelView) {
             
-            _mainSettingsViewController = mainSettingsViewController;
+            _mainSettingsHandlerViewController = mainSettingsViewController;
             _scoresaberLeaderboardViewController = scoreSaberLeaderboardViewController;
             _panelView = panelView;
             Plugin.Log.Debug("ScoreSaberSettingsFlowCoordinator Setup");

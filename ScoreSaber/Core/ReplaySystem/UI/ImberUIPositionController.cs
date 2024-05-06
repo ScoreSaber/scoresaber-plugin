@@ -1,4 +1,5 @@
-﻿using HMUI;
+﻿using BeatSaber.GameSettings;
+using HMUI;
 using ScoreSaber.Core.Data;
 using System;
 using System.Collections;
@@ -31,10 +32,10 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private readonly Transform _pauseMenuManagerTransform;
         private readonly CurvedCanvasSettings _curve;
         private readonly Canvas _canvas;
-        private readonly MainSettingsModelSO _mainSettingsModelSO;
         private Vector3 _controllerOffset;
 
-        public ImberUIPositionController(IGamePause gamePause, ImberScrubber imberScrubber, PauseMenuManager pauseMenuManager, MainImberPanelView mainImberPanelView, VRControllerAccessor vrControllerAccessor) {
+
+        public ImberUIPositionController(IGamePause gamePause, ImberScrubber imberScrubber, PauseMenuManager pauseMenuManager, MainImberPanelView mainImberPanelView, VRControllerAccessor vrControllerAccessor, MainSettingsHandler mainSettingsHandler) {
 
             _gamePause = gamePause;
             _imberScrubber = imberScrubber;
@@ -46,7 +47,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _vrGraphicsRaycaster = _menuWrapperTransform.GetComponentInChildren<VRGraphicRaycaster>();
             _canvas = _vrGraphicsRaycaster.GetComponent<Canvas>();
             _curve = _canvas.GetComponent<CurvedCanvasSettings>();
-            _mainSettingsModelSO = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>()[0];
             _controllerOffset = new Vector3(0f, 0f, -2f);
         }
 
