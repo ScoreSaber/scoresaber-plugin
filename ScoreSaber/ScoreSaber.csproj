@@ -31,6 +31,11 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AdditionalContentModel.Interfaces">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\AdditionalContentModel.Interfaces.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="BeatSaber.GameSettings">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.GameSettings.dll</HintPath>
       <Private>False</Private>
