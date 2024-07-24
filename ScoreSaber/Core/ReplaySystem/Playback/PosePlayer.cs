@@ -86,6 +86,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             spectatorObject.transform.rotation = rotation;
             _spectatorCamera.stereoTargetEye = StereoTargetEyeMask.Both;
             _mainCamera.gameObject.GetComponent<TrackedPoseDriver>().CopyComponent<TrackedPoseDriver>(_spectatorCamera.gameObject);
+            
+            // recreate the DepthTextureController since Instantiate seems to leave it wrongly initialized (i.e. without Zenject objects)
+            Component.Destroy(_spectatorCamera.gameObject.GetComponent<DepthTextureController>());
+            _mainCamera.gameObject.GetComponent<DepthTextureController>().CopyComponent<DepthTextureController>(_spectatorCamera.gameObject);
+
             _spectatorCamera.gameObject.SetActive(true);
             _spectatorCamera.depth = 0;
             _spectatorCamera.transform.SetParent(spectatorObject.transform);
