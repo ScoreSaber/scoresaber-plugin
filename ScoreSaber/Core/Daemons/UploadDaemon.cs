@@ -307,7 +307,7 @@ namespace ScoreSaber.Core.Daemons {
 
         internal static string GetVersionHash() {
             using (var md5 = MD5.Create()) {
-                string versionString = string.Format("{0}{1}", Plugin.Instance.LibVersion, Application.version);
+                string versionString = string.Format("{0}{1}", Plugin.Instance.LibVersion, IPA.Utilities.UnityGame.GameVersion);
                 string hash = BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(versionString))).Replace("-", "").ToLowerInvariant();
                 return hash;
             }
