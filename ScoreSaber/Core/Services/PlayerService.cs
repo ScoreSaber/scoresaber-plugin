@@ -17,9 +17,10 @@ namespace ScoreSaber.Core.Services {
         public LoginStatus loginStatus { get; set; }
         public event Action<LoginStatus, string> LoginStatusChanged;
         public enum LoginStatus {
-            Info = 0,
-            Error = 1,
-            Success = 2
+            None = 0,
+            InProgress = 1,
+            Error = 2,
+            Success = 3
         }
 
         public PlayerService() {
@@ -41,7 +42,10 @@ namespace ScoreSaber.Core.Services {
 
         private async Task SignIn() {
 
-            ChangeLoginStatus(LoginStatus.Info, "Signing into ScoreSaber...");
+            if (loginStatus == LoginStatus.InProgress)
+                return;
+
+            ChangeLoginStatus(LoginStatus.InProgress, "Signing into ScoreSaber...");
 
             var platformUserModel = Plugin.Container.TryResolve<IPlatformUserModel>();
             var authToken = await platformUserModel.GetUserAuthToken();

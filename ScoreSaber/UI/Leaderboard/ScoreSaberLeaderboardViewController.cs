@@ -194,7 +194,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private void playerService_LoginStatusChanged(PlayerService.LoginStatus loginStatus, string status) {
             switch (loginStatus) {
-                case PlayerService.LoginStatus.Info:
+                case PlayerService.LoginStatus.InProgress:
                     _panelView.SetPromptInfo(status, true);
                     break;
                 case PlayerService.LoginStatus.Error:
