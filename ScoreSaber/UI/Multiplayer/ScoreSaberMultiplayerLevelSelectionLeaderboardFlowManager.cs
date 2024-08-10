@@ -31,14 +31,7 @@ namespace ScoreSaber.UI.Multiplayer {
         }
 
         private void LevelSelectionNavigationController_didChangeLevelDetailContentEvent(LevelSelectionNavigationController controller, StandardLevelDetailViewController.ContentType contentType) {
-
-            /* TODO is there any replacement for this? or is this even needed?
-            if (controller.selectedDifficultyBeatmap == null) {
-
-                HideLeaderboard();
-                return;
-            }*/
-                
+            
             ShowLeaderboard();
         }
 
@@ -63,6 +56,11 @@ namespace ScoreSaber.UI.Multiplayer {
 
             if (!InMulti())
                 return;
+
+            if(!_levelSelectionNavigationController.beatmapKey.IsValid()) {
+                HideLeaderboard();
+                return;
+            }
 
             _platformLeaderboardViewController.SetData(_levelSelectionNavigationController.beatmapKey);
             var currentFlowCoordinator = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
