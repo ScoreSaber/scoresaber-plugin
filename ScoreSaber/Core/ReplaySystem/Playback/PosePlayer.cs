@@ -1,5 +1,4 @@
-﻿using BeatSaber.GameSettings;
-using IPA.Utilities;
+﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Extensions;
 using SiraUtil.Tools.FPFC;
@@ -18,7 +17,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private readonly SaberManager _saberManager;
         private readonly VRPoseGroup[] _sortedPoses;
         private readonly IFPFCSettings _fpfcSettings;
-        private readonly MainSettingsHandler _mainSettingsHandler;
+        private readonly SettingsManager _settingsManager;
         private readonly IReturnToMenuController _returnToMenuController;
         public event Action<VRPoseGroup> DidUpdatePose;
         private PlayerTransforms _playerTransforms;
@@ -29,7 +28,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private bool initialFPFCState;
 
-        public PosePlayer(ReplayFile file, MainCamera mainCamera, SaberManager saberManager, IReturnToMenuController returnToMenuController, IFPFCSettings fpfcSettings, PlayerTransforms playerTransforms, MainSettingsHandler mainSettingsHandler) {
+        public PosePlayer(ReplayFile file, MainCamera mainCamera, SaberManager saberManager, IReturnToMenuController returnToMenuController, IFPFCSettings fpfcSettings, PlayerTransforms playerTransforms, SettingsManager settingsManager) {
 
             _fpfcSettings = fpfcSettings;
             initialFPFCState = fpfcSettings.Enabled;
@@ -40,7 +39,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             _sortedPoses = file.poseKeyframes.ToArray();
             _returnToMenuController = returnToMenuController;
             _spectatorOffset = new Vector3(0f, 0f, -2f);
-            _mainSettingsHandler = mainSettingsHandler;
+            _settingsManager = settingsManager;
             _playerTransforms = playerTransforms;
         }
 
@@ -79,9 +78,9 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             //InGame Camera
             GameObject spectatorObject = new GameObject("SpectatorParent");
             _spectatorCamera = UnityEngine.Object.Instantiate(_desktopCamera);
-            spectatorObject.transform.position = new Vector3(_mainSettingsHandler.instance.roomCenter.x + _spectatorOffset.x, _mainSettingsHandler.instance.roomCenter.y + _spectatorOffset.y, _mainSettingsHandler.instance.roomCenter.z + _spectatorOffset.z);
+            spectatorObject.transform.position = new Vector3(_settingsManager.settings.room.center.x + _spectatorOffset.x, _settingsManager.settings.room.center.y + _spectatorOffset.y, _settingsManager.settings.room.center.z + _spectatorOffset.z);
             Quaternion rotation = new Quaternion {
-                eulerAngles = new Vector3(0.0f, _mainSettingsHandler.instance.roomRotation, 0.0f)
+                eulerAngles = new Vector3(0.0f, _settingsManager.settings.room.rotation, 0.0f)
             };
             spectatorObject.transform.rotation = rotation;
             _spectatorCamera.stereoTargetEye = StereoTargetEyeMask.Both;
@@ -195,7 +194,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         public void SetSpectatorOffset(Vector3 value) {
 
-            _spectatorCamera.transform.parent.position = new Vector3(_mainSettingsHandler.instance.roomCenter.x + value.x, _mainSettingsHandler.instance.roomCenter.y + value.y, _mainSettingsHandler.instance.roomCenter.z + value.z);
+            _spectatorCamera.transform.parent.position = new Vector3(_settingsManager.settings.room.center.x + value.x, _settingsManager.settings.room.center.y + value.y, _settingsManager.settings.room.center.z + value.z);
 
             _spectatorOffset = value;
         }

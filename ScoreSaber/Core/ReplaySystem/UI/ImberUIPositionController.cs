@@ -1,5 +1,4 @@
-﻿using BeatSaber.GameSettings;
-using HMUI;
+﻿using HMUI;
 using ScoreSaber.Core.Data;
 using System;
 using System.Collections;
@@ -35,7 +34,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private Vector3 _controllerOffset;
 
 
-        public ImberUIPositionController(IGamePause gamePause, ImberScrubber imberScrubber, PauseMenuManager pauseMenuManager, MainImberPanelView mainImberPanelView, VRControllerAccessor vrControllerAccessor, MainSettingsHandler mainSettingsHandler) {
+        public ImberUIPositionController(IGamePause gamePause, ImberScrubber imberScrubber, PauseMenuManager pauseMenuManager, MainImberPanelView mainImberPanelView, VRControllerAccessor vrControllerAccessor) {
 
             _gamePause = gamePause;
             _imberScrubber = imberScrubber;

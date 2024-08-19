@@ -7,7 +7,6 @@ using UnityEngine;
 using IPA.Utilities;
 using ScoreSaber.Core.Utils;
 using UnityEngine.SpatialTracking;
-using BeatSaber.GameSettings;
 
 namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
@@ -19,7 +18,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
         private readonly AudioTimeSyncController _audioTimeSyncController;
         private readonly MainCamera _mainCamera;
         private readonly SaberManager _saberManager;
-        private readonly MainSettingsHandler _mainSettingsHandler;
+        private readonly SettingsManager _settingsManager;
         private PlayerTransforms _playerTransforms;
         private readonly IFPFCSettings _fpfcSettings;
         private ComboController _comboController;
@@ -39,7 +38,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
         internal LegacyReplayPlayer(List<Z.Keyframe> keyframes, ScoreController scoreController,
             RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter, AudioTimeSyncController audioTimeSyncController,
-            MainCamera mainCamera, SaberManager saberManager, PlayerTransforms playerTransforms, IFPFCSettings fpfcSettings, ComboController comboController, MainSettingsHandler mainSettingsHandler) {
+            MainCamera mainCamera, SaberManager saberManager, PlayerTransforms playerTransforms, IFPFCSettings fpfcSettings, ComboController comboController, SettingsManager settingsManager) {
 
             _fpfcSettings = fpfcSettings;
             _comboController = comboController;
@@ -54,7 +53,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             _mainCamera = mainCamera;
             _saberManager = saberManager;
             _playerTransforms = playerTransforms;
-            _mainSettingsHandler = mainSettingsHandler;
+            _settingsManager = settingsManager;
             _scoreUIController = Resources.FindObjectsOfTypeAll<ScoreUIController>().FirstOrDefault();
         }
 
@@ -91,9 +90,9 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
             //InGame Camera
             GameObject spectatorObject = new GameObject("SpectatorParent");
             _spectatorCamera = UnityEngine.Object.Instantiate(_desktopCamera);
-            spectatorObject.transform.position = new Vector3(_mainSettingsHandler.instance.roomCenter.x, _mainSettingsHandler.instance.roomCenter.y, _mainSettingsHandler.instance.roomCenter.z);
+            spectatorObject.transform.position = new Vector3(_settingsManager.settings.room.center.x, _settingsManager.settings.room.center.y, _settingsManager.settings.room.center.z);
             Quaternion rotation = new Quaternion {
-                eulerAngles = new Vector3(0.0f, _mainSettingsHandler.instance.roomRotation, 0.0f)
+                eulerAngles = new Vector3(0.0f, _settingsManager.settings.room.rotation, 0.0f)
             };
             spectatorObject.transform.rotation = rotation;
             _spectatorCamera.stereoTargetEye = StereoTargetEyeMask.Both;
