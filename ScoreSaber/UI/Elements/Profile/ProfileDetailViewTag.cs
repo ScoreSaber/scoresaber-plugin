@@ -18,7 +18,7 @@ namespace ScoreSaber.UI.Elements.Profile {
             GameObject gameObj = new GameObject("ScoreSaberProfileModal");
             gameObj.transform.SetParent(parent, false);
             ProfileDetailView host = gameObj.AddComponent<ProfileDetailView>();
-            BSMLParser.instance.Parse(_content, gameObj, host);
+            BSMLParser.Instance.Parse(_content, gameObj, host);
             host.SetProfileBadges(null);
             return gameObj;
         }

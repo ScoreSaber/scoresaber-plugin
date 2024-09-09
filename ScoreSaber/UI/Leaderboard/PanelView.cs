@@ -174,8 +174,8 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIAction("#post-parse")]
         protected void Parsed() {
 
-            _container.background.material = Utilities.ImageResources.NoGlowMat;
-            _background = _container.background as ImageView;
+            _container.Background.material = Utilities.ImageResources.NoGlowMat;
+            _background = _container.Background as ImageView;
             _scoresaberLogo.name = "ScoreSaberLogoImage";
             _separator.name = "Separator";
 

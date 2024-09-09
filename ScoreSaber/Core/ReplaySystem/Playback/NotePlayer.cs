@@ -97,7 +97,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                     noteTransform.rotation,
                     noteTransform.position,
 
-                    correctSaber.movementData
+                    correctSaber.movementDataForVisualEffects
                 );
 
                 _recognizedNoteCutInfos.Add(noteCutInfo, activeEvent);

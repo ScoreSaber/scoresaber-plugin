@@ -140,7 +140,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             if (!firstActivation) { return; }
 
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.bsml"), _platformLeaderboardViewController.gameObject, this);
+            BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.bsml"), _platformLeaderboardViewController.gameObject, this);
 
             _panelView.Show();
 

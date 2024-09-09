@@ -41,8 +41,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private void PosePlayer_DidUpdatePose(VRPoseGroup pose) {
 
             _fps = pose.FPS;
-            _leftSaberSpeed = $"{_saberManager.leftSaber.movementData.bladeSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale):0.0} m/s";
-            _rightSaberSpeed = $"{ _saberManager.rightSaber.movementData.bladeSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale):0.0} m/s";
+            _leftSaberSpeed = $"{_saberManager.leftSaber.movementDataForVisualEffects.bladeSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale):0.0} m/s";
+            _rightSaberSpeed = $"{ _saberManager.rightSaber.movementDataForVisualEffects.bladeSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale):0.0} m/s";
         }
 
         protected void OnGUI() {

@@ -149,7 +149,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            tabSelector.textSegmentedControl.didSelectCellEvent += DidSelect;
+            tabSelector.TextSegmentedControl.didSelectCellEvent += DidSelect;
             didParse = true;
             if (firstActivation) {
                 tabSelector.transform.localScale *= .9f;
@@ -166,7 +166,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
 
-            tabSelector.textSegmentedControl.didSelectCellEvent -= DidSelect;
+            tabSelector.TextSegmentedControl.didSelectCellEvent -= DidSelect;
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
         }
 
