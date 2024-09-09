@@ -67,7 +67,7 @@ namespace ScoreSaber {
         [OnEnable]
         public void OnEnable() {
             SceneManager.sceneLoaded += SceneLoaded;
-            BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += LateMenuSceneLoadedFresh;
+            BeatSaberMarkupLanguage.Util.MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             Settings = Settings.LoadSettings();
             ReplayState = new ReplayState();
             if (!Settings.disableScoreSaber) {
@@ -77,7 +77,7 @@ namespace ScoreSaber {
             }
         }
 
-        private void LateMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scene) {
+        private void MainMenuInit() {
             BSMLParser.Instance.RegisterTypeHandler(new ProfileDetailViewTypeHandler());
             BSMLParser.Instance.RegisterTag(new ProfileDetailViewTag(Metadata.Assembly));
             HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
