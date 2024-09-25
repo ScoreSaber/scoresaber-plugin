@@ -24,7 +24,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
 
         private void PosePlayer_DidUpdatePose(VRPoseGroup pose) {
 
-            DidReport?.Invoke(pose.FPS, _saberManager.leftSaber.movementDataForVisualEffects.bladeSpeed, _saberManager.rightSaber.movementDataForVisualEffects.bladeSpeed);
+            DidReport?.Invoke(pose.FPS, _saberManager.leftSaber.movementDataForLogic.bladeSpeed, _saberManager.rightSaber.movementDataForLogic.bladeSpeed);
         }
 
         public void Dispose() {
