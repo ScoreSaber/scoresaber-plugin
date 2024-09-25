@@ -62,6 +62,9 @@ namespace ScoreSaber {
             zenjector.UseAutoBinder();
 
             LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
+            OpenXRManager.Initialize();
+            SteamSettings.Initialize();
         }
 
         [OnEnable]
@@ -80,9 +83,6 @@ namespace ScoreSaber {
         private void MainMenuInit() {
             BSMLParser.Instance.RegisterTypeHandler(new ProfileDetailViewTypeHandler());
             BSMLParser.Instance.RegisterTag(new ProfileDetailViewTag(Metadata.Assembly));
-            HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
-            OpenXRManager.Initialize();
-            SteamSettings.Initialize();
         }
 
         private void SceneLoaded(Scene scene, LoadSceneMode mode) {
