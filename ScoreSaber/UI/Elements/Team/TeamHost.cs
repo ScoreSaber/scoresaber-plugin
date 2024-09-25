@@ -54,7 +54,7 @@ namespace ScoreSaber.UI.Elements.Team {
         public void Parse(GameObject parentGrid) {
 
             if (!_parsed) {
-                BSMLParser.instance.Parse(_content, parentGrid, this);
+                BSMLParser.Instance.Parse(_content, parentGrid, this);
                 if (_grid != null) {
                     _grid.constraintCount = 3;
                     _grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;

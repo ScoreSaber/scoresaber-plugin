@@ -44,7 +44,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         private void ResultsViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
             if (firstActivation) {
-                BSMLParser.instance.Parse(
+                BSMLParser.Instance.Parse(
                     "<button-with-icon id=\"watch-replay-button\" icon=\"ScoreSaber.Resources.replay.png\" hover-hint=\"Watch Replay\" pref-width=\"15\" pref-height=\"13\" interactable=\"false\" on-click=\"replay-click\" />",
                     _resultsViewController.gameObject,
                     this

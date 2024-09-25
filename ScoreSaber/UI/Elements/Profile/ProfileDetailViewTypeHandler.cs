@@ -36,16 +36,16 @@ namespace ScoreSaber.UI.Elements.Profile {
         public override void HandleTypeAfterParse(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
             base.HandleTypeAfterParse(componentType, parserParams);
             try {
-                var profile = componentType.component as ProfileDetailView;
+                var profile = componentType.Component as ProfileDetailView;
                 var parent = profile.profileModalRoot.transform.parent;
                 void Reparent() { profile.profileModalRoot.transform.SetParent(parent, true); }
 
-                if (componentType.data.TryGetValue("showEvent", out string showEvent)) {
+                if (componentType.Data.TryGetValue("showEvent", out string showEvent)) {
                     parserParams.AddEvent(showEvent, delegate {
                         profile.profileModalRoot.Show(true, true); // by Design™
                     });
                 }
-                if (componentType.data.TryGetValue("hideEvent", out string hideEvent)) {
+                if (componentType.Data.TryGetValue("hideEvent", out string hideEvent)) {
                     parserParams.AddEvent(hideEvent, delegate {
                         profile.profileModalRoot.Hide(true, Reparent);
                     });

@@ -200,7 +200,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
 
                 _globalCells.Clear();
                 _rankCells.Clear();
-                _leaderboard.data.Clear();
+                _leaderboard.Data.Clear();
 
                 int counter = 1;
                 foreach (PlayerInfo player in players) {
@@ -226,7 +226,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
                 foreach (GlobalCell globalCell in _globalCells) {
                     _rankCells.Add(globalCell);
                 }
-                _leaderboard.tableView.ReloadData();
+                _leaderboard.TableView.ReloadData();
             }
         }
 

@@ -24,7 +24,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
 		public void Initialize() {
 			_playerService.LoginStatusChanged += playerService_LoginStatusChanged;
-            MenuButtons.instance.RegisterButton(_menuButton);
+            MenuButtons.Instance.RegisterButton(_menuButton);
 			_menuButton.Interactable = false;
 		}
 
@@ -40,7 +40,7 @@ namespace ScoreSaber.UI.ViewControllers {
 
 		public void Dispose() {
 			_playerService.LoginStatusChanged -= playerService_LoginStatusChanged;
-            MenuButtons.instance.UnregisterButton(this._menuButton);
+            MenuButtons.Instance.UnregisterButton(this._menuButton);
 		}
 	}
 }

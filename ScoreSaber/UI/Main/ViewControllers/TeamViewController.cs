@@ -45,7 +45,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
 
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
-            _tabSelector.textSegmentedControl.didSelectCellEvent += DidSelect;
+            _tabSelector.TextSegmentedControl.didSelectCellEvent += DidSelect;
             if (_teamHosts.Count > 0) {
                 TeamHost host = (TeamHost)_teamHosts[0];
                 host.Init();
@@ -57,7 +57,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
-            _tabSelector.textSegmentedControl.didSelectCellEvent -= DidSelect;
+            _tabSelector.TextSegmentedControl.didSelectCellEvent -= DidSelect;
         }
 
         private void DidSelect(SegmentedControl segmentedControl, int pos) {

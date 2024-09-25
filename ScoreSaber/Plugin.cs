@@ -11,7 +11,6 @@ using ScoreSaber.UI.Elements.Profile;
 using SiraUtil.Zenject;
 using System.Collections;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -42,12 +41,14 @@ namespace ScoreSaber {
 
         internal System.Version LibVersion;
         internal Harmony harmony;
+        internal PluginMetadata Metadata;
 
         [Init]
         public Plugin(IPALogger logger, PluginMetadata metadata, Zenjector zenjector) {
 
             Log = logger;
             Instance = this;
+            Metadata = metadata;
 
             zenjector.UseLogger(logger);
             zenjector.Expose<ComboUIController>("Environment");
@@ -61,9 +62,6 @@ namespace ScoreSaber {
             zenjector.UseAutoBinder();
 
             LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            BSMLParser.instance.RegisterTypeHandler(new ProfileDetailViewTypeHandler());
-            BSMLParser.instance.RegisterTag(new ProfileDetailViewTag(metadata.Assembly));
-
             HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
             OpenXRManager.Initialize();
             SteamSettings.Initialize();
@@ -71,9 +69,8 @@ namespace ScoreSaber {
 
         [OnEnable]
         public void OnEnable() {
-
             SceneManager.sceneLoaded += SceneLoaded;
-
+            BeatSaberMarkupLanguage.Util.MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             Settings = Settings.LoadSettings();
             ReplayState = new ReplayState();
             if (!Settings.disableScoreSaber) {
@@ -81,6 +78,11 @@ namespace ScoreSaber {
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
                 PlayerPrefs.SetInt("lbPatched", 1);
             }
+        }
+
+        private void MainMenuInit() {
+            BSMLParser.Instance.RegisterTypeHandler(new ProfileDetailViewTypeHandler());
+            BSMLParser.Instance.RegisterTag(new ProfileDetailViewTag(Metadata.Assembly));
         }
 
         private void SceneLoaded(Scene scene, LoadSceneMode mode) {

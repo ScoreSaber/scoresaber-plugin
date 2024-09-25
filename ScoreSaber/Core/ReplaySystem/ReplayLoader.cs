@@ -81,8 +81,8 @@ namespace ScoreSaber.Core.ReplaySystem {
                     backButtonText: "Exit Replay",
                     useTestNoteCutSoundEffects: false,
                     startPaused: false,
-                    beforeSceneSwitchCallback: null,
-                    afterSceneSwitchCallback: null,
+                    beforeSceneSwitchToGameplayCallback: null,
+                    afterSceneSwitchToGameplayCallback: null,
                     levelFinishedCallback: ReplayEnd,
                     levelRestartedCallback: null
                 );
@@ -141,7 +141,7 @@ namespace ScoreSaber.Core.ReplaySystem {
                     localPlayerSettings.headsetHapticIntensity);
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
-
+                
                 _menuTransitionsHelper.StartStandardLevel(
                     gameMode: "Replay",
                     beatmapKey: beatmapKey,
@@ -156,8 +156,8 @@ namespace ScoreSaber.Core.ReplaySystem {
                     backButtonText: "Exit Replay",
                     useTestNoteCutSoundEffects: false,
                     startPaused: false,
-                    beforeSceneSwitchCallback: null,
-                    afterSceneSwitchCallback: null,
+                    beforeSceneSwitchToGameplayCallback: null,
+                    afterSceneSwitchToGameplayCallback: null,
                     levelFinishedCallback: ReplayEnd,
                     levelRestartedCallback: null
                 );
