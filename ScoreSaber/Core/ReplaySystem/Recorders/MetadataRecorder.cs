@@ -51,7 +51,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
                 LevelID = _gameplayCoreSceneSetupData.beatmapLevel.levelID,
                 Difficulty = BeatmapDifficultyMethods.DefaultRating(_gameplayCoreSceneSetupData.beatmapKey.difficulty),
                 Characteristic = _gameplayCoreSceneSetupData.beatmapKey.beatmapCharacteristic.serializedName,
-                Environment = _gameplayCoreSceneSetupData.environmentInfo.serializedName,
+                Environment = _gameplayCoreSceneSetupData.targetEnvironmentInfo.serializedName,
                 Modifiers = GetModifierList(_gameplayCoreSceneSetupData.gameplayModifiers),
                 NoteSpawnOffset = _beatmapObjectSpawnControllerInitData.noteJumpValue,
                 LeftHanded = _gameplayCoreSceneSetupData.playerSpecificSettings.leftHanded,

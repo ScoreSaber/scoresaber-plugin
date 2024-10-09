@@ -39,7 +39,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
             }
             GameObject _watermarkCanvas = new GameObject("InGameReplayUI");
 
-            if (_gameplayCoreSceneSetupData.environmentInfo.environmentName == "Interscope") {
+            if (_gameplayCoreSceneSetupData.targetEnvironmentInfo.environmentName == "Interscope") {
                 _watermarkCanvas.transform.position = new Vector3(0f, 3.5f, 12.0f);
             } else {
                 _watermarkCanvas.transform.position = new Vector3(0f, 4f, 12.0f);
