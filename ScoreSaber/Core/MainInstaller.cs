@@ -1,4 +1,5 @@
 ﻿using ScoreSaber.Core.Daemons;
+using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.UI;
 using ScoreSaber.Core.Services;
@@ -21,6 +22,12 @@ namespace ScoreSaber.Core {
 
         public override void InstallBindings() {
             Container.BindInstance(new object()).WithId("ScoreSaberUIBindings").AsCached();
+
+            Container.Bind<PanelView>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<ScoreSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
+
+            Container.BindInterfacesTo<ScoreSaberLeaderboard>().AsSingle();
+
             Container.Bind<ReplayLoader>().AsSingle().NonLazy();
             Container.BindInterfacesTo<ResultsViewReplayButtonController>().AsSingle();
 
@@ -31,7 +38,7 @@ namespace ScoreSaber.Core {
             Container.Bind<MaxScoreCache>().AsSingle();
           
 
-            Container.Bind<PanelView>().FromNewComponentAsViewController().AsSingle();
+
             Container.Bind<FAQViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<TeamViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<GlobalViewController>().FromNewComponentAsViewController().AsSingle();
@@ -54,8 +61,7 @@ namespace ScoreSaber.Core {
             Container.Bind<CellClickingView>().FromMethodMultiple(context => clickingViews).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();
             clickingViews.ForEach(y => Container.QueueForInject(y));
 
-            Container.BindInterfacesAndSelfTo<ScoreSaberLeaderboardViewController>().AsSingle().NonLazy();
-            Container.BindInterfacesTo<LeaderboardPatches>().AsSingle();
+
 
 #if RELEASE
             Container.BindInterfacesAndSelfTo<UploadDaemon>().AsSingle().NonLazy();
