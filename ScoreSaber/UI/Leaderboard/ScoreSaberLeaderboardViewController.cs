@@ -30,6 +30,8 @@ using static HMUI.IconSegmentedControl;
 using System.Linq;
 using System.Collections;
 using UnityEngine.EventSystems;
+using BeatSaberMarkupLanguage.Components;
+using UnityEngine.Diagnostics;
 
 namespace ScoreSaber.UI.Leaderboard {
 
@@ -47,14 +49,20 @@ namespace ScoreSaber.UI.Leaderboard {
         internal BeatmapKey currentBeatmapKey;
 
         #region BSML Components
-        [UIComponent("root")]
-        protected readonly RectTransform _root = null;
         [UIParams]
         private readonly BSMLParserParams _parserParams = null;
-        [UIComponent("up-button")]
-        protected readonly Button _upButton = null;
-        [UIComponent("down-button")]
-        protected readonly Button _downButton = null;
+
+        [UIComponent("leaderboardTableView")]
+        internal readonly LeaderboardTableView leaderboardTableView = null;
+
+        [UIComponent("leaderboardTableView")]
+        internal readonly Transform leaderboardTransform = null;
+
+        [UIComponent("myHeader")]
+        private readonly Backgroundable myHeader = null;
+
+        [UIComponent("errorText")]
+        private readonly TextMeshProUGUI errorText = null;
 
         [UIValue("imageHolders")]
         internal List<ProfilePictureView> _ImageHolders = null;
@@ -70,17 +78,19 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIAction("up-button-click")] private void UpButtonClicked() => DirectionalButtonClicked(false);
         [UIAction("down-button-click")] private void DownButtonClicked() => DirectionalButtonClicked(true);
 
+        [UIComponent("up_button")]
+        internal readonly Button _upButton = null;
 
-        [UIComponent("leaderboardTableView")]
-        private readonly LeaderboardTableView leaderboardTableView = null;
+        [UIComponent("down_button")]
+        internal readonly Button _downButton = null;
 
-        [UIComponent("leaderboardTableView")]
-        private readonly Transform leaderboardTransform = null;
+        [UIObject("loadingLB")]
+        private readonly GameObject _loadingControl = null;
 
-        [UIComponent("errorText")]
-        private readonly TextMeshProUGUI errorText = null;
-
-        private LoadingControl _loadingControl;
+        [UIAction("downloadPlaylistCLICK")]
+        private void downloadPlaylistCLICK() {
+            Application.OpenURL($"https://fortnite.com");
+        }
 
         [UIValue("leaderboardIcons")]
         private List<IconSegmentedControl.DataItem> leaderboardIcons {
@@ -175,19 +185,35 @@ namespace ScoreSaber.UI.Leaderboard {
             _playerService.LoginStatusChanged += playerService_LoginStatusChanged;
             _infoButtons.infoButtonClicked += infoButtons_infoButtonClicked;
             _uploadDaemon.UploadStatusChanged += uploadDaemon_UploadStatusChanged;
-            _platformLeaderboardViewController.didActivateEvent += LeaderboardViewActivate;
-            _platformLeaderboardViewController.didDeactivateEvent += LeaderboardViewDeactivate;
         }
+
+        internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
+        internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
 
         [UIAction("#post-parse")]
         public void Parsed() {
-            _upButton.transform.localScale *= .5f;
-            _downButton.transform.localScale *= .5f;
-            //_root.name = "ScoreSaberLeaderboardElements";
+            //_upButton.transform.localScale *= .5f;
+            //_downButton.transform.localScale *= .5f;
+            myHeader.Background.material = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlowRoundEdge").First();
             ByeImages();
-            _loadingControl = leaderboardTransform.gameObject.GetComponent<LoadingControl>();
-            activated = true;
             errorText.gameObject.SetActive(false);
+
+            var _loadingControlA = leaderboardTransform.Find("LoadingControl").gameObject;
+            Transform loadingContainer = _loadingControlA.transform.Find("LoadingContainer");
+            loadingContainer.gameObject.SetActive(false);
+            Destroy(loadingContainer.Find("Text").gameObject);
+            Destroy(_loadingControlA.transform.Find("RefreshContainer").gameObject);
+            Destroy(_loadingControlA.transform.Find("DownloadingContainer").gameObject);
+
+            var _imgView = myHeader.Background as ImageView;
+            Color color = new Color(255f / 255f, 222f / 255f, 24f / 255f);
+            _imgView.color = color;
+            _imgView.color0 = color;
+            _imgView.color1 = color;
+            ImageSkew(ref _imgView) = 0.18f;
+            ImageGradient(ref _imgView) = true;
+
+            activated = true;
         }
 
         public void AllowReplayWatching(bool value) {
@@ -195,22 +221,9 @@ namespace ScoreSaber.UI.Leaderboard {
             _scoreDetailView.AllowReplayWatching(value);
         }
 
-        private void LeaderboardViewActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
             if (!firstActivation) { return; }
-
-            BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.bsml"), _platformLeaderboardViewController.gameObject, this);
-
-            _panelView.Show();
-
-            _panelView.disabling = delegate () {
-                if (_scoreDetailView.detailModalRoot != null && _profileDetailView.profileModalRoot != null) {
-                    _scoreDetailView.detailModalRoot.gameObject.SetActive(false);
-                    _profileDetailView.profileModalRoot.gameObject.SetActive(false);
-                    Accessors.animateParentCanvas(ref _scoreDetailView.detailModalRoot) = true;
-                    Accessors.animateParentCanvas(ref _profileDetailView.profileModalRoot) = true;
-                }
-            };
 
             _panelView.statusWasSelected = delegate () {
                 if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
@@ -221,14 +234,14 @@ namespace ScoreSaber.UI.Leaderboard {
             _panelView.rankingWasSelected = delegate () {
                 _parserParams.EmitEvent("close-modals");
                 _parserParams.EmitEvent("show-profile");
-                _profileDetailView.ShowProfile(_playerService.localPlayerInfo.playerId).RunTask();
+                //_profileDetailView.ShowProfile(_playerService.localPlayerInfo.playerId).RunTask();
             };
 
             _container.Inject(_profileDetailView);
             _playerService.GetLocalPlayerInfo();
         }
 
-        private void LeaderboardViewDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             if (_scoreDetailView.detailModalRoot != null) _scoreDetailView.detailModalRoot.Hide(false);
             if (_profileDetailView.profileModalRoot != null) _profileDetailView.profileModalRoot.Hide(false);
         }
@@ -544,8 +557,6 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void Dispose() {
 
-            _platformLeaderboardViewController.didActivateEvent -= LeaderboardViewActivate;
-            _platformLeaderboardViewController.didDeactivateEvent -= LeaderboardViewDeactivate;
             _playerService.LoginStatusChanged -= playerService_LoginStatusChanged;
             _uploadDaemon.UploadStatusChanged -= uploadDaemon_UploadStatusChanged;
             _infoButtons.infoButtonClicked -= infoButtons_infoButtonClicked;
@@ -568,7 +579,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 isOST = false;
                 BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
-                RefreshLeaderboard(beatmapLevel, beatmapKey, leaderboardTableView, scoreSaberScoresScope, _loadingControl, Guid.NewGuid().ToString()).RunTask();
+                RefreshLeaderboard(beatmapLevel, beatmapKey, leaderboardTableView, scoreSaberScoresScope, null, Guid.NewGuid().ToString()).RunTask();
             } else {
                 isOST = true;
             }

@@ -88,22 +88,18 @@ namespace ScoreSaber.UI.Leaderboard {
         #endregion
 
         private bool _gayMode;
-        private bool _initialized;
         private float _theWilliamVal;
         private Sprite _denyahSprite;
         private ImageView _background;
         private Tween _activeDisableTween;
         internal PlayerInfo _currentPlayerInfo;
         private CanvasGroup _promptCanvasGroup;
-        private FloatingScreen _floatingScreen;
 
-        public Action disabling;
         public Action statusWasSelected;
         public Action rankingWasSelected;
 
         private PlayerService _playerService = null;
         private TimeTweeningManager _timeTweeningManager = null;
-        private PlatformLeaderboardViewController _platformLeaderboardViewController = null;
 
         private Color _scoreSaberBlue;
         private Gradient _theWilliamGradient;
@@ -143,33 +139,13 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         [Inject]
-        protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager, PlatformLeaderboardViewController platformLeaderboardViewController) {
+        protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager) {
             _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
             _theWilliamGradient = new Gradient { mode = GradientMode.Blend, colorKeys = new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(new Color(1f, 0.5f, 0f), 0.17f), new GradientColorKey(Color.yellow, 0.34f), new GradientColorKey(Color.green, 0.51f), new GradientColorKey(Color.blue, 0.68f), new GradientColorKey(new Color(0.5f, 0f, 0.5f), 0.85f), new GradientColorKey(Color.red, 1.15f) } };
             _playerService = playerService;
             _timeTweeningManager = timeTweeningManager;
-            _platformLeaderboardViewController = platformLeaderboardViewController;
             Plugin.Log.Debug("PanelView Setup!");
         }
-
-        protected void OnDisable() {
-
-            disabling?.Invoke();
-        }
-
-        internal void Init() {
-
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100f, 15f), false, Vector3.zero, Quaternion.identity);
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100f, 25f), false, Vector3.zero, Quaternion.identity);
-            _floatingScreen.name = "ScoreSaberPanelScreen";
-
-            _floatingScreen.transform.SetParent(_platformLeaderboardViewController.transform, false);
-            _floatingScreen.transform.localPosition = new Vector3(3f, 50f);
-            _floatingScreen.transform.localScale = Vector3.one;
-            _floatingScreen.gameObject.SetActive(false);
-            _floatingScreen.gameObject.SetActive(true);
-        }
-
 
         [UIAction("#post-parse")]
         protected void Parsed() {
@@ -245,21 +221,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 }
                 await Task.Delay(1000);
             }
-        }
-
-        public void Show() {
-
-            if (!_initialized) {
-                Init();
-                _initialized = true;
-            }
-
-            _floatingScreen.SetRootViewController(this, AnimationType.In);
-        }
-
-        public void Hide() {
-
-            _floatingScreen.SetRootViewController(null, AnimationType.Out);
         }
 
         public void SetGlobalRanking(string globalRanking, bool withPrefix = true) {
@@ -353,7 +314,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         protected void Update() {
 
-            if (_initialized && _gayMode) {
+            if (_gayMode) {
                 _background.color = _theWilliamGradient.Evaluate(_theWilliamVal);
                 _theWilliamVal += Time.deltaTime * 0.1f;
                 if (_theWilliamVal > 1f) _theWilliamVal = 0f;
