@@ -79,16 +79,16 @@ namespace ScoreSaber.UI.Leaderboard {
         private readonly TextMeshProUGUI _errorText;
 
         [UIValue("imageHolders")]
-        internal List<ProfilePictureView> _ImageHolders = null;
+        [Inject] internal List<ProfilePictureView> _ImageHolders = null;
 
         [UIValue("cellClickerHolders")]
-        internal List<CellClickingView> _cellClickingHolders = null;
+        [Inject] internal List<CellClickingView> _cellClickingHolders = null;
 
         [UIValue("entry-holder")]
-        internal  EntryHolder _infoButtons = null;
+        internal EntryHolder _infoButtons = null;
         
         [UIValue("score-detail-view")]
-        protected  ScoreDetailView _scoreDetailView = null;
+        protected ScoreDetailView _scoreDetailView = null;
 
         [UIComponent("profile-detail-view")]
         protected readonly ProfileDetailView _profileDetailView = null;
