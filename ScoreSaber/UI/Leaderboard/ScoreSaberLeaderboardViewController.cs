@@ -102,8 +102,8 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIObject("loadingLB")]
         private readonly GameObject loadingLB;
 
-        [UIAction("up-button-click")] private void UpButtonClicked() => DirectionalButtonClicked(false);
-        [UIAction("down-button-click")] private void DownButtonClicked() => DirectionalButtonClicked(true);
+        [UIAction("OnPageUp")] private void UpButtonClicked() => DirectionalButtonClicked(false);
+        [UIAction("OnPageDown")] private void DownButtonClicked() => DirectionalButtonClicked(true);
 
 
         public bool activated { get; private set; }
@@ -465,8 +465,8 @@ namespace ScoreSaber.UI.Leaderboard {
 
             if (!activated)
                 return;
-
-            _platformLeaderboardViewController?.InvokeMethod<object, PlatformLeaderboardViewController>("Refresh", true, true);
+            BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(_currentBeatmapKey.levelId);
+            RefreshLeaderboard(beatmapLevel, _currentBeatmapKey, leaderboardTableView, currentScoreScope, _loadingControl, Guid.NewGuid().ToString()).RunTask();
         }
 
         internal void ByeImages() {
