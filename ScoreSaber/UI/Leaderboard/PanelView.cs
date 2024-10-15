@@ -190,11 +190,11 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        [UIAction("clicked-settings")]
-        protected void ClickedSettings() {
+        //[UIAction("clicked-settings")]
+        //protected void ClickedSettings() {
 
-            ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
-        }
+        //    ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
+        //}
 
         [UIAction("clicked-ranking")]
         protected void ClickedRanking() {

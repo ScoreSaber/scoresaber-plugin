@@ -1,6 +1,6 @@
 <bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-	xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
-	
+	xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+
 	<horizontal pref-width="90"
 				pref-height="8"
 				anchor-pos-y="41.5"
@@ -10,11 +10,11 @@
 		<stack>
 			<horizontal>
 				<text id="headerText"
-					  text="ScoreSaber"
+					  text="SCORESABER"
 					  font-size="6"
-					  all-uppercase="true"
 					  align="Midline"
 					  italics="true"
+					  
 					  rich-text="true"/>
 			</horizontal>
 		</stack>
@@ -25,39 +25,39 @@
 		<page-button id="up_button"
 					 icon="ScoreSaber.Resources.carat.png"
 					 dir="Up"
-					 anchor-pos-y="12"
-					 pref-width="10"
-					 pref-height="10"
+					 anchor-pos-y="16"
+					 pref-width="9"
+					 pref-height="9"
 					 on-click="OnPageUp"/>
 		<vertical-icon-segments id="scopeSegmentedControl"
 								contents='leaderboardIcons'
 								select-cell='OnIconSelected'
 								anchor-pos-y="20"
 								size-delta-x="10"
-								size-delta-y="16"/>
+								size-delta-y="25"/>
 
 		<page-button id="down_button"
 				   icon="ScoreSaber.Resources.carat.png"
 				   dir="Down"
-				   anchor-pos-y="-12"
-				   pref-width="10"
-				   pref-height="10"
+				   anchor-pos-y="-16"
+				   pref-width="9"
+				   pref-height="9"
 				   on-click="OnPageDown"/>
-	</bg>
 
-	<!-- Profile Pictures -->
+		<clickable-image size-delta-x="6" size-delta-y="6" anchor-pos-y="-5.5" anchor-pos-x="0" id='linkIcon' src="#SettingsIcon" on-click='SettingsClicked' hover-hint='Open the ScoreSaber settings'/>
+	</bg>
 	<vertical anchor-pos-x="-21"
-		  anchor-pos-y="-1" spacing="-20.15">
+			  anchor-pos-y="5.3" spacing="-19.4">
 		<macro.for-each hosts="imageHolders">
 			<horizontal child-expand-height="true" child-align="MiddleCenter">
 				<stack>
-					<image id="profileImage" pref-width="4.75" pref-height="4.75" preserve-aspect="true"/>
-					<loading-indicator id="profileloading" pref-width="3.75" pref-height="3.75" active="false" preserve-aspect="true"/>
+					<image id="profileImage" src="ScoreSaber.Resources.pixel.png" pref-width="5.5" pref-height="5.5" preserve-aspect="true"/>
+					<loading-indicator id="profileloading" pref-width="4" pref-height="4" active="false" preserve-aspect="true"/>
 				</stack>
 			</horizontal>
 		</macro.for-each>
 	</vertical>
-
+	
 	<!-- Cell Clickers (please forgive me theres no other way) -->
 	<vertical anchor-pos-x="5"
 		  anchor-pos-y="-1" spacing="-20.25">
@@ -69,7 +69,6 @@
 			</horizontal>
 		</macro.for-each>
 	</vertical>
-	
 	<!-- Leaderboard table -->
 	<vertical pref-width='76'
 			  pref-height='60.5'
@@ -79,14 +78,18 @@
 			  vertical-fit='PreferredSize'>
 		<leaderboard id='leaderboardTableView'
 					 cell-size='6.05'>
+			
 			<text id="errorText"
 				  text="No scores on this map!"
-				  font-size="7"
+				  font-size="8"
 				  anchor-pos-x="-5"
 				  align="Center"
 				  italics="true"
 				  color="#f0584a"
 				  active="false"/>
+
+			<loading anchor-pos-x="-5" align="Center" active="false" id="loadingLB" pref-width='20' pref-height='20' preserve-aspect='true'/>
+
 			<!-- Score info modal -->
 			<modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="50">
 				<macro.as-host host="score-detail-view">
@@ -107,7 +110,7 @@
 						<vertical pref-width="50" pref-height="40">
 							<text id="devicehmd-text" text="" font-size="3.5" />
 							<!-- <text id="devicecontrollerleft-text" text="" font-size="3.5" />
-					<text id="devicecontrollerright-text" text="" font-size="3.5" /> -->
+		<text id="devicecontrollerright-text" text="" font-size="3.5" /> -->
 							<text id="score-text" text="" font-size="3.5" />
 							<text id="pp-text" text="" font-size="3.5" />
 							<text id="max-combo-text" text="" font-size="3.5" />
@@ -120,8 +123,6 @@
 					</vertical>
 				</macro.as-host>
 			</modal>
-			
-				<loading anchor-pos-x="-5" align="Center" active="false" id="loadingLB" pref-width='20' pref-height='20' preserve-aspect='true'/>
 		</leaderboard>
 	</vertical>
 	<ss-profile id="profile-detail-view" show-event="show-profile" loading="false" />

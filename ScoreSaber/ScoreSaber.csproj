@@ -34,6 +34,7 @@
     <None Remove="Resources\carat.png" />
     <None Remove="Resources\globe.png" />
     <None Remove="Resources\Player.png" />
+    <None Remove="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AdditionalContentModel.Interfaces">
@@ -291,7 +292,7 @@
     <EmbeddedResource Include="Resources\carat.png" />
     <EmbeddedResource Include="Resources\globe.png" />
     <EmbeddedResource Include="Resources\Player.png" />
-    <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewControllerOLD.bsml" />
+    <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
     <EmbeddedResource Include="UI\Main\Settings\ViewControllers\MainSettingsViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\GlobalViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\TeamViewController.bsml" />

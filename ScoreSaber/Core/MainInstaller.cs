@@ -62,7 +62,6 @@ namespace ScoreSaber.Core {
             clickingViews.ForEach(y => Container.QueueForInject(y));
 
 
-
 #if RELEASE
             Container.BindInterfacesAndSelfTo<UploadDaemon>().AsSingle().NonLazy();
 #else

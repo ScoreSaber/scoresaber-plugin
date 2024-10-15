@@ -17,9 +17,9 @@ namespace ScoreSaber.Core.Services {
             Plugin.Log.Debug("LeaderboardService Setup");
         }
 
-        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings, bool filterAroundCountry = false) {
+        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings) {
 
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, scope, page, filterAroundCountry);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, scope, page);
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
             Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
 
@@ -30,7 +30,7 @@ namespace ScoreSaber.Core.Services {
 
         public async Task<Leaderboard> GetCurrentLeaderboard(BeatmapKey beatmapKey) {
 
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global, 1, false);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global, 1);
 
             int attempts = 0;
             while (attempts < 4) {
@@ -46,7 +46,7 @@ namespace ScoreSaber.Core.Services {
             return null;
         }
       
-        private string GetLeaderboardUrl(BeatmapKey beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, bool filterAroundCountry) {
+        private string GetLeaderboardUrl(BeatmapKey beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page) {
 
             string url = "/game/leaderboard";
             string leaderboardId = beatmapKey.levelId.Split('_')[2];
@@ -59,7 +59,7 @@ namespace ScoreSaber.Core.Services {
                 case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global:
                     url = $"{url}/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
                     break;
-                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.AroundPlayer:
+                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Player:
                     url = $"{url}/around-player/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}";
                     hasPage = false;
                     break;
