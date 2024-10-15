@@ -41,15 +41,16 @@ jobs:
         fi
         
     - name: Move stripped dlls to refs
-      run: mv Stripped/Versions/${{ steps.read-json.outputs.game_version }} Refs
+      run: mv Stripped/Versions/${{ steps.read-json.outputs.game_version }} ../Refs
     
     - name: List stripped dlls
-      run: tree Refs
+      run: tree ../Refs
       
     - name: Acquire mod references
       uses: Goobwabber/download-beatmods-deps@1.2
       with:
         manifest: ${{github.workspace}}/ScoreSaber/manifest.json
+        path: ../Refs
         
     - name: Build
       id: Build
