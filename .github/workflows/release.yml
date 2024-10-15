@@ -43,6 +43,9 @@ jobs:
     - name: Move stripped dlls to refs
       run: mv Stripped/Versions/${{ steps.read-json.outputs.game_version }} Refs
     
+    - name: List stripped dlls
+      run: tree Refs
+      
     - name: Acquire mod references
       uses: Goobwabber/download-beatmods-deps@1.2
       with:
