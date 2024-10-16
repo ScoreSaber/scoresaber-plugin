@@ -23,8 +23,8 @@ namespace ScoreSaber.Core {
         public override void InstallBindings() {
             Container.BindInstance(new object()).WithId("ScoreSaberUIBindings").AsCached();
 
-            Container.Bind<PanelView>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<ScoreSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<PanelView>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<ScoreSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
 
             Container.BindInterfacesTo<ScoreSaberLeaderboard>().AsSingle();
 

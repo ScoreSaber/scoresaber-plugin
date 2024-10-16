@@ -21,8 +21,10 @@ using ScoreSaber.UI.Elements.Leaderboard;
 using ScoreSaber.UI.Elements.Profile;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main;
+using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -31,6 +33,8 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Diagnostics;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Zenject;
 using Button = UnityEngine.UI.Button;
 
@@ -128,8 +132,6 @@ namespace ScoreSaber.UI.Leaderboard {
         [Inject] private readonly PlatformLeaderboardViewController _plvc;
         [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel;
 
-
-
         private void infoButtons_infoButtonClicked(int index) {
             if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
 
@@ -194,7 +196,6 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        private GameObject _loadingControl;
         private ImageView _imgView;
 
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
@@ -203,12 +204,12 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIAction("#post-parse")]
         private void PostParse() {
             myHeader.Background.material = Utilities.ImageResources.NoGlowMat;
-            _loadingControl = leaderboardTransform.Find("LoadingControl").gameObject;
-            Transform loadingContainer = _loadingControl.transform.Find("LoadingContainer");
+            var loadingLB = leaderboardTransform.Find("LoadingControl").gameObject;
+            Transform loadingContainer = loadingLB.transform.Find("LoadingContainer");
             loadingContainer.gameObject.SetActive(false);
             Destroy(loadingContainer.Find("Text").gameObject);
-            Destroy(_loadingControl.transform.Find("RefreshContainer").gameObject);
-            Destroy(_loadingControl.transform.Find("DownloadingContainer").gameObject);
+            Destroy(loadingLB.transform.Find("RefreshContainer").gameObject);
+            Destroy(loadingLB.transform.Find("DownloadingContainer").gameObject);
             _imgView = myHeader.Background as ImageView;
             Color color = new Color(255f / 255f, 222f / 255f, 24f / 255f);
             _imgView.color = color;
@@ -216,8 +217,6 @@ namespace ScoreSaber.UI.Leaderboard {
             _imgView.color1 = color;
             ImageSkew(ref _imgView) = 0.18f;
             ImageGradient(ref _imgView) = true;
-            _infoButtons = new EntryHolder();
-            _scoreDetailView = new ScoreDetailView();
         }
 
         [UIAction("OpenLeaderboardPage")]
@@ -271,6 +270,8 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 _container.Inject(_profileDetailView);
                 _playerService.GetLocalPlayerInfo();
+                _ImageHolders.ForEach(holder => holder.ClearSprite());
+                activated = true;
             }
             Transform header = _plvc.transform.Find("HeaderPanel");
             _plvc.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
@@ -288,9 +289,11 @@ namespace ScoreSaber.UI.Leaderboard {
         private CancellationTokenSource cancellationToken;
 
         public async Task RefreshLeaderboard(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LeaderboardTableView tableView, ScoreSaberScoresScope scope, GameObject loadingControl, string refreshId) {
-
+            Plugin.Log.Info("begin refresh leaderboard");
             try {
-
+                loadingControl.SetActive(false);
+                _errorText.gameObject.SetActive(false);
+                tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
                 _currentLeaderboardRefreshId = refreshId;
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
@@ -326,13 +329,17 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
-
+                Plugin.Log.Info("AFTER TASK DELAY");
                 if (_currentLeaderboardRefreshId == refreshId) {
                     int maxMultipliedScore = await _maxScoreCache.GetMaxScore(beatmapLevel, beatmapKey);
                     LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(maxMultipliedScore, beatmapLevel, beatmapKey, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings);
+                    Plugin.Log.Info("AFTER LB DATA");
+
                     if (_currentLeaderboardRefreshId != refreshId) {
                         return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
                     }
+                    Plugin.Log.Info("AFTER CHECK");
+
                     SetRankedStatus(leaderboardData.leaderboardInfoMap.leaderboardInfo);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
@@ -344,6 +351,8 @@ namespace ScoreSaber.UI.Leaderboard {
                                 return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
                             }
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
+                            Plugin.Log.Info("AFTER TABLE ST SCORE DELAY");
+                            PatchLeaderboardTableView(tableView);
                             for (int i = 0; i < leaderboardTableScoreData.Count; i++) {
                                 _ImageHolders[i].setProfileImage(leaderboardData.scores[i].score.leaderboardPlayerInfo.profilePicture, i, cancellationToken.Token);
                             }
@@ -454,7 +463,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void CheckPage() {
 
-            if (leaderboardPage > 1) {
+            if (leaderboardPage > 0) {
                 _upButton.interactable = true;
             } else {
                 _upButton.interactable = false;
@@ -463,10 +472,10 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public void RefreshLeaderboard() {
 
-            if (!activated)
+            if (!activated || _currentBeatmapKey == null)
                 return;
             BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(_currentBeatmapKey.levelId);
-            RefreshLeaderboard(beatmapLevel, _currentBeatmapKey, leaderboardTableView, currentScoreScope, _loadingControl, Guid.NewGuid().ToString()).RunTask();
+            RefreshLeaderboard(beatmapLevel, _currentBeatmapKey, leaderboardTableView, currentScoreScope, loadingLB, Guid.NewGuid().ToString()).RunTask();
         }
 
         internal void ByeImages() {
@@ -494,8 +503,38 @@ namespace ScoreSaber.UI.Leaderboard {
             _replayDownloading = false;
         }
 
-        public void Initialize() {
+        private bool obtainedAnchor = false;
+        private Vector2 normalAnchor = Vector2.zero;
 
+        void PatchLeaderboardTableView(LeaderboardTableView tableView) {
+            int i = 0;
+            foreach (LeaderboardTableCell cell in tableView.GetComponentsInChildren<LeaderboardTableCell>()) {
+
+                LeaderboardTableCell tableCell = (LeaderboardTableCell)cell;
+
+                CellClicker cellClicker = _cellClickingHolders[i].cellClickerImage.gameObject.AddComponent<CellClicker>();
+                cellClicker.onClick = _infoButtons.InfoButtonClicked;
+                cellClicker.index = i;
+                cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
+
+                TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
+
+                if (!obtainedAnchor) {
+                    normalAnchor = _playerNameText.rectTransform.anchoredPosition;
+                    obtainedAnchor = true;
+                }
+
+                _playerNameText.richText = true;
+                Vector2 newPosition = new Vector2(normalAnchor.x + 2.5f, 0f);
+                _playerNameText.rectTransform.anchoredPosition = newPosition;
+                tableCell.showSeparator = true;
+                i++;
+            }
+        }
+
+        public void Initialize() {
+            _infoButtons = new EntryHolder();
+            _scoreDetailView = new ScoreDetailView();
             _scoreDetailView.showProfile += scoreDetailView_showProfile;
             _scoreDetailView.startReplay += scoreDetailView_startReplay;
             _playerService.LoginStatusChanged += playerService_LoginStatusChanged;
@@ -513,8 +552,88 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         public void OnLeaderboardSet(BeatmapKey beatmapKey) {
-            BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
-            RefreshLeaderboard(beatmapLevel, beatmapKey, leaderboardTableView, currentScoreScope, _loadingControl, Guid.NewGuid().ToString()).RunTask();
+            _currentBeatmapKey = beatmapKey;
+            try {
+                Plugin.Log.Notice("OnLeaderboardSet");
+                BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
+                Plugin.Log.Notice("Got beatmaplevel");
+                RefreshLeaderboard(beatmapLevel, beatmapKey, leaderboardTableView, currentScoreScope, loadingLB, Guid.NewGuid().ToString()).RunTask();
+            } catch(Exception ex) { Plugin.Log.Error(ex.Message); }
+        }
+
+
+        // probably a better place to put this
+        public class CellClicker : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {
+            public Action<int> onClick;
+            public int index;
+            public ImageView seperator;
+            public Vector3 originalScale;
+            private bool isScaled = false;
+
+            private Color origColour = new Color(1, 1, 1, 1);
+            private Color origColour0 = new Color(1, 1, 1, 0.2509804f);
+            private Color origColour1 = new Color(1, 1, 1, 0);
+
+            private void Start() {
+                originalScale = seperator.transform.localScale;
+            }
+
+            public void OnPointerClick(PointerEventData data) {
+                BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
+                onClick(index);
+            }
+
+            public void OnPointerEnter(PointerEventData eventData) {
+                if (!isScaled) {
+                    seperator.transform.localScale = originalScale * 1.8f;
+                    isScaled = true;
+                }
+
+                Color targetColor = Color.white;
+                Color targetColor0 = Color.white;
+                Color targetColor1 = new Color(1, 1, 1, 0);
+
+                float lerpDuration = 0.15f;
+
+                StopAllCoroutines();
+                StartCoroutine(LerpColors(seperator, seperator.color, targetColor, seperator.color0, targetColor0, seperator.color1, targetColor1, lerpDuration));
+            }
+
+            public void OnPointerExit(PointerEventData eventData) {
+                if (isScaled) {
+                    seperator.transform.localScale = originalScale;
+                    isScaled = false;
+                }
+
+                float lerpDuration = 0.05f;
+
+                StopAllCoroutines();
+                StartCoroutine(LerpColors(seperator, seperator.color, origColour, seperator.color0, origColour0, seperator.color1, origColour1, lerpDuration));
+            }
+
+
+            private IEnumerator LerpColors(ImageView target, Color startColor, Color endColor, Color startColor0, Color endColor0, Color startColor1, Color endColor1, float duration) {
+                float elapsedTime = 0f;
+                while (elapsedTime < duration) {
+                    float t = elapsedTime / duration;
+                    target.color = Color.Lerp(startColor, endColor, t);
+                    target.color0 = Color.Lerp(startColor0, endColor0, t);
+                    target.color1 = Color.Lerp(startColor1, endColor1, t);
+                    elapsedTime += Time.deltaTime;
+                    yield return null;
+                }
+                target.color = endColor;
+                target.color0 = endColor0;
+                target.color1 = endColor1;
+            }
+
+            private void OnDestroy() {
+                StopAllCoroutines();
+                onClick = null;
+                seperator.color = origColour;
+                seperator.color0 = origColour0;
+                seperator.color1 = origColour1;
+            }
         }
     }
 }
