@@ -24,7 +24,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         private ICoroutineStarter coroutineStarter;
 
-        internal Sprite nullSprite = BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
+        internal Sprite nullSprite => Utilities.FindSpriteInAssembly("ScoreSaber.Resources.blank.png");
 
         public ProfilePictureView(int index) {
             this.index = index;
@@ -44,9 +44,10 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         [UIAction("#post-parse")]
         public void Parsed() {
             profileImage.material = Plugin.NoGlowMatRound;
-            profileImage.sprite = nullSprite;
+            profileImage.sprite = Utilities.FindSpriteInAssembly("ScoreSaber.Resources.blank.png");
             profileImage.gameObject.SetActive(true);
             loadingIndicator.gameObject.SetActive(false);
+            Active(false);
         }
 
         public void setProfileImage(string url, int pos, CancellationToken cancellationToken) {
@@ -124,6 +125,12 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 loadingIndicator.gameObject.SetActive(false);
             }
         }
+
+        public void Active(bool state) {
+            if (profileImage != null) {
+                profileImage.gameObject.SetActive(state);
+            }
+        }
     }
 
     internal static class SpriteCache {
@@ -146,55 +153,71 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         }
     }
 
-    //internal class TweeningService {
-    //    [Inject] private TimeTweeningManager _tweeningManager;
-    //    private HashSet<Transform> activeRotationTweens = new HashSet<Transform>();
+    internal class TweeningService {
+        [Inject] private TimeTweeningManager _tweeningManager = null;
+        private HashSet<Transform> activeRotationTweens = new HashSet<Transform>();
 
-    //    public void RotateTransform(Transform transform, float rotationAmount, float time, Action callback = null) {
-    //        if (activeRotationTweens.Contains(transform)) return;
-    //        float startRotation = transform.rotation.eulerAngles.z;
-    //        float endRotation = startRotation + rotationAmount;
+        public void RotateTransform(Transform transform, float rotationAmount, float time, Action callback = null) {
+            if (activeRotationTweens.Contains(transform)) return;
+            float startRotation = transform.rotation.eulerAngles.z;
+            float endRotation = startRotation + rotationAmount;
 
-    //        Tween tween = new FloatTween(startRotation, endRotation, (float u) =>
-    //        {
-    //            transform.rotation = Quaternion.Euler(0f, 0f, u);
-    //        }, 0.1f, EaseType.Linear, 0f);
-    //        tween.onCompleted = () =>
-    //        {
-    //            callback?.Invoke();
-    //            activeRotationTweens.Remove(transform);
-    //        };
-    //        tween.onKilled = () =>
-    //        {
-    //            if (transform != null) transform.rotation = Quaternion.Euler(0f, 0f, endRotation);
-    //            callback?.Invoke();
-    //            activeRotationTweens.Remove(transform);
-    //        };
-    //        activeRotationTweens.Add(transform);
-    //        _tweeningManager.AddTween(tween, transform);
-    //    }
+            Tween tween = new FloatTween(startRotation, endRotation, (float u) => {
+                transform.rotation = Quaternion.Euler(0f, 0f, u);
+            }, 0.1f, EaseType.Linear, 0f);
+            tween.onCompleted = () => {
+                callback?.Invoke();
+                activeRotationTweens.Remove(transform);
+            };
+            tween.onKilled = () => {
+                if (transform != null) transform.rotation = Quaternion.Euler(0f, 0f, endRotation);
+                callback?.Invoke();
+                activeRotationTweens.Remove(transform);
+            };
+            activeRotationTweens.Add(transform);
+            _tweeningManager.AddTween(tween, transform);
+        }
 
-    //    public void FadeText(TextMeshProUGUI text, bool fadeIn, float time) {
-    //        float startAlpha = fadeIn ? 0f : 1f;
-    //        float endAlpha = fadeIn ? 1f : 0f;
+        public void FadeText(TextMeshProUGUI text, bool fadeIn, float time) {
+            float startAlpha = fadeIn ? 0f : 1f;
+            float endAlpha = fadeIn ? 1f : 0f;
 
-    //        Tween tween = new FloatTween(startAlpha, endAlpha, (float u) =>
-    //        {
-    //            text.color = text.color.ColorWithAlpha(u);
-    //        }, 0.4f, EaseType.Linear, 0f);
-    //        tween.onCompleted = () =>
-    //        {
-    //            if (text == null) return;
-    //            text.gameObject.SetActive(fadeIn);
-    //        };
-    //        tween.onKilled = () =>
-    //        {
-    //            if (text == null) return;
-    //            text.gameObject.SetActive(fadeIn);
-    //            text.color = text.color.ColorWithAlpha(endAlpha);
-    //        };
-    //        text.gameObject.SetActive(true);
-    //        _tweeningManager.AddTween(tween, text);
-    //    }
-    //}
+            Tween tween = new FloatTween(startAlpha, endAlpha, (float u) => {
+                text.color = text.color.ColorWithAlpha(u);
+            }, 0.4f, EaseType.Linear, 0f);
+            tween.onCompleted = () => {
+                if (text == null) return;
+                text.gameObject.SetActive(fadeIn);
+            };
+            tween.onKilled = () => {
+                if (text == null) return;
+                text.gameObject.SetActive(fadeIn);
+                text.color = text.color.ColorWithAlpha(endAlpha);
+            };
+            text.gameObject.SetActive(true);
+            _tweeningManager.AddTween(tween, text);
+        }
+
+        public void LerpColor(ImageView currentImageView, Color newColor) {
+
+            Tween tween = new ColorTween(currentImageView.color, newColor, (Color u) => {
+                currentImageView.color = u;
+                currentImageView.color0 = u;
+                currentImageView.color1 = u;
+            }, 0.3f, EaseType.Linear, 0f);
+            tween.onCompleted = () => {
+                if (currentImageView == null) return;
+                currentImageView.color = newColor;
+                currentImageView.color0 = newColor;
+                currentImageView.color1 = newColor;
+            };
+            tween.onKilled = () => {
+                if (currentImageView == null) return;
+                currentImageView.color = newColor;
+                currentImageView.color0 = newColor;
+                currentImageView.color1 = newColor;
+            };
+            _tweeningManager.AddTween(tween, currentImageView);
+        }
+    }
 }

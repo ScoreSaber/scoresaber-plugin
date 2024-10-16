@@ -1,6 +1,7 @@
 ﻿using HMUI;
 using LeaderboardCore.Managers;
 using LeaderboardCore.Models;
+using ScoreSaber.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private readonly CustomLeaderboardManager _manager;
         private readonly ScoreSaberLeaderboardViewController _leaderboardView;
+        private readonly PlayerService _playerService;
 
         public override bool ShowForLevel(BeatmapKey? selectedLevel) {
             if (selectedLevel.HasValue) {
@@ -23,11 +25,13 @@ namespace ScoreSaber.UI.Leaderboard {
         }
         protected override string leaderboardId => "ScoreSaber";
 
-        internal ScoreSaberLeaderboard(CustomLeaderboardManager customLeaderboardManager, PanelView panelView, ScoreSaberLeaderboardViewController leaderboardView) {
+        internal ScoreSaberLeaderboard(CustomLeaderboardManager customLeaderboardManager, PanelView panelView, ScoreSaberLeaderboardViewController leaderboardView, PlayerService playerService) {
             panelViewController = panelView;
             _leaderboardView = leaderboardView;
             _manager = customLeaderboardManager;
             _manager.Register(this);
+            _playerService = playerService;
+            _playerService.GetLocalPlayerInfo();
         }
 
         protected override ViewController panelViewController { get; }

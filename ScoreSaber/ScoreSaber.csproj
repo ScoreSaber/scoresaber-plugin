@@ -31,8 +31,11 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\blank.png" />
     <None Remove="Resources\carat.png" />
+    <None Remove="Resources\friend.png" />
     <None Remove="Resources\globe.png" />
+    <None Remove="Resources\link.png" />
     <None Remove="Resources\Player.png" />
     <None Remove="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
   </ItemGroup>
@@ -277,7 +280,10 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="Resources\carat.png" />
+    <EmbeddedResource Include="Resources\friend.png" />
     <EmbeddedResource Include="Resources\globe.png" />
+    <EmbeddedResource Include="Resources\blank.png" />
+    <EmbeddedResource Include="Resources\link.png" />
     <EmbeddedResource Include="Resources\Player.png" />
     <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
     <EmbeddedResource Include="UI\Main\Settings\ViewControllers\MainSettingsViewController.bsml" />

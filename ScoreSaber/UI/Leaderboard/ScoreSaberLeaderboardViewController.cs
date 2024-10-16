@@ -36,6 +36,8 @@ using UnityEngine.Diagnostics;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
+using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Button = UnityEngine.UI.Button;
 
 namespace ScoreSaber.UI.Leaderboard {
@@ -79,6 +81,12 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIComponent("headerText")]
         private readonly TextMeshProUGUI headerText;
 
+        [UIObject("headerSTATIC")]
+        private readonly GameObject headerSTATIC;
+
+        [UIComponent("headerTextSTATIC")]
+        private readonly TextMeshProUGUI headerTextSTATIC;
+
         [UIComponent("errorText")]
         private readonly TextMeshProUGUI _errorText;
 
@@ -106,8 +114,11 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIObject("loadingLB")]
         private readonly GameObject loadingLB;
 
-        [UIAction("OnPageUp")] private void UpButtonClicked() => DirectionalButtonClicked(false);
-        [UIAction("OnPageDown")] private void DownButtonClicked() => DirectionalButtonClicked(true);
+        [UIObject("starRatingBox")]
+        private readonly GameObject starRatingBox;
+
+        [UIAction("OnPageUp")] private void UpButtonClicked() => UpdatePageChanged(-1);
+        [UIAction("OnPageDown")] private void DownButtonClicked() => UpdatePageChanged(1);
 
 
         public bool activated { get; private set; }
@@ -115,9 +126,17 @@ namespace ScoreSaber.UI.Leaderboard {
 
         public ScoreSaberScoresScope currentScoreScope { get; set; }
 
-        private bool _replayDownloading;
+        private bool _replayDownloading = false;
         private string _currentLeaderboardRefreshId = string.Empty;
         private BeatmapKey _currentBeatmapKey;
+
+        Color yellow = new Color(250f / 255f, 221f / 255f, 45f / 255f);
+        Color green = new Color(63 / 255f, 191 / 255f, 100 / 255f);
+        Color grey = new Color(125f / 255f, 125f / 255f, 125f / 255f);
+        Color blue = new Color(62 / 255f, 152 / 255f, 237 / 255f);
+        Color pink = new Color(235 / 255f, 73 / 255f, 232 / 255f);
+        Color _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
+
 
         [Inject] private readonly PanelView _panelView;
         [Inject] private readonly SiraLog _log;
@@ -131,6 +150,7 @@ namespace ScoreSaber.UI.Leaderboard {
         [Inject] private readonly MaxScoreCache _maxScoreCache;
         [Inject] private readonly PlatformLeaderboardViewController _plvc;
         [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel;
+        [Inject] private readonly TweeningService _tweeningService;
 
         private void infoButtons_infoButtonClicked(int index) {
             if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
@@ -161,6 +181,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 case PlayerService.LoginStatus.Success:
                     _panelView.SetPromptSuccess(status, false, 3f);
                     _panelView.RankUpdater().RunTask();
+                    _ImageHolders.ForEach(holder => holder.Active(true));
                     RefreshLeaderboard();
                     break;
             }
@@ -196,7 +217,7 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        private ImageView _imgView;
+        private ImageView _headerBackground;
 
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
         internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
@@ -210,13 +231,51 @@ namespace ScoreSaber.UI.Leaderboard {
             Destroy(loadingContainer.Find("Text").gameObject);
             Destroy(loadingLB.transform.Find("RefreshContainer").gameObject);
             Destroy(loadingLB.transform.Find("DownloadingContainer").gameObject);
-            _imgView = myHeader.Background as ImageView;
-            Color color = new Color(255f / 255f, 222f / 255f, 24f / 255f);
-            _imgView.color = color;
-            _imgView.color0 = color;
-            _imgView.color1 = color;
-            ImageSkew(ref _imgView) = 0.18f;
-            ImageGradient(ref _imgView) = true;
+            _headerBackground = myHeader.Background as ImageView;
+
+            _headerBackground.color = grey;
+            _headerBackground.color0 = grey;
+            _headerBackground.color1 = grey;
+            ImageSkew(ref _headerBackground) = 0.18f;
+            ImageGradient(ref _headerBackground) = true;
+            CheckPage();
+        }
+
+        private void SetPanelStatus() {
+
+            bool ranked = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.ranked;
+            bool qualified = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.qualified;
+            bool loved = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.loved;
+
+
+            if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.stars != 0) {
+                starRatingBox.gameObject.SetActive(true);
+                headerText.text = $"<size=70%> </size>{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.stars.ToString().Replace(".", ". ")}<size=70%>★</size>";
+                headerText.richText = true;
+                headerSTATIC.gameObject.SetActive(false);
+            } else {
+                starRatingBox.gameObject.SetActive(false);
+                headerSTATIC.gameObject.SetActive(true);
+            }
+           
+            if(!ranked && !qualified && !loved) {
+                _tweeningService.LerpColor(_headerBackground, grey);
+                headerTextSTATIC.text = "UNRANKED";
+            }
+
+            if (ranked) {
+                _tweeningService.LerpColor(_headerBackground, yellow);
+            }
+
+            if (qualified) {
+                _tweeningService.LerpColor(_headerBackground, _scoreSaberBlue);
+                headerTextSTATIC.text = "QUALIFIED";
+            }
+
+            if (loved) {
+                _tweeningService.LerpColor(_headerBackground, pink);
+                headerTextSTATIC.text = "LOVED";
+            }
         }
 
         [UIAction("OpenLeaderboardPage")]
@@ -225,15 +284,20 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         [UIAction("SettingsClicked")]
-        internal void OpenBugPage() => ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
+        internal void OpenSettingsPage() => ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
 
+        [UIAction("clicked-status")]
+        protected void ClickedStatus() {
+
+            _panelView.statusWasSelected?.Invoke();
+        }
 
         [UIAction("OnIconSelected")]
         private void OnIconSelected(SegmentedControl segmentedControl, int index) {
             currentScoreScope = (ScoreSaberScoresScope)index;
-            leaderboardPage = 0;
-            CheckPage();
+            leaderboardPage = 1;
             OnLeaderboardSet(_currentBeatmapKey);
+            CheckPage();
         }
 
         [UIValue("leaderboardIcons")]
@@ -244,8 +308,8 @@ namespace ScoreSaber.UI.Leaderboard {
         {
             new IconSegmentedControl.DataItem(Utilities.FindSpriteInAssembly("ScoreSaber.Resources.globe.png"), "Global"),
             new IconSegmentedControl.DataItem(Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Player.png"), "Around you"),
-            new IconSegmentedControl.DataItem(Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Player.png"), "Friends"),
-            new IconSegmentedControl.DataItem(Utilities.FindSpriteInAssembly("ScoreSaber.Resources.country.png"), "Country")
+            new IconSegmentedControl.DataItem(Utilities.FindSpriteInAssembly("ScoreSaber.Resources.friend.png"), "Friends"),
+            new IconSegmentedControl.DataItem(Utilities.FindSpriteInAssembly("ScoreSaber.Resources.country.png"), "Area")
         };
 #pragma warning restore CS0618 // Type or member is obsolete
             }
@@ -269,9 +333,9 @@ namespace ScoreSaber.UI.Leaderboard {
                 };
 
                 _container.Inject(_profileDetailView);
-                _playerService.GetLocalPlayerInfo();
                 _ImageHolders.ForEach(holder => holder.ClearSprite());
                 activated = true;
+                OnIconSelected(null, 0);
             }
             Transform header = _plvc.transform.Find("HeaderPanel");
             _plvc.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
@@ -289,11 +353,13 @@ namespace ScoreSaber.UI.Leaderboard {
         private CancellationTokenSource cancellationToken;
 
         public async Task RefreshLeaderboard(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LeaderboardTableView tableView, ScoreSaberScoresScope scope, GameObject loadingControl, string refreshId) {
-            Plugin.Log.Info("begin refresh leaderboard");
             try {
+                if (loadingControl == null || tableView == null) return;
                 loadingControl.SetActive(false);
                 _errorText.gameObject.SetActive(false);
                 tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
+                SetClickersOff();
+                headerTextSTATIC.text = "";
                 _currentLeaderboardRefreshId = refreshId;
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
@@ -301,14 +367,13 @@ namespace ScoreSaber.UI.Leaderboard {
                 if (scope == ScoreSaberScoresScope.Player) {
                     _upButton.interactable = false;
                     _downButton.interactable = false;
-                } else {
-                    _upButton.interactable = true;
-                    _downButton.interactable = true;
                 }
 
                 ByeImages();
                 _errorText.gameObject.SetActive(false);
                 loadingControl.SetActive(true);
+                starRatingBox.gameObject.SetActive(false);
+                headerSTATIC.gameObject.SetActive(true);
 
                 if (cancellationToken != null) {
                     cancellationToken.Cancel();
@@ -317,7 +382,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 cancellationToken = new CancellationTokenSource();
 
                 if (_playerService.loginStatus == PlayerService.LoginStatus.Error) {
-                    SetErrorState(tableView, loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
+                    SetErrorState(tableView, ref loadingControl, null, null, "ScoreSaber authentication failed, please restart Beat Saber", false);
                     ByeImages();
                     return;
                 }
@@ -329,31 +394,30 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
-                Plugin.Log.Info("AFTER TASK DELAY");
                 if (_currentLeaderboardRefreshId == refreshId) {
                     int maxMultipliedScore = await _maxScoreCache.GetMaxScore(beatmapLevel, beatmapKey);
                     LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(maxMultipliedScore, beatmapLevel, beatmapKey, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings);
-                    Plugin.Log.Info("AFTER LB DATA");
 
                     if (_currentLeaderboardRefreshId != refreshId) {
                         return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
                     }
-                    Plugin.Log.Info("AFTER CHECK");
 
-                    SetRankedStatus(leaderboardData.leaderboardInfoMap.leaderboardInfo);
+                    SetPanelStatus();
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
                         if (scope == ScoreSaberScoresScope.Player && playerScoreIndex == -1) {
-                            SetErrorState(tableView, loadingControl, null, null, "You haven't set a score on this leaderboard");
+                            SetErrorState(tableView, ref loadingControl, null, null, "You haven't set a score on this leaderboard");
                         } else {
                             if (_currentLeaderboardRefreshId != refreshId) {
                                 return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
                             }
                             tableView.SetScores(leaderboardTableScoreData, playerScoreIndex);
-                            Plugin.Log.Info("AFTER TABLE ST SCORE DELAY");
-                            PatchLeaderboardTableView(tableView);
+
                             for (int i = 0; i < leaderboardTableScoreData.Count; i++) {
+                                if (_currentLeaderboardRefreshId != refreshId) {
+                                    return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
+                                }
                                 _ImageHolders[i].setProfileImage(leaderboardData.scores[i].score.leaderboardPlayerInfo.profilePicture, i, cancellationToken.Token);
                             }
                             loadingControl.gameObject.SetActive(false);
@@ -361,42 +425,26 @@ namespace ScoreSaber.UI.Leaderboard {
                             if (_uploadDaemon.uploading) {
                                 _panelView.DismissPrompt();
                             }
+                            CheckPage();
                         }
                     } else {
                         if (leaderboardPage > 1) {
-                            SetErrorState(tableView, loadingControl, null, null, "No scores on this page");
+                            SetErrorState(tableView, ref loadingControl, null, null, "No scores on this page");
                         } else {
-                            SetErrorState(tableView, loadingControl, null, null, "No scores on this leaderboard, be the first!");
+                            SetErrorState(tableView, ref loadingControl, null, null, "No scores on this leaderboard, be the first!");
                         }
                         ByeImages();
                     }
+                    PatchLeaderboardTableView(tableView);
                 }
             } catch (HttpErrorException httpError) {
-                SetErrorState(tableView, loadingControl, httpError);
+                SetErrorState(tableView, ref loadingControl, httpError);
             } catch (Exception exception) {
-                SetErrorState(tableView, loadingControl, null, exception);
+                SetErrorState(tableView, ref loadingControl, null, exception);
             }
         }
 
-        private void SetRankedStatus(LeaderboardInfo leaderboardInfo) {
-            if (leaderboardInfo.ranked) {
-                if (leaderboardInfo.positiveModifiers) {
-                    _panelView.SetRankedStatus("Ranked (DA = +0.02, GN +0.04)");
-                } else {
-                    _panelView.SetRankedStatus("Ranked (modifiers disabled)");
-                }
-                return;
-            }
-            if (leaderboardInfo.qualified) {
-                _panelView.SetRankedStatus("Qualified");
-                return;
-            }
-            if (leaderboardInfo.loved) {
-                _panelView.SetRankedStatus("Loved");
-                return;
-            }
-            _panelView.SetRankedStatus("Unranked");
-        }
+
 
         public int GetPlayerScoreIndex(LeaderboardMap leaderboardMap) {
             for (int i = 0; i < leaderboardMap.scores.Length; i++) {
@@ -412,62 +460,55 @@ namespace ScoreSaber.UI.Leaderboard {
             _scoreDetailView.AllowReplayWatching(value);
         }
 
-        private void SetErrorState(LeaderboardTableView tableView, GameObject loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
-
-            if (httpErrorException != null) {
-                if (httpErrorException.isNetworkError) {
-                    errorText = "Failed to load leaderboard due to a network error, score won't upload";
-                    _leaderboardService.currentLoadedLeaderboard = null;
-                }
-                if (httpErrorException.isScoreSaberError) {
-                    errorText = httpErrorException.scoreSaberError.errorMessage;
-                    if (errorText == "Leaderboard not found") {
+        private void SetErrorState(LeaderboardTableView tableView, ref GameObject loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
+            try {
+                SetClickersOff();
+                if (httpErrorException != null) {
+                    if (httpErrorException.isNetworkError) {
+                        errorText = "Failed to load leaderboard due to a network error, score won't upload";
                         _leaderboardService.currentLoadedLeaderboard = null;
-                        _panelView.SetRankedStatus("");
+                    }
+                    if (httpErrorException.isScoreSaberError) {
+                        errorText = httpErrorException.scoreSaberError.errorMessage;
+                        if (errorText == "Leaderboard not found") {
+                            _leaderboardService.currentLoadedLeaderboard = null;
+                        }
+                        if (errorText == "Player hasn't set a score on this leaderboard") {
+                            errorText = "You haven't set a score on this map!";
+                        }
                     }
                 }
-            }
-            if (exception != null) {
-                Plugin.Log.Error(exception.ToString());
-            }
-            loadingControl.gameObject.SetActive(false);
-            _errorText.gameObject.SetActive(true);
-            _errorText.text = errorText;
-            tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
-            ByeImages();
-        }
-
-        public void DirectionalButtonClicked(bool down) {
-
-            if (down) {
-                leaderboardPage++;
-            } else {
-                leaderboardPage--;
-            }
-            RefreshLeaderboard();
-            CheckPage();
-        }
-
-        public void ChangePageButtonsEnabledState(bool state) {
-
-            if (state) {
-                if (leaderboardPage > 1) {
-                    _upButton.interactable = state;
+                if (exception != null) {
+                    Plugin.Log.Error(exception.ToString());
                 }
-                _downButton.interactable = state;
-            } else {
-                _upButton.interactable = state;
-                _downButton.interactable = state;
+                loadingControl.gameObject.SetActive(false);
+                _errorText.gameObject.SetActive(true);
+                _errorText.text = errorText;
+                tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
+                ByeImages();
+                SetClickersOff();
+            } catch {
+
             }
         }
 
         public void CheckPage() {
-
-            if (leaderboardPage > 0) {
-                _upButton.interactable = true;
-            } else {
+            if(_leaderboardService.currentLoadedLeaderboard == null || currentScoreScope == ScoreSaberScoresScope.Player) {
                 _upButton.interactable = false;
+                _downButton.interactable = false;
+                return;
             }
+            var totalPages = Mathf.CeilToInt((float)_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.plays / 10);
+            _upButton.interactable = leaderboardPage > 1;
+            _downButton.interactable = leaderboardPage < totalPages;
+        }
+
+        private void UpdatePageChanged(int inc) {
+            if (_leaderboardService.currentLoadedLeaderboard == null) return;
+            var totalPages = Mathf.CeilToInt((float)_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.plays / 10);
+            leaderboardPage = Mathf.Clamp(leaderboardPage + inc, 0, totalPages - 1);
+            RefreshLeaderboard();
+            CheckPage();
         }
 
         public void RefreshLeaderboard() {
@@ -503,34 +544,59 @@ namespace ScoreSaber.UI.Leaderboard {
             _replayDownloading = false;
         }
 
+        private void SetClickersOff() {
+            foreach (var holder in _cellClickingHolders) {
+                var x = holder.cellClickerImage.gameObject.GetComponent<CellClicker>();
+                if (x != null) {
+                    x.clickable = false;
+                }
+            }
+        }
+
         private bool obtainedAnchor = false;
         private Vector2 normalAnchor = Vector2.zero;
 
         void PatchLeaderboardTableView(LeaderboardTableView tableView) {
-            int i = 0;
-            foreach (LeaderboardTableCell cell in tableView.GetComponentsInChildren<LeaderboardTableCell>()) {
+            LeaderboardTableCell[] cells = tableView.GetComponentsInChildren<LeaderboardTableCell>();
 
-                LeaderboardTableCell tableCell = (LeaderboardTableCell)cell;
+            for (int i = 0; i < cells.Length; i++) {
+                LeaderboardTableCell tableCell = cells[i];
 
-                CellClicker cellClicker = _cellClickingHolders[i].cellClickerImage.gameObject.AddComponent<CellClicker>();
-                cellClicker.onClick = _infoButtons.InfoButtonClicked;
-                cellClicker.index = i;
-                cellClicker.seperator = tableCell.GetField<Image, LeaderboardTableCell>("_separatorImage") as ImageView;
+                int cellIdx = tableCell.idx;
 
-                TextMeshProUGUI _playerNameText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText");
+                if (cellIdx < _cellClickingHolders.Count) {
+                    var clickerHolder = _cellClickingHolders[cellIdx];
 
-                if (!obtainedAnchor) {
-                    normalAnchor = _playerNameText.rectTransform.anchoredPosition;
-                    obtainedAnchor = true;
+                    CellClicker cellClicker = clickerHolder.cellClickerImage.gameObject.GetComponent<CellClicker>();
+                    if (cellClicker == null) {
+                        cellClicker = clickerHolder.cellClickerImage.gameObject.AddComponent<CellClicker>();
+                    }
+
+                    cellClicker.onClick = _infoButtons.InfoButtonClicked;
+                    cellClicker.index = cellIdx;
+                    cellClicker.seperator = (ImageView)tableCell._separatorImage;
+                    cellClicker.clickable = true;
+
+                    TextMeshProUGUI _playerNameText = tableCell._playerNameText;
+
+                    _playerNameText.richText = true;
+
+                    if (!obtainedAnchor) {
+                        normalAnchor = _playerNameText.rectTransform.anchoredPosition;
+                        obtainedAnchor = true;
+                    }
+                    Vector2 newPosition = new Vector2(normalAnchor.x + 3f, normalAnchor.y);
+                    _playerNameText.rectTransform.anchoredPosition = newPosition;
+
+                    tableCell.showSeparator = true;
                 }
-
-                _playerNameText.richText = true;
-                Vector2 newPosition = new Vector2(normalAnchor.x + 2.5f, 0f);
-                _playerNameText.rectTransform.anchoredPosition = newPosition;
-                tableCell.showSeparator = true;
-                i++;
             }
+
+            _downButton.interactable = cells.Length >= 9;
         }
+
+
+
 
         public void Initialize() {
             _infoButtons = new EntryHolder();
@@ -554,9 +620,7 @@ namespace ScoreSaber.UI.Leaderboard {
         public void OnLeaderboardSet(BeatmapKey beatmapKey) {
             _currentBeatmapKey = beatmapKey;
             try {
-                Plugin.Log.Notice("OnLeaderboardSet");
                 BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
-                Plugin.Log.Notice("Got beatmaplevel");
                 RefreshLeaderboard(beatmapLevel, beatmapKey, leaderboardTableView, currentScoreScope, loadingLB, Guid.NewGuid().ToString()).RunTask();
             } catch(Exception ex) { Plugin.Log.Error(ex.Message); }
         }
@@ -567,23 +631,26 @@ namespace ScoreSaber.UI.Leaderboard {
             public Action<int> onClick;
             public int index;
             public ImageView seperator;
-            public Vector3 originalScale;
+            public Vector3 originalScale = new Vector3(1, 1, 1);
             private bool isScaled = false;
 
             private Color origColour = new Color(1, 1, 1, 1);
             private Color origColour0 = new Color(1, 1, 1, 0.2509804f);
             private Color origColour1 = new Color(1, 1, 1, 0);
 
+            public bool clickable = false;
             private void Start() {
-                originalScale = seperator.transform.localScale;
+                seperator.transform.localScale = originalScale;
             }
 
             public void OnPointerClick(PointerEventData data) {
+                if(!clickable) return;
                 BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
                 onClick(index);
             }
 
             public void OnPointerEnter(PointerEventData eventData) {
+                if (!clickable) return;
                 if (!isScaled) {
                     seperator.transform.localScale = originalScale * 1.8f;
                     isScaled = true;
@@ -600,6 +667,7 @@ namespace ScoreSaber.UI.Leaderboard {
             }
 
             public void OnPointerExit(PointerEventData eventData) {
+                if(!clickable) return;
                 if (isScaled) {
                     seperator.transform.localScale = originalScale;
                     isScaled = false;
