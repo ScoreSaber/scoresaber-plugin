@@ -5,13 +5,13 @@ on:
 
 jobs:
   Build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
     - name: Setup dotnet
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
       
@@ -32,10 +32,17 @@ jobs:
         sparse-checkout: |
           Versions/${{ steps.read-json.outputs.game_version }}
         sparse-checkout-cone-mode: false
-     
+        
+    - name: Verify that stripped dlls actually exist
+      run: |
+        if [ -z "$(ls -A Stripped/Versions/${{ steps.read-json.outputs.game_version }})" ]; then
+          echo "Error: Stripped dependencies folder is empty!"
+          exit 1
+        fi
+        
     - name: Move stripped dlls to refs
       run: mv Stripped/Versions/${{ steps.read-json.outputs.game_version }} Refs
-    
+      
     - name: Acquire mod references
       uses: Goobwabber/download-beatmods-deps@1.2
       with:
