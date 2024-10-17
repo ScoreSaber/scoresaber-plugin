@@ -5,6 +5,7 @@ using ScoreSaber.Core.Data.Models;
 using System;
 using System.Linq;
 using ScoreSaber.UI.Leaderboard;
+using System.Collections.Generic;
 
 namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
@@ -25,6 +26,7 @@ namespace ScoreSaber.Core.Services {
 
             Plugin.Log.Debug($"Current leaderboard set to: {beatmapKey.levelId}:{beatmapLevel.songName}");
             currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, beatmapLevel, beatmapKey, maxMultipliedScore);
+            AddLeaderboardInfoMapToCache(currentLoadedLeaderboard.leaderboardInfoMap.beatmapKey, currentLoadedLeaderboard.leaderboardInfoMap);
             return currentLoadedLeaderboard;
         }
 
@@ -86,6 +88,32 @@ namespace ScoreSaber.Core.Services {
             }
 
             return url;
+        }
+
+        internal Dictionary<BeatmapKey, LeaderboardInfoMap> cachedLeaderboardInfoMaps = new Dictionary<BeatmapKey, LeaderboardInfoMap>();
+        private int MaxLBInfoCacheSize = 100;
+        internal Queue<BeatmapKey> LBInfoCacheQueue = new Queue<BeatmapKey>();
+        internal void MaintainLeaderboardInfoMapCache() {
+            while (cachedLeaderboardInfoMaps.Count > MaxLBInfoCacheSize) {
+                BeatmapKey oldestUrl = LBInfoCacheQueue.Dequeue();
+                cachedLeaderboardInfoMaps.Remove(oldestUrl);
+            }
+        }
+
+        internal void AddLeaderboardInfoMapToCache(BeatmapKey url, LeaderboardInfoMap LeaderboardInfoMap) {
+            if (cachedLeaderboardInfoMaps.ContainsKey(url)) {
+                return;
+            }
+            cachedLeaderboardInfoMaps.Add(url, LeaderboardInfoMap);
+            LBInfoCacheQueue.Enqueue(url);
+            MaintainLeaderboardInfoMapCache();
+        }
+
+        internal LeaderboardInfoMap GetLeaderboardInfoMapFromCache(BeatmapKey url) {
+            if (cachedLeaderboardInfoMaps.ContainsKey(url)) {
+                return cachedLeaderboardInfoMaps[url];
+            }
+            return null;
         }
     }
 }

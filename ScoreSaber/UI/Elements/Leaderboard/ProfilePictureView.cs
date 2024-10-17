@@ -198,13 +198,13 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             _tweeningManager.AddTween(tween, text);
         }
 
-        public void LerpColor(ImageView currentImageView, Color newColor) {
+        public void LerpColor(ImageView currentImageView, Color newColor, float time = 0.0f) {
 
             Tween tween = new ColorTween(currentImageView.color, newColor, (Color u) => {
                 currentImageView.color = u;
                 currentImageView.color0 = u;
                 currentImageView.color1 = u;
-            }, 0.3f, EaseType.Linear, 0f);
+            }, time == 0.0f ? 0.3f : time, EaseType.Linear, 0f);
             tween.onCompleted = () => {
                 if (currentImageView == null) return;
                 currentImageView.color = newColor;

@@ -241,16 +241,20 @@ namespace ScoreSaber.UI.Leaderboard {
             CheckPage();
         }
 
-        private void SetPanelStatus() {
+        private void SetPanelStatus(LeaderboardInfoMap leaderboardInfoMap = null) {
+            bool fromCached = true;
+            if(leaderboardInfoMap == null) {
+                leaderboardInfoMap = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap;
+                fromCached = false;
+            }
 
-            bool ranked = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.ranked;
-            bool qualified = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.qualified;
-            bool loved = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.loved;
+            bool ranked = leaderboardInfoMap.leaderboardInfo.ranked;
+            bool qualified = leaderboardInfoMap.leaderboardInfo.qualified;
+            bool loved = leaderboardInfoMap.leaderboardInfo.loved;
 
-
-            if (_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.stars != 0) {
+            if (leaderboardInfoMap.leaderboardInfo.stars != 0) {
                 starRatingBox.gameObject.SetActive(true);
-                headerText.text = $"<size=70%> </size>{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.stars.ToString().Replace(".", ". ")}<size=70%>★</size>";
+                headerText.text = $"<size=70%> </size>{leaderboardInfoMap.leaderboardInfo.stars.ToString().Replace(".", ". ")}<size=70%>★</size>";
                 headerText.richText = true;
                 headerSTATIC.gameObject.SetActive(false);
             } else {
@@ -261,6 +265,9 @@ namespace ScoreSaber.UI.Leaderboard {
             if(!ranked && !qualified && !loved) {
                 _tweeningService.LerpColor(_headerBackground, grey);
                 headerTextSTATIC.text = "UNRANKED";
+                if (!fromCached) {
+                    _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                }
             }
 
             if (ranked) {
@@ -270,11 +277,17 @@ namespace ScoreSaber.UI.Leaderboard {
             if (qualified) {
                 _tweeningService.LerpColor(_headerBackground, _scoreSaberBlue);
                 headerTextSTATIC.text = "QUALIFIED";
+                if (!fromCached) {
+                    _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                }
             }
 
             if (loved) {
                 _tweeningService.LerpColor(_headerBackground, pink);
                 headerTextSTATIC.text = "LOVED";
+                if (!fromCached) {
+                    _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                }
             }
         }
 
@@ -355,6 +368,7 @@ namespace ScoreSaber.UI.Leaderboard {
         public async Task RefreshLeaderboard(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LeaderboardTableView tableView, ScoreSaberScoresScope scope, GameObject loadingControl, string refreshId) {
             try {
                 if (loadingControl == null || tableView == null) return;
+                bool setPanelStatusFromCache = false;
                 loadingControl.SetActive(false);
                 _errorText.gameObject.SetActive(false);
                 tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
@@ -375,6 +389,13 @@ namespace ScoreSaber.UI.Leaderboard {
                 starRatingBox.gameObject.SetActive(false);
                 headerSTATIC.gameObject.SetActive(true);
 
+                if(_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey) != null) {
+                    SetPanelStatus(_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey));
+                    setPanelStatusFromCache = true;
+                } else {
+                    _tweeningService.LerpColor(_headerBackground, grey, 0.1f);
+                }
+
                 if (cancellationToken != null) {
                     cancellationToken.Cancel();
                     cancellationToken.Dispose();
@@ -391,7 +412,6 @@ namespace ScoreSaber.UI.Leaderboard {
                     return;
                 }
 
-
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
                 if (_currentLeaderboardRefreshId == refreshId) {
@@ -401,8 +421,9 @@ namespace ScoreSaber.UI.Leaderboard {
                     if (_currentLeaderboardRefreshId != refreshId) {
                         return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
                     }
-
-                    SetPanelStatus();
+                    if (!setPanelStatusFromCache) {
+                        SetPanelStatus();
+                    }
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
@@ -578,6 +599,8 @@ namespace ScoreSaber.UI.Leaderboard {
                     cellClicker.clickable = true;
 
                     TextMeshProUGUI _playerNameText = tableCell._playerNameText;
+                    TextMeshProUGUI _scoreText = tableCell._scoreText;
+                    TextMeshProUGUI _rankText = tableCell._rankText;
 
                     _playerNameText.richText = true;
 
@@ -589,6 +612,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     _playerNameText.rectTransform.anchoredPosition = newPosition;
 
                     tableCell.showSeparator = true;
+                    _tweeningService.FadeText(_playerNameText, true, 0.3f);
                 }
             }
 
@@ -623,6 +647,27 @@ namespace ScoreSaber.UI.Leaderboard {
                 BeatmapLevel beatmapLevel = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
                 RefreshLeaderboard(beatmapLevel, beatmapKey, leaderboardTableView, currentScoreScope, loadingLB, Guid.NewGuid().ToString()).RunTask();
             } catch(Exception ex) { Plugin.Log.Error(ex.Message); }
+        }
+
+        internal static class BeatmapDataCache {
+            internal static Dictionary<string, Sprite> cachedSprites = new Dictionary<string, Sprite>();
+            private static int MaxSpriteCacheSize = 150;
+            internal static Queue<string> spriteCacheQueue = new Queue<string>();
+            internal static void MaintainSpriteCache() {
+                while (cachedSprites.Count > MaxSpriteCacheSize) {
+                    string oldestUrl = spriteCacheQueue.Dequeue();
+                    cachedSprites.Remove(oldestUrl);
+                    
+                }
+            }
+
+            internal static void AddSpriteToCache(string url, Sprite sprite) {
+                if (cachedSprites.ContainsKey(url)) {
+                    return;
+                }
+                cachedSprites.Add(url, sprite);
+                spriteCacheQueue.Enqueue(url);
+            }
         }
 
 
