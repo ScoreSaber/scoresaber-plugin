@@ -10,12 +10,12 @@
 		<vertical pref-width="0.5" pref-height="10">
 			<image id="separator" src="ScoreSaber.Resources.pixel.png" pref-width="0.5" pref-height="10" size-delta-x="0.5" size-delta-y="10" />
 		</vertical>
-		<vertical active="~is-loaded" pref-width="70" pref-height="10" spacing="-1">
+		<vertical active="~is-loaded" pref-width="60" pref-height="10" spacing="-1">
 			<clickable-text text="~global-leaderboard-ranking" on-click="clicked-ranking" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" />
 			<text text="~country-leaderboard-ranking" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left"/>
 		</vertical>
-		<horizontal active="~is-loading" pref-width="70" pref-height="10">
-			<vertical pref-width="10" pref-height="10">
+		<horizontal active="~is-loading" pref-width="60" pref-height="10">
+			<vertical pref-width="60" pref-height="10">
 				<loading-indicator preserve-aspect="true" />
 			</vertical>
 		</horizontal>
