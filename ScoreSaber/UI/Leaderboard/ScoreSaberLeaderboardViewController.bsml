@@ -57,7 +57,7 @@
 				   pref-height="9"
 				   on-click="OnPageDown"/>
 
-		<clickable-image size-delta-x="6" size-delta-y="6" anchor-pos-y="-11" anchor-pos-x="0" id='linkIcon' src="#SettingsIcon" on-click='SettingsClicked' hover-hint='Open the ScoreSaber settings'/>
+		<clickable-image size-delta-x="6" size-delta-y="6" anchor-pos-y="-11" anchor-pos-x="0" id='infoIcon' src="ScoreSaber.Resources.info.png" on-click='MapInfoClicked' hover-hint='Open the map info modal'/>
 	</bg>
 
 	<!-- Leaderboard table -->
@@ -114,6 +114,47 @@
 					</vertical>
 				</macro.as-host>
 			</modal>
+
+			<!-- map info modal -->
+			<modal id="map-info-modal-root" show-event="present-map-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="90" size-delta-y="50">
+				<macro.as-host host="map-info-view">
+					<vertical child-control-height="false" spacing="1" pref-height="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#69696999">
+						<horizontal id="map-info-top" bg="round-rect-panel" bg-color="#555EBC" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" anchor-pos-y="1" pref-width="90" size-delta-x="90">
+							<horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" spacing="2" child-align="MiddleCenter">
+								<clickable-text id="map-name-text" text="Loading..." align="Center" anchor-pos-y="20" font-size="5" size-delta-y="6" size-delta-x="45" overflow-mode="Overflow" on-click="map-info-url-click" hover-hint="Opens in browser" />
+							</horizontal>
+						</horizontal>
+						<horizontal id="map-info-set" pref-width="90" pref-height="40" spacing="2">
+							<vertical horizontal-fit="PreferredSize" pref-width="35">
+								<vertical pad-left="2" pref-width="35" child-expand-height="true">
+									<img id="map-info-picture" preferred-height="20" preferred-width="20" preserve-aspect="true" />
+								</vertical>
+								<text id="map-author-text" text="Loading..." align="Center" word-wrapping="true"/>
+							</vertical>
+							<vertical pref-width=".75" pref-height="40">
+								<img id="map-info-line-border" src="ScoreSaber.Resources.pixel.png" size-delta-x=".75" size-delta-y="45" />
+							</vertical>
+							<vertical pref-width="40" pref-height="45" pad="2">
+								<vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" size-delta-x="50" size-delta-y="45" >
+									<vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
+										<text id="map-upload-date-text" text="Upload Date:"  align="Left" size-delta-y="4" />
+									</vertical>
+									<vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
+										<text id="map-status-date-text" text="Ranking Date:" align="Left" size-delta-y="4" />
+									</vertical>
+									<vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
+										<text id="map-plays-text" text="Plays:" align="Left" size-delta-y="4" />
+									</vertical>
+								</vertical>
+							</vertical>
+						</horizontal>
+						<horizontal id="map-info-set-loading">
+							<loading-indicator preserve-aspect="true"/>
+						</horizontal>
+					</vertical>
+				</macro.as-host>
+			</modal>
+			
 		</leaderboard>
 	</vertical>
 	
@@ -122,7 +163,7 @@
 		<macro.for-each hosts="imageHolders">
 			<horizontal child-expand-height="true" child-align="MiddleCenter">
 				<stack>
-					<image id="profileImage" src="ScoreSaber.Resources.pixel.png" pref-width="5" pref-height="5" preserve-aspect="true"/>
+					<image id="profileImage" src="ScoreSaber.Resources.blank.png" pref-width="5" pref-height="5" preserve-aspect="true"/>
 					<loading-indicator id="profileloading" pref-width="4" pref-height="4" active="false" preserve-aspect="true"/>
 				</stack>
 			</horizontal>

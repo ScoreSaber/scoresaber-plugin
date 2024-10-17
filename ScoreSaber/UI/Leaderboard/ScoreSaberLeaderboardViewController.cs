@@ -117,6 +117,12 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIObject("starRatingBox")]
         private readonly GameObject starRatingBox;
 
+        [UIValue("map-info-view")]
+        protected MapInfoView _mapInfoView = null;
+
+        [UIComponent("infoIcon")]
+        protected readonly ClickableImage _infoIcon;
+
         [UIAction("OnPageUp")] private void UpButtonClicked() => UpdatePageChanged(-1);
         [UIAction("OnPageDown")] private void DownButtonClicked() => UpdatePageChanged(1);
 
@@ -181,7 +187,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 case PlayerService.LoginStatus.Success:
                     _panelView.SetPromptSuccess(status, false, 3f);
                     _panelView.RankUpdater().RunTask();
-                    _ImageHolders.ForEach(holder => holder.Active(true));
+                    _ImageHolders.ForEach(holder => holder.ClearSprite());
                     RefreshLeaderboard();
                     break;
             }
@@ -239,6 +245,7 @@ namespace ScoreSaber.UI.Leaderboard {
             ImageSkew(ref _headerBackground) = 0.18f;
             ImageGradient(ref _headerBackground) = true;
             CheckPage();
+            _ImageHolders.ForEach(holder => holder.ClearSprite());
         }
 
         private void SetPanelStatus(LeaderboardInfoMap leaderboardInfoMap = null) {
@@ -303,8 +310,10 @@ namespace ScoreSaber.UI.Leaderboard {
             Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
         }
 
-        [UIAction("SettingsClicked")]
-        internal void OpenSettingsPage() => ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
+        [UIAction("MapInfoClicked")]
+        internal void MapInfoClicked() {
+            _parserParams.EmitEvent("present-map-info");
+        }
 
         [UIAction("clicked-status")]
         protected void ClickedStatus() {
@@ -395,8 +404,12 @@ namespace ScoreSaber.UI.Leaderboard {
                 loadingControl.SetActive(true);
                 starRatingBox.gameObject.SetActive(false);
                 headerSTATIC.gameObject.SetActive(true);
+                _mapInfoView.ResetName();
+                _mapInfoView.mapInfoSetLoading.gameObject.SetActive(true);
+                _mapInfoView.mapInfoSet.SetActive(false);
+                _infoIcon.gameObject.SetActive(false);
 
-                if(_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey) != null) {
+                if (_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey) != null) {
                     SetPanelStatus(_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey));
                     setPanelStatusFromCache = true;
                 } else {
@@ -438,6 +451,9 @@ namespace ScoreSaber.UI.Leaderboard {
                     if (!setPanelStatusFromCache) {
                         SetPanelStatus();
                     }
+                    _mapInfoView._currentMap = beatmapLevel;
+                    _mapInfoView.SetScoreInfo(leaderboardData.leaderboardInfoMap.leaderboardInfo);
+                    _infoIcon.gameObject.SetActive(true);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {
@@ -639,6 +655,7 @@ namespace ScoreSaber.UI.Leaderboard {
         public void Initialize() {
             _infoButtons = new EntryHolder();
             _scoreDetailView = new ScoreDetailView();
+            _mapInfoView = new MapInfoView();
             _scoreDetailView.showProfile += scoreDetailView_showProfile;
             _scoreDetailView.startReplay += scoreDetailView_startReplay;
             _playerService.LoginStatusChanged += playerService_LoginStatusChanged;

@@ -24,7 +24,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         private ICoroutineStarter coroutineStarter;
 
-        internal Sprite nullSprite => Utilities.FindSpriteInAssembly("ScoreSaber.Resources.blank.png");
+        internal Sprite nullSprite => Utilities.ImageResources.BlankSprite;
 
         public ProfilePictureView(int index) {
             this.index = index;
@@ -43,11 +43,10 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         [UIAction("#post-parse")]
         public void Parsed() {
+            //profileImage.sprite = nullSprite;
             profileImage.material = Plugin.NoGlowMatRound;
-            profileImage.sprite = Utilities.FindSpriteInAssembly("ScoreSaber.Resources.blank.png");
             profileImage.gameObject.SetActive(true);
             loadingIndicator.gameObject.SetActive(false);
-            Active(false);
         }
 
         public void setProfileImage(string url, int pos, CancellationToken cancellationToken) {
@@ -128,7 +127,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         public void Active(bool state) {
             if (profileImage != null) {
-                profileImage.gameObject.SetActive(state);
+                profileImage.sprite = nullSprite;
             }
         }
     }

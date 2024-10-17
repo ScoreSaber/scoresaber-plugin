@@ -275,6 +275,12 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
+        [UIAction("clicked-settings")]
+        protected void ClickedSettings() {
+
+            ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
+        }
+
         private void ChangePromptState(float value) {
             const float fullY = 10.30f;
             const float hiddenY = 4.30f;
