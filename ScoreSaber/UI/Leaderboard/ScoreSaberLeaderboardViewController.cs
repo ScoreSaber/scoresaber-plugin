@@ -248,6 +248,13 @@ namespace ScoreSaber.UI.Leaderboard {
                 fromCached = false;
             }
 
+            if (leaderboardInfoMap == null) {
+                _tweeningService.LerpColor(_headerBackground, grey);
+                headerTextSTATIC.text = "OST";
+                _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                return;
+            }
+
             bool ranked = leaderboardInfoMap.leaderboardInfo.ranked;
             bool qualified = leaderboardInfoMap.leaderboardInfo.qualified;
             bool loved = leaderboardInfoMap.leaderboardInfo.loved;
@@ -411,6 +418,13 @@ namespace ScoreSaber.UI.Leaderboard {
                 if (_playerService.loginStatus != PlayerService.LoginStatus.Success) {
                     return;
                 }
+
+                if(!beatmapKey.levelId.Contains("custom_level_")) {
+                    SetErrorState(tableView, ref loadingControl, null, null, "This is not a custom level", false);
+                    ByeImages();
+                    SetPanelStatus();
+                    return;
+                } 
 
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 

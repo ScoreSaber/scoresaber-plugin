@@ -21,6 +21,10 @@ namespace ScoreSaber.Core.Services {
         public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings) {
 
             string leaderboardUrl = GetLeaderboardUrl(beatmapKey, scope, page);
+            if (leaderboardUrl == null) {
+                currentLoadedLeaderboard = null;
+                return null;
+            }
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
             Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
 
@@ -49,6 +53,10 @@ namespace ScoreSaber.Core.Services {
         }
       
         private string GetLeaderboardUrl(BeatmapKey beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page) {
+            
+            if(!beatmapKey.levelId.Contains("custom_level_")) {
+                return null;
+            }
 
             string url = "/game/leaderboard";
             string leaderboardId = beatmapKey.levelId.Split('_')[2];
