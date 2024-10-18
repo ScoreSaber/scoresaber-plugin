@@ -24,11 +24,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private readonly AudioTimeSyncController _audioTimeSyncController;
         private readonly ReplayTimeSyncController _replayTimeSyncController;
         private readonly ImberUIPositionController _imberUIPositionController;
+        private readonly DesktopMainImberPanelView _desktopMainImberPanelView;
 
         private readonly IEnumerable<string> _positions;
 
         public ImberManager(ReplayFile file, IGamePause gamePause, ImberScrubber imberScrubber, ImberSpecsReporter imberSpecsReporter, MainImberPanelView mainImberPanelView, SpectateAreaController spectateAreaController,
-                            AudioTimeSyncController audioTimeSyncController, ReplayTimeSyncController replayTimeSyncController, ImberUIPositionController imberUIPositionController, AudioTimeSyncController.InitData initData, PosePlayer posePlayer) {
+                            AudioTimeSyncController audioTimeSyncController, ReplayTimeSyncController replayTimeSyncController, ImberUIPositionController imberUIPositionController, AudioTimeSyncController.InitData initData, PosePlayer posePlayer, DesktopMainImberPanelView desktopMainImberPanelView) {
 
             _gamePause = gamePause;
             _posePlayer = posePlayer;
@@ -43,6 +44,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
             _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
             _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
+            _desktopMainImberPanelView = desktopMainImberPanelView;
+            _desktopMainImberPanelView.Setup(file.metadata.FailTime, 90, _positions.First(), _positions);
         }
 
         public void Initialize() {
@@ -57,6 +60,17 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _mainImberPanelView.HandDidSwitchEvent += MainImberPanelView_DidHandSwitchEvent;
             _mainImberPanelView.DidPositionPreviewChange += MainImberPanelView_DidPositionPreviewChange;
             _mainImberPanelView.DidPositionTabVisibilityChange += MainImberPanelView_DidPositionTabVisibilityChange;
+
+            _desktopMainImberPanelView.DidClickLoop += MainImberPanelView_DidClickLoop;
+            _desktopMainImberPanelView.DidPositionJump += MainImberPanelView_DidPositionJump;
+            _desktopMainImberPanelView.DidClickRestart += MainImberPanelView_DidClickRestart;
+            _desktopMainImberPanelView.DidClickPausePlay += MainImberPanelView_DidClickPausePlay;
+            _desktopMainImberPanelView.DidTimeSyncChange += MainImberPanelView_DidTimeSyncChange;
+            _desktopMainImberPanelView.DidChangeVisiblity += MainImberPanelView_DidChangeVisiblity;
+            _desktopMainImberPanelView.HandDidSwitchEvent += MainImberPanelView_DidHandSwitchEvent;
+            _desktopMainImberPanelView.DidPositionPreviewChange += MainImberPanelView_DidPositionPreviewChange;
+            _desktopMainImberPanelView.DidPositionTabVisibilityChange += MainImberPanelView_DidPositionTabVisibilityChange;
+
             _spectateAreaController.DidUpdatePlayerSpectatorPose += SpectateAreaController_DidUpdatePlayerSpectatorPose;
             _imberScrubber.DidCalculateNewTime += ImberScrubber_DidCalculateNewTime;
             _imberSpecsReporter.DidReport += ImberSpecsReporter_DidReport;
@@ -91,6 +105,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI
                 _mainImberPanelView.fps = fps;
                 _mainImberPanelView.leftSaberSpeed = leftSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
                 _mainImberPanelView.rightSaberSpeed = rightSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
+            }
+
+            if (_desktopMainImberPanelView.didParse) {
+                _desktopMainImberPanelView.fps = fps;
+                _desktopMainImberPanelView.leftSaberSpeed = leftSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
+                _desktopMainImberPanelView.rightSaberSpeed = rightSaberSpeed * (_initialTimeScale / _audioTimeSyncController.timeScale);
             }
         }
 
@@ -161,9 +181,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             if (_audioTimeSyncController.state == AudioTimeSyncController.State.Playing) {
                 _replayTimeSyncController.CancelAllHitSounds();
                 _mainImberPanelView.playPauseText = "PLAY";
+                _desktopMainImberPanelView.playPauseText = "PLAY";
                 _audioTimeSyncController.Pause();
             } else if (_audioTimeSyncController.state == AudioTimeSyncController.State.Paused) {
                 _mainImberPanelView.playPauseText = "PAUSE";
+                _desktopMainImberPanelView.playPauseText = "PAUSE";
                 _audioTimeSyncController.Resume();
             }
         }
@@ -199,6 +221,16 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _mainImberPanelView.DidClickRestart -= MainImberPanelView_DidClickRestart;
             _mainImberPanelView.DidPositionJump -= MainImberPanelView_DidPositionJump;
             _mainImberPanelView.DidClickLoop -= MainImberPanelView_DidClickLoop;
+
+
+            _desktopMainImberPanelView.DidPositionPreviewChange -= MainImberPanelView_DidPositionPreviewChange;
+            _desktopMainImberPanelView.HandDidSwitchEvent -= MainImberPanelView_DidHandSwitchEvent;
+            _desktopMainImberPanelView.DidChangeVisiblity -= MainImberPanelView_DidChangeVisiblity;
+            _desktopMainImberPanelView.DidTimeSyncChange -= MainImberPanelView_DidTimeSyncChange;
+            _desktopMainImberPanelView.DidClickPausePlay -= MainImberPanelView_DidClickPausePlay;
+            _desktopMainImberPanelView.DidClickRestart -= MainImberPanelView_DidClickRestart;
+            _desktopMainImberPanelView.DidPositionJump -= MainImberPanelView_DidPositionJump;
+            _desktopMainImberPanelView.DidClickLoop -= MainImberPanelView_DidClickLoop;
         }
     }
 }
