@@ -7,6 +7,7 @@ using ScoreSaber.Core.Data;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 using Zenject;
 
@@ -127,6 +128,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             var canvasGameObj = new GameObject();
             var canvas = canvasGameObj.AddComponent<Canvas>();
+            var canvasScaler = canvasGameObj.AddComponent<CanvasScaler>();
+            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            canvasScaler.referenceResolution = new Vector2(1920, 1080);
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
             canvas.name = "ScoreSaberDesktopImberUI";
@@ -135,7 +139,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             canvas.overrideSorting = true;
             canvas.sortingOrder = 1;
+            gameObject.AddComponent<GraphicRaycaster>();
             gameObject.transform.parent = canvas.transform;
+            gameObject.transform.localPosition = new Vector2(0.5f, 0.5f);
         }
 
         public void Setup(float initialSongTime, int targetFramerate, string defaultLocation, IEnumerable<string> locations) {
