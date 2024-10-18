@@ -627,6 +627,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     cellClicker.index = cellIdx;
                     cellClicker.seperator = (ImageView)tableCell._separatorImage;
                     cellClicker.clickable = true;
+                    cellClicker.OnPointerExit(null);
 
                     TextMeshProUGUI _playerNameText = tableCell._playerNameText;
                     TextMeshProUGUI _scoreText = tableCell._scoreText;
