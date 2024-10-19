@@ -129,19 +129,30 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             var canvasGameObj = new GameObject();
             var canvas = canvasGameObj.AddComponent<Canvas>();
             var canvasScaler = canvasGameObj.AddComponent<CanvasScaler>();
+            canvasScaler.referenceResolution = new Vector2(350, 300);
             canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasScaler.referenceResolution = new Vector2(1920, 1080);
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
+            canvasScaler.dynamicPixelsPerUnit = 3.44f;
+            canvasScaler.referencePixelsPerUnit = 10f;
+
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            HMUI.Screen screen = gameObject.AddComponent<HMUI.Screen>();
             canvas.name = "ScoreSaberDesktopImberUI";
 
             canvasGameObj.SetActive(true);
 
-            canvas.overrideSorting = true;
             canvas.sortingOrder = 1;
-            gameObject.AddComponent<GraphicRaycaster>();
-            gameObject.transform.parent = canvas.transform;
-            gameObject.transform.localPosition = new Vector2(0.5f, 0.5f);
+            canvas.overrideSorting = true;
+
+            canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2;
+            var canvasGR = canvas.gameObject.AddComponent<GraphicRaycaster>();
+            canvasGR.blockingObjects = GraphicRaycaster.BlockingObjects.None;
+
+            gameObject.transform.SetParent(canvas.transform, false);
+            gameObject.transform.position = new Vector2(0.5f, 0.5f);
+
+            __Init(screen, parentViewController, containerViewController);
+            screen.SetRootViewController(this, ViewController.AnimationType.None);
         }
 
         public void Setup(float initialSongTime, int targetFramerate, string defaultLocation, IEnumerable<string> locations) {

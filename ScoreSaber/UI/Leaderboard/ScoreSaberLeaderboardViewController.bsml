@@ -33,7 +33,7 @@
 	<!-- Leaderboard scrollers -->
 	<bg anchor-pos-x="-40" anchor-pos-y="-10">
 
-		<clickable-image size-delta-x="6" size-delta-y="6"  anchor-pos-y="42" anchor-pos-x="0" id='linkIcon' src="ScoreSaber.Resources.link.png" on-click='clicked-status' hover-hint='Map webpage'/>
+		<clickable-image size-delta-x="4" size-delta-y="4"  anchor-pos-y="42" anchor-pos-x="0" id='linkIcon' src="ScoreSaber.Resources.link.png" on-click='clicked-status' hover-hint='Map webpage'/>
 		
 		<page-button id="up_button"
 					 icon="ScoreSaber.Resources.carat.png"
@@ -57,7 +57,7 @@
 				   pref-height="9"
 				   on-click="OnPageDown"/>
 
-		<clickable-image size-delta-x="6" size-delta-y="6" anchor-pos-y="-11" anchor-pos-x="0" id='infoIcon' src="ScoreSaber.Resources.info.png" on-click='MapInfoClicked' hover-hint='Open the map info modal'/>
+		<clickable-image size-delta-x="4" size-delta-y="4" anchor-pos-y="-11" anchor-pos-x="0" id='infoIcon' src="ScoreSaber.Resources.info.png" on-click='MapInfoClicked' hover-hint='Open the map info modal'/>
 	</bg>
 
 	<!-- Leaderboard table -->
