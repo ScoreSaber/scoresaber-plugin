@@ -145,8 +145,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             canvas.overrideSorting = true;
 
             canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2;
-            var canvasGR = canvas.gameObject.AddComponent<GraphicRaycaster>();
-            canvasGR.blockingObjects = GraphicRaycaster.BlockingObjects.None;
+            
+            var canvasGR = gameObject.AddComponent<GraphicRaycaster>();
+            //canvasGR.blockingObjects = GraphicRaycaster.BlockingObjects.All;
 
             gameObject.transform.SetParent(canvas.transform, false);
             gameObject.transform.position = new Vector2(0.5f, 0.5f);
