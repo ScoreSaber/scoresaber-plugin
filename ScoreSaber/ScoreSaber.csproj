@@ -31,13 +31,20 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Core\ReplaySystem\UI\desktop-imber-panel.bsml" />
     <None Remove="Resources\blank.png" />
+    <None Remove="Resources\bluePixel.png" />
     <None Remove="Resources\carat.png" />
     <None Remove="Resources\friend.png" />
     <None Remove="Resources\globe.png" />
     <None Remove="Resources\link.png" />
     <None Remove="Resources\Player.png" />
+    <None Remove="Resources\redPixel.png" />
     <None Remove="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\bluePixel.png" />
+    <EmbeddedResource Include="Resources\redPixel.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AdditionalContentModel.Interfaces">
@@ -278,6 +285,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Core\ReplaySystem\UI\desktop-imber-panel.bsml" />
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="Resources\carat.png" />
     <EmbeddedResource Include="Resources\friend.png" />

@@ -6,33 +6,40 @@ using HMUI;
 using ScoreSaber.Core.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.XR;
+using VRUIControls;
 using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.UI {
 
-    [HotReload(RelativePathToLayout = @"imber-panel.bsml")]
-    [ViewDefinition("ScoreSaber.Core.ReplaySystem.UI.imber-panel.bsml")]
-    internal class DesktopMainImberPanelView : BSMLAutomaticViewController {
+    [HotReload(RelativePathToLayout = @"desktop-imber-panel.bsml")]
+    [ViewDefinition("ScoreSaber.Core.ReplaySystem.UI.desktop-imber-panel.bsml")]
+    internal class DesktopMainImberPanelView : BSMLAutomaticViewController, IDisposable {
 
-        public event Action<bool> DidPositionTabVisibilityChange;
-        public event Action<string> DidPositionPreviewChange;
         public event Action<XRNode> HandDidSwitchEvent;
         public event Action<float> DidTimeSyncChange;
-        public event Action<bool> DidChangeVisiblity;
         public event Action DidClickPausePlay;
         public event Action DidClickRestart;
         public event Action DidPositionJump;
         public event Action DidClickLoop;
 
-        private int _lastTab = 0;
         private int _targetFPS = 90;
         private float _initialTime = 1f;
         private static readonly Color _goodColor = Color.green;
         private static readonly Color _ehColor = Color.yellow;
         private static readonly Color _noColor = Color.red;
+
+        [Inject] private readonly VRInputModule _inputModule = null;
+        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null;
+        [Inject] private readonly ImberScrubber _imberScrubber = null;
+
+        private EventSystem originalEventSystem;
+        private EventSystem imberEventSystem;
 
         public bool didParse { get; private set; }
 
@@ -42,7 +49,21 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         public Pose defaultPosition { get; set; }
 
-        private float _timeSync;
+        private float _timeSync = 1f;
+
+
+        [UIComponent("currentTimeText")]
+        public TextMeshProUGUI currentTimeText = null;
+
+        [UIComponent("timebarbg")]
+        public ImageView timebarbg = null;
+
+        [UIComponent("timebarActive")]
+        public ImageView timebarActive = null;
+
+        [UIComponent("fadedBoxVertTimeline")]
+        public HorizontalLayoutGroup fadedBoxVertTimeline = null;
+
         [UIValue("time-sync")]
         public float timeSync {
             get => _timeSync;
@@ -72,16 +93,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
         }
 
-        private string _location = "";
-        [UIValue("location")]
-        public string location {
-            get => _location;
-            protected set {
-                _location = value;
-                DidPositionPreviewChange?.Invoke(_location);
-            }
-        }
-
         public int fps {
             set {
                 fpsText.text = value.ToString();
@@ -108,9 +119,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
         }
 
-        [UIValue("locations")]
-        protected readonly List<object> locations = new List<object>();
-
         [UIComponent("tab-selector")]
         protected readonly TabSelector tabSelector = null;
 
@@ -123,20 +131,27 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [UIComponent("right-speed-text")]
         protected readonly CurvedTextMeshPro rightSpeedText = null;
 
+        [UIObject("container")]
+        public GameObject _container = null;
+
         [Inject]
         protected void Construct() {
 
+            if (!Environment.GetCommandLineArgs().Contains("fpfc")) return;
+            GameObject inputOBJ;
+
             var canvasGameObj = new GameObject();
             var canvas = canvasGameObj.AddComponent<Canvas>();
-            var canvasScaler = canvasGameObj.AddComponent<CanvasScaler>();
+
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            HMUI.Screen screen = canvasGameObj.AddComponent<HMUI.Screen>();
+            var canvasScaler = screen.gameObject.AddComponent<CanvasScaler>();
             canvasScaler.referenceResolution = new Vector2(350, 300);
             canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
 
             canvasScaler.dynamicPixelsPerUnit = 3.44f;
             canvasScaler.referencePixelsPerUnit = 10f;
 
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            HMUI.Screen screen = gameObject.AddComponent<HMUI.Screen>();
             canvas.name = "ScoreSaberDesktopImberUI";
 
             canvasGameObj.SetActive(true);
@@ -145,47 +160,66 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             canvas.overrideSorting = true;
 
             canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2;
-            
-            var canvasGR = gameObject.AddComponent<GraphicRaycaster>();
-            //canvasGR.blockingObjects = GraphicRaycaster.BlockingObjects.All;
+
+            var canvasGR = canvas.gameObject.AddComponent<GraphicRaycaster>();
+            gameObject.AddComponent<GraphicRaycaster>();
+
+            originalEventSystem = _inputModule.GetComponent<EventSystem>();
+
+            inputOBJ = new GameObject("ImberInputGO");
+            inputOBJ.AddComponent<StandaloneInputModule>();
+            Cursor.visible = true;
+
+            if(inputOBJ.GetComponent<EventSystem>() == null) {
+                imberEventSystem = inputOBJ.AddComponent<EventSystem>();
+            }
+
+            EventSystem.current = imberEventSystem;
 
             gameObject.transform.SetParent(canvas.transform, false);
-            gameObject.transform.position = new Vector2(0.5f, 0.5f);
-
             __Init(screen, parentViewController, containerViewController);
             screen.SetRootViewController(this, ViewController.AnimationType.None);
+
+            
         }
 
-        public void Setup(float initialSongTime, int targetFramerate, string defaultLocation, IEnumerable<string> locations) {
+
+        public void Dispose() {
+            if (!Environment.GetCommandLineArgs().Contains("fpfc")) return;
+            //EventSystem.current = originalEventSystem;
+            Cursor.visible = false;
+        }
+
+
+        public void Setup(float initialSongTime, int targetFramerate) {
 
             _initialTime = initialSongTime;
             _targetFPS = targetFramerate;
             _timeSync = initialSongTime;
-            _location = defaultLocation;
-            this.locations.AddRange(locations);
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            tabSelector.TextSegmentedControl.didSelectCellEvent += DidSelect;
-            didParse = true;
             if (firstActivation) {
-                tabSelector.transform.localScale *= .9f;
+                var x = timebarActive.gameObject.AddComponent<ProgressHandler>();
+                x.timebarBackground = timebarbg;
+                x.timebarActive = timebarActive;
+                x.OnProgressUpdated += (progress) => {
+                    _imberScrubber.MainNode_PositionDidChange(progress);
+                };
+                //var containerRect = this.GetComponent<RectTransform>();
+                //_container.GetComponent<RectTransform>().position = Vector3.zero;
+                //_container.GetComponent<RectTransform>().anchorMax = new Vector2(0.2f, 0.2f);
+
+                //Plugin.Log.Notice($"{Plugin.Settings.replayUIPosition.x},{Plugin.Settings.replayUIPosition.y}");
+                //containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
             }
-        }
-
-        private void DidSelect(SegmentedControl _, int selected) {
-
-            const int positionTabIndex = 2;
-            if (_lastTab == 2 || selected == 2)
-                DidPositionTabVisibilityChange?.Invoke(selected == positionTabIndex);
-            _lastTab = selected;
+            didParse = true;
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
 
-            tabSelector.TextSegmentedControl.didSelectCellEvent -= DidSelect;
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
         }
 
@@ -212,24 +246,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             DidClickLoop?.Invoke();
         }
 
-        [UIAction("left-hand")]
-        protected void SwitchHandLeft() {
-
-            SwitchHand(XRNode.LeftHand);
-        }
-
-        [UIAction("right-hand")]
-        protected void SwitchHandRight() {
-
-            SwitchHand(XRNode.RightHand);
-        }
-
-        [UIAction("request-dismiss")]
-        protected void RequestDismiss() {
-
-            DidChangeVisiblity?.Invoke(false);
-        }
-
         [UIAction("format-time-percent")]
         protected string FormatTimePercent(float value) {
 
@@ -241,5 +257,109 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             DidPositionJump?.Invoke();
         }
+        private string FloatToTimeStamp(float timeInSeconds) {
+            int minutes = (int)timeInSeconds / 60;
+            int seconds = (int)timeInSeconds % 60;
+
+            return $"{minutes:D2}:{seconds:D2}";
+        }
+
+        public void FixedUpdate() {
+
+            if (!didParse) return;
+            currentTimeText.text = FloatToTimeStamp(_audioTimeSyncController.songTime) + "/" + FloatToTimeStamp(_audioTimeSyncController.songLength);
+
+            float progressPercentage = Mathf.Clamp01(_audioTimeSyncController.songTime / _audioTimeSyncController.songLength);
+
+            float timebarActiveX = Mathf.Lerp(-19, 19, progressPercentage);
+            timebarActive.rectTransform.anchoredPosition = new Vector2(timebarActiveX, 0);
+        }
+
+        public class ProgressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler {
+
+            public ImageView timebarActive;
+            public ImageView timebarBackground;
+
+            public event Action<float> OnProgressUpdated;
+
+            private bool isDragging = false;
+            private float minX = -19f;
+            private float maxX = 19f;
+
+            public void OnPointerDown(PointerEventData eventData) {
+                isDragging = true;
+                UpdateTimebarPosition(eventData);
+            }
+
+            public void OnPointerUp(PointerEventData eventData) {
+                isDragging = false;
+                UpdateTimebarPosition(eventData);
+            }
+
+            public void OnDrag(PointerEventData eventData) {
+                if (isDragging) {
+                    UpdateTimebarPosition(eventData);
+                }
+            }
+
+            private void UpdateTimebarPosition(PointerEventData eventData) {
+                RectTransform timebarRect = timebarBackground.rectTransform;
+                Vector2 localPoint;
+
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(timebarRect, eventData.position, eventData.pressEventCamera, out localPoint)) {
+                    float clampedX = Mathf.Clamp(localPoint.x, minX, maxX);
+
+                    timebarActive.rectTransform.anchoredPosition = new Vector2(clampedX, 0);
+
+                    float progress = Mathf.InverseLerp(minX, maxX, clampedX);
+
+                    OnProgressUpdated?.Invoke(progress);
+                }
+            }
+        }
+
+
+        //public class DraggableViewController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler {
+
+        //    public RectTransform draggableRectTransform;
+        //    public GameObject canvas;
+
+        //    private Vector2 lastMousePosition;
+        //    private bool isDragging = false;
+
+        //    public void OnPointerDown(PointerEventData eventData) {
+        //        isDragging = true;
+        //        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.GetComponent<RectTransform>(), eventData.position, eventData.pressEventCamera, out lastMousePosition);
+        //    }
+
+        //    public void OnDrag(PointerEventData eventData) {
+        //        if (isDragging && draggableRectTransform != null) {
+        //            Vector2 mousePosition;
+        //            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.GetComponent<RectTransform>(), eventData.position, eventData.pressEventCamera, out mousePosition);
+
+        //            Vector2 delta = mousePosition - lastMousePosition;
+
+        //            draggableRectTransform.anchoredPosition += delta;
+
+        //            Vector2 normalizedPosition = new Vector2(
+        //                (draggableRectTransform.anchoredPosition.x + canvas.GetComponent<RectTransform>().rect.width / 2) / canvas.GetComponent<RectTransform>().rect.width,
+        //                (draggableRectTransform.anchoredPosition.y + canvas.GetComponent<RectTransform>().rect.height / 2) / canvas.GetComponent<RectTransform>().rect.height
+        //            );
+
+        //            normalizedPosition.x = Mathf.Clamp01(normalizedPosition.x);
+        //            normalizedPosition.y = Mathf.Clamp01(normalizedPosition.y);
+
+        //            draggableRectTransform.anchorMin = normalizedPosition;
+        //            draggableRectTransform.anchorMax = normalizedPosition;
+
+        //            lastMousePosition = mousePosition;
+        //        }
+        //    }
+
+        //    public void OnPointerUp(PointerEventData eventData) {
+        //        isDragging = false;
+        //    }
+        //}
+
     }
 }

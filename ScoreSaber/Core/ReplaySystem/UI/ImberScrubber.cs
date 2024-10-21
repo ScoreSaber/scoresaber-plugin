@@ -110,7 +110,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             visibility = false;
         }
 
-        private void MainNode_PositionDidChange(float value) {
+        public void MainNode_PositionDidChange(float value) {
 
             _bar.barFill = value;
             DidCalculateNewTime?.Invoke(_audioTimeSyncController.songLength * value);

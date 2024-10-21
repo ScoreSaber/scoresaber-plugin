@@ -12,8 +12,7 @@ using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.UI
 {
-    internal class ImberManager : IInitializable, IDisposable
-    {
+    internal class ImberManager : IInitializable, IDisposable, ITickable {
         private readonly IGamePause _gamePause;
         private readonly float _initialTimeScale;
         private readonly PosePlayer _posePlayer;
@@ -40,12 +39,13 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _audioTimeSyncController = audioTimeSyncController;
             _replayTimeSyncController = replayTimeSyncController;
             _imberUIPositionController = imberUIPositionController;
+            _desktopMainImberPanelView = desktopMainImberPanelView;
+
             _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
             _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
             _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
             _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
-            _desktopMainImberPanelView = desktopMainImberPanelView;
-            _desktopMainImberPanelView.Setup(file.metadata.FailTime, 90, _positions.First(), _positions);
+            _desktopMainImberPanelView.Setup(1f, 90);
         }
 
         public void Initialize() {
@@ -66,10 +66,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _desktopMainImberPanelView.DidClickRestart += MainImberPanelView_DidClickRestart;
             _desktopMainImberPanelView.DidClickPausePlay += MainImberPanelView_DidClickPausePlay;
             _desktopMainImberPanelView.DidTimeSyncChange += MainImberPanelView_DidTimeSyncChange;
-            _desktopMainImberPanelView.DidChangeVisiblity += MainImberPanelView_DidChangeVisiblity;
             _desktopMainImberPanelView.HandDidSwitchEvent += MainImberPanelView_DidHandSwitchEvent;
-            _desktopMainImberPanelView.DidPositionPreviewChange += MainImberPanelView_DidPositionPreviewChange;
-            _desktopMainImberPanelView.DidPositionTabVisibilityChange += MainImberPanelView_DidPositionTabVisibilityChange;
 
             _spectateAreaController.DidUpdatePlayerSpectatorPose += SpectateAreaController_DidUpdatePlayerSpectatorPose;
             _imberScrubber.DidCalculateNewTime += ImberScrubber_DidCalculateNewTime;
@@ -223,14 +220,18 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _mainImberPanelView.DidClickLoop -= MainImberPanelView_DidClickLoop;
 
 
-            _desktopMainImberPanelView.DidPositionPreviewChange -= MainImberPanelView_DidPositionPreviewChange;
             _desktopMainImberPanelView.HandDidSwitchEvent -= MainImberPanelView_DidHandSwitchEvent;
-            _desktopMainImberPanelView.DidChangeVisiblity -= MainImberPanelView_DidChangeVisiblity;
             _desktopMainImberPanelView.DidTimeSyncChange -= MainImberPanelView_DidTimeSyncChange;
             _desktopMainImberPanelView.DidClickPausePlay -= MainImberPanelView_DidClickPausePlay;
             _desktopMainImberPanelView.DidClickRestart -= MainImberPanelView_DidClickRestart;
             _desktopMainImberPanelView.DidPositionJump -= MainImberPanelView_DidPositionJump;
             _desktopMainImberPanelView.DidClickLoop -= MainImberPanelView_DidClickLoop;
+        }
+
+        public void Tick() {
+            if (Input.GetKeyDown(KeyCode.I)) {
+                _desktopMainImberPanelView.gameObject.SetActive(!_desktopMainImberPanelView.gameObject.activeSelf);
+            }
         }
     }
 }
