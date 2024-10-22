@@ -39,6 +39,7 @@ namespace ScoreSaber.Core.Data
         public Vec2 replayUIPosition { get; set; }
         public float replayUISize { get; set; }
         public bool startReplayUIHidden { get; set; }
+        public bool hideWatermarkIfUsersReplay { get; set; }
 
         internal static string dataPath => "UserData";
         internal static string configPath => dataPath + @"\ScoreSaber";
@@ -68,6 +69,10 @@ namespace ScoreSaber.Core.Data
             hasOpenedReplayUI = false;
             leftHandedReplayUI = false;
             lockedReplayUIMode = false;
+            replayUIPosition = new Vec2(new Vector2(0.12f, 0.14f));
+            replayUISize = 1.25f;
+            startReplayUIHidden = false;
+            hideWatermarkIfUsersReplay = false;
             SetDefaultSpectatorPositions();
         }
 

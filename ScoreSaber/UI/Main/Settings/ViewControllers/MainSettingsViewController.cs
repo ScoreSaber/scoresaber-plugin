@@ -138,5 +138,11 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
                 Plugin.Settings.replayUIPosition = replayUIPosition;
             }
         }
+
+        [UIValue("hideWatermarkIfUserReplay")]
+        public bool HideWatermarkIfUserReplay {
+            get => Plugin.Settings.hideWatermarkIfUsersReplay;
+            set => Plugin.Settings.hideWatermarkIfUsersReplay = value;
+        }
     }
 }

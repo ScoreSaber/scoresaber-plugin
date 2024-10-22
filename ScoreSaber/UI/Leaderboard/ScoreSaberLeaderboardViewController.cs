@@ -583,7 +583,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 _panelView.SetPromptInfo("Downloading Replay...", true);
                 byte[] replay = await _playerService.GetReplayData(score.parent.beatmapLevel, score.parent.beatmapKey, score.parent.leaderboardInfo.id, score);
                 _panelView.SetPromptInfo("Replay downloaded! Unpacking...", true);
-                await _replayLoader.Load(replay, score.parent.beatmapLevel, score.parent.beatmapKey, score.gameplayModifiers, score.score.leaderboardPlayerInfo.name);
+                await _replayLoader.Load(replay, score.parent.beatmapLevel, score.parent.beatmapKey, score.gameplayModifiers, score.score.leaderboardPlayerInfo.name, score.score.leaderboardPlayerInfo.id == _playerService.localPlayerInfo.playerId);
                 _panelView.SetPromptSuccess("Replay Started!", false, 1f);
             } catch (ReplayVersionException ex) {
                 _panelView.SetPromptError("Unsupported replay version", false);

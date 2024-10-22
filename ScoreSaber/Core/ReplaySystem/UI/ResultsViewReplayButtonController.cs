@@ -91,7 +91,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [UIAction("replay-click")]
         protected void ClickedReplayButton() {
 
-            _replayLoader.Load(_serializedReplay, _beatmapLevel, _beatmapKey, _levelCompletionResults.gameplayModifiers, _playerService.localPlayerInfo.playerName).RunTask();
+            _replayLoader.Load(_serializedReplay, _beatmapLevel, _beatmapKey, _levelCompletionResults.gameplayModifiers, _playerService.localPlayerInfo.playerName, true).RunTask();
             watchReplayButton.interactable = false;
        
         }

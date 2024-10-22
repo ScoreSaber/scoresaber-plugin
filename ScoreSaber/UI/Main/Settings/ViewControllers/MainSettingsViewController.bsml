@@ -13,7 +13,8 @@
 			<vertical>
 				<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
 					<toggle-setting  text='Save Local Replays' id='saveLocalReplaysSetting' value='saveLocalReplays' apply-on-change='true' />
-          <toggle-setting  text='Camera smoothing' id='replayCameraSmoothingSetting' value='replayCameraSmoothing' apply-on-change='true' />
+					<toggle-setting  text='Hide watermark on your replay'  value='hideWatermarkIfUserReplay' apply-on-change='true' />
+					<toggle-setting  text='Camera smoothing' id='replayCameraSmoothingSetting' value='replayCameraSmoothing' apply-on-change='true' />
           <slider-setting  show-buttons='true' increment='0.1' min='60' max='120' text='Camera FOV' value='replayCameraFOV' apply-on-change='true' hover-hint='This only applies to the base game camera!' />
 				</modifier-container>
 				<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
