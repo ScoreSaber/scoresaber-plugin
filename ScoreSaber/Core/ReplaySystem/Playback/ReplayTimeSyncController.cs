@@ -91,6 +91,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             foreach (var scroller in _scrollers)
                 scroller.TimeUpdate(audioTimeSyncController.songTime);
         }
+
         public void OverrideTime(float time) {
 
             if (float.IsInfinity(time) || float.IsNaN(time) || Mathf.Abs(time - audioTimeSyncController._songTime) < 0.001f) return;

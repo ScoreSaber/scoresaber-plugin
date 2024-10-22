@@ -120,6 +120,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
         }
 
+        public void DownClick() {
+            _audioTimeSyncController.Pause();
+        }
+
+        public void UpClick() {
+            _audioTimeSyncController.Resume();
+        }
+
         [UIComponent("tab-selector")]
         protected readonly TabSelector tabSelector = null;
 
@@ -207,6 +215,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 var x = timebarActive.gameObject.AddComponent<ProgressHandler>();
                 x.timebarBackground = timebarbg;
                 x.timebarActive = timebarActive;
+                x.upClick += UpClick;
+                x.downClick += DownClick;
                 x.OnProgressUpdated += (progress) => {
                     _imberScrubber.MainNode_PositionDidChange(progress);
                 };
@@ -286,6 +296,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             public event Action<float> OnProgressUpdated;
 
+            public delegate void upClickEvent();
+            public event upClickEvent upClick;
+
+            public delegate void downClickEvent();
+            public event downClickEvent downClick;
+
             private bool isDragging = false;
             private float minX = -19f;
             private float maxX = 19f;
@@ -301,10 +317,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             public void OnPointerDown(PointerEventData eventData) {
                 isDragging = true;
+                downClick?.Invoke();
                 UpdateTimebarPosition(eventData);
             }
 
             public void OnPointerUp(PointerEventData eventData) {
+                upClick?.Invoke();
                 UpdateTimebarPosition(eventData);
             }
 
