@@ -177,9 +177,9 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy {
 
                 int maxPossibleRawScore = LeaderboardUtils.OldMaxRawScoreForNumberOfNotes(cutOrMissedNotes);
 
-                _relativeScoreAndImmediateRankCounter?.InvokeMethod<object, RelativeScoreAndImmediateRankCounter>("UpdateRelativeScoreAndImmediateRank", keyframe.score, keyframe.score, maxPossibleRawScore, maxPossibleRawScore);
+                _relativeScoreAndImmediateRankCounter.UpdateRelativeScoreAndImmediateRank(keyframe.score, keyframe.score, maxPossibleRawScore, maxPossibleRawScore);
 
-                _scoreUIController?.InvokeMethod<object, ScoreUIController>("UpdateScore", keyframe.score, keyframe.score);
+                _scoreUIController.UpdateScore(keyframe.score, keyframe.score);
 
             }
 
