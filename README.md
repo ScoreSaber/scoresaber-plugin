@@ -1,4 +1,12 @@
 # ScoreSaber-Plugin
-Clone, and goodluck. The open source release of ScoreSaber was done hastily and quite a lot needs to be changed and plenty of "security through obscurity" practices covered by obfuscation can finally be removed, cleaning up the project. 
+ScoreSaber is Beat Saber's largest leaderboard system for custom songs, hosting 60 million scores across 170,000+ leaderboards, with more than 1 million users worldwide
 
-Everything here is licensed under MIT and we'll be accepting contributors immediately, so if you're looking to help us out, that'd be greatly appreciated, we're going to need it.
+![image](https://github.com/user-attachments/assets/f638f92b-d961-46e1-8277-d2628676128a)
+
+Scores can also be viewed on [the website](https://scoresaber.com)
+
+# Installation
+## Method 1
+- Install from your preferred mod manager
+## Method 2
+- Download from the [releases](https://github.com/ScoreSaber/scoresaber-plugin/releases/latest)
