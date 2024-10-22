@@ -37,6 +37,8 @@ namespace ScoreSaber.Core.Data
         public bool lockedReplayUIMode { get; set; }
         public List<SpectatorPoseRoot> spectatorPositions { get; set; }
         public Vec2 replayUIPosition { get; set; }
+        public float replayUISize { get; set; }
+        public bool startReplayUIHidden { get; set; }
 
         internal static string dataPath => "UserData";
         internal static string configPath => dataPath + @"\ScoreSaber";
@@ -115,7 +117,9 @@ namespace ScoreSaber.Core.Data
                         decoded.replayCameraSmoothing = true;
                     }
                     if (decoded.fileVersion < 9) {
-                        decoded.replayUIPosition = new Vec2(new Vector2(0.25f, 0.25f));
+                        decoded.replayUIPosition = new Vec2(new Vector2(0.12f, 0.14f));
+                        decoded.replayUISize = 1.25f;
+                        decoded.startReplayUIHidden = false;
                     }
                     SaveSettings(decoded);
                 }

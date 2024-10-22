@@ -75,6 +75,15 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             if (!Plugin.Settings.hasOpenedReplayUI) {
                 CreateWatermark();
             }
+
+            var containerRect = _desktopMainImberPanelView.gameObject.transform.Find("Contents").GetComponent<RectTransform>();
+            containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
+            containerRect.anchorMin = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
+            _desktopMainImberPanelView.gameObject.transform.Find("Contents").localScale = new Vector2(Plugin.Settings.replayUISize, Plugin.Settings.replayUISize);
+            //_desktopMainImberPanelView.gameObject.transform.Find("Contents").gameObject.AddComponent<DesktopMainImberPanelView.DraggableViewController>();
+            if(Plugin.Settings.startReplayUIHidden) {
+                _desktopMainImberPanelView.gameObject.SetActive(false);
+            }
         }
 
         private void MainImberPanelView_DidHandSwitchEvent(XRNode hand) {

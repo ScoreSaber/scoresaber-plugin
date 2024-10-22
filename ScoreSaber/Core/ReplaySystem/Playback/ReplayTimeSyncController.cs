@@ -55,17 +55,17 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             //    OverrideTime(audioTimeSyncController.songLength * (index * 0.1f));
             //}
 
-            if (Input.GetKeyDown(KeyCode.Minus)) {
-                if (audioTimeSyncController.timeScale > 0.1f) {
-                    OverrideTimeScale(audioTimeSyncController.timeScale - 0.1f);
-                }
-            }
+            //if (Input.GetKeyDown(KeyCode.Minus)) {
+            //    if (audioTimeSyncController.timeScale > 0.1f) {
+            //        OverrideTimeScale(audioTimeSyncController.timeScale - 0.1f);
+            //    }
+            //}
 
-            if (Input.GetKeyDown(KeyCode.Equals)) {
-                if (audioTimeSyncController.timeScale < 2.0f) {
-                    OverrideTimeScale(audioTimeSyncController.timeScale + 0.1f);
-                }
-            }
+            //if (Input.GetKeyDown(KeyCode.Equals)) {
+            //    if (audioTimeSyncController.timeScale < 2.0f) {
+            //        OverrideTimeScale(audioTimeSyncController.timeScale + 0.1f);
+            //    }
+            //}
 
             if (Input.GetKeyDown(KeyCode.R)) {
                 OverrideTime(0f);

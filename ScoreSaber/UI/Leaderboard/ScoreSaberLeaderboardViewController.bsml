@@ -57,7 +57,7 @@
 				   pref-height="9"
 				   on-click="OnPageDown"/>
 
-		<clickable-image size-delta-x="4" size-delta-y="4" anchor-pos-y="-11" anchor-pos-x="0" id='infoIcon' src="ScoreSaber.Resources.info.png" on-click='MapInfoClicked' hover-hint='Open the map info modal'/>
+		<clickable-image size-delta-x="4" size-delta-y="4" anchor-pos-y="-12" anchor-pos-x="0" id='infoIcon' src="ScoreSaber.Resources.info.png" on-click='MapInfoClicked' hover-hint='Open the map info modal'/>
 	</bg>
 
 	<!-- Leaderboard table -->

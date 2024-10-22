@@ -9,7 +9,7 @@
 				<dropdown-list-setting preferred-width='30' text="Location Filter" options="locationFilerOptions" value="locationFilterMode" bind-value='true' apply-on-change='true'/>
 			</modifier-container>
 		</tab>
-		<tab tab-name='Replays' tags='tabs'>
+		<tab tab-name='Replay' tags='tabs'>
 			<vertical>
 				<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
 					<toggle-setting  text='Save Local Replays' id='saveLocalReplaysSetting' value='saveLocalReplays' apply-on-change='true' />
@@ -30,6 +30,22 @@
 						<slider-setting preferred-width='65' size-delta-x='65' show-buttons='true' increment='0.01' min='-10' max='10'  text='Z Offset' value='currentZValueOffset' bind-value='true' apply-on-change='true' />
 					</horizontal>
 				</modifier-container>
+			</vertical>
+		</tab>
+		<tab tab-name='Desktop Replay' tags='tabs'>
+			<vertical spacing='1'>
+				<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
+					<toggle-setting  text='Hide Desktop UI on Replay Start' value='startReplayUIHidden' apply-on-change='true' />
+					<slider-setting  show-buttons='true' increment='0.1' min='0' max='2' text='Panel Size' value='desktopImberSize' apply-on-change='true' hover-hint='The size of the replay UI on the panel when viewing a replay' />
+				</modifier-container>
+				<text text='Replay Desktop UI Position' align='Center' underlined='true' />
+				<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
+					<horizontal spacing='2'>
+						<slider-setting preferred-width='65' size-delta-x='65' show-buttons='true' increment='0.01' min='0' max='1'  text='X Position' value='currentDesktopReplayUIPositionX' bind-value='true' apply-on-change='true' hover-hint='0 = Beginning of screen, 1 = End of screen, does NOT take into account size of the UI' />
+						<slider-setting preferred-width='65' size-delta-x='65' show-buttons='true' increment='0.01' min='0' max='1'  text='Y Position' value='currentDesktopReplayUIPositionY' bind-value='true' apply-on-change='true' hover-hint='0 = Beginning of screen, 1 = End of screen, does NOT take into account size of the UI' />
+					</horizontal>
+				</modifier-container>
+				<text text='Press I to toggle UI when in a replay!' font-size='3' font-color='grey' align='Center' italics='true' />
 			</vertical>
 		</tab>
 	</horizontal>

@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using ScoreSaber.Core.Data;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -180,7 +181,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             __Init(screen, parentViewController, containerViewController);
             screen.SetRootViewController(this, ViewController.AnimationType.None);
 
-            
+            timebarActive.material = Plugin.NoGlowMatRound;
+            timebarbg.material = Plugin.NoGlowMatRound;
         }
 
 
@@ -208,12 +210,14 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 x.OnProgressUpdated += (progress) => {
                     _imberScrubber.MainNode_PositionDidChange(progress);
                 };
-                //var containerRect = this.GetComponent<RectTransform>();
-                //_container.GetComponent<RectTransform>().position = Vector3.zero;
-                //_container.GetComponent<RectTransform>().anchorMax = new Vector2(0.2f, 0.2f);
-
-                //Plugin.Log.Notice($"{Plugin.Settings.replayUIPosition.x},{Plugin.Settings.replayUIPosition.y}");
-                //containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
+                _audioTimeSyncController.stateChangedEvent += () => {
+                    if (_audioTimeSyncController.state == AudioTimeSyncController.State.Playing) {
+                        playPauseText = "PAUSE";
+                    } else {
+                        playPauseText = "PLAY";
+                    }
+                };
+                
             }
             didParse = true;
         }
@@ -275,7 +279,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             timebarActive.rectTransform.anchoredPosition = new Vector2(timebarActiveX, 0);
         }
 
-        public class ProgressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler {
+        public class ProgressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler {
 
             public ImageView timebarActive;
             public ImageView timebarBackground;
@@ -286,13 +290,21 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             private float minX = -19f;
             private float maxX = 19f;
 
+            private Vector3 originalScale;
+            private Vector3 hoverScale;
+            private float scaleSpeed = 0.1f;
+
+            private void Start() {
+                originalScale = timebarActive.transform.localScale;
+                hoverScale = new Vector3(originalScale.x, originalScale.y * 1.2f, originalScale.z);
+            }
+
             public void OnPointerDown(PointerEventData eventData) {
                 isDragging = true;
                 UpdateTimebarPosition(eventData);
             }
 
             public void OnPointerUp(PointerEventData eventData) {
-                isDragging = false;
                 UpdateTimebarPosition(eventData);
             }
 
@@ -300,6 +312,16 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 if (isDragging) {
                     UpdateTimebarPosition(eventData);
                 }
+            }
+
+            public void OnPointerEnter(PointerEventData eventData) {
+                StopAllCoroutines();
+                StartCoroutine(LerpScale(timebarActive.transform, hoverScale));
+            }
+
+            public void OnPointerExit(PointerEventData eventData) {
+                StopAllCoroutines();
+                StartCoroutine(LerpScale(timebarActive.transform, originalScale));
             }
 
             private void UpdateTimebarPosition(PointerEventData eventData) {
@@ -316,34 +338,45 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                     OnProgressUpdated?.Invoke(progress);
                 }
             }
+
+            private IEnumerator LerpScale(Transform target, Vector3 targetScale) {
+                while (Vector3.Distance(target.localScale, targetScale) > 0.01f) {
+                    target.localScale = Vector3.Lerp(target.localScale, targetScale, scaleSpeed);
+                    yield return null;
+                }
+                target.localScale = targetScale;
+            }
         }
 
 
-        //public class DraggableViewController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler {
+        //public class DraggableContent : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler {
 
         //    public RectTransform draggableRectTransform;
-        //    public GameObject canvas;
 
         //    private Vector2 lastMousePosition;
         //    private bool isDragging = false;
 
+        //    void Awake() {
+        //        draggableRectTransform = gameObject.GetComponent<RectTransform>();
+        //    }
+
         //    public void OnPointerDown(PointerEventData eventData) {
         //        isDragging = true;
-        //        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.GetComponent<RectTransform>(), eventData.position, eventData.pressEventCamera, out lastMousePosition);
+        //        RectTransformUtility.ScreenPointToLocalPointInRectangle(gameObject.GetComponent<RectTransform>(), eventData.position, eventData.pressEventCamera, out lastMousePosition);
         //    }
 
         //    public void OnDrag(PointerEventData eventData) {
         //        if (isDragging && draggableRectTransform != null) {
         //            Vector2 mousePosition;
-        //            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.GetComponent<RectTransform>(), eventData.position, eventData.pressEventCamera, out mousePosition);
+        //            RectTransformUtility.ScreenPointToLocalPointInRectangle(gameObject.GetComponent<RectTransform>(), eventData.position, eventData.pressEventCamera, out mousePosition);
 
         //            Vector2 delta = mousePosition - lastMousePosition;
 
         //            draggableRectTransform.anchoredPosition += delta;
 
         //            Vector2 normalizedPosition = new Vector2(
-        //                (draggableRectTransform.anchoredPosition.x + canvas.GetComponent<RectTransform>().rect.width / 2) / canvas.GetComponent<RectTransform>().rect.width,
-        //                (draggableRectTransform.anchoredPosition.y + canvas.GetComponent<RectTransform>().rect.height / 2) / canvas.GetComponent<RectTransform>().rect.height
+        //                (draggableRectTransform.anchoredPosition.x + gameObject.GetComponent<RectTransform>().rect.width / 2) / gameObject.GetComponent<RectTransform>().rect.width,
+        //                (draggableRectTransform.anchoredPosition.y + gameObject.GetComponent<RectTransform>().rect.height / 2) / gameObject.GetComponent<RectTransform>().rect.height
         //            );
 
         //            normalizedPosition.x = Mathf.Clamp01(normalizedPosition.x);
@@ -353,6 +386,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         //            draggableRectTransform.anchorMax = normalizedPosition;
 
         //            lastMousePosition = mousePosition;
+        //            ScoreSaber.Plugin.Settings.replayUIPosition = new Settings.Vec2(draggableRectTransform.offsetMax);
         //        }
         //    }
 
