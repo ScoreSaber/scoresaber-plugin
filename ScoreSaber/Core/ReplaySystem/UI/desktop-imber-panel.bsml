@@ -10,7 +10,8 @@
       <tab tags="page-tab" tab-name="Player">
         <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="10">
           <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
-            <button text="~play-pause-text" pref-width="54" pref-height="8" on-click="pause-play" />
+            <button text="~play-pause-text" pref-width="28" pref-height="8" on-click="pause-play" />
+			  <button text="Exit" pref-width="28" pref-height="8" on-click="exit-replay"/>
           </horizontal>
           <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
             <button text="RESTART" pref-width="28" pref-height="8" on-click="restart" />

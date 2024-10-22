@@ -220,6 +220,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 x.OnProgressUpdated += (progress) => {
                     _imberScrubber.MainNode_PositionDidChange(progress);
                 };
+                tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
                 _audioTimeSyncController.stateChangedEvent += () => {
                     if (_audioTimeSyncController.state == AudioTimeSyncController.State.Playing) {
                         playPauseText = "PAUSE";
@@ -271,6 +272,13 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             DidPositionJump?.Invoke();
         }
+
+        [UIAction("exit-replay")]
+        protected void ExitReplay() {
+
+            Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault().MenuButtonPressed();
+        }
+
         private string FloatToTimeStamp(float timeInSeconds) {
             int minutes = (int)timeInSeconds / 60;
             int seconds = (int)timeInSeconds % 60;
