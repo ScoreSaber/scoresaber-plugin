@@ -20,28 +20,21 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             _sortedEnergyEvents = file.energyKeyframes.ToArray();
         }
 
-        private const float EPSILON = 0.001f;
-        private const float DEBOUNCE_TIME = 0.05f;
-        private float _lastUpdateTime = -1f;
-
         public void TimeUpdate(float newTime) {
-            if (Time.time - _lastUpdateTime < DEBOUNCE_TIME) {
+            if (_sortedEnergyEvents.Length == 0) {
+                UpdateEnergy(1.0f);
                 return;
-            } 
-            _lastUpdateTime = Time.time;
+            }
+
             for (int c = 0; c < _sortedEnergyEvents.Length; c++) {
-                if (_sortedEnergyEvents[c].Time - newTime > EPSILON) {
-                    float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : 0.5f;
+                if (_sortedEnergyEvents[c].Time > newTime) {
+                    float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : _sortedEnergyEvents[0].Energy;
                     UpdateEnergy(energy);
                     return;
                 }
             }
 
-            UpdateEnergy(0.5f);
-            var lastEvent = _sortedEnergyEvents.LastOrDefault();
-            if (newTime >= lastEvent.Time && lastEvent.Energy <= Mathf.Epsilon) {
-                UpdateEnergy(0f);
-            }
+            UpdateEnergy(_sortedEnergyEvents.Last().Energy);
         }
 
 
@@ -61,11 +54,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 _gameEnergyUIPanel.Init();
                 var director = Accessors.Director(ref _gameEnergyUIPanel);
                 director.Stop();
+                director.RebindPlayableGraphOutputs();
                 director.Evaluate();
                 Accessors.EnergyBar(ref _gameEnergyUIPanel).enabled = !isFailingEnergy;
             }
-
-            FieldAccessor<GameEnergyCounter, Action<float>>.Get(_gameEnergyCounter, "gameEnergyDidChangeEvent").Invoke(energy);
+            _gameEnergyUIPanel.RefreshEnergyUI(energy);
         }
     }
 }
