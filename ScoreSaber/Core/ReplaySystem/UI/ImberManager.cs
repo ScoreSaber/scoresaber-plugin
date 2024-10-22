@@ -238,6 +238,10 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         public void Tick() {
+            if (Input.GetKeyDown(KeyCode.C)) {
+                Cursor.visible = !Cursor.visible;
+                Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
+            }
             if (Input.GetKeyDown(KeyCode.I)) {
                 _desktopMainImberPanelView.gameObject.SetActive(!_desktopMainImberPanelView.gameObject.activeSelf);
             }
