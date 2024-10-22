@@ -25,8 +25,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
                 _loopNode.gameObject.SetActive(value);
                 _bar.AssignNodeToPercent(_loopNode, Mathf.Min(_maxPercent, 1f));
                 MainNode_PositionDidChange(_bar.GetNodePercent(_mainNode));
-
-                _mainNode.max = _maxPercent; // uwu owo owo uwu EVENTUALLY REPLACE WITH LEVEL FAILED TIME YEA YEA 
+                _mainNode.max = _levelFailTime; // uwu owo owo uwu EVENTUALLY REPLACE WITH LEVEL FAILED TIME YEA YEA // i did it
             }
         }
 

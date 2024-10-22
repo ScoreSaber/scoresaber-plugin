@@ -20,22 +20,30 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             _sortedEnergyEvents = file.energyKeyframes.ToArray();
         }
 
-        public void TimeUpdate(float newTime) {
+        private const float EPSILON = 0.001f;
+        private const float DEBOUNCE_TIME = 0.05f;
+        private float _lastUpdateTime = -1f;
 
+        public void TimeUpdate(float newTime) {
+            if (Time.time - _lastUpdateTime < DEBOUNCE_TIME) {
+                return;
+            } 
+            _lastUpdateTime = Time.time;
             for (int c = 0; c < _sortedEnergyEvents.Length; c++) {
-                // TODO: this has potential to have problems if _sortedEnergyEvents[c].Time is within an epsilon of newTime, potentially applying energy changes twice or not at all
-                if (_sortedEnergyEvents[c].Time > newTime) {
+                if (_sortedEnergyEvents[c].Time - newTime > EPSILON) {
                     float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : 0.5f;
                     UpdateEnergy(energy);
                     return;
                 }
             }
+
             UpdateEnergy(0.5f);
             var lastEvent = _sortedEnergyEvents.LastOrDefault();
             if (newTime >= lastEvent.Time && lastEvent.Energy <= Mathf.Epsilon) {
                 UpdateEnergy(0f);
             }
         }
+
 
         private void UpdateEnergy(float energy) {
 
