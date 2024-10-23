@@ -124,6 +124,7 @@ namespace ScoreSaber.UI.Leaderboard {
         [Inject]
         protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager) {
             _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
+            _theWilliamGradient = new Gradient { mode = GradientMode.Blend, colorKeys = new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(new Color(1f, 0.5f, 0f), 0.17f), new GradientColorKey(Color.yellow, 0.34f), new GradientColorKey(Color.green, 0.51f), new GradientColorKey(Color.blue, 0.68f), new GradientColorKey(new Color(0.5f, 0f, 0.5f), 0.85f), new GradientColorKey(Color.red, 1.15f) } };
             _playerService = playerService;
             _timeTweeningManager = timeTweeningManager;
             Plugin.Log.Debug("PanelView Setup!");
@@ -298,6 +299,14 @@ namespace ScoreSaber.UI.Leaderboard {
 
             await TaskEx.WaitUntil(() => _playerService.loginStatus == PlayerService.LoginStatus.Success);
 
+            if (_playerService.localPlayerInfo.playerId == PlayerIDs.Williums) {
+                isWilliums = true;
+            }
+
+            if (_playerService.localPlayerInfo.playerId == PlayerIDs.Denyah) {
+                isDenyah = true;
+            }
+
             while (true) {
                 await UpdateRank();
                 await Task.Delay(240000);
@@ -306,6 +315,55 @@ namespace ScoreSaber.UI.Leaderboard {
 
         //[Inject] private readonly ICoroutineStarter _coroutineStarter = null;
 
+        #region Shenanigans
+
+        private bool _isWilliums;
+        internal bool isWilliums {
+            get { return _isWilliums; }
+            set {
+                if (_isWilliums == value) { return; }
+                _gayMode = value;
+                if (!value) { _background.color = _scoreSaberBlue; }
+                _isWilliums = value;
+            }
+        }
+
+        private Gradient _theWilliamGradient;
+        private float _theWilliamVal;
+        private Sprite _denyahSprite;
+        private bool _gayMode;
+
+        private bool _isDenyah;
+        internal bool isDenyah {
+            get { return _isDenyah; }
+            set {
+                if (_isDenyah == value) { return; }
+
+                if (_background == null) return;
+                if (!value) {
+                    _background.color = _scoreSaberBlue;
+                    return;
+                }
+                if (_denyahSprite == null) {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    _denyahSprite = Utilities.LoadSpriteRaw(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.bri-ish.png"));
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+                _background.overrideSprite = _denyahSprite;
+                _isDenyah = value;
+            }
+        }
+
+        protected void Update() {
+
+            if (_gayMode) {
+                _background.color = _theWilliamGradient.Evaluate(_theWilliamVal);
+                _theWilliamVal += Time.deltaTime * 0.1f;
+                if (_theWilliamVal > 1f) _theWilliamVal = 0f;
+            }
+        }
+
+        #endregion
         public async Task UpdateRank() {
 
             try {
