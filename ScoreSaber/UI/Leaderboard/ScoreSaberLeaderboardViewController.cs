@@ -258,7 +258,7 @@ namespace ScoreSaber.UI.Leaderboard {
             if (leaderboardInfoMap == null) {
                 _tweeningService.LerpColor(_headerBackground, grey);
                 headerTextSTATIC.text = "OST";
-                _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
                 return;
             }
 
@@ -280,7 +280,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 _tweeningService.LerpColor(_headerBackground, grey);
                 headerTextSTATIC.text = "UNRANKED";
                 if (!fromCached) {
-                    _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                    _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
                 }
             }
 
@@ -292,7 +292,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 _tweeningService.LerpColor(_headerBackground, _scoreSaberBlue);
                 headerTextSTATIC.text = "QUALIFIED";
                 if (!fromCached) {
-                    _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                    _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
                 }
             }
 
@@ -300,7 +300,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 _tweeningService.LerpColor(_headerBackground, pink);
                 headerTextSTATIC.text = "LOVED";
                 if (!fromCached) {
-                    _tweeningService.FadeText(headerTextSTATIC, true, 0.3f);
+                    _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
                 }
             }
         }
@@ -387,6 +387,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 bool setPanelStatusFromCache = false;
                 loadingControl.SetActive(false);
                 _errorText.gameObject.SetActive(false);
+                SetErrorState(tableView, ref loadingControl, errorText: "");
                 tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
                 SetClickersOff();
                 headerTextSTATIC.text = "";
@@ -533,7 +534,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     Plugin.Log.Error(exception.ToString());
                 }
                 loadingControl.gameObject.SetActive(false);
-                _errorText.gameObject.SetActive(true);
+                _tweeningService.FadeText(_errorText, true, 0.2f);
                 _errorText.text = errorText;
                 tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
                 ByeImages();
@@ -643,7 +644,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     _playerNameText.rectTransform.anchoredPosition = newPosition;
 
                     tableCell.showSeparator = true;
-                    _tweeningService.FadeText(_playerNameText, true, 0.3f);
+                    _tweeningService.FadeText(_playerNameText, true, 0.2f);
                 }
             }
 

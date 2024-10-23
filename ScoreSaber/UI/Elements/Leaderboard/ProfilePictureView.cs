@@ -23,6 +23,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         public bool isLoading = false;
 
         private ICoroutineStarter coroutineStarter;
+        private TweeningService tweeningService;
 
         internal Sprite nullSprite => Utilities.ImageResources.BlankSprite;
 
@@ -31,8 +32,9 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         }
 
         [Inject]
-        public void Init(ICoroutineStarter coroutineStarter) {
+        public void Init(ICoroutineStarter coroutineStarter, TweeningService tweeningService) {
             this.coroutineStarter = coroutineStarter;
+            this.tweeningService = tweeningService;
         }
 
         [UIComponent("profileImage")]
@@ -53,8 +55,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             try {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (SpriteCache.cachedSprites.ContainsKey(url)) {
-                    profileImage.gameObject.SetActive(true);
                     profileImage.sprite = SpriteCache.cachedSprites[url];
+                    tweeningService.FadeImageView(profileImage, true, 0.2f);
                     loadingIndicator.gameObject.SetActive(false);
                     return;
                 }
@@ -102,8 +104,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                     return;
                 }
             }
-            profileImage.gameObject.SetActive(true);
             profileImage.sprite = a;
+            tweeningService.FadeImageView(profileImage, true, 0.2f);
             loadingIndicator.gameObject.SetActive(false);
         }
 
@@ -181,20 +183,51 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             float startAlpha = fadeIn ? 0f : 1f;
             float endAlpha = fadeIn ? 1f : 0f;
 
+            bool originalActiveState = text.gameObject.activeSelf;
+
             Tween tween = new FloatTween(startAlpha, endAlpha, (float u) => {
+                if (text == null || text.gameObject.activeSelf != originalActiveState) return;
                 text.color = text.color.ColorWithAlpha(u);
             }, 0.4f, EaseType.Linear, 0f);
             tween.onCompleted = () => {
-                if (text == null) return;
+                if (text == null || text.gameObject.activeSelf != originalActiveState) return;
                 text.gameObject.SetActive(fadeIn);
             };
             tween.onKilled = () => {
-                if (text == null) return;
+                if (text == null || text.gameObject.activeSelf != originalActiveState) return;
                 text.gameObject.SetActive(fadeIn);
                 text.color = text.color.ColorWithAlpha(endAlpha);
             };
             text.gameObject.SetActive(true);
             _tweeningManager.AddTween(tween, text);
+        }
+
+        public void FadeImageView(ImageView currentImageView, bool fadeIn, float time) {
+            float startAlpha = fadeIn ? 0f : 1f;
+            float endAlpha = fadeIn ? 1f : 0f;
+
+            bool originalActiveState = currentImageView.gameObject.activeSelf;
+
+            Tween tween = new FloatTween(startAlpha, endAlpha, (float u) => {
+                if (currentImageView == null || currentImageView.gameObject.activeSelf != originalActiveState) return;
+                currentImageView.color = currentImageView.color.ColorWithAlpha(u);
+                currentImageView.color0 = currentImageView.color.ColorWithAlpha(u);
+                currentImageView.color1 = currentImageView.color.ColorWithAlpha(u);
+            }, 0.4f, EaseType.Linear, 0f);
+            tween.onCompleted = () => {
+                if (currentImageView == null || currentImageView.gameObject.activeSelf != originalActiveState) return;
+                currentImageView.color = currentImageView.color.ColorWithAlpha(endAlpha);
+                currentImageView.color0 = currentImageView.color.ColorWithAlpha(endAlpha);
+                currentImageView.color1 = currentImageView.color.ColorWithAlpha(endAlpha);
+            };
+            tween.onKilled = () => {
+                if (currentImageView == null || currentImageView.gameObject.activeSelf != originalActiveState) return;
+                currentImageView.color = currentImageView.color.ColorWithAlpha(endAlpha);
+                currentImageView.color0 = currentImageView.color.ColorWithAlpha(endAlpha);
+                currentImageView.color1 = currentImageView.color.ColorWithAlpha(endAlpha);
+            };
+            currentImageView.gameObject.SetActive(true);
+            _tweeningManager.AddTween(tween, currentImageView);
         }
 
         public void LerpColor(ImageView currentImageView, Color newColor, float time = 0.0f) {
@@ -203,7 +236,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 currentImageView.color = u;
                 currentImageView.color0 = u;
                 currentImageView.color1 = u;
-            }, time == 0.0f ? 0.3f : time, EaseType.Linear, 0f);
+            }, time == 0.0f ? 0.2f : time, EaseType.Linear, 0f);
             tween.onCompleted = () => {
                 if (currentImageView == null) return;
                 currentImageView.color = newColor;
