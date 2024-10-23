@@ -220,6 +220,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 x.OnProgressUpdated += (progress) => {
                     _imberScrubber.MainNode_PositionDidChange(progress);
                 };
+                var y = timebarbg.gameObject.AddComponent<TimebarBackgroundHandler>();
+                y.progressHandler = x;
                 tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
                 _audioTimeSyncController.stateChangedEvent += () => {
                     if (_audioTimeSyncController.state == AudioTimeSyncController.State.Playing) {
@@ -297,7 +299,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             timebarActive.rectTransform.anchoredPosition = new Vector2(timebarActiveX, 0);
         }
 
-        public class ProgressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler {
+        public class ProgressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler {
 
             public ImageView timebarActive;
             public ImageView timebarBackground;
@@ -318,9 +320,17 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             private Vector3 hoverScale;
             private float scaleSpeed = 0.1f;
 
+            public void UpdateProgress(float progress) {
+                OnProgressUpdated?.Invoke(progress);
+            }
+
             private void Start() {
                 originalScale = timebarActive.transform.localScale;
                 hoverScale = new Vector3(originalScale.x, originalScale.y * 1.2f, originalScale.z);
+            }
+
+            public void OnPointerClick(PointerEventData eventData) {
+                UpdateTimebarPosition(eventData);
             }
 
             public void OnPointerDown(PointerEventData eventData) {
@@ -330,6 +340,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
 
             public void OnPointerUp(PointerEventData eventData) {
+                isDragging = false;
                 upClick?.Invoke();
                 UpdateTimebarPosition(eventData);
             }
@@ -371,6 +382,33 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                     yield return null;
                 }
                 target.localScale = targetScale;
+            }
+        }
+
+        public class TimebarBackgroundHandler : MonoBehaviour, IPointerDownHandler, IDragHandler {
+
+            public ProgressHandler progressHandler;
+
+            private float minX = -19f;
+            private float maxX = 19f;
+
+            public void OnDrag(PointerEventData eventData) {
+                OnPointerDown(eventData);
+            }
+
+            public void OnPointerDown(PointerEventData eventData) {
+                RectTransform timebarRect = GetComponent<RectTransform>();
+                Vector2 localPoint;
+
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(timebarRect, eventData.position, eventData.pressEventCamera, out localPoint)) {
+                    float clampedX = Mathf.Clamp(localPoint.x, minX, maxX);
+
+                    progressHandler.timebarActive.rectTransform.anchoredPosition = new Vector2(clampedX, 0);
+
+                    float progress = Mathf.InverseLerp(minX, maxX, clampedX);
+
+                    progressHandler.UpdateProgress(progress);
+                }
             }
         }
 

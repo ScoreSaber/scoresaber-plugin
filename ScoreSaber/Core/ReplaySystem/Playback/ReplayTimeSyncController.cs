@@ -105,10 +105,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
             _beatmapCallbacksUpdater.Pause();
 
-            Accessors.GameNotePool(ref _basicBeatmapObjectManager).DespawnAll();
-            Accessors.BurstSliderHeadNotePool(ref _basicBeatmapObjectManager).DespawnAll();
-            Accessors.BurstSliderNotePool(ref _basicBeatmapObjectManager).DespawnAll();
-            Accessors.BombNotePool(ref _basicBeatmapObjectManager).DespawnAll();
+            Accessors.GameNotePool(ref _basicBeatmapObjectManager).activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
+            Accessors.BurstSliderHeadNotePool(ref _basicBeatmapObjectManager).activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
+            Accessors.BurstSliderNotePool(ref _basicBeatmapObjectManager).activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
+            Accessors.BombNotePool(ref _basicBeatmapObjectManager).activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             Accessors.ObstaclePool(ref _basicBeatmapObjectManager).activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
 
             audioTimeSyncController.Pause();
