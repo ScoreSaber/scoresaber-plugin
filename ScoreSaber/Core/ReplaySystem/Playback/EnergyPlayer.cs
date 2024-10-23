@@ -21,21 +21,22 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         }
 
         public void TimeUpdate(float newTime) {
+            if (_sortedEnergyEvents.Length == 0) {
+                UpdateEnergy(1.0f);
+                return;
+            }
 
             for (int c = 0; c < _sortedEnergyEvents.Length; c++) {
-                // TODO: this has potential to have problems if _sortedEnergyEvents[c].Time is within an epsilon of newTime, potentially applying energy changes twice or not at all
                 if (_sortedEnergyEvents[c].Time > newTime) {
-                    float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : 0.5f;
+                    float energy = c != 0 ? _sortedEnergyEvents[c - 1].Energy : _sortedEnergyEvents[0].Energy;
                     UpdateEnergy(energy);
                     return;
                 }
             }
-            UpdateEnergy(0.5f);
-            var lastEvent = _sortedEnergyEvents.LastOrDefault();
-            if (newTime >= lastEvent.Time && lastEvent.Energy <= Mathf.Epsilon) {
-                UpdateEnergy(0f);
-            }
+
+            UpdateEnergy(_sortedEnergyEvents.Last().Energy);
         }
+
 
         private void UpdateEnergy(float energy) {
 
@@ -53,11 +54,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 _gameEnergyUIPanel.Init();
                 var director = Accessors.Director(ref _gameEnergyUIPanel);
                 director.Stop();
+                director.RebindPlayableGraphOutputs();
                 director.Evaluate();
                 Accessors.EnergyBar(ref _gameEnergyUIPanel).enabled = !isFailingEnergy;
             }
-
-            FieldAccessor<GameEnergyCounter, Action<float>>.Get(_gameEnergyCounter, "gameEnergyDidChangeEvent").Invoke(energy);
+            _gameEnergyUIPanel.RefreshEnergyUI(energy);
         }
     }
 }

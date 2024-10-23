@@ -1,22 +1,170 @@
-﻿<bg id="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd">
+<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
+
+	<horizontal pref-width="90"
+				pref-height="8"
+				anchor-pos-y="41.5"
+				id="myHeader"
+				horizontal-fit="PreferredSize"
+				background="round-rect-panel">
+		<stack>
+			<horizontal active="false" child-align="MiddleCenter" pad="2" bg="round-rect-panel" id="starRatingBox" bg-color="#000000EE" spacing="0.75" horizontal-fit="PreferredSize" preferred-width="18" size-delta-x="18" size-delta-y="7" preferred-height="7" vertical-fit="PreferredSize">
+				<text id="headerText"
+					  text="SCORESABER"
+					  font-size="5"
+					  align="Midline"
+					  italics="true"
+					  rich-text="true"
+					  active="true"
+					  />
+			</horizontal>
+			<horizontal id="headerSTATIC">
+				<text id="headerTextSTATIC"
+					text="UNRANKED"
+					font-size="6"
+					align="Midline"
+					italics="true"
+					rich-text="true"
+					/>
+			</horizontal>
+		</stack>
+	</horizontal>
 
 	<!-- Leaderboard scrollers -->
-	<bg anchor-pos-x="-40" anchor-pos-y="-20">
-		<page-button on-click="up-button-click" id="up-button" dir="Up" anchor-pos-y="17" interactable="false" />
-		<page-button on-click="down-button-click" id="down-button" dir="Down" anchor-pos-y="-20" />
+	<bg anchor-pos-x="-40" anchor-pos-y="-10">
+
+		<clickable-image size-delta-x="4" size-delta-y="4"  anchor-pos-y="42" anchor-pos-x="0" id='linkIcon' src="ScoreSaber.Resources.link.png" on-click='clicked-status' hover-hint='Map webpage'/>
+		
+		<page-button id="up_button"
+					 icon="ScoreSaber.Resources.carat.png"
+					 dir="Up"
+					 anchor-pos-y="11"
+					 pref-width="9"
+					 pref-height="9"
+					 on-click="OnPageUp"/>
+		<vertical-icon-segments id="scopeSegmentedControl"
+								contents='leaderboardIcons'
+								select-cell='OnIconSelected'
+								anchor-pos-y="15"
+								size-delta-x="10"
+								size-delta-y="25"/>
+
+		<page-button id="down_button"
+				   icon="ScoreSaber.Resources.carat.png"
+				   dir="Down"
+				   anchor-pos-y="-21"
+				   pref-width="9"
+				   pref-height="9"
+				   on-click="OnPageDown"/>
+
+		<clickable-image size-delta-x="4" size-delta-y="4" anchor-pos-y="-12" anchor-pos-x="0" id='infoIcon' src="ScoreSaber.Resources.info.png" on-click='MapInfoClicked' hover-hint='Open the map info modal'/>
 	</bg>
 
+	<!-- Leaderboard table -->
+	<vertical pref-width='76'
+			  pref-height='60.5'
+			  anchor-pos-x="7"
+			  anchor-pos-y="5.2"
+			  horizontal-fit='PreferredSize'
+			  vertical-fit='PreferredSize'>
+		<leaderboard id='leaderboardTableView'
+					 cell-size='6.05'>
+			
+			<text id="errorText"
+				  text="No scores on this map!"
+				  font-size="5"
+				  anchor-pos-x="-5"
+				  align="Center"
+				  italics="true"
+				  color="#f0584a"
+				  active="false"/>
 
-  <button-with-icon icon="ScoreSaber.Resources.replay.png" id="buttonPPv3Replay" active="false" on-click="PPv3-replay-click" hover-hint="Watch PPv3 Replay" pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="17" anchor-pos-y="36"/>
+			<loading anchor-pos-x="-5" align="Center" active="false" id="loadingLB" pref-width='20' pref-height='20' preserve-aspect='true'/>
 
-	<!-- Profile Pictures -->
+			<!-- Score info modal -->
+			<modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="55">
+				<macro.as-host host="score-detail-view">
+					<vertical pref-width="55" pad="3" vertical-fit="PreferredSize" spacing="0.8">
+						<horizontal pref-width="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+							<vertical pref-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+								<horizontal preferred-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" child-align="MiddleLeft" child-expand-width="false" spacing="1">
+									<img id="prefix-image" preserve-aspect="true" preferred-width="5.5" pref-height="5.5" size-delta-y="5.5" hover-hint="" />
+									<text id="name-text" text="" font-size="4"  align="Left" overflow-mode="Ellipsis" />
+								</horizontal>
+							</vertical>
+							<horizontal pref-width="12" pref-height="5.5">
+								<button-with-icon active="true" icon="ScoreSaber.Resources.user.png" id="show-profile-button" hover-hint="View Profile" pref-width="15" pref-height="13" on-click="show-profile-click" />
+								<button-with-icon active="true" icon="ScoreSaber.Resources.replay.png" id="watch-replay-button" hover-hint="Watch Replay" pref-width="15" pref-height="13" interactable="false" on-click="replay-click" />
+							</horizontal>
+						</horizontal>
+						<image src="ScoreSaber.Resources.pixel.png" size-delta-x="48" pref-height="0.4" />
+						<vertical pref-width="50" pref-height="45">
+							<text id="devicehmd-text" text="" font-size="3.5" />
+							<text id="devicecontrollerleft-text" text="" font-size="3.5" />
+							<text id="devicecontrollerright-text" text="" font-size="3.5" />
+							<text id="score-text" text="" font-size="3.5" />
+							<text id="pp-text" text="" font-size="3.5" />
+							<text id="max-combo-text" text="" font-size="3.5" />
+							<text id="full-combo-text" text="" font-size="3.5" />
+							<text id="bad-cuts-text" text="" font-size="3.5" />
+							<text id="missed-notes-text" text="" font-size="3.5" />
+							<text id="modifiers-text" text="" font-size="3.5" />
+							<text id="time-text" text="" font-size="3.5" />
+						</vertical>
+					</vertical>
+				</macro.as-host>
+			</modal>
+
+			<!-- map info modal -->
+			<modal id="map-info-modal-root" show-event="present-map-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="90" size-delta-y="50">
+				<macro.as-host host="map-info-view">
+					<vertical child-control-height="false" spacing="1" pref-height="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#69696999">
+						<horizontal id="map-info-top" bg="round-rect-panel" bg-color="#555EBC" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" anchor-pos-y="1" pref-width="90" size-delta-x="90">
+							<horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" spacing="2" child-align="MiddleCenter">
+								<clickable-text id="map-name-text" text="Loading..." align="Center" anchor-pos-y="20" font-size="5" size-delta-y="6" size-delta-x="45" overflow-mode="Overflow" on-click="map-info-url-click" hover-hint="Opens in browser" />
+							</horizontal>
+						</horizontal>
+						<horizontal id="map-info-set" pref-width="90" pref-height="40" spacing="2">
+							<vertical horizontal-fit="PreferredSize" pref-width="35">
+								<vertical pad-left="2" pref-width="35" child-expand-height="true">
+									<img id="map-info-picture" preferred-height="20" preferred-width="20" preserve-aspect="true" />
+								</vertical>
+								<text id="map-author-text" text="Loading..." align="Center" word-wrapping="true"/>
+							</vertical>
+							<vertical pref-width=".75" pref-height="40">
+								<img id="map-info-line-border" src="ScoreSaber.Resources.pixel.png" size-delta-x=".75" size-delta-y="45" />
+							</vertical>
+							<vertical pref-width="40" pref-height="45" pad="2">
+								<vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" size-delta-x="50" size-delta-y="45" >
+									<vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
+										<text id="map-upload-date-text" text="Upload Date:"  align="Left" size-delta-y="4" />
+									</vertical>
+									<vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
+										<text id="map-status-date-text" text="Ranking Date:" align="Left" size-delta-y="4" />
+									</vertical>
+									<vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
+										<text id="map-plays-text" text="Plays:" align="Left" size-delta-y="4" />
+									</vertical>
+								</vertical>
+							</vertical>
+						</horizontal>
+						<horizontal id="map-info-set-loading">
+							<loading-indicator preserve-aspect="true"/>
+						</horizontal>
+					</vertical>
+				</macro.as-host>
+			</modal>
+			
+		</leaderboard>
+	</vertical>
+	
 	<vertical anchor-pos-x="-21"
-		  anchor-pos-y="-1" spacing="-20.15">
+		  anchor-pos-y="5.3" spacing="-19.4">
 		<macro.for-each hosts="imageHolders">
 			<horizontal child-expand-height="true" child-align="MiddleCenter">
 				<stack>
-					<image id="profileImage" pref-width="4.75" pref-height="4.75" preserve-aspect="true"/>
-					<loading-indicator id="profileloading" pref-width="3.75" pref-height="3.75" active="false" preserve-aspect="true"/>
+					<image id="profileImage" src="ScoreSaber.Resources.blank.png" pref-width="5" pref-height="5" preserve-aspect="true"/>
+					<loading-indicator id="profileloading" pref-width="4" pref-height="4" active="false" preserve-aspect="true"/>
 				</stack>
 			</horizontal>
 		</macro.for-each>
@@ -24,51 +172,14 @@
 
 	<!-- Cell Clickers (please forgive me theres no other way) -->
 	<vertical anchor-pos-x="5"
-		  anchor-pos-y="-1" spacing="-20.25">
+		  anchor-pos-y="5.3" spacing="-19.4">
 		<macro.for-each hosts="cellClickerHolders">
 			<horizontal child-expand-height="true" child-align="MiddleCenter">
 				<stack>
-					<image id="cellClickerImage" pref-width="72" pref-height="5.75" preserve-aspect="true"/>
+					<image src="ScoreSaber.Resources.blank.png" id="cellClickerImage" pref-width="70" pref-height="5.75" preserve-aspect="true"/>
 				</stack>
 			</horizontal>
 		</macro.for-each>
 	</vertical>
-
-	<!-- Score info modal -->
-	<modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="50">
-		<macro.as-host host="score-detail-view">
-			<vertical pref-width="55" pad="3" vertical-fit="PreferredSize" spacing="0.8">
-				<horizontal pref-width="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
-					<vertical pref-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
-						<horizontal preferred-width="38" pref-height="5.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" child-align="MiddleLeft" child-expand-width="false" spacing="1">
-							<img id="prefix-image" preserve-aspect="true" preferred-width="5.5" pref-height="5.5" size-delta-y="5.5" hover-hint="" />
-							<text id="name-text" text="" font-size="4"  align="Left" overflow-mode="Ellipsis" />
-						</horizontal>
-					</vertical>
-					<horizontal pref-width="12" pref-height="5.5">
-						<button-with-icon active="true" icon="ScoreSaber.Resources.user.png" id="show-profile-button" hover-hint="View Profile" pref-width="15" pref-height="13" on-click="show-profile-click" />
-						<button-with-icon active="true" icon="ScoreSaber.Resources.replay.png" id="watch-replay-button" hover-hint="Watch Replay" pref-width="15" pref-height="13" interactable="false" on-click="replay-click" />
-					</horizontal>
-				</horizontal>
-				<image src="ScoreSaber.Resources.pixel.png" size-delta-x="48" pref-height="0.4" />
-				<vertical pref-width="50" pref-height="40">
-					<text id="devicehmd-text" text="" font-size="3.5" />
-					<!-- <text id="devicecontrollerleft-text" text="" font-size="3.5" />
-					<text id="devicecontrollerright-text" text="" font-size="3.5" /> -->
-					<text id="score-text" text="" font-size="3.5" />
-					<text id="pp-text" text="" font-size="3.5" />
-					<text id="max-combo-text" text="" font-size="3.5" />
-					<text id="full-combo-text" text="" font-size="3.5" />
-					<text id="bad-cuts-text" text="" font-size="3.5" />
-					<text id="missed-notes-text" text="" font-size="3.5" />
-					<text id="modifiers-text" text="" font-size="3.5" />
-					<text id="time-text" text="" font-size="3.5" />
-				</vertical>
-			</vertical>
-		</macro.as-host>
-	</modal>
-
-	<!-- Profile modal -->
 	<ss-profile id="profile-detail-view" show-event="show-profile" loading="false" />
-
 </bg>

@@ -4,6 +4,8 @@ using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Core.Data.Models;
 using System;
 using System.Linq;
+using ScoreSaber.UI.Leaderboard;
+using System.Collections.Generic;
 
 namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
@@ -16,20 +18,25 @@ namespace ScoreSaber.Core.Services {
             Plugin.Log.Debug("LeaderboardService Setup");
         }
 
-        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, PlatformLeaderboardsModel.ScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings, bool filterAroundCountry = false) {
+        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings) {
 
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, scope, page, filterAroundCountry);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, scope, page);
+            if (leaderboardUrl == null) {
+                currentLoadedLeaderboard = null;
+                return null;
+            }
             string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
             Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
 
             Plugin.Log.Debug($"Current leaderboard set to: {beatmapKey.levelId}:{beatmapLevel.songName}");
             currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, beatmapLevel, beatmapKey, maxMultipliedScore);
+            AddLeaderboardInfoMapToCache(currentLoadedLeaderboard.leaderboardInfoMap.beatmapKey, currentLoadedLeaderboard.leaderboardInfoMap);
             return currentLoadedLeaderboard;
         }
 
         public async Task<Leaderboard> GetCurrentLeaderboard(BeatmapKey beatmapKey) {
 
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, PlatformLeaderboardsModel.ScoresScope.Global, 1, false);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global, 1);
 
             int attempts = 0;
             while (attempts < 4) {
@@ -45,7 +52,11 @@ namespace ScoreSaber.Core.Services {
             return null;
         }
       
-        private string GetLeaderboardUrl(BeatmapKey beatmapKey, PlatformLeaderboardsModel.ScoresScope scope, int page, bool filterAroundCountry) {
+        private string GetLeaderboardUrl(BeatmapKey beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page) {
+            
+            if(!beatmapKey.levelId.Contains("custom_level_")) {
+                return null;
+            }
 
             string url = "/game/leaderboard";
             string leaderboardId = beatmapKey.levelId.Split('_')[2];
@@ -54,29 +65,27 @@ namespace ScoreSaber.Core.Services {
 
             bool hasPage = true;
 
-            if (!filterAroundCountry) {
-                switch (scope) {
-                    case PlatformLeaderboardsModel.ScoresScope.Global:
-                        url = $"{url}/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                        break;
-                    case PlatformLeaderboardsModel.ScoresScope.AroundPlayer:
-                        url = $"{url}/around-player/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}";
-                        hasPage = false;
-                        break;
-                    case PlatformLeaderboardsModel.ScoresScope.Friends:
-                        url = $"{url}/around-friends/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                        break;
-                }
-            } else {
-                if(Plugin.Settings.locationFilterMode.ToLower() == "region") {
-                    url = $"{url}/around-region/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                }
-                else if(Plugin.Settings.locationFilterMode.ToLower() == "country") {
-                    url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                } else {
-                    Plugin.Log.Error("Invalid location filter mode, falling back to country");
-                    url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                }
+            switch (scope) {
+                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global:
+                    url = $"{url}/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                    break;
+                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Player:
+                    url = $"{url}/around-player/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}";
+                    hasPage = false;
+                    break;
+                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Friends:
+                    url = $"{url}/around-friends/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                    break;
+                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Area:
+                    if (Plugin.Settings.locationFilterMode.ToLower() == "region") {
+                        url = $"{url}/around-region/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                    } else if (Plugin.Settings.locationFilterMode.ToLower() == "country") {
+                        url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                    } else {
+                        Plugin.Log.Error("Invalid location filter mode, falling back to country");
+                        url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
+                    }
+                    break;
             }
 
             if (Plugin.Settings.hideNAScoresFromLeaderboard) {
@@ -87,6 +96,32 @@ namespace ScoreSaber.Core.Services {
             }
 
             return url;
+        }
+
+        internal Dictionary<BeatmapKey, LeaderboardInfoMap> cachedLeaderboardInfoMaps = new Dictionary<BeatmapKey, LeaderboardInfoMap>();
+        private int MaxLBInfoCacheSize = 100;
+        internal Queue<BeatmapKey> LBInfoCacheQueue = new Queue<BeatmapKey>();
+        internal void MaintainLeaderboardInfoMapCache() {
+            while (cachedLeaderboardInfoMaps.Count > MaxLBInfoCacheSize) {
+                BeatmapKey oldestUrl = LBInfoCacheQueue.Dequeue();
+                cachedLeaderboardInfoMaps.Remove(oldestUrl);
+            }
+        }
+
+        internal void AddLeaderboardInfoMapToCache(BeatmapKey url, LeaderboardInfoMap LeaderboardInfoMap) {
+            if (cachedLeaderboardInfoMaps.ContainsKey(url)) {
+                return;
+            }
+            cachedLeaderboardInfoMaps.Add(url, LeaderboardInfoMap);
+            LBInfoCacheQueue.Enqueue(url);
+            MaintainLeaderboardInfoMapCache();
+        }
+
+        internal LeaderboardInfoMap GetLeaderboardInfoMapFromCache(BeatmapKey url) {
+            if (cachedLeaderboardInfoMaps.ContainsKey(url)) {
+                return cachedLeaderboardInfoMaps[url];
+            }
+            return null;
         }
     }
 }

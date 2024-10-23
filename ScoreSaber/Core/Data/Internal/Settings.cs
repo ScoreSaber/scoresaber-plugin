@@ -8,7 +8,7 @@ namespace ScoreSaber.Core.Data
 {
     internal class Settings
     {
-        private static int _currentVersion => 8;
+        private static int _currentVersion => 9;
 
         public bool hideReplayUI = false;
 
@@ -36,6 +36,10 @@ namespace ScoreSaber.Core.Data
         public bool leftHandedReplayUI { get; set; }
         public bool lockedReplayUIMode { get; set; }
         public List<SpectatorPoseRoot> spectatorPositions { get; set; }
+        public Vec2 replayUIPosition { get; set; }
+        public float replayUISize { get; set; }
+        public bool startReplayUIHidden { get; set; }
+        public bool hideWatermarkIfUsersReplay { get; set; }
 
         internal static string dataPath => "UserData";
         internal static string configPath => dataPath + @"\ScoreSaber";
@@ -65,6 +69,10 @@ namespace ScoreSaber.Core.Data
             hasOpenedReplayUI = false;
             leftHandedReplayUI = false;
             lockedReplayUIMode = false;
+            replayUIPosition = new Vec2(new Vector2(0.12f, 0.14f));
+            replayUISize = 1.25f;
+            startReplayUIHidden = false;
+            hideWatermarkIfUsersReplay = false;
             SetDefaultSpectatorPositions();
         }
 
@@ -113,6 +121,11 @@ namespace ScoreSaber.Core.Data
                     if(decoded.fileVersion < 8) {
                         decoded.replayCameraSmoothing = true;
                     }
+                    if (decoded.fileVersion < 9) {
+                        decoded.replayUIPosition = new Vec2(new Vector2(0.12f, 0.14f));
+                        decoded.replayUISize = 1.25f;
+                        decoded.startReplayUIHidden = false;
+                    }
                     SaveSettings(decoded);
                 }
                 return decoded;
@@ -133,6 +146,22 @@ namespace ScoreSaber.Core.Data
                 File.WriteAllText(configPath + @"\ScoreSaber.json", serialized);
             } catch (Exception ex) {
                 Plugin.Log.Error("Failed to save settings " + ex.ToString());
+            }
+        }
+
+        internal struct Vec2 {
+            [JsonProperty("x")]
+            internal float x { get; set; }
+            [JsonProperty("y")]
+            internal float y { get; set; }
+
+            internal Vec2(Vector2 position) {
+                x = position.x;
+                y = position.y;
+            }
+
+            internal Vector2 ToVector2() {
+                return new Vector2(x, y);
             }
         }
 

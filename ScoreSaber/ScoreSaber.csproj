@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{844132E4-CDFC-49D3-950D-38F62ED8B513}</ProjectGuid>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
     <LangVersion>7.3</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -30,6 +30,22 @@
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Core\ReplaySystem\UI\desktop-imber-panel.bsml" />
+    <None Remove="Resources\blank.png" />
+    <None Remove="Resources\bluePixel.png" />
+    <None Remove="Resources\carat.png" />
+    <None Remove="Resources\friend.png" />
+    <None Remove="Resources\globe.png" />
+    <None Remove="Resources\link.png" />
+    <None Remove="Resources\Player.png" />
+    <None Remove="Resources\redPixel.png" />
+    <None Remove="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\bluePixel.png" />
+    <EmbeddedResource Include="Resources\redPixel.png" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="AdditionalContentModel.Interfaces">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\AdditionalContentModel.Interfaces.dll</HintPath>
@@ -74,6 +90,11 @@
     </Reference>
     <Reference Include="Interactable">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Interactable.dll</HintPath>
+    </Reference>
+    <Reference Include="LeaderboardCore">
+      <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Networking">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Networking.dll</HintPath>
@@ -264,7 +285,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Core\ReplaySystem\UI\desktop-imber-panel.bsml" />
     <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="Resources\carat.png" />
+    <EmbeddedResource Include="Resources\friend.png" />
+    <EmbeddedResource Include="Resources\globe.png" />
+    <EmbeddedResource Include="Resources\blank.png" />
+    <EmbeddedResource Include="Resources\link.png" />
+    <EmbeddedResource Include="Resources\Player.png" />
     <EmbeddedResource Include="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
     <EmbeddedResource Include="UI\Main\Settings\ViewControllers\MainSettingsViewController.bsml" />
     <EmbeddedResource Include="UI\Main\ViewControllers\GlobalViewController.bsml" />

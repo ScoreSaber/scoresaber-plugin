@@ -33,7 +33,6 @@ namespace ScoreSaber.Core.ReplaySystem.Installers {
                     if (_gameplayCoreSceneSetupData.playerSpecificSettings.automaticPlayerHeight)
                         Container.BindInterfacesTo<HeightPlayer>().AsSingle();
                     Container.BindInterfacesAndSelfTo<ReplayTimeSyncController>().AsSingle();
-                    Container.Bind<NonVRReplayUI>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                     Container.Bind<IAffinity>().To<CancelScoreControllerBufferFinisher>().AsSingle();
                     Container.Bind<IAffinity>().To<CancelSaberCuttingPatch>().AsSingle();
                 } else {

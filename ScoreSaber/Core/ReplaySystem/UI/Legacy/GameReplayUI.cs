@@ -14,7 +14,9 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
         [Inject] private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData = null;
 
         public void Start() {
-
+            if(Plugin.Settings.hideWatermarkIfUsersReplay && Plugin.ReplayState.isUsersReplay) {
+                return;
+            }
             CreateReplayUI();
         }
 
@@ -74,6 +76,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
             gameObject.SetActive(true);
             return textMeshProUGUI;
         }
+
+
 
         public string GetFriendlyModifiers(GameplayModifiers gameplayModifiers) {
 

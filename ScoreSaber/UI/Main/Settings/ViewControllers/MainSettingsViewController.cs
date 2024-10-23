@@ -105,5 +105,44 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
             get => Plugin.Settings.replayCameraZOffset;
             set => Plugin.Settings.replayCameraZOffset = value;
         }
+
+        [UIValue("startReplayUIHidden")]
+        public bool StartReplayUIHidden {
+            get => Plugin.Settings.startReplayUIHidden;
+            set => Plugin.Settings.startReplayUIHidden = value;
+        }
+
+        [UIValue("desktopImberSize")]
+        public float DesktopImberSize {
+            get => Plugin.Settings.replayUISize;
+            set => Plugin.Settings.replayUISize = value;
+        }
+
+
+        [UIValue("currentDesktopReplayUIPositionX")]
+        public float currentDesktopReplayUIPositionX {
+            get => Plugin.Settings.replayUIPosition.x;
+            set {
+                var replayUIPosition = Plugin.Settings.replayUIPosition;
+                replayUIPosition.x = value;
+                Plugin.Settings.replayUIPosition = replayUIPosition;
+            }
+        }
+
+        [UIValue("currentDesktopReplayUIPositionY")]
+        public float currentDesktopReplayUIPositionY {
+            get => Plugin.Settings.replayUIPosition.y;
+            set {
+                var replayUIPosition = Plugin.Settings.replayUIPosition;
+                replayUIPosition.y = value;
+                Plugin.Settings.replayUIPosition = replayUIPosition;
+            }
+        }
+
+        [UIValue("hideWatermarkIfUserReplay")]
+        public bool HideWatermarkIfUserReplay {
+            get => Plugin.Settings.hideWatermarkIfUsersReplay;
+            set => Plugin.Settings.hideWatermarkIfUsersReplay = value;
+        }
     }
 }

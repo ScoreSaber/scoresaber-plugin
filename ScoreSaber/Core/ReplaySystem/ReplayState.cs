@@ -10,6 +10,7 @@ namespace ScoreSaber.Core.ReplaySystem
         internal BeatmapKey CurrentBeatmapKey;
         internal GameplayModifiers CurrentModifiers;
         internal string CurrentPlayerName;
+        internal bool isUsersReplay;
 
         // Legacy 
         internal bool IsLegacyReplay;

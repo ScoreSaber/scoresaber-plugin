@@ -1,5 +1,6 @@
 ﻿using ScoreSaber.Core.Data.Models;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ScoreSaber.Core.Data.Wrappers {
     internal class LeaderboardMap {
@@ -22,5 +23,7 @@ namespace ScoreSaber.Core.Data.Wrappers {
             }
             return leaderboardTableScoreData;
         }
+
+
     }
 }

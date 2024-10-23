@@ -1,12 +1,20 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using IPA.Utilities.Async;
+using ScoreSaber.Core.Services;
+using ScoreSaber.UI.Leaderboard;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
+using TMPro;
+using Tweening;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace ScoreSaber.UI.Elements.Leaderboard {
     internal class ProfilePictureView {
@@ -16,16 +24,18 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         public bool isLoading = false;
 
         private ICoroutineStarter coroutineStarter;
+        private TweeningService tweeningService;
 
-        internal Sprite nullSprite = BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
+        internal Sprite nullSprite => Utilities.ImageResources.BlankSprite;
 
         public ProfilePictureView(int index) {
             this.index = index;
         }
 
         [Inject]
-        public void Init(ICoroutineStarter coroutineStarter) {
+        public void Init(ICoroutineStarter coroutineStarter, TweeningService tweeningService) {
             this.coroutineStarter = coroutineStarter;
+            this.tweeningService = tweeningService;
         }
 
         [UIComponent("profileImage")]
@@ -36,8 +46,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         [UIAction("#post-parse")]
         public void Parsed() {
+            //profileImage.sprite = nullSprite;
             profileImage.material = Plugin.NoGlowMatRound;
-            profileImage.sprite = nullSprite;
             profileImage.gameObject.SetActive(true);
             loadingIndicator.gameObject.SetActive(false);
         }
@@ -46,8 +56,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             try {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (SpriteCache.cachedSprites.ContainsKey(url)) {
-                    profileImage.gameObject.SetActive(true);
                     profileImage.sprite = SpriteCache.cachedSprites[url];
+                    tweeningService.FadeImageView(profileImage, true, 0.2f);
                     loadingIndicator.gameObject.SetActive(false);
                     return;
                 }
@@ -95,8 +105,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                     return;
                 }
             }
-            profileImage.gameObject.SetActive(true);
             profileImage.sprite = a;
+            tweeningService.FadeImageView(profileImage, true, 0.2f);
             loadingIndicator.gameObject.SetActive(false);
         }
 
@@ -115,6 +125,12 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             }
             if(loadingIndicator != null) {
                 loadingIndicator.gameObject.SetActive(false);
+            }
+        }
+
+        public void Active(bool state) {
+            if (profileImage != null) {
+                profileImage.sprite = nullSprite;
             }
         }
     }
@@ -138,4 +154,6 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             spriteCacheQueue.Enqueue(url);
         }
     }
+
+    
 }

@@ -16,6 +16,10 @@ using Tweening;
 using UnityEngine;
 using Zenject;
 using ScoreSaber.UI.Main;
+using IPA.Config.Data;
+using TMPro;
+using ScoreSaber.UI.Elements.Leaderboard;
+using System.Threading;
 
 namespace ScoreSaber.UI.Leaderboard {
     [HotReload]
@@ -31,17 +35,31 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIComponent("scoresaber-logo")]
         protected readonly ClickableImage _scoresaberLogoClickable = null;
 
-        [UIComponent("container")]
-        protected readonly Backgroundable _container = null;
-
         [UIComponent("prompt-root")]
         protected readonly RectTransform _promptRoot = null;
 
         [UIComponent("prompt-text")]
         protected readonly CurvedTextMeshPro _promptText = null;
 
+        [UIComponent("container")]
+        protected readonly Backgroundable _container = null;
+
         [UIComponent("prompt-loader")]
         protected readonly ImageView _promptLoader = null;
+
+        //[UIComponent("playerPFP")]
+        //protected readonly ImageView _playerPFP = null;
+
+        //private string _usernameText = "Loading...";
+
+        //[UIValue("usernameText")]
+        //protected string usernameText {
+        //    get => _usernameText;
+        //    set {
+        //        _usernameText = value;
+        //        NotifyPropertyChanged();
+        //    }
+        //}
 
         private string _globalLeaderboardRanking = "<b><color=#FFDE1A>Global Ranking: </color></b> Loading...";
         [UIValue("global-leaderboard-ranking")]
@@ -53,12 +71,12 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        private string _leaderboardRankedStatus = "<b><color=#FFDE1A>Ranked Status:</color></b> Loading...";
-        [UIValue("leaderboard-ranked-status")]
-        protected string leaderboardRankedStatus {
-            get => _leaderboardRankedStatus;
+        private string _countryLeaderboardRanking = "<b><color=#FFDE1A>Country Ranking: </color></b> Loading...";
+        [UIValue("country-leaderboard-ranking")]
+        protected string countryLeaderboardRanking {
+            get => _countryLeaderboardRanking;
             set {
-                _leaderboardRankedStatus = $"<b><color=#FFDE1A>Ranked Status:</color></b> {value}";
+                _countryLeaderboardRanking = value;
                 NotifyPropertyChanged();
             }
         }
@@ -87,89 +105,30 @@ namespace ScoreSaber.UI.Leaderboard {
         }
         #endregion
 
-        private bool _gayMode;
-        private bool _initialized;
-        private float _theWilliamVal;
-        private Sprite _denyahSprite;
         private ImageView _background;
+
         private Tween _activeDisableTween;
         internal PlayerInfo _currentPlayerInfo;
         private CanvasGroup _promptCanvasGroup;
-        private FloatingScreen _floatingScreen;
 
-        public Action disabling;
         public Action statusWasSelected;
         public Action rankingWasSelected;
 
         private PlayerService _playerService = null;
         private TimeTweeningManager _timeTweeningManager = null;
-        private PlatformLeaderboardViewController _platformLeaderboardViewController = null;
 
         private Color _scoreSaberBlue;
-        private Gradient _theWilliamGradient;
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
         internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
 
-        private bool _isWilliums;
-        internal bool isWilliums {
-            get { return _isWilliums; }
-            set {
-                if (_isWilliums == value) { return; }
-                _gayMode = value;
-                if (!value) { _background.color = _scoreSaberBlue; }
-                _isWilliums = value;
-            }
-        }
-
-        private bool _isDenyah;
-        internal bool isDenyah {
-            get { return _isDenyah; }
-            set {
-                if (_isDenyah == value) { return; }
-
-                if (_background == null) return;
-                if (!value) {
-                    _background.color = _scoreSaberBlue;
-                    return;
-                }
-                if (_denyahSprite == null) {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    _denyahSprite = Utilities.LoadSpriteRaw(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.bri-ish.png"));
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-                _background.overrideSprite = _denyahSprite;
-                _isDenyah = value;
-            }
-        }
-
         [Inject]
-        protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager, PlatformLeaderboardViewController platformLeaderboardViewController) {
+        protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager) {
             _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
             _theWilliamGradient = new Gradient { mode = GradientMode.Blend, colorKeys = new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(new Color(1f, 0.5f, 0f), 0.17f), new GradientColorKey(Color.yellow, 0.34f), new GradientColorKey(Color.green, 0.51f), new GradientColorKey(Color.blue, 0.68f), new GradientColorKey(new Color(0.5f, 0f, 0.5f), 0.85f), new GradientColorKey(Color.red, 1.15f) } };
             _playerService = playerService;
             _timeTweeningManager = timeTweeningManager;
-            _platformLeaderboardViewController = platformLeaderboardViewController;
             Plugin.Log.Debug("PanelView Setup!");
         }
-
-        protected void OnDisable() {
-
-            disabling?.Invoke();
-        }
-
-        internal void Init() {
-
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100f, 15f), false, Vector3.zero, Quaternion.identity);
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100f, 25f), false, Vector3.zero, Quaternion.identity);
-            _floatingScreen.name = "ScoreSaberPanelScreen";
-
-            _floatingScreen.transform.SetParent(_platformLeaderboardViewController.transform, false);
-            _floatingScreen.transform.localPosition = new Vector3(3f, 50f);
-            _floatingScreen.transform.localScale = Vector3.one;
-            _floatingScreen.gameObject.SetActive(false);
-            _floatingScreen.gameObject.SetActive(true);
-        }
-
 
         [UIAction("#post-parse")]
         protected void Parsed() {
@@ -180,6 +139,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _separator.name = "Separator";
 
             _background.color0 = Color.white;
+            _background.color = _scoreSaberBlue;
             _background.color1 = new Color(1f, 1f, 1f, 0f);
             ImageGradient(ref _background) = true;
             ImageSkew(ref _background) = 0.18f;
@@ -214,12 +174,6 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        [UIAction("clicked-settings")]
-        protected void ClickedSettings() {
-
-            ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
-        }
-
         [UIAction("clicked-ranking")]
         protected void ClickedRanking() {
 
@@ -228,11 +182,7 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        [UIAction("clicked-status")]
-        protected void ClickedStatus() {
 
-            statusWasSelected?.Invoke();
-        }
 
         private async Task BlinkLogo() {
 
@@ -247,21 +197,6 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        public void Show() {
-
-            if (!_initialized) {
-                Init();
-                _initialized = true;
-            }
-
-            _floatingScreen.SetRootViewController(this, AnimationType.In);
-        }
-
-        public void Hide() {
-
-            _floatingScreen.SetRootViewController(null, AnimationType.Out);
-        }
-
         public void SetGlobalRanking(string globalRanking, bool withPrefix = true) {
 
             if (withPrefix) {
@@ -271,9 +206,12 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        public void SetRankedStatus(string rankedStatus) {
-
-            leaderboardRankedStatus = rankedStatus;
+        public void SetCountryRanking(string countryRanking, string countryCode, bool withPrefix = true) {
+            if(withPrefix) {
+                countryLeaderboardRanking = $"<b><color=#FFDE1A>{countryCode} Ranking: </color></b> {countryRanking}";
+            } else {
+                countryLeaderboardRanking = countryRanking;
+            }
         }
 
         public void SetPromptInfo(string status, bool showLoadingIndicator, float dismissTime = -1f) {
@@ -312,7 +250,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 if (!_promptRoot.gameObject.activeInHierarchy) {
                     _promptRoot.gameObject.SetActive(true);
-                    _timeTweeningManager.AddTween(new FloatTween(0f, 1f, ChangePromptState, tweenTime, _gayMode ? EaseType.OutBounce : EaseType.InSine), _promptRoot);
+                    _timeTweeningManager.AddTween(new FloatTween(0f, 1f, ChangePromptState, tweenTime, EaseType.InSine), _promptRoot);
                 }
 
                 if (_promptRoot.gameObject.activeInHierarchy && dismissTime != -1) {
@@ -338,6 +276,12 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
+        [UIAction("clicked-settings")]
+        protected void ClickedSettings() {
+
+            ScoreSaberSettingsFlowCoordinator.ShowSettingsFlowCoordinator();
+        }
+
         private void ChangePromptState(float value) {
             const float fullY = 10.30f;
             const float hiddenY = 4.30f;
@@ -349,15 +293,6 @@ namespace ScoreSaber.UI.Leaderboard {
         public void Loaded(bool value) {
 
             isLoaded = value;
-        }
-
-        protected void Update() {
-
-            if (_initialized && _gayMode) {
-                _background.color = _theWilliamGradient.Evaluate(_theWilliamVal);
-                _theWilliamVal += Time.deltaTime * 0.1f;
-                if (_theWilliamVal > 1f) _theWilliamVal = 0f;
-            }
         }
 
         public async Task RankUpdater() {
@@ -378,6 +313,57 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
+        //[Inject] private readonly ICoroutineStarter _coroutineStarter = null;
+
+        #region Shenanigans
+
+        private bool _isWilliums;
+        internal bool isWilliums {
+            get { return _isWilliums; }
+            set {
+                if (_isWilliums == value) { return; }
+                _gayMode = value;
+                if (!value) { _background.color = _scoreSaberBlue; }
+                _isWilliums = value;
+            }
+        }
+
+        private Gradient _theWilliamGradient;
+        private float _theWilliamVal;
+        private Sprite _denyahSprite;
+        private bool _gayMode;
+
+        private bool _isDenyah;
+        internal bool isDenyah {
+            get { return _isDenyah; }
+            set {
+                if (_isDenyah == value) { return; }
+
+                if (_background == null) return;
+                if (!value) {
+                    _background.color = _scoreSaberBlue;
+                    return;
+                }
+                if (_denyahSprite == null) {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    _denyahSprite = Utilities.LoadSpriteRaw(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.bri-ish.png"));
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+                _background.overrideSprite = _denyahSprite;
+                _isDenyah = value;
+            }
+        }
+
+        protected void Update() {
+
+            if (_gayMode) {
+                _background.color = _theWilliamGradient.Evaluate(_theWilliamVal);
+                _theWilliamVal += Time.deltaTime * 0.1f;
+                if (_theWilliamVal > 1f) _theWilliamVal = 0f;
+            }
+        }
+
+        #endregion
         public async Task UpdateRank() {
 
             try {
@@ -385,19 +371,24 @@ namespace ScoreSaber.UI.Leaderboard {
                 _currentPlayerInfo = await _playerService.GetPlayerInfo(_playerService.localPlayerInfo.playerId, full: false);
                 if (Plugin.Settings.showLocalPlayerRank) {
                     SetGlobalRanking($"#{string.Format("{0:n0}", _currentPlayerInfo.rank)}<size=75%> (<color=#6772E5>{string.Format("{0:n0}", _currentPlayerInfo.pp)}pp</color>)");
+                    SetCountryRanking($"#{string.Format("{0:n0}", _currentPlayerInfo.countryRank)}<size=75%>", _currentPlayerInfo.country);
                 } else {
                     SetGlobalRanking("Hidden");
+                    SetCountryRanking("Hidden", _currentPlayerInfo.country);
                 }
                 Loaded(true);
             } catch (HttpErrorException ex) {
                 if (ex.isScoreSaberError) {
                     if (ex.scoreSaberError.errorMessage == "Player not found") {
                         SetGlobalRanking("Welcome to ScoreSaber! Set a score to create a profile", false);
+                        SetCountryRanking("", _currentPlayerInfo.country, false);
                     } else {
                         SetGlobalRanking($"Failed to load player ranking: {ex.scoreSaberError.errorMessage}", false);
+                        SetCountryRanking("", _currentPlayerInfo.country, false);
                     }
                 } else {
                     SetGlobalRanking("", false);
+                    SetCountryRanking("", _currentPlayerInfo.country, false);
                     SetPromptError("Failed to update local player ranking", false, 1.5f);
                     Plugin.Log.Error("Failed to update local player ranking " + ex.ToString());
                 }

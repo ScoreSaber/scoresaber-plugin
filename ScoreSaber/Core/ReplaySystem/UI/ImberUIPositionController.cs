@@ -2,6 +2,7 @@
 using ScoreSaber.Core.Data;
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.XR;
 using VRUIControls;
@@ -48,8 +49,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _curve = _canvas.GetComponent<CurvedCanvasSettings>();
             _controllerOffset = new Vector3(0f, 0f, -2f);
         }
-
+        bool fpfc = false;
         public void Initialize() {
+
+            if (Environment.GetCommandLineArgs().Contains("fpfc")) {
+                fpfc = true;
+            }
 
             _gamePause.didPauseEvent += GamePause_didPauseEvent;
             _gamePause.didResumeEvent += GamePause_didResumeEvent;
@@ -78,7 +83,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         public void Tick() {
-
+            if(fpfc) {
+                return;
+            }
             VRController controller = _handTrack == XRNode.LeftHand ? _vrControllerAccessor.leftController : _vrControllerAccessor.rightController;
 
             // Detect Trigger Double Click
