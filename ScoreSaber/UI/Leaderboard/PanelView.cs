@@ -16,6 +16,7 @@ using Tweening;
 using UnityEngine;
 using Zenject;
 using ScoreSaber.UI.Main;
+using System.Threading;
 
 namespace ScoreSaber.UI.Leaderboard {
     [HotReload]
@@ -107,6 +108,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private Color _scoreSaberBlue;
         private Gradient _theWilliamGradient;
+        private readonly CancellationTokenSource _blinkCancellationSource = new CancellationTokenSource();
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
         internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
 
@@ -153,7 +155,7 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         protected void OnDisable() {
-
+            _blinkCancellationSource.Cancel();
             disabling?.Invoke();
         }
 
@@ -197,7 +199,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _separator.SetVerticesDirty();
 
             if (!Plugin.Settings.hasClickedScoreSaberLogo) {
-                BlinkLogo().RunTask();
+                BlinkLogo(_blinkCancellationSource.Token).RunTask();
             }
         }
 
@@ -234,10 +236,10 @@ namespace ScoreSaber.UI.Leaderboard {
             statusWasSelected?.Invoke();
         }
 
-        private async Task BlinkLogo() {
+        private async Task BlinkLogo(CancellationToken cancellationToken) {
 
             var selectedColor = new Color(0.60f, 0.80f, 1);
-            while (!Plugin.Settings.hasClickedScoreSaberLogo) {
+            while (!cancellationToken.IsCancellationRequested && !Plugin.Settings.hasClickedScoreSaberLogo) {
                 if (_scoresaberLogoClickable.DefaultColor == Color.white) {
                     _scoresaberLogoClickable.DefaultColor = selectedColor;
                 } else {
