@@ -40,6 +40,7 @@ namespace ScoreSaber.Core.Data.Models
         RT,
         NAT,
         QAT,
-        CAT
+        CAT,
+        CCT
     }
 }
