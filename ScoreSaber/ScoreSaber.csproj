@@ -37,6 +37,7 @@
     <None Remove="Resources\carat.png" />
     <None Remove="Resources\friend.png" />
     <None Remove="Resources\globe.png" />
+    <None Remove="Resources\grayPixel.png" />
     <None Remove="Resources\link.png" />
     <None Remove="Resources\Player.png" />
     <None Remove="Resources\redPixel.png" />
@@ -44,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\bluePixel.png" />
+    <EmbeddedResource Include="Resources\grayPixel.png" />
     <EmbeddedResource Include="Resources\redPixel.png" />
   </ItemGroup>
   <ItemGroup>

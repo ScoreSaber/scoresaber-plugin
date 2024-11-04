@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
+using IPA.Utilities;
 using ScoreSaber.Core.Data;
 using System;
 using System.Collections;
@@ -64,6 +65,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         [UIComponent("fadedBoxVertTimeline")]
         public HorizontalLayoutGroup fadedBoxVertTimeline = null;
+
+        [UIComponent("TimeScaleGO")]
+        public GameObject TimeScaleGO = null;
 
         [UIValue("time-sync")]
         public float timeSync {
@@ -142,6 +146,33 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         [UIObject("container")]
         public GameObject _container = null;
+
+
+
+        private void RecursivelyDisableItalics(GameObject obj) {
+            var textComponent = obj.GetComponent<TextMeshProUGUI>();
+            if (textComponent != null) {
+                textComponent.fontStyle = FontStyles.Normal;
+            }
+
+            foreach (Transform child in obj.transform) {
+                RecursivelyDisableItalics(child.gameObject);
+            }
+        }
+
+        public void DisableItalicsInContainer() {
+            RecursivelyDisableItalics(_container);
+            foreach(Transform child in tabSelector.transform) {
+                var x = child.gameObject.transform.Find("BG").gameObject.GetComponent<ImageView>();
+                x.SetField("_skew", 0f);
+                x.__Refresh();
+                var y = child.gameObject.transform.Find("Text").gameObject.GetComponent<TextMeshProUGUI>();
+                y.alignment = TextAlignmentOptions.Center;
+                y.fontStyle = FontStyles.Normal;
+                y.transform.localPosition = new Vector3(0, -0.25f, 0);
+            }
+            tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
+        }
 
         [Inject]
         protected void Construct() {
@@ -224,7 +255,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 y.upClick += UpClick;
                 y.downClick += DownClick;
                 y.progressHandler = x;
-                tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
                 _audioTimeSyncController.stateChangedEvent += () => {
                     if (_audioTimeSyncController.state == AudioTimeSyncController.State.Playing) {
                         playPauseText = "PAUSE";
@@ -232,7 +262,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                         playPauseText = "PLAY";
                     }
                 };
+                DisableItalicsInContainer();
                 
+
             }
             didParse = true;
         }

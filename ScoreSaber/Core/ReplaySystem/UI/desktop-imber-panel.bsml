@@ -1,18 +1,20 @@
 ﻿<bg horizontal-fit="PreferredSize" vertical-fit="PreferredSize" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd">
-  <vertical id="container" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="60" pref-height="45" pad="2" spacing="2">
-    <vertical horizontal-fit="MinSize" vertical-fit="PreferredSize" pref-width="60" pref-height="6">
-      <tab-selector id="tab-selector" tab-tag="page-tab" child-control-width="false" page-count="4" />
+	<vertical ignore-layout="true" child-align="LowerLeft" anchor-pos-y="22" anchor-pos-x="-20">
+		<text text='Press I to toggle UI' font-size='3' font-color='grey' align='Left' italics="false" />
+	</vertical>
+	<vertical id="container" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="60" pref-height="40" pad="2" spacing="2.25">
+	  <vertical horizontal-fit="MinSize" vertical-fit="PreferredSize" pref-width="60" pref-height="6">
+		<tab-selector id="tab-selector" tab-tag="page-tab" child-control-width="false" page-count="4" />
     </vertical>
 	<vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
-		<text text='Press I to toggle UI' font-size='3' font-color='grey' align='Center' italics='true' />
-		<image src="#WhitePixel" pref-width="60" pref-height="0.3" />
+		<image src="ScoreSaber.Resources.grayPixel.png" pref-width="59" pref-height="0.3" />
     </vertical>
     <horizontal pad="2" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="50" pref-height="10">
-      <tab tags="page-tab" tab-name="Player">
+      <tab tags="page-tab" tab-name="PLAYER">
         <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="10">
           <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
             <button text="~play-pause-text" pref-width="28" pref-height="8" on-click="pause-play" />
-			  <button text="Exit" pref-width="28" pref-height="8" on-click="exit-replay"/>
+			  <button text="EXIT" pref-width="28" pref-height="8" on-click="exit-replay"/>
           </horizontal>
           <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
             <button text="RESTART" pref-width="28" pref-height="8" on-click="restart" />
@@ -20,31 +22,28 @@
           </horizontal>
         </vertical>
       </tab>
-      <tab tags="page-tab" tab-name="Stats">
+      <tab tags="page-tab" tab-name="STATS">
         <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-height="15">
           <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="55">
-            <text text="PLAYER'S FPS" align="Left" italics="true" />
-            <text id="fps-text" text="0" align="Right" italics="true" />
+            <text text="PLAYER'S FPS" align="Left" italics="false" />
+            <text id="fps-text" text="0" align="Right" italics="false" />
           </horizontal>
           <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="55">
-            <text text="LEFT SABER SPEED" align="Left" italics="true" />
-            <text id="left-speed-text" text="0.0 m/s" align="Right" italics="true" />
+            <text text="LEFT SABER SPEED" align="Left" italics="false" />
+            <text id="left-speed-text" text="0.0 m/s" align="Right" italics="false" />
           </horizontal>
           <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="55">
-            <text text="RIGHT SABER SPEED" align="Left" italics="true" />
-            <text id="right-speed-text" text="0.0 m/s" align="Right" italics="true" />
+            <text text="RIGHT SABER SPEED" align="Left" italics="false" />
+            <text id="right-speed-text" text="0.0 m/s" align="Right" italics="false" />
           </horizontal>
         </vertical>
       </tab>
-      <tab tags="page-tab" tab-name="Time">
+      <tab tags="page-tab" tab-name="TIME">
         <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="55">
-          <slider-setting text="Time Scale" min="0.1" max="2" increment="0.05" value="time-sync" apply-on-change="true" formatter="format-time-percent" />
+          <slider-setting id="TimeScaleGO" text="TIME SCALE" min="0.1" max="2" increment="0.05" value="time-sync" apply-on-change="true" formatter="format-time-percent" />
         </vertical>
       </tab>
     </horizontal>
-    <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-height="0.3">
-      <image src="#WhitePixel" pref-width="60" pref-height="0.3" />
-    </vertical>
 	  <horizontal child-align="MiddleLeft" pad="2" id="fadedBoxVertTimeline" bg="round-rect-panel" bg-color="#000000EE" spacing="0.75" horizontal-fit="Unconstrained" preferred-width="60" vertical-fit="PreferredSize">
 		  <horizontal horizontal-fit="Unconstrained" preferred-width="15" vertical-fit="PreferredSize">
 			  <text font-size="3" text="00:00" align="MidlineLeft" id="currentTimeText" word-wrapping="false" size-delta-x="5" outline-width="2" outline-color="black"/>

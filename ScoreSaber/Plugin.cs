@@ -52,7 +52,7 @@ namespace ScoreSaber {
             Instance = this;
             Metadata = metadata;
 
-            if(Environment.GetCommandLineArgs().Contains("fpfc")) FPFC = true;
+            FPFC = Environment.GetCommandLineArgs().Contains("fpfc");
 
             zenjector.UseLogger(logger);
             zenjector.Expose<ComboUIController>("Environment");
