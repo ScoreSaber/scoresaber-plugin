@@ -1,10 +1,11 @@
 ﻿<bg horizontal-fit="PreferredSize" vertical-fit="PreferredSize" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd">
-  <vertical id="container" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="60" pref-height="40" pad="2" spacing="2">
+  <vertical id="container" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="60" pref-height="45" pad="2" spacing="2">
     <vertical horizontal-fit="MinSize" vertical-fit="PreferredSize" pref-width="60" pref-height="6">
       <tab-selector id="tab-selector" tab-tag="page-tab" child-control-width="false" page-count="4" />
     </vertical>
-    <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-height="0.3">
-      <image src="#WhitePixel" pref-width="60" pref-height="0.3" />
+	<vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+		<text text='Press I to toggle UI' font-size='3' font-color='grey' align='Center' italics='true' />
+		<image src="#WhitePixel" pref-width="60" pref-height="0.3" />
     </vertical>
     <horizontal pad="2" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="50" pref-height="10">
       <tab tags="page-tab" tab-name="Player">
