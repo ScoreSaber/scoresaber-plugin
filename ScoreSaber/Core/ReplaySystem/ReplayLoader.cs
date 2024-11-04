@@ -30,13 +30,12 @@ namespace ScoreSaber.Core.ReplaySystem {
             _environmentsListModel = environmentsListModel;
         }
 
-        public async Task Load(byte[] replay, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers modifiers, string playerName, bool isUsersReplay = false) {
+        public async Task Load(byte[] replay, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers modifiers, string playerName) {
 
             Plugin.ReplayState.CurrentBeatmapLevel = beatmapLevel;
             Plugin.ReplayState.CurrentBeatmapKey = beatmapKey;
             Plugin.ReplayState.CurrentModifiers = modifiers;
             Plugin.ReplayState.CurrentPlayerName = playerName;
-            Plugin.ReplayState.isUsersReplay = isUsersReplay;
             if (replay[0] == 93 && replay[1] == 0 && replay[2] == 0 && replay[3] == 128) {
                 await LoadLegacyReplay(replay, beatmapLevel, beatmapKey, modifiers);
             } else {
