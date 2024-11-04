@@ -130,7 +130,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
 
         [Inject]
         protected void Construct() {
-            if (Environment.GetCommandLineArgs().Contains("fpfc")) return;
+            if(Plugin.FPFC) return;
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(60f, 45f), false, defaultPosition.position, defaultPosition.rotation);
             _floatingScreen.GetComponent<Canvas>().sortingOrder = 31;
             _floatingScreen.name = "Imber Replay Panel (Screen)";
