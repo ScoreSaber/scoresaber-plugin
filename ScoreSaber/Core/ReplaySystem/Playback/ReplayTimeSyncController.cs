@@ -19,7 +19,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private readonly BeatmapObjectSpawnController _beatmapObjectSpawnController;
         private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null;
         private readonly IReadonlyBeatmapData _beatmapData = null;
-        [Inject] private readonly DesktopMainImberPanelView _desktopMainImberPanelView;
 
         private bool _paused => audioTimeSyncController.state == AudioTimeSyncController.State.Paused;
 

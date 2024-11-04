@@ -89,7 +89,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             if (mapInfo == null || _currentMap == null) return;
             try {
                 _currentMapInfo = mapInfo;
-                _mapNameText.text = $"Map Details: {mapInfo.songName}";
+                _mapNameText.text = $"{mapInfo.songName}";
                 SetImage(_currentMap);
                 _mapAuthorText.text = $"Mapped By {mapInfo.levelAuthorName}";
                 _mapUploadDateText.SetFancyText("Uploaded", $"{mapInfo.createdDate:dd/MM/yy}");

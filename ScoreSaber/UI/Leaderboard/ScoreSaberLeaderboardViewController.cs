@@ -120,9 +120,6 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIValue("map-info-view")]
         protected MapInfoView _mapInfoView = null;
 
-        [UIComponent("infoIcon")]
-        protected readonly ClickableImage _infoIcon;
-
         [UIAction("OnPageUp")] private void UpButtonClicked() => UpdatePageChanged(-1);
         [UIAction("OnPageDown")] private void DownButtonClicked() => UpdatePageChanged(1);
 
@@ -246,6 +243,7 @@ namespace ScoreSaber.UI.Leaderboard {
             ImageGradient(ref _headerBackground) = true;
             CheckPage();
             _ImageHolders.ForEach(holder => holder.ClearSprite());
+            myHeader.transform.SetParent(_platformLeaderboardViewController.transform.Find("HeaderPanel"), true);
         }
 
         private void SetPanelStatus(LeaderboardInfoMap leaderboardInfoMap = null) {
@@ -368,12 +366,14 @@ namespace ScoreSaber.UI.Leaderboard {
             }
             Transform header = _plvc.transform.Find("HeaderPanel");
             _plvc.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
+            myHeader.gameObject.SetActive(true);
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
             if (!_plvc || !_plvc.isActivated) return;
             _plvc.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;
+            myHeader.gameObject.SetActive(false);
             if (!_plvc.isActivated) return;
             if (_scoreDetailView.detailModalRoot != null) _scoreDetailView.detailModalRoot.Hide(false);
             if (_profileDetailView.profileModalRoot != null) _profileDetailView.profileModalRoot.Hide(false);
@@ -408,7 +408,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 _mapInfoView.ResetName();
                 _mapInfoView.mapInfoSetLoading.gameObject.SetActive(true);
                 _mapInfoView.mapInfoSet.SetActive(false);
-                _infoIcon.gameObject.SetActive(false);
 
                 if (_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey) != null) {
                     SetPanelStatus(_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey));
@@ -454,7 +453,6 @@ namespace ScoreSaber.UI.Leaderboard {
                     }
                     _mapInfoView._currentMap = beatmapLevel;
                     _mapInfoView.SetScoreInfo(leaderboardData.leaderboardInfoMap.leaderboardInfo);
-                    _infoIcon.gameObject.SetActive(true);
                     List<LeaderboardTableView.ScoreData> leaderboardTableScoreData = leaderboardData.ToScoreData();
                     int playerScoreIndex = GetPlayerScoreIndex(leaderboardData);
                     if (leaderboardTableScoreData.Count != 0) {

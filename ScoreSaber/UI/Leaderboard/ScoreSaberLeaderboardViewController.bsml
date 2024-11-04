@@ -1,40 +1,11 @@
 <bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
 	xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
 
-	<horizontal pref-width="90"
-				pref-height="8"
-				anchor-pos-y="41.5"
-				id="myHeader"
-				horizontal-fit="PreferredSize"
-				background="round-rect-panel">
-		<stack>
-			<horizontal active="false" child-align="MiddleCenter" pad="2" bg="round-rect-panel" id="starRatingBox" bg-color="#000000EE" spacing="0.75" horizontal-fit="PreferredSize" preferred-width="18" size-delta-x="18" size-delta-y="7" preferred-height="7" vertical-fit="PreferredSize">
-				<text id="headerText"
-					  text="SCORESABER"
-					  font-size="5"
-					  align="Midline"
-					  italics="true"
-					  rich-text="true"
-					  active="true"
-					  />
-			</horizontal>
-			<horizontal id="headerSTATIC">
-				<text id="headerTextSTATIC"
-					text="UNRANKED"
-					font-size="6"
-					align="Midline"
-					italics="true"
-					rich-text="true"
-					/>
-			</horizontal>
-		</stack>
-	</horizontal>
+
 
 	<!-- Leaderboard scrollers -->
 	<bg anchor-pos-x="-40" anchor-pos-y="-10">
 
-		<clickable-image size-delta-x="4" size-delta-y="4"  anchor-pos-y="42" anchor-pos-x="0" id='linkIcon' src="ScoreSaber.Resources.link.png" on-click='clicked-status' hover-hint='Map webpage'/>
-		
 		<page-button id="up_button"
 					 icon="ScoreSaber.Resources.carat.png"
 					 dir="Up"
@@ -57,7 +28,6 @@
 				   pref-height="9"
 				   on-click="OnPageDown"/>
 
-		<clickable-image size-delta-x="4" size-delta-y="4" anchor-pos-y="-12" anchor-pos-x="0" id='infoIcon' src="ScoreSaber.Resources.info.png" on-click='MapInfoClicked' hover-hint='Open the map info modal'/>
 	</bg>
 
 	<!-- Leaderboard table -->
@@ -181,5 +151,38 @@
 			</horizontal>
 		</macro.for-each>
 	</vertical>
+
+
+	<horizontal pref-width="90"
+			pref-height="8"
+			anchor-pos-y="41.5"
+			id="myHeader"
+			horizontal-fit="PreferredSize"
+			background="round-rect-panel">
+		<stack>
+			<horizontal active="false" child-align="MiddleCenter" pad="2" bg="round-rect-panel" id="starRatingBox" bg-color="#000000EE" spacing="0.75" horizontal-fit="PreferredSize" preferred-width="18" size-delta-x="18" size-delta-y="7" preferred-height="7" vertical-fit="PreferredSize">
+				<clickable-text id="headerText"
+					  text="SCORESABER"
+					  font-size="5"
+					  on-click="MapInfoClicked"	
+					  align="Midline"
+					  italics="true"
+					  rich-text="true"
+					  active="true"
+					  />
+			</horizontal>
+			<horizontal id="headerSTATIC">
+				<clickable-text id="headerTextSTATIC"
+					text="UNRANKED"
+					font-size="6"
+					on-click="MapInfoClicked"
+					align="Midline"
+					italics="true"
+					rich-text="true"
+					/>
+			</horizontal>
+		</stack>
+	</horizontal>
+	
 	<ss-profile id="profile-detail-view" show-event="show-profile" loading="false" />
 </bg>
