@@ -1,4 +1,5 @@
 ﻿using IPA.Utilities;
+using ScoreSaber.Core.ReplaySystem.UI;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private readonly BeatmapObjectSpawnController _beatmapObjectSpawnController;
         private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null;
         private readonly IReadonlyBeatmapData _beatmapData = null;
+        [Inject] private readonly DesktopMainImberPanelView _desktopMainImberPanelView;
 
         private bool _paused => audioTimeSyncController.state == AudioTimeSyncController.State.Paused;
 
@@ -35,32 +37,33 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         }
 
         public void Tick() {
-            //int index = -1;
-            //if (Input.GetKeyDown(KeyCode.Alpha1))
-            //    index = 0;
-            //else if (Input.GetKeyDown(KeyCode.Alpha2))
-            //    index = 1;
-            //else if (Input.GetKeyDown(KeyCode.Alpha3))
-            //    index = 2;
-            //else if (Input.GetKeyDown(KeyCode.Alpha4))
-            //    index = 3;
-            //else if (Input.GetKeyDown(KeyCode.Alpha5))
-            //    index = 4;
-            //else if (Input.GetKeyDown(KeyCode.Alpha6))
-            //    index = 5;
-            //else if (Input.GetKeyDown(KeyCode.Alpha7))
-            //    index = 6;
-            //else if (Input.GetKeyDown(KeyCode.Alpha8))
-            //    index = 7;
-            //else if (Input.GetKeyDown(KeyCode.Alpha9))
-            //    index = 8;
-            //else if (Input.GetKeyDown(KeyCode.Alpha0))
-            //    index = 9;
+            int index = -1;
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+                index = 0;
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+                index = 1;
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+                index = 2;
+            else if (Input.GetKeyDown(KeyCode.Alpha4))
+                index = 3;
+            else if (Input.GetKeyDown(KeyCode.Alpha5))
+                index = 4;
+            else if (Input.GetKeyDown(KeyCode.Alpha6))
+                index = 5;
+            else if (Input.GetKeyDown(KeyCode.Alpha7))
+                index = 6;
+            else if (Input.GetKeyDown(KeyCode.Alpha8))
+                index = 7;
+            else if (Input.GetKeyDown(KeyCode.Alpha9))
+                index = 8;
+            else if (Input.GetKeyDown(KeyCode.Alpha0))
+                index = 9;
 
-            //if (index != -1) {
-            //    OverrideTime(audioTimeSyncController.songLength * (index * 0.1f));
-            //}
+            if (index != -1) {
+                OverrideTime(audioTimeSyncController.songLength * (index * 0.1f));
+            }
 
+            // too annoying to keep the desktop ui in sync when you can change it elsewhere
             //if (Input.GetKeyDown(KeyCode.Minus)) {
             //    if (audioTimeSyncController.timeScale > 0.1f) {
             //        OverrideTimeScale(audioTimeSyncController.timeScale - 0.1f);
