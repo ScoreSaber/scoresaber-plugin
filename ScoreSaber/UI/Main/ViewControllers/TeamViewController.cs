@@ -36,7 +36,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
                 foreach (KeyValuePair<TeamType, List<TeamMember>> member in team.TeamMembers) {
                     string teamName = member.Key.ToString();
                     if (teamName == "RT") {
-                        teamName = "Ranking Team";
+                        teamName = " RT ";
                     }
                     TeamHost host = TeamToProfileHost(member.Value, teamName);
                     _teamHosts.Add(host);
