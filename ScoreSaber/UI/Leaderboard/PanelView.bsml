@@ -1,6 +1,6 @@
 ﻿<bg xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd">
-	<horizontal id="prompt-root" pref-width="87" anchor-pos-y="10.3" pref-height="7" horizontal-fit="PreferredSize" child-align="LowerCenter" child-expand-width="false" spacing="1">
-		<text id="prompt-text" text="Uploading..." anchor-pos-x="0" anchor-pos-y="10" align="Midline" italics="true" />
+	<horizontal id="prompt-root" pref-width="87" anchor-pos-y="10.3" pref-height="7" horizontal-fit="PreferredSize" child-align="LowerLeft" child-expand-width="false" spacing="1">
+		<text id="prompt-text" text="Uploading..." anchor-pos-x="0" anchor-pos-y="10" align="Left" italics="true" />
 		<loading-indicator id="prompt-loader" active="~prompt-loader-active" preserve-aspect="true" pref-width="4" pref-height="4" />
 	</horizontal>
 	<horizontal id="container" pref-width="91" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" spacing="4" bg="round-rect-panel" bg-color="#0078B9" pad="2">
