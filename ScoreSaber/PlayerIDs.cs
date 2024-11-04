@@ -11,5 +11,6 @@ namespace ScoreSaber
         internal const string Jones = "76561198066901156";
         internal const string Hammer = "";
         internal const string Rain = "76561198066644109";
+        internal const string Speecil = "3033139560125578";
     }
 }

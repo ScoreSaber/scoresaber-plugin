@@ -485,7 +485,7 @@ namespace ScoreSaber.UI.Leaderboard {
                         }
                         ByeImages();
                     }
-                    PatchLeaderboardTableView(tableView);
+                    PatchLeaderboardTableView(tableView, leaderboardData.scores);
                 }
             } catch (HttpErrorException httpError) {
                 SetErrorState(tableView, ref loadingControl, httpError);
@@ -607,13 +607,13 @@ namespace ScoreSaber.UI.Leaderboard {
         private bool obtainedAnchor = false;
         private Vector2 normalAnchor = Vector2.zero;
 
-        void PatchLeaderboardTableView(LeaderboardTableView tableView) {
+        void PatchLeaderboardTableView(LeaderboardTableView tableView, ScoreMap[] leaderboardInfo) {
             LeaderboardTableCell[] cells = tableView.GetComponentsInChildren<LeaderboardTableCell>();
 
             for (int i = 0; i < cells.Length; i++) {
                 LeaderboardTableCell tableCell = cells[i];
-
                 int cellIdx = tableCell.idx;
+                Score score = leaderboardInfo[cellIdx].score;
 
                 if (cellIdx < _cellClickingHolders.Count) {
                     var clickerHolder = _cellClickingHolders[cellIdx];
@@ -628,6 +628,8 @@ namespace ScoreSaber.UI.Leaderboard {
                     cellClicker.seperator = (ImageView)tableCell._separatorImage;
                     cellClicker.clickable = true;
                     cellClicker.OnPointerExit(null);
+                    cellClicker.isCool = score.leaderboardPlayerInfo.id == PlayerIDs.Speecil;
+                    cellClicker.ResetColourAndSize();
 
                     TextMeshProUGUI _playerNameText = tableCell._playerNameText;
                     TextMeshProUGUI _scoreText = tableCell._scoreText;
@@ -710,6 +712,7 @@ namespace ScoreSaber.UI.Leaderboard {
             public ImageView seperator;
             public Vector3 originalScale = new Vector3(1, 1, 1);
             private bool isScaled = false;
+            public bool isCool = false;
 
             private Color origColour = new Color(1, 1, 1, 1);
             private Color origColour0 = new Color(1, 1, 1, 0.2509804f);
@@ -724,6 +727,16 @@ namespace ScoreSaber.UI.Leaderboard {
                 if(!clickable) return;
                 BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
                 onClick(index);
+            }
+
+            public void Update() {
+                if (isCool) {
+                    float hue = Mathf.PingPong(Time.time * 0.5f, 1);
+                    Color rainbowColor = Color.HSVToRGB(hue, 1, 1);
+                    seperator.color = rainbowColor;
+                    seperator.color0 = rainbowColor;
+                    seperator.color1 = rainbowColor;
+                }
             }
 
             public void OnPointerEnter(PointerEventData eventData) {
@@ -756,6 +769,14 @@ namespace ScoreSaber.UI.Leaderboard {
                 StartCoroutine(LerpColors(seperator, seperator.color, origColour, seperator.color0, origColour0, seperator.color1, origColour1, lerpDuration));
             }
 
+            public void ResetColourAndSize() {
+                seperator.transform.localScale = originalScale;
+                isScaled = false;
+                StopAllCoroutines();
+                seperator.color = origColour;
+                seperator.color0 = origColour0;
+                seperator.color1 = origColour1;
+            }
 
             private IEnumerator LerpColors(ImageView target, Color startColor, Color endColor, Color startColor0, Color endColor0, Color startColor1, Color endColor1, float duration) {
                 float elapsedTime = 0f;
