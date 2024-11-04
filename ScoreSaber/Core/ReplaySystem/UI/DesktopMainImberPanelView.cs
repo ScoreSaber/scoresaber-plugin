@@ -160,7 +160,19 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
         }
 
-        public void DisableItalicsInContainer() {
+        private void RecursivelyUnskewImageViews(GameObject obj) {
+            var imageView = obj.GetComponent<ImageView>();
+            if (imageView != null) {
+                imageView.SetField("_skew", 0f);
+                imageView.__Refresh();
+            }
+
+            foreach (Transform child in obj.transform) {
+                RecursivelyUnskewImageViews(child.gameObject);
+            }
+        }
+
+        public void SetupObjects() {
             RecursivelyDisableItalics(_container);
             foreach(Transform child in tabSelector.transform) {
                 var x = child.gameObject.transform.Find("BG").gameObject.GetComponent<ImageView>();
@@ -172,6 +184,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 y.transform.localPosition = new Vector3(0, -0.25f, 0);
             }
             tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
+            RecursivelyUnskewImageViews(_container);
         }
 
         [Inject]
@@ -262,7 +275,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                         playPauseText = "PLAY";
                     }
                 };
-                DisableItalicsInContainer();
+                SetupObjects();
                 
 
             }
