@@ -1,0 +1,9 @@
+<bg xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd">
+	<horizontal id="container" child-expand-height="true" child-expand-width="true" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" spacing="4" bg="round-rect-panel" bg-color="#0078B9" pad="2">
+		<stack>
+			<clickable-image id="BannerImage" preserve-aspect="true" active="true" on-click="BannerClicked" />
+			<loading-indicator id="BannerLoading" preserve-aspect="true" />
+		</stack>
+		<button preferred-width="30" preferred-height="23" font-size="10" text="Close" on-click="BannerDismissed" />
+	</horizontal>
+</bg>

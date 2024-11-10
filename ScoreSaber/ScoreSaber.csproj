@@ -40,13 +40,17 @@
     <None Remove="Resources\grayPixel.png" />
     <None Remove="Resources\link.png" />
     <None Remove="Resources\Player.png" />
+    <None Remove="Resources\PromoTest.png" />
     <None Remove="Resources\redPixel.png" />
+    <None Remove="UI\PromoBanner\PromoBannerViewController.bsml" />
     <None Remove="UI\Leaderboard\ScoreSaberLeaderboardViewController.bsml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\bluePixel.png" />
     <EmbeddedResource Include="Resources\grayPixel.png" />
+    <EmbeddedResource Include="Resources\PromoTest.png" />
     <EmbeddedResource Include="Resources\redPixel.png" />
+    <EmbeddedResource Include="UI\PromoBanner\PromoBannerViewController.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AdditionalContentModel.Interfaces">

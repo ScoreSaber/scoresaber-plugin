@@ -1,4 +1,6 @@
-﻿using HMUI;
+﻿using BeatmapSaveDataCommon;
+using HMUI;
+using ModestTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +9,7 @@ using System.Threading.Tasks;
 using TMPro;
 using Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 namespace ScoreSaber.Core.Services {
@@ -106,6 +109,50 @@ namespace ScoreSaber.Core.Services {
                 currentImageView.color1 = newColor;
             };
             _tweeningManager.AddTween(tween, currentImageView);
+        }
+
+        public void FadeHorizontalLayoutGroup(HorizontalLayoutGroup layoutGroup, bool fadeIn, float time) {
+            float startAlpha = fadeIn ? 0f : 1f;
+            float endAlpha = fadeIn ? 1f : 0f;
+
+            List<CanvasRenderer> canvasRenderers = new List<CanvasRenderer>();
+            GetCanvasRenderersRecursively(layoutGroup.transform, canvasRenderers);
+
+            foreach (CanvasRenderer canvasRenderer in canvasRenderers) {
+                canvasRenderer.SetAlpha(startAlpha);
+            }
+
+            Tween tween = new Tweening.FloatTween(startAlpha, endAlpha, (float u) => {
+                foreach (CanvasRenderer canvasRenderer in canvasRenderers) {
+                    canvasRenderer.SetAlpha(u);
+                }
+            }, time, EaseType.Linear, 0f);
+
+            tween.onCompleted = () => {
+                if (layoutGroup == null) return;
+                layoutGroup.gameObject.SetActive(fadeIn);
+            };
+            tween.onKilled = () => {
+                if (layoutGroup == null) return;
+                layoutGroup.gameObject.SetActive(fadeIn);
+                foreach (CanvasRenderer canvasRenderer in canvasRenderers) {
+                    canvasRenderer.SetAlpha(endAlpha);
+                }
+            };
+
+            layoutGroup.gameObject.SetActive(true);
+            _tweeningManager.AddTween(tween, layoutGroup);
+        }
+
+        private void GetCanvasRenderersRecursively(Transform parent, List<CanvasRenderer> canvasRenderers) {
+            foreach (Transform child in parent) {
+                CanvasRenderer canvasRenderer = child.GetComponent<CanvasRenderer>();
+                if (canvasRenderer != null) {
+                    canvasRenderers.Add(canvasRenderer);
+                }
+
+                GetCanvasRenderersRecursively(child, canvasRenderers);
+            }
         }
     }
 }

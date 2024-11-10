@@ -12,6 +12,7 @@ using ScoreSaber.UI.Main;
 using ScoreSaber.UI.Main.Settings.ViewControllers;
 using ScoreSaber.UI.Main.ViewControllers;
 using ScoreSaber.UI.Multiplayer;
+using ScoreSaber.UI.PromoBanner;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -63,6 +64,8 @@ namespace ScoreSaber.Core {
             Container.Bind<CellClickingView>().FromMethodMultiple(context => clickingViews).AsSingle().WhenInjectedInto<ScoreSaberLeaderboardViewController>();
             clickingViews.ForEach(y => Container.QueueForInject(y));
 
+            Container.Bind<PromoBannerView>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<PromoBanner>().AsSingle().NonLazy();
 
 #if RELEASE
             Container.BindInterfacesAndSelfTo<UploadDaemon>().AsSingle().NonLazy();

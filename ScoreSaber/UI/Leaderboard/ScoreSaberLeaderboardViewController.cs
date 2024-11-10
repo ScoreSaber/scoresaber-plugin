@@ -21,6 +21,7 @@ using ScoreSaber.UI.Elements.Leaderboard;
 using ScoreSaber.UI.Elements.Profile;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Main;
+using ScoreSaber.UI.PromoBanner;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System;
@@ -154,6 +155,7 @@ namespace ScoreSaber.UI.Leaderboard {
         [Inject] private readonly PlatformLeaderboardViewController _plvc;
         [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel;
         [Inject] private readonly TweeningService _tweeningService;
+        [Inject] private readonly PromoBanner.PromoBanner _promoBanner;
 
         private void infoButtons_infoButtonClicked(int index) {
             if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
@@ -363,10 +365,25 @@ namespace ScoreSaber.UI.Leaderboard {
                 _ImageHolders.ForEach(holder => holder.ClearSprite());
                 activated = true;
                 OnIconSelected(null, 0);
+                _promoBanner.CreatePromoBanner();
+                _promoBanner._floatingScreen.gameObject.SetActive(true);
+                _promoBanner._promoBannerView.GetComponent<CanvasGroup>().alpha = 1;
             }
             Transform header = _plvc.transform.Find("HeaderPanel");
             _plvc.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
             myHeader.gameObject.SetActive(true);
+        }
+
+        public void OnEnable() {
+            if(_promoBanner._floatingScreen != null) {
+                _promoBanner.ShowBanner.Invoke(true);
+            }
+        }
+
+        public void OnDisable() {
+            if (_promoBanner._floatingScreen != null) {
+                _promoBanner.ShowBanner.Invoke(false);
+            }
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
@@ -485,7 +502,7 @@ namespace ScoreSaber.UI.Leaderboard {
                         }
                         ByeImages();
                     }
-                    PatchLeaderboardTableView(tableView, leaderboardData.scores);
+                    PatchLeaderboardTableView(tableView, leaderboardData.scores, cancellationToken.Token);
                 }
             } catch (HttpErrorException httpError) {
                 SetErrorState(tableView, ref loadingControl, httpError);
@@ -607,10 +624,13 @@ namespace ScoreSaber.UI.Leaderboard {
         private bool obtainedAnchor = false;
         private Vector2 normalAnchor = Vector2.zero;
 
-        void PatchLeaderboardTableView(LeaderboardTableView tableView, ScoreMap[] leaderboardInfo) {
+        void PatchLeaderboardTableView(LeaderboardTableView tableView, ScoreMap[] leaderboardInfo, CancellationToken cancellationToken) {
             LeaderboardTableCell[] cells = tableView.GetComponentsInChildren<LeaderboardTableCell>();
 
             for (int i = 0; i < cells.Length; i++) {
+                if (cancellationToken.IsCancellationRequested) {
+                    return;
+                }
                 LeaderboardTableCell tableCell = cells[i];
                 int cellIdx = tableCell.idx;
                 Score score = leaderboardInfo[cellIdx].score;
