@@ -87,6 +87,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                     audioTimeSyncController.Pause();
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow)) {
+                OverrideTime(audioTimeSyncController.songTime - 5f);
+            }
+
+            if (Input.GetKeyDown(KeyCode.RightArrow)) {
+                OverrideTime(audioTimeSyncController.songTime + 5f);
+            }
         }
 
         private void UpdateTimes() {
