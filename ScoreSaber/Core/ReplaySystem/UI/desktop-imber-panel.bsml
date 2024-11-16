@@ -1,5 +1,5 @@
 ﻿<bg horizontal-fit="PreferredSize" vertical-fit="PreferredSize" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd">
-	<vertical ignore-layout="true" child-align="LowerLeft" anchor-pos-y="22" anchor-pos-x="-20">
+	<vertical id="tooltipHeader" ignore-layout="true" child-align="LowerLeft" anchor-pos-y="22" anchor-pos-x="-20">
 		<text text='Press I to toggle UI' font-size='3' font-color='grey' align='Left' italics="false" />
 	</vertical>
 	<vertical id="container" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="60" pref-height="40" pad="2" spacing="2.25">

@@ -144,8 +144,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [UIComponent("right-speed-text")]
         protected readonly CurvedTextMeshPro rightSpeedText = null;
 
-        [UIObject("container")]
-        public GameObject _container = null;
+        [UIComponent("container")]
+        public VerticalLayoutGroup _container = null;
+
+        [UIComponent("tooltipHeader")]
+        public VerticalLayoutGroup tooltipHeader = null;
 
 
 
@@ -173,7 +176,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         }
 
         public void SetupObjects() {
-            RecursivelyDisableItalics(_container);
+            RecursivelyDisableItalics(_container.gameObject);
             foreach(Transform child in tabSelector.transform) {
                 var x = child.gameObject.transform.Find("BG").gameObject.GetComponent<ImageView>();
                 x.SetField("_skew", 0f);
@@ -184,7 +187,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 y.transform.localPosition = new Vector3(0, -0.25f, 0);
             }
             tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
-            RecursivelyUnskewImageViews(_container);
+            RecursivelyUnskewImageViews(_container.gameObject);
         }
 
         [Inject]

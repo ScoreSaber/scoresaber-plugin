@@ -111,12 +111,15 @@ namespace ScoreSaber.Core.Services {
             _tweeningManager.AddTween(tween, currentImageView);
         }
 
-        public void FadeHorizontalLayoutGroup(HorizontalLayoutGroup layoutGroup, bool fadeIn, float time) {
+        public void FadeLayoutGroup(HorizontalOrVerticalLayoutGroup layoutGroup, bool fadeIn, float time, GameObject gameobjecttodisable = null) {
             float startAlpha = fadeIn ? 0f : 1f;
             float endAlpha = fadeIn ? 1f : 0f;
 
             List<CanvasRenderer> canvasRenderers = new List<CanvasRenderer>();
             GetCanvasRenderersRecursively(layoutGroup.transform, canvasRenderers);
+            if(gameobjecttodisable != null) {
+                GetCanvasRenderersRecursively(gameobjecttodisable.transform, canvasRenderers);
+            }
 
             foreach (CanvasRenderer canvasRenderer in canvasRenderers) {
                 canvasRenderer.SetAlpha(startAlpha);

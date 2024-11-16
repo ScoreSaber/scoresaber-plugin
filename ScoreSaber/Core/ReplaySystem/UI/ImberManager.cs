@@ -3,6 +3,7 @@ using HMUI;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.ReplaySystem.Playback;
+using ScoreSaber.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,28 +25,31 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private readonly ReplayTimeSyncController _replayTimeSyncController;
         private readonly ImberUIPositionController _imberUIPositionController;
         private readonly DesktopMainImberPanelView _desktopMainImberPanelView;
+        private readonly TweeningService _tweeningService;
 
         private readonly IEnumerable<string> _positions;
 
         public ImberManager(ReplayFile file, IGamePause gamePause, ImberScrubber imberScrubber, ImberSpecsReporter imberSpecsReporter, MainImberPanelView mainImberPanelView, SpectateAreaController spectateAreaController,
-                            AudioTimeSyncController audioTimeSyncController, ReplayTimeSyncController replayTimeSyncController, ImberUIPositionController imberUIPositionController, AudioTimeSyncController.InitData initData, PosePlayer posePlayer, DesktopMainImberPanelView desktopMainImberPanelView) {
+                            AudioTimeSyncController audioTimeSyncController, ReplayTimeSyncController replayTimeSyncController, ImberUIPositionController imberUIPositionController, AudioTimeSyncController.InitData initData, PosePlayer posePlayer, DesktopMainImberPanelView desktopMainImberPanelView,
+            TweeningService tweeningService){ 
 
-            _gamePause = gamePause;
-            _posePlayer = posePlayer;
-            _imberScrubber = imberScrubber;
-            _imberSpecsReporter = imberSpecsReporter;
-            _mainImberPanelView = mainImberPanelView;
-            _spectateAreaController = spectateAreaController;
-            _audioTimeSyncController = audioTimeSyncController;
-            _replayTimeSyncController = replayTimeSyncController;
-            _imberUIPositionController = imberUIPositionController;
-            _desktopMainImberPanelView = desktopMainImberPanelView;
+                _gamePause = gamePause;
+                _posePlayer = posePlayer;
+                _imberScrubber = imberScrubber;
+                _imberSpecsReporter = imberSpecsReporter;
+                _mainImberPanelView = mainImberPanelView;
+                _spectateAreaController = spectateAreaController;
+                _audioTimeSyncController = audioTimeSyncController;
+                _replayTimeSyncController = replayTimeSyncController;
+                _imberUIPositionController = imberUIPositionController;
+                _desktopMainImberPanelView = desktopMainImberPanelView;
+                _tweeningService = tweeningService;
 
-            _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
-            _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
-            _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
-            _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
-            _desktopMainImberPanelView.Setup(1f, 90);
+                _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
+                _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
+                _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
+                _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
+                _desktopMainImberPanelView.Setup(1f, 90);
         }
 
         public void Initialize() {
@@ -243,7 +247,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
                 Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
             }
             if (Input.GetKeyDown(KeyCode.I)) {
-                _desktopMainImberPanelView.gameObject.SetActive(!_desktopMainImberPanelView.gameObject.activeSelf);
+                _tweeningService.FadeLayoutGroup(_desktopMainImberPanelView._container, !_desktopMainImberPanelView._container.gameObject.activeSelf, 0.1f, _desktopMainImberPanelView.tooltipHeader.gameObject);
             }
         }
     }

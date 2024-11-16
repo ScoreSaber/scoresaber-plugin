@@ -39,7 +39,7 @@ namespace ScoreSaber.UI.PromoBanner {
 
         public void Show(bool show) {
             if (Dismissed) return;
-            _tweeningService.FadeHorizontalLayoutGroup(_promoBannerView.container, show, 0.2f);
+            _tweeningService.FadeLayoutGroup(_promoBannerView.container, show, 0.2f);
         }
 
         public void DismissBanner() {
