@@ -24,6 +24,8 @@ namespace ScoreSaber.Core {
         public override void InstallBindings() {
             Container.BindInstance(new object()).WithId("ScoreSaberUIBindings").AsCached();
 
+            Container.BindInterfacesAndSelfTo<MenuPresencePatches>().AsSingle();
+
             Container.BindInterfacesAndSelfTo<PanelView>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<ScoreSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
 
@@ -36,7 +38,6 @@ namespace ScoreSaber.Core {
 
             Container.Bind<GlobalLeaderboardService>().AsSingle();
             Container.Bind<LeaderboardService>().AsSingle();
-            Container.Bind<PlayerService>().AsSingle();
 
             Container.Bind<MaxScoreCache>().AsSingle();
           

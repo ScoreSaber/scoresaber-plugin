@@ -151,6 +151,7 @@ namespace ScoreSaber.UI.Leaderboard {
         [Inject] private readonly LeaderboardService _leaderboardService;
         [Inject] private readonly PlayerDataModel _playerDataModel;
         [Inject] internal readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
+        [Inject] internal readonly ScoreSaberRichPresenceService _scoresaberRichPresence;
         [Inject] private readonly MaxScoreCache _maxScoreCache;
         [Inject] private readonly PlatformLeaderboardViewController _plvc;
         [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel;
@@ -184,6 +185,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     _panelView.SetPromptError(status, false);
                     break;
                 case PlayerService.LoginStatus.Success:
+                    _scoresaberRichPresence.Initialize();
                     _panelView.SetPromptSuccess(status, false, 3f);
                     _panelView.RankUpdater().RunTask();
                     _ImageHolders.ForEach(holder => holder.ClearSprite());

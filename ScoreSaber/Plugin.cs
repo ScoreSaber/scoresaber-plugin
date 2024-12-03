@@ -59,6 +59,7 @@ namespace ScoreSaber {
             zenjector.Expose<GameEnergyUIPanel>("Environment");
             zenjector.Install<AppInstaller>(Location.App);
             zenjector.Install<MainInstaller>(Location.Menu);
+            zenjector.Install<StandardInstaller>(Location.StandardPlayer);
             zenjector.Install<ImberInstaller>(Location.StandardPlayer);
             zenjector.Install<PlaybackInstaller>(Location.StandardPlayer);
             zenjector.Install<RecordInstaller, StandardGameplayInstaller>();
