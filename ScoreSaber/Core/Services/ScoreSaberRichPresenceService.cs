@@ -21,6 +21,7 @@ namespace ScoreSaber.Core.Services {
         private Socket _socket = null;
 
         private bool _isDisposed = false;
+        private bool _isEnabled = true;
 
         private Channel _userProfileChannel = null;
 
@@ -42,6 +43,55 @@ namespace ScoreSaber.Core.Services {
 
             _log.Notice("Rich presence service initialized");
         }
+
+        public void ToggleRichPresence(bool enable) {
+            if (_isEnabled == enable) {
+                _log.Info("Rich presence toggle state unchanged.");
+                return;
+            }
+
+            _isEnabled = enable;
+
+            if (_isEnabled) {
+                _log.Info("Enabling rich presence service...");
+                if (_socket == null) {
+                    Initialize();
+                } else {
+                    _socket.Connect();
+                }
+            } else {
+                _log.Info("Disabling rich presence service...");
+                DisconnectSocket();
+            }
+        }
+
+        private void DisconnectSocket() {
+            if (_socket != null) {
+                _socket.Disconnect();
+                _userProfileChannel = null;
+                _log.Info("Socket disconnected. Service is now offline.");
+            }
+        }
+
+        private void SendMenuEvent() {
+            if (_playerService.localPlayerInfo == null) {
+                _log.Warn("Local player info is null, unable to send rich presence data.");
+                return;
+            }
+
+            if (_socket == null) {
+                _log.Warn("Socket is null, unable to send rich presence data.");
+                return;
+            }
+
+            var jsonObject = new SceneChangeEvent() {
+                Timestamp = TimeRightNow,
+                Scene = Scene.menu
+            };
+
+            SendUserProfileChannel("scene_change", jsonObject);
+        }
+
 
         int maxRetries = 5;
         int retryAttempt = 0;
@@ -82,18 +132,12 @@ namespace ScoreSaber.Core.Services {
 
             _userProfileChannel = _socket.Channel($"user_profile:{_playerService.localPlayerInfo.playerId}", new System.Collections.Generic.Dictionary<string, object>() {
                 {
-                "sid", "bob"/*_playerService.localPlayerInfo.serverKey*/
+                "sid", _playerService.localPlayerInfo.serverKey
                 }
             });
 
             _userProfileChannel.Join();
-
-            var jsonObject = new SceneChangeEvent() {
-                Timestamp = TimeRightNow,
-                Scene = Scene.menu
-            };
-
-            SendUserProfileChannel("scene_change", jsonObject);
+            SendMenuEvent();
         }
 
         public void Dispose() {

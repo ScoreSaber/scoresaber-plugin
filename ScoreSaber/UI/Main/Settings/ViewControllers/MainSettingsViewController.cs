@@ -1,16 +1,20 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using ScoreSaber.Core.Data;
+using ScoreSaber.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Zenject;
 
 namespace ScoreSaber.UI.Main.Settings.ViewControllers {
     [HotReload(RelativePathToLayout = @"./MainSettingsViewController.bsml")]
     internal class MainSettingsViewController : BSMLAutomaticViewController 
     {
+        [Inject] private readonly ScoreSaberRichPresenceService _richPresenceService = null;
+
         // NORMAL SETTINGS
         [UIValue("showScorePP")]
         public bool ShowScorePP {
@@ -143,6 +147,17 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
         public bool HideWatermarkIfUserReplay {
             get => Plugin.Settings.hideWatermarkIfUsersReplay;
             set => Plugin.Settings.hideWatermarkIfUsersReplay = value;
+        }
+
+        // MAIN SETTINGS
+
+        [UIValue("enableRichPresence")]
+        public bool EnableRichPresence {
+            get => Plugin.Settings.enableRichPresence;
+            set {
+                Plugin.Settings.enableRichPresence = value;
+                _richPresenceService.ToggleRichPresence(value);
+            }
         }
     }
 }

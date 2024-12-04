@@ -10,6 +10,7 @@ using IPA.Utilities;
 using IPA.Utilities.Async;
 using LeaderboardCore.Interfaces;
 using ScoreSaber.Core.Daemons;
+using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Core.ReplaySystem;
@@ -185,7 +186,9 @@ namespace ScoreSaber.UI.Leaderboard {
                     _panelView.SetPromptError(status, false);
                     break;
                 case PlayerService.LoginStatus.Success:
-                    _scoresaberRichPresence.Initialize();
+                    if (Plugin.Settings.enableRichPresence) {
+                        _scoresaberRichPresence.Initialize();
+                    }
                     _panelView.SetPromptSuccess(status, false, 3f);
                     _panelView.RankUpdater().RunTask();
                     _ImageHolders.ForEach(holder => holder.ClearSprite());
