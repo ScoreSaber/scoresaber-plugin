@@ -187,7 +187,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     break;
                 case PlayerService.LoginStatus.Success:
                     if (Plugin.Settings.enableRichPresence) {
-                        _scoresaberRichPresence.Initialize();
+                        UnityMainThreadTaskScheduler.Factory.StartNew(() => _scoresaberRichPresence.Initialize());
                     }
                     _panelView.SetPromptSuccess(status, false, 3f);
                     _panelView.RankUpdater().RunTask();

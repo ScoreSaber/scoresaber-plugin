@@ -18,30 +18,44 @@ namespace ScoreSaber.Core.Services {
         [Inject] private readonly SiraLog _log = null;
         [Inject] private readonly PlayerService _playerService = null;
 
-        private Socket _socket = null;
-
-        private bool _isDisposed = false;
+        private Socket _socket;
+        private bool _isDisposed;
         private bool _isEnabled = true;
+        private Channel _userProfileChannel;
 
-        private Channel _userProfileChannel = null;
+        private const int MaxRetries = 5;
+        private int _retryAttempt = 0;
 
         public string TimeRightNow => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
 
         public void Initialize() {
+            if (_socket != null) {
+                _log.Warn("Socket already initialized.");
+                return;
+            }
 
-            var socketOptions = new Socket.Options(new JsonMessageSerializer());
-            var socketAddress = "wss://gwuff.fairy-shark.ts.net/socket";
-            var socketFactory = new WebsocketSharpFactory();
-            var socket = new Socket(socketAddress, null, socketFactory, socketOptions);
+            DisconnectSocket();
 
-            _socket = socket;
+            if (Plugin.Settings.enableRichPresence == false) {
+                _log.Warn("Rich presence is disabled in settings.");
+                return;
+            }
 
-            socket.OnOpen += onOpenCallback;
-            socket.OnMessage += onMessageCallback;
-            socket.OnClose += onCloseCallback;
-            socket.Connect();
+            try {
+                var socketOptions = new Socket.Options(new JsonMessageSerializer());
+                var socketAddress = "wss://gwuff.fairy-shark.ts.net/socket";
+                var socketFactory = new WebsocketSharpFactory();
+                _socket = new Socket(socketAddress, null, socketFactory, socketOptions);
 
-            _log.Notice("Rich presence service initialized");
+                _socket.OnOpen += OnOpenCallback;
+                _socket.OnMessage += OnMessageCallback;
+                _socket.OnClose += OnCloseCallback;
+
+                _socket.Connect();
+                _log.Notice("Rich presence service initialized.");
+            } catch (Exception ex) {
+                _log.Error($"Failed to initialize socket: {ex.Message}");
+            }
         }
 
         public void ToggleRichPresence(bool enable) {
@@ -54,11 +68,7 @@ namespace ScoreSaber.Core.Services {
 
             if (_isEnabled) {
                 _log.Info("Enabling rich presence service...");
-                if (_socket == null) {
-                    Initialize();
-                } else {
-                    _socket.Connect();
-                }
+                Initialize();
             } else {
                 _log.Info("Disabling rich presence service...");
                 DisconnectSocket();
@@ -68,13 +78,17 @@ namespace ScoreSaber.Core.Services {
         private void DisconnectSocket() {
             if (_socket != null) {
                 _socket.Disconnect();
+                _socket.OnOpen -= OnOpenCallback;
+                _socket.OnMessage -= OnMessageCallback;
+                _socket.OnClose -= OnCloseCallback;
+                _socket = null;
                 _userProfileChannel = null;
                 _log.Info("Socket disconnected. Service is now offline.");
             }
         }
 
         private void SendMenuEvent() {
-            if (_playerService.localPlayerInfo == null) {
+            if (_playerService?.localPlayerInfo == null) {
                 _log.Warn("Local player info is null, unable to send rich presence data.");
                 return;
             }
@@ -84,7 +98,7 @@ namespace ScoreSaber.Core.Services {
                 return;
             }
 
-            var jsonObject = new SceneChangeEvent() {
+            var jsonObject = new SceneChangeEvent {
                 Timestamp = TimeRightNow,
                 Scene = Scene.menu
             };
@@ -92,59 +106,68 @@ namespace ScoreSaber.Core.Services {
             SendUserProfileChannel("scene_change", jsonObject);
         }
 
-
-        int maxRetries = 5;
-        int retryAttempt = 0;
-
-        private void onCloseCallback(ushort code, string message) {
-            _log.Warn("Rich presence socket closed: " + code + " - " + message);
+        private void OnCloseCallback(ushort code, string message) {
+            _log.Warn($"Rich presence socket closed: {code} - {message}");
             if (_isDisposed) return;
-            if(retryAttempt > maxRetries) {
+
+            if (_retryAttempt >= MaxRetries) {
                 _log.Error("Max reconnection attempts reached. Unable to reconnect.");
+                Dispose();
                 return;
             }
-            _log.Warn($"Attempting to reconnect to rich presence socket... Attempt {retryAttempt + 1}");
-            _socket.Connect();
-            retryAttempt++;
+
+            _retryAttempt++;
+            _log.Warn($"Attempting to reconnect to rich presence socket... Attempt {_retryAttempt}");
+            _socket?.Connect();
         }
 
+        public void SendUserProfileChannel(string @event, object message, TimeSpan? timeSpan = null) {
+            if (_userProfileChannel == null) {
+                _log.Warn("User profile channel is null, unable to send message.");
+                return;
+            }
 
-        public void SendUserProfileChannel(string @event, object message, TimeSpan? timeSpan = default) {
             _userProfileChannel.Push(@event, message, timeSpan);
         }
 
-        private void onMessageCallback(Message message) {
-            //_log.Info("Received message: " + message.Payload.ToString());
+        private void OnMessageCallback(Message message) {
+            _log.Info($"Received message: {message.Payload}");
         }
 
-        private void onOpenCallback() {
-            _log.Notice("Connected to the rich presence socket");
+        private void OnOpenCallback() {
+            _log.Notice("Connected to the rich presence socket.");
 
-            if(_playerService.localPlayerInfo == null) {
-                _log.Warn("Local player info is null, unable to send rich presence data");
+            if (_playerService?.localPlayerInfo == null) {
+                _log.Warn("Local player info is null, unable to send rich presence data.");
                 return;
             }
 
-            if(_socket == null) {
-                _log.Warn("Socket is null, unable to send rich presence data");
+            if (_socket == null) {
+                _log.Warn("Socket is null, unable to send rich presence data.");
                 return;
             }
 
-            _userProfileChannel = _socket.Channel($"user_profile:{_playerService.localPlayerInfo.playerId}", new System.Collections.Generic.Dictionary<string, object>() {
+            _userProfileChannel?.Leave();
+            _userProfileChannel = _socket.Channel(
+                $"user_profile:{_playerService.localPlayerInfo.playerId}",
+                new System.Collections.Generic.Dictionary<string, object>
                 {
-                "sid", _playerService.localPlayerInfo.serverKey
-                }
-            });
+                { "sid", _playerService.localPlayerInfo.serverKey }
+                });
 
             _userProfileChannel.Join();
             SendMenuEvent();
         }
 
         public void Dispose() {
+            if (_isDisposed) return;
+
             _isDisposed = true;
-            _socket.Disconnect();
+            DisconnectSocket();
+            _log.Info("Rich presence service disposed.");
         }
     }
+
 
     public class MenuPresencePatches : IAffinity {
 
@@ -172,7 +195,7 @@ namespace ScoreSaber.Core.Services {
             if (!__instance.selectedBeatmapLevel.levelID.StartsWith("custom_level_")) {
                 hash = "#" + __instance.selectedBeatmapLevel.levelID;
             } else {
-                hash = __instance.selectedBeatmapLevel.levelID.Substring(13);
+                hash = __instance.selectedBeatmapLevel.levelID.Split('_')[2];
             }
 
             bool isPractice = practice;
@@ -300,6 +323,8 @@ namespace ScoreSaber.Core.Services {
     }
 
     public enum Scene {
+        [JsonProperty("online")]
+        online,
         [JsonProperty("menu")]
         menu,
         [JsonProperty("playing")]
