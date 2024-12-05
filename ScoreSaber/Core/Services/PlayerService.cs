@@ -142,6 +142,19 @@ namespace ScoreSaber.Core.Services {
             return playerStats;
         }
 
+        public async Task<RichPresenceResponse> GetRichPresence(string playerId) {
+
+            string response = await Plugin.HttpInstance.GetRawAsync($"https://gwuff.fairy-shark.ts.net/user/{playerId}");
+            if(response == null) {
+                return null;
+            }
+            var richPresence = JsonConvert.DeserializeObject<RichPresenceResponse>(response);
+            if (richPresence == null) {
+                return null;
+            }
+            return richPresence;
+        }
+
         public async Task<byte[]> GetReplayData(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, int leaderboardId, ScoreMap scoreMap) {
 
             if (scoreMap.hasLocalReplay) {

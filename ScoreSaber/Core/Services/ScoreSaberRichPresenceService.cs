@@ -45,12 +45,14 @@ namespace ScoreSaber.Core.Services {
                 var socketOptions = new Socket.Options(new JsonMessageSerializer());
                 var socketAddress = "wss://gwuff.fairy-shark.ts.net/socket";
                 var socketFactory = new WebsocketSharpFactory();
-                _socket = new Socket(socketAddress, null, socketFactory, socketOptions);
+                _socket = new Socket(socketAddress, new System.Collections.Generic.Dictionary<string, string>
+                {
+                { "sid", _playerService.localPlayerInfo.serverKey }
+                }, socketFactory, socketOptions);
 
                 _socket.OnOpen += OnOpenCallback;
                 _socket.OnMessage += OnMessageCallback;
                 _socket.OnClose += OnCloseCallback;
-
                 _socket.Connect();
                 _log.Notice("Rich presence service initialized.");
             } catch (Exception ex) {
@@ -131,7 +133,7 @@ namespace ScoreSaber.Core.Services {
         }
 
         private void OnMessageCallback(Message message) {
-            _log.Info($"Received message: {message.Payload}");
+            //_log.Info($"Received message: {message.Payload}");
         }
 
         private void OnOpenCallback() {
@@ -148,12 +150,7 @@ namespace ScoreSaber.Core.Services {
             }
 
             _userProfileChannel?.Leave();
-            _userProfileChannel = _socket.Channel(
-                $"user_profile:{_playerService.localPlayerInfo.playerId}",
-                new System.Collections.Generic.Dictionary<string, object>
-                {
-                { "sid", _playerService.localPlayerInfo.serverKey }
-                });
+            _userProfileChannel = _socket.Channel("player");
 
             _userProfileChannel.Join();
             SendMenuEvent();
@@ -323,6 +320,8 @@ namespace ScoreSaber.Core.Services {
     }
 
     public enum Scene {
+        [JsonProperty("offline")]
+        offline,
         [JsonProperty("online")]
         online,
         [JsonProperty("menu")]
@@ -428,5 +427,22 @@ namespace ScoreSaber.Core.Services {
         [JsonProperty("eventType")]
         [JsonConverter(typeof(StringEnumConverter))]
         public PauseType EventType { get; set; }
+    }
+
+
+    public class RichPresenceResponse {
+        [JsonProperty("id")]
+        public string Id { get; set; } = string.Empty;
+
+        [JsonProperty("state")]
+        public State state { get; set; }
+    }
+
+    public class State {
+        [JsonProperty("scene")]
+        public Scene Scene { get; set; } = Scene.menu;
+
+        [JsonProperty("currentMap")]
+        public SongStartEvent currentMap { get; set; }
     }
 }

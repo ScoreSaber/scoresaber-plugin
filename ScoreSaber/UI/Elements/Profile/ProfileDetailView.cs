@@ -1,20 +1,25 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using IPA.Config.Data;
+using IPA.Utilities.Async;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Core.Utils;
 using ScoreSaber.Extensions;
+using ScoreSaber.UI.Elements.Leaderboard;
 using ScoreSaber.UI.Leaderboard;
 using ScoreSaber.UI.Other;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using static BeatSaberMarkupLanguage.Components.KEYBOARD;
 
 namespace ScoreSaber.UI.Elements.Profile {
 
@@ -68,6 +73,16 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         [UIComponent("total-score-text")]
         public readonly CurvedTextMeshPro totalScoreText = null;
+
+        [UIComponent("map-presence")]
+        public readonly HorizontalLayoutGroup mapPresence = null;
+
+        [UIComponent("map-image-presence")]
+        public readonly ImageView mapImagePresence = null;
+
+        [UIComponent("map-status-text")]
+        public readonly CurvedTextMeshPro mapStatusText = null;
+
         #endregion
 
         #region BSML Values
@@ -96,6 +111,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         #region Custom Properties
         private PlayerInfo _playerInfo { get; set; }
+        private RichPresenceResponse _richPresence { get; set; }
         private bool _isCyan { get; set; }
 
         private readonly HoverHint _profileHoverHint = null;
@@ -110,10 +126,17 @@ namespace ScoreSaber.UI.Elements.Profile {
         #endregion
 
         private PlayerService _playerService = null;
+        private BeatmapLevelsModel _beatmapLevelsModel = null;
+        private SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator = null;
+
+        private IScoreSaberBeatmapDownloader _beatmapDownloader => Plugin.Container.TryResolve<IScoreSaberBeatmapDownloader>();
+
 
         [Inject]
-        private void Construct(PlayerService playerService) {
+        private void Construct(PlayerService playerService, BeatmapLevelsModel beatmapLevelsModel, SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator) {
             _playerService = playerService;
+            _beatmapLevelsModel = beatmapLevelsModel;
+            _soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
         }
 
         [UIAction("profile-url-click")]
@@ -134,6 +157,10 @@ namespace ScoreSaber.UI.Elements.Profile {
             PanelView.ImageSkew(ref _profileTop) = 0f;
 
             modalPic.material = Plugin.NoGlowMatRound;
+            mapPresence.gameObject.SetActive(false);
+            if(_beatmapDownloader == null) {
+                Plugin.Log.Error($"BeatmapDownloader is null, install a mod to [APP] that injects IScoreSaberBeatmapDownloader");
+            }
         }
 
         protected void Awake() {
@@ -145,7 +172,15 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
 
         internal async Task ShowProfile(string playerId) {
+            mapPresence.gameObject.SetActive(false);
             SetCrowns("0");
+            rankText.text = "Loading...";
+            ppText.text = "Loading...";
+            rankedAccText.text = "Loading...";
+            totalScoreText.text = "Loading...";
+            playerNameText.text = "Loading...";
+            SetProfileBadges(null);
+
             SetLoadingState(true);
           
             _playerInfo = await _playerService.GetPlayerInfo(playerId, full: true);
@@ -153,9 +188,11 @@ namespace ScoreSaber.UI.Elements.Profile {
             await CheckCyanOrWimmiuls();
 
             playerNameText.text = _playerInfo.name;
-#pragma warning disable CS0612 // Type or member is obsolete
-            profilePicture.SetImage(_playerInfo.profilePicture);
-#pragma warning restore CS0612 // Type or member is obsolete
+            if(SpriteCache.cachedSprites.TryGetValue(_playerInfo.profilePicture, out var sprite)) {
+                profilePicture.sprite = sprite;
+            } else {
+                profilePicture.SetImageAsync(_playerInfo.profilePicture).RunTask();
+            }
 
             rankText.text = $"#{string.Format("{0:n0}", _playerInfo.rank)}";
             ppText.text = $"<color=#6772E5>{string.Format("{0:n0}", _playerInfo.pp)}pp</color>";
@@ -172,7 +209,54 @@ namespace ScoreSaber.UI.Elements.Profile {
             SetProfileBadges(list.ToArray());
             SetCrowns(playerId);
             SetLoadingState(false);
+            if(_beatmapDownloader == null) {
+                Plugin.Log.Error("BeatmapDownloader is null, install a mod that injects IScoreSaberBeatmapDownloader");
+                return;
+            }
+            try {
+                _richPresence = await _playerService.GetRichPresence(playerId);
+                if(_richPresence.state.currentMap != null) {
+                    mapStatusText.text = _richPresence.state.currentMap.Name;
+                    mapPresence.gameObject.SetActive(true);
+                    mapImagePresence.SetImageAsync($"https://cdn.scoresaber.com/covers/{_richPresence.state.currentMap.Hash}.png").RunTask();
+                }
+                Plugin.Log.Notice(_richPresence.state.Scene.ToString());
+                if (_richPresence != null) {
+                    SetRichStatus(_richPresence.state.Scene);
+                }
+            } catch(HttpErrorException ex) {
+                Plugin.Log.Error(ex.Message);
+            }
         }
+
+        [UIAction("map-presence-click")]
+        private void MapPresenceClicked() {
+            OpenMapOrDownload(_richPresence.state.currentMap.Hash).RunTask();
+        }
+
+        private async Task OpenMapOrDownload(string hash) {
+            if (_beatmapLevelsModel.GetBeatmapLevel(hash) != null) {
+                UnityMainThreadTaskScheduler.Factory.StartNew(() => OpenMap(hash)).RunTask();
+            } else {
+                if(_beatmapDownloader == null) {
+                    Plugin.Log.Error("BeatmapDownloader is null, install a mod that injects IScoreSaberBeatmapDownloader");
+                    return;
+                }
+                await _beatmapDownloader.DownloadBeatmapAsync(hash, new Action(() => { UnityMainThreadTaskScheduler.Factory.StartNew(() => OpenMap(hash)).RunTask(); }));
+            }
+        }
+
+        private void OpenMap(string hash) {
+            hash = "custom_level_" + hash;
+            var level = _beatmapLevelsModel.GetBeatmapLevel(hash);
+
+            LevelSelectionFlowCoordinator.State state = new LevelSelectionFlowCoordinator.State(SelectLevelCategoryViewController.LevelCategory.All,
+                                                                                                SongCore.Loader.CustomLevelsPack,
+                                                                                                in level.GetBeatmapKeys().ToArray()[level.GetBeatmapKeys().ToArray().Length],
+                                                                                                level);
+            _soloFreePlayFlowCoordinator.Setup(state);
+        }
+
 
         public void SetProfileBadges(Tuple<string, string>[] imageNameGroup) {
 
@@ -225,6 +309,26 @@ namespace ScoreSaber.UI.Elements.Profile {
                 profilePrefixPicture = crownDetails.Item1;
                 profileHoverHint.text = crownDetails.Item2;
             }
+        }
+
+        private void SetRichStatus(Scene scene) {
+            switch (scene) {
+                case Scene.offline:
+                    profilePrefixPicture = "ScoreSaber.Resources.Offline.png";
+                    break;
+                case Scene.online:
+                    profilePrefixPicture = "ScoreSaber.Resources.Online.png";
+                    break;
+                case Scene.menu:
+                    profilePrefixPicture = "ScoreSaber.Resources.Online.png";
+                    break;
+                case Scene.playing:
+                    profilePrefixPicture = "ScoreSaber.Resources.Online.png";
+                    break;
+                default:
+                    break;
+            }
+            Plugin.Log.Notice("Setting online image prefix");
         }
 
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") {

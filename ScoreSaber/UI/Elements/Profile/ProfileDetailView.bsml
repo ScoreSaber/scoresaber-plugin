@@ -3,10 +3,10 @@
     <horizontal id="profile-top" bg="round-rect-panel" bg-color="#555EBC" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" anchor-pos-y="1" pref-width="90" size-delta-x="90">
       <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" spacing="2" child-align="MiddleCenter">
         <img id="profile-prefix-picture" preserve-aspect="true" pref-width="6" pref-height="6" hover-hint="dfgdfgdfgsaasdafvwevwev" />
-        <clickable-text id="player-name-text" text="Loading..." align="Center" anchor-pos-y="20" font-size="5" size-delta-y="6" size-delta-x="45" overflow-mode="Ellipsis" on-click="profile-url-click" hover-hint="Opens in browser" />
+        <clickable-text id="player-name-text" text="Loading..." align="Midline" anchor-pos-y="20" font-size="5" size-delta-y="6" size-delta-x="45" overflow-mode="Ellipsis" on-click="profile-url-click" hover-hint="Opens in browser" />
       </horizontal>
     </horizontal>
-    <horizontal active="~profile-set" pref-width="90" pref-height="40" spacing="2">
+	  <horizontal active="~profile-set" pref-width="90" pref-height="50" spacing="2">
       <vertical horizontal-fit="PreferredSize" pref-width="35">
         <vertical pad-left="2" pref-width="35">
           <img id="profile-picture" preserve-aspect="true" />
@@ -38,6 +38,10 @@
             <text text="Total Score" align="Left" italics="false" bold="true" font-size="4.5" size-delta-y="5" />
             <text id="total-score-text" text="0" align="Left" size-delta-y="4" />
           </vertical>
+	      <horizontal id="map-presence" vertical-fit="PreferredSize" pref-width="45" pref-height="10">
+		    <img id="map-image-presence" src="#ClockIcon" preserve-aspect="true" pref-width="10" pref-height="10" />
+		    <clickable-text id="map-status-text" text="Map Name" align="Left" size-delta-y="4" on-click="map-presence-click" />
+	      </horizontal>
         </vertical>
       </vertical>
     </horizontal>
