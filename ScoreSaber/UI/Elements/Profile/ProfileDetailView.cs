@@ -1,7 +1,9 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Parser;
 using HMUI;
 using IPA.Config.Data;
+using IPA.Utilities;
 using IPA.Utilities.Async;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
@@ -28,6 +30,9 @@ namespace ScoreSaber.UI.Elements.Profile {
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region BSML Components
+        [UIParams]
+        private BSMLParserParams _parserParams = null;
+
         [UIComponent("profile-modal-root")]
         public ModalView profileModalRoot = null;
 
@@ -54,6 +59,17 @@ namespace ScoreSaber.UI.Elements.Profile {
                     _profilePrefixPicture.gameObject.SetActive(false);
                     return;
                 }
+                if (value.Contains("Online")) {
+                    _profilePrefixPicture.gameObject.SetActive(true);
+                    _profilePrefixPicture.sprite = onlineSprite;
+                    return;
+                }
+                if (value.Contains("Offline")) {
+                    _profilePrefixPicture.gameObject.SetActive(true);
+                    _profilePrefixPicture.sprite = offlineSprite;
+                    return;
+                }
+
                 _profilePrefixPicture.gameObject.SetActive(true);
                 _profilePrefixPicture.SetImageAsync(value).RunTask();
             }
@@ -77,11 +93,11 @@ namespace ScoreSaber.UI.Elements.Profile {
         [UIComponent("map-presence")]
         public readonly HorizontalLayoutGroup mapPresence = null;
 
+        [UIComponent("map-presence-title")]
+        public readonly VerticalLayoutGroup mapPresenceTitle = null;
+
         [UIComponent("map-image-presence")]
         public readonly ImageView mapImagePresence = null;
-
-        [UIComponent("map-status-text")]
-        public readonly CurvedTextMeshPro mapStatusText = null;
 
         #endregion
 
@@ -107,6 +123,47 @@ namespace ScoreSaber.UI.Elements.Profile {
                 NotifyPropertyChanged();
             }
         }
+
+        private string _mapName = "";
+        [UIValue("map-name")]
+        public string mapName {
+            get => _mapName;
+            set {
+                _mapName = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _mapArtist = "";
+        [UIValue("map-artist")]
+        public string mapArtist {
+            get => _mapArtist;
+            set {
+                _mapArtist = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _mapMapperName = "";
+        [UIValue("map-mapper-name")]
+        public string MapMapperName {
+            get => _mapMapperName;
+            set {
+                _mapMapperName = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _mapTime = "";
+        [UIValue("map-time")]
+        public string mapTime {
+            get => _mapTime;
+            set {
+                _mapTime = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Custom Properties
@@ -123,20 +180,47 @@ namespace ScoreSaber.UI.Elements.Profile {
                 return _profileHoverHint;
             }
         }
+
+        private bool isDownloadingMap { get; set; } = false;
         #endregion
 
         private PlayerService _playerService = null;
         private BeatmapLevelsModel _beatmapLevelsModel = null;
         private SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator = null;
+        private PanelView _panelView = null;
+        private ScoreSaberLeaderboardViewController _scoreSaberLeaderboardViewController = null;
 
         private IScoreSaberBeatmapDownloader _beatmapDownloader => Plugin.Container.TryResolve<IScoreSaberBeatmapDownloader>();
 
+        private Sprite _onlineSprite = null;
+        private Sprite onlineSprite {
+            get {
+                if (_onlineSprite == null) {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    _onlineSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Online.png");
+                }
+                return _onlineSprite;
+            }
+        }
+
+        private Sprite _offlineSprite = null;
+        private Sprite offlineSprite {
+            get {
+                if (_offlineSprite == null) {
+                    _offlineSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Offline.png");
+                }
+                return _offlineSprite;
+            }
+        }
+
 
         [Inject]
-        private void Construct(PlayerService playerService, BeatmapLevelsModel beatmapLevelsModel, SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator) {
+        private void Construct(PlayerService playerService, BeatmapLevelsModel beatmapLevelsModel, SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator, PanelView panelView, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController) {
             _playerService = playerService;
             _beatmapLevelsModel = beatmapLevelsModel;
             _soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
+            _panelView = panelView;
+            _scoreSaberLeaderboardViewController = scoreSaberLeaderboardViewController;
         }
 
         [UIAction("profile-url-click")]
@@ -157,6 +241,7 @@ namespace ScoreSaber.UI.Elements.Profile {
             PanelView.ImageSkew(ref _profileTop) = 0f;
 
             modalPic.material = Plugin.NoGlowMatRound;
+            mapImagePresence.material = Plugin.NoGlowMatRound;
             mapPresence.gameObject.SetActive(false);
             if(_beatmapDownloader == null) {
                 Plugin.Log.Error($"BeatmapDownloader is null, install a mod to [APP] that injects IScoreSaberBeatmapDownloader");
@@ -173,6 +258,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         internal async Task ShowProfile(string playerId) {
             mapPresence.gameObject.SetActive(false);
+            mapPresenceTitle.gameObject.SetActive(false);
             SetCrowns("0");
             rankText.text = "Loading...";
             ppText.text = "Loading...";
@@ -194,7 +280,7 @@ namespace ScoreSaber.UI.Elements.Profile {
                 profilePicture.SetImageAsync(_playerInfo.profilePicture).RunTask();
             }
 
-            rankText.text = $"#{string.Format("{0:n0}", _playerInfo.rank)}";
+            rankText.text = $"#{string.Format("{0:n0}", _playerInfo.rank)} <color=grey><size=80%>(#{_playerInfo.countryRank} {_playerInfo.country})</size></color>";
             ppText.text = $"<color=#6772E5>{string.Format("{0:n0}", _playerInfo.pp)}pp</color>";
 
             rankedAccText.text = $"{Math.Round(_playerInfo.scoreStats.averageRankedAccuracy, 2)}%";
@@ -216,8 +302,16 @@ namespace ScoreSaber.UI.Elements.Profile {
             try {
                 _richPresence = await _playerService.GetRichPresence(playerId);
                 if(_richPresence.state.currentMap != null) {
-                    mapStatusText.text = _richPresence.state.currentMap.Name;
+                    mapName = _richPresence.state.currentMap.Name;
+                    mapArtist = $"<color=grey><size=80%>{_richPresence.state.currentMap.Artist}</size></color>";
+                    MapMapperName = $"[<color=#59cf59><size=80%>{_richPresence.state.currentMap.AuthorName}</size></color>]";
+                    DateTimeOffset parsedTime = DateTimeOffset.Parse(_richPresence.state.currentMap.Timestamp);
+                    DateTimeOffset now = DateTimeOffset.UtcNow;
+
+                    TimeSpan difference = now - parsedTime;
+                    mapTime = difference.ToNaturalTime(2, false) + " ago";
                     mapPresence.gameObject.SetActive(true);
+                    mapPresenceTitle.gameObject.SetActive(true);
                     mapImagePresence.SetImageAsync($"https://cdn.scoresaber.com/covers/{_richPresence.state.currentMap.Hash}.png").RunTask();
                 }
                 Plugin.Log.Notice(_richPresence.state.Scene.ToString());
@@ -229,34 +323,64 @@ namespace ScoreSaber.UI.Elements.Profile {
             }
         }
 
-        [UIAction("map-presence-click")]
+        [UIAction("map-presence-play")]
         private void MapPresenceClicked() {
-            OpenMapOrDownload(_richPresence.state.currentMap.Hash).RunTask();
+            _scoreSaberLeaderboardViewController.CloseModals();
+            _parserParams.EmitEvent("close-modals");
+            DownloadOrOpenMap(_richPresence.state.currentMap.Hash, _richPresence.state.currentMap.Difficulty).RunTask();
         }
 
-        private async Task OpenMapOrDownload(string hash) {
-            if (_beatmapLevelsModel.GetBeatmapLevel(hash) != null) {
-                UnityMainThreadTaskScheduler.Factory.StartNew(() => OpenMap(hash)).RunTask();
+        private async Task DownloadOrOpenMap(string hash, int diff) {
+            if (_beatmapLevelsModel.GetBeatmapLevel("custom_level_" + hash) != null) {
+                _ = UnityMainThreadTaskScheduler.Factory.StartNew(() => OpenMap(hash, diff));
             } else {
                 if(_beatmapDownloader == null) {
                     Plugin.Log.Error("BeatmapDownloader is null, install a mod that injects IScoreSaberBeatmapDownloader");
                     return;
                 }
-                await _beatmapDownloader.DownloadBeatmapAsync(hash, new Action(() => { UnityMainThreadTaskScheduler.Factory.StartNew(() => OpenMap(hash)).RunTask(); }));
+                if (isDownloadingMap) {
+                    return;
+                }
+                isDownloadingMap = true;
+                _panelView.SetPromptInfo("Downloading map...", true);
+                await _beatmapDownloader.DownloadBeatmapAsync(hash, new Action(() => { UnityMainThreadTaskScheduler.Factory.StartNew(async() => 
+                {
+                    _panelView.SetPromptSuccess("Downloaded map!", false, 5f);
+                    _ = UnityMainThreadTaskScheduler.Factory.StartNew(() => SongCore.Loader.Instance.RefreshSongs(true));
+                    while (SongCore.Loader.AreSongsLoading) {
+                        await Task.Delay(200);
+                    }
+                    await Task.Delay(2000);
+                    _ = UnityMainThreadTaskScheduler.Factory.StartNew(() => OpenMap(hash, diff));
+                }); }));
             }
         }
 
-        private void OpenMap(string hash) {
+        private void OpenMap(string hash, int diff) {
+            Plugin.Log.Info($"Opening map {hash} with diff {diff}");
             hash = "custom_level_" + hash;
-            var level = _beatmapLevelsModel.GetBeatmapLevel(hash);
+            var level = SongCore.Loader.BeatmapLevelsModelSO.GetBeatmapLevel(hash);
+            if (level == null) {
+                Plugin.Log.Error($"Level {hash} not found");
+                return;
+            }
 
+            diff = (diff - 1) / 2;
+            BeatmapKey key = level.GetBeatmapKeys().FirstOrDefault(x => diff == (int)x.difficulty);
+            if (key == null) {
+                Plugin.Log.Error($"Difficulty {diff} not found for level {hash}");
+                return;
+            }
             LevelSelectionFlowCoordinator.State state = new LevelSelectionFlowCoordinator.State(SelectLevelCategoryViewController.LevelCategory.All,
                                                                                                 SongCore.Loader.CustomLevelsPack,
-                                                                                                in level.GetBeatmapKeys().ToArray()[level.GetBeatmapKeys().ToArray().Length],
+                                                                                                in key,
                                                                                                 level);
-            _soloFreePlayFlowCoordinator.Setup(state);
+            //Plugin.Log.Notice($"Opening level {hash} with base game diff {diff}");
+            
+            
+            _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView.SetData(new List<BeatmapLevel>() { level }, _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView._favoriteLevelIds, false, false);
+            _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController.SelectLevel(level);
         }
-
 
         public void SetProfileBadges(Tuple<string, string>[] imageNameGroup) {
 

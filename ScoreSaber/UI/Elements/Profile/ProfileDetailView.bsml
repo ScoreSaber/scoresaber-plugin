@@ -1,4 +1,4 @@
-﻿<modal id="profile-modal-root" show-event="present-profile" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="90" size-delta-y="50"  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
+﻿<modal id="profile-modal-root" show-event="present-profile" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="90" size-delta-y="57"  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
   <vertical child-control-height="false" spacing="1" pref-height="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#69696999">
     <horizontal id="profile-top" bg="round-rect-panel" bg-color="#555EBC" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" anchor-pos-y="1" pref-width="90" size-delta-x="90">
       <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" spacing="2" child-align="MiddleCenter">
@@ -20,29 +20,42 @@
       <vertical pref-width=".75" pref-height="40">
         <img id="profile-line-border" src="ScoreSaber.Resources.pixel.png" size-delta-x=".75" size-delta-y="45" />
       </vertical>
-      <vertical pref-width="40" pref-height="45" pad="2">
-        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" size-delta-x="50" size-delta-y="45" >
-          <vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
-            <text text="Global Player Ranking" align="Left" italics="false" bold="true" font-size="4.5" size-delta-y="5" />
-            <text id="rank-text" text="#0" align="Left" size-delta-y="4" />
+      <vertical pref-width="40" pref-height="45" pad="1" child-align="UpperLeft">
+        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" size-delta-x="50" size-delta-y="45" preferred-height="45" child-control-width="true" child-align="UpperLeft" spacing="1">
+          <vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10" spacing="-1">
+            <text text="Global Player Ranking" align="Left" italics="false" bold="true" font-size="3.5" size-delta-y="5" />
+            <text id="rank-text" text="#0" align="Left" size-delta-y="4" font-size="3" rich-text="true" />
           </vertical>
-          <vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
-            <text text="Performance Points" align="Left" italics="false" bold="true" font-size="4.5" size-delta-y="5" />
-            <text id="pp-text" text="0pp" align="Left" size-delta-y="4" />
+          <vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10" spacing="-1">
+            <text text="Performance Points" align="Left" italics="false" bold="true" font-size="3.5" size-delta-y="5" />
+            <text id="pp-text" text="0pp" align="Left" size-delta-y="4" font-size="3" />
           </vertical>
-          <vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
-            <text text="Average Ranked Accuracy" align="Left" italics="false" bold="true" font-size="4.5" size-delta-y="5" />
-            <text id="ranked-acc-text" text="0%" align="Left" size-delta-y="4" />
+          <vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10" spacing="-1">
+            <text text="Average Ranked Accuracy" align="Left" italics="false" bold="true" font-size="3.5" size-delta-y="5" />
+            <text id="ranked-acc-text" text="0%" align="Left" size-delta-y="4" font-size="3" />
           </vertical>
-          <vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10">
-            <text text="Total Score" align="Left" italics="false" bold="true" font-size="4.5" size-delta-y="5" />
-            <text id="total-score-text" text="0" align="Left" size-delta-y="4" />
-          </vertical>
-	      <horizontal id="map-presence" vertical-fit="PreferredSize" pref-width="45" pref-height="10">
-		    <img id="map-image-presence" src="#ClockIcon" preserve-aspect="true" pref-width="10" pref-height="10" />
-		    <clickable-text id="map-status-text" text="Map Name" align="Left" size-delta-y="4" on-click="map-presence-click" />
-	      </horizontal>
-        </vertical>
+			<vertical vertical-fit="PreferredSize" pref-width="45" pref-height="10" spacing="-1">
+				<text text="Total Score" align="Left" italics="false" bold="true" font-size="3.5" size-delta-y="5" />
+				<text id="total-score-text" text="0" align="Left" size-delta-y="4" font-size="3" />
+			</vertical>
+			<vertical id="map-presence-title" vertical-fit="PreferredSize" pref-width="45" pref-height="10" spacing="-1">
+				<text text="Currently Playing" align="Left" italics="false" bold="true" font-size="3.5" size-delta-y="5" />
+            </vertical>
+			<horizontal id="map-presence" bg="panel-top" preferred-height="10" vertical-fit="PreferredSize" preferred-width="45" horizontal-fit="PreferredSize">
+				<stack pref-width="10" preferred-height="10" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" ignore-layout="true" anchor-pos-x="-18">
+					<clickable-image id="map-image-presence" src="#ClockIcon" preserve-aspect="true" on-click="map-presence-play"/>
+				</stack>
+				<vertical preferred-width="22.5" preferred-height="7.5" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" ignore-layout="true" anchor-pos-x="0">
+					<clickable-text text="~map-name" font-size="3.5" rich-text="true" on-click="map-presence-play"/>
+					<text text="~map-artist" font-size="2.25" rich-text="true"/>
+				</vertical>
+
+				<vertical spacing="1.3" preferred-width="22.5" preferred-height="6.9" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" ignore-layout="true" anchor-pos-x="15">
+					<text text="~map-mapper-name" font-size="3" rich-text="true"/>
+					<text text="~map-time" font-size="2.5" rich-text="true"/>
+				</vertical>
+			</horizontal>
+		</vertical>
       </vertical>
     </horizontal>
     <horizontal active="~profile-set-loading">

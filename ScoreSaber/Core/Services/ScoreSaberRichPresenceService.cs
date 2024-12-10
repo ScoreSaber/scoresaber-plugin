@@ -43,7 +43,7 @@ namespace ScoreSaber.Core.Services {
 
             try {
                 var socketOptions = new Socket.Options(new JsonMessageSerializer());
-                var socketAddress = "wss://gwuff.fairy-shark.ts.net/socket";
+                var socketAddress = "wss://ssrt.bzaz.au/socket";
                 var socketFactory = new WebsocketSharpFactory();
                 _socket = new Socket(socketAddress, new System.Collections.Generic.Dictionary<string, string>
                 {

@@ -144,7 +144,7 @@ namespace ScoreSaber.Core.Services {
 
         public async Task<RichPresenceResponse> GetRichPresence(string playerId) {
 
-            string response = await Plugin.HttpInstance.GetRawAsync($"https://gwuff.fairy-shark.ts.net/user/{playerId}");
+            string response = await Plugin.HttpInstance.GetRawAsync($"https://ssrt.bzaz.au/user/{playerId}");
             if(response == null) {
                 return null;
             }

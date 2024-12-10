@@ -253,6 +253,10 @@ namespace ScoreSaber.UI.Leaderboard {
             myHeader.transform.SetParent(_platformLeaderboardViewController.transform.Find("HeaderPanel"), true);
         }
 
+        public void CloseModals() {
+            _parserParams.EmitEvent("close-modals");
+        }
+
         private void SetPanelStatus(LeaderboardInfoMap leaderboardInfoMap = null) {
             bool fromCached = true;
             if(leaderboardInfoMap == null) {
