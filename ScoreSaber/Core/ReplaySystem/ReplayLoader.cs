@@ -25,7 +25,7 @@ namespace ScoreSaber.Core.ReplaySystem {
 
             _playerDataModel = playerDataModel;
             _menuTransitionsHelper = menuTransitionsHelper;
-            _standardLevelScenesTransitionSetupDataSO = Accessors.StandardLevelScenesTransitionSetupData(ref _menuTransitionsHelper);
+            _standardLevelScenesTransitionSetupDataSO = _menuTransitionsHelper._standardLevelScenesTransitionSetupData;
             _replayFileReader = new ReplayFileReader();
             _environmentsListModel = environmentsListModel;
         }

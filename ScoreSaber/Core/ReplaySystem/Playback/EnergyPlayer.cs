@@ -43,20 +43,20 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             bool isFailingEnergy = energy <= Mathf.Epsilon;
 
             bool noFail = _gameEnergyCounter.noFail;
-            Accessors.NoFailPropertyUpdater(ref _gameEnergyCounter, false);
-            Accessors.DidReachZero(ref _gameEnergyCounter) = isFailingEnergy;
+            _gameEnergyCounter.noFail = false;
+            _gameEnergyCounter._didReach0Energy = isFailingEnergy;
             _gameEnergyCounter.ProcessEnergyChange(energy);
-            Accessors.NextEnergyChange(ref _gameEnergyCounter) = 0;
-            Accessors.ActiveEnergy(ref _gameEnergyCounter, energy);
-            Accessors.NoFailPropertyUpdater(ref _gameEnergyCounter, noFail);
+            _gameEnergyCounter._nextFrameEnergyChange = 0;
+            _gameEnergyCounter.energy = energy;
+            _gameEnergyCounter.noFail = noFail;
 
             if (_gameEnergyUIPanel != null) {
                 _gameEnergyUIPanel.Init();
-                var director = Accessors.Director(ref _gameEnergyUIPanel);
+                var director = _gameEnergyUIPanel._playableDirector;
                 director.Stop();
                 director.RebindPlayableGraphOutputs();
                 director.Evaluate();
-                Accessors.EnergyBar(ref _gameEnergyUIPanel).enabled = !isFailingEnergy;
+                _gameEnergyUIPanel._energyBar.enabled = !isFailingEnergy;
             }
             _gameEnergyUIPanel.RefreshEnergyUI(energy);
         }

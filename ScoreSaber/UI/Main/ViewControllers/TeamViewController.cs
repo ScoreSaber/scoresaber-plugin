@@ -33,10 +33,10 @@ namespace ScoreSaber.UI.Main.ViewControllers
                 _teamHosts.Clear();
                 var team = await GetTeam();
 
-                foreach (KeyValuePair<TeamType, List<TeamMember>> member in team.TeamMembers) {
+                foreach (KeyValuePair<string, List<TeamMember>> member in team.TeamMembers) {
                     string teamName = member.Key.ToString();
                     if (teamName == "RT") {
-                        teamName = " RT ";
+                        teamName = " RT "; // this is to make the tab larger
                     }
                     TeamHost host = TeamToProfileHost(member.Value, teamName);
                     _teamHosts.Add(host);

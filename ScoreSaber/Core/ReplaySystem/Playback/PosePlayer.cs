@@ -138,7 +138,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             float lerpTime = (audioTimeSyncController.songTime - activePose.Time) / Mathf.Max(0.000001f, nextPose.Time - activePose.Time);
 
             //_mainCamera.transform.SetPositionAndRotation(activePose.Head.Position.Convert(), activePose.Head.Rotation.Convert());
-            Accessors.HeadTransform(ref _playerTransforms).SetPositionAndRotation(activePose.Head.Position.Convert(), activePose.Head.Rotation.Convert());
+            _playerTransforms._headTransform.SetPositionAndRotation(activePose.Head.Position.Convert(), activePose.Head.Rotation.Convert());
 
             if (_saberEnabled) {
 

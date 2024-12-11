@@ -128,6 +128,7 @@ namespace ScoreSaber.Core.Data
                         decoded.replayUISize = 1.25f;
                         decoded.startReplayUIHidden = false;
                         decoded.enableRichPresence = true;
+                        decoded.hideWatermarkIfUsersReplay = false;
                     }
                     SaveSettings(decoded);
                 }

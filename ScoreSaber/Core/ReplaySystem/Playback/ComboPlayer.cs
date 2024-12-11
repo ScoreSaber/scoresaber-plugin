@@ -37,17 +37,17 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             var previousComboEvents = _sortedNoteEvents.Where(ne => ne.EventType != NoteEventType.None && time > ne.Time);
             int cutOrMissRecorded = previousComboEvents.Count(ne => ne.EventType == NoteEventType.BadCut || ne.EventType == NoteEventType.GoodCut || ne.EventType == NoteEventType.Miss);
 
-            Accessors.Combo(ref _comboController) = combo;
-            Accessors.MaxCombo(ref _comboController) = cutOrMissRecorded;
+            _comboController._combo = combo;
+            _comboController._maxCombo = cutOrMissRecorded;
             FieldAccessor<ComboController, Action<int>>.Get(ref _comboController, "comboDidChangeEvent").Invoke(combo);
 
             bool didLoseCombo = _sortedComboEvents.Any(sce => time > sce.Time && sce.Combo == 0);
             if ((combo == 0 && cutOrMissRecorded == 0) || !didLoseCombo) {
-                Accessors.ComboAnimator(ref _comboUIController).Rebind();
-                Accessors.ComboWasLost(ref _comboUIController) = false;
+               _comboUIController._animator.Rebind();
+                _comboUIController._fullComboLost = false;
             } else {
-                Accessors.ComboAnimator(ref _comboUIController).SetTrigger(Accessors.TriggerID(ref _comboUIController));
-                Accessors.ComboWasLost(ref _comboUIController) = true;
+                _comboUIController._animator.SetTrigger(_comboUIController._comboLostId);
+                _comboUIController._fullComboLost = true;
             }
         }
     }
