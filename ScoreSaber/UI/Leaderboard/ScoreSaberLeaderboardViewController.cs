@@ -140,7 +140,6 @@ namespace ScoreSaber.UI.Leaderboard {
 
 
         [Inject] private readonly PanelView _panelView = null;
-        [Inject] private readonly SiraLog _log = null;
         [Inject] private readonly DiContainer _container = null;
         [Inject] private readonly IUploadDaemon _uploadDaemon = null;
         [Inject] private readonly ReplayLoader _replayLoader = null;

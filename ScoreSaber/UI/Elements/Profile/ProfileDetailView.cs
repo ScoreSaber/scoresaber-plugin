@@ -216,9 +216,7 @@ namespace ScoreSaber.UI.Elements.Profile {
             _panelView = panelView;
             _scoreSaberLeaderboardViewController = scoreSaberLeaderboardViewController;
 
-            // set them on construct so they are loaded before the view is shown
-            Task.Run(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Online.png")).ContinueWith(x => { _onlineSprite = x.Result; });
-            Task.Run(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Offline.png")).ContinueWith(x => { _offlineSprite = x.Result; });
+            
         }
 
         [UIAction("profile-url-click")]
@@ -244,6 +242,9 @@ namespace ScoreSaber.UI.Elements.Profile {
             if(_beatmapDownloader == null) {
                 Plugin.Log.Error($"BeatmapDownloader is null, install a mod to [APP] that injects IScoreSaberBeatmapDownloader");
             }
+            // load sprites
+            UnityMainThreadTaskScheduler.Factory.StartNew(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Online.png")).ContinueWith(x => { _onlineSprite = x.Result.Result; });
+            UnityMainThreadTaskScheduler.Factory.StartNew(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Offline.png")).ContinueWith(x => { _offlineSprite = x.Result.Result; });
         }
 
         protected void Awake() {
