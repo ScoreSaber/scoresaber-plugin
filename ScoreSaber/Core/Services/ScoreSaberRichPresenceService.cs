@@ -43,7 +43,7 @@ namespace ScoreSaber.Core.Services {
 
             try {
                 var socketOptions = new Socket.Options(new JsonMessageSerializer());
-                var socketAddress = "wss://ssrt.bzaz.au/socket";
+                var socketAddress = "wss://ssrt.bzaz.au/socket"; // change to scoresaber subdomain once ready.
                 var socketFactory = new WebsocketSharpFactory();
                 _socket = new Socket(socketAddress, new System.Collections.Generic.Dictionary<string, string>
                 {
@@ -133,7 +133,7 @@ namespace ScoreSaber.Core.Services {
         }
 
         private void OnMessageCallback(Message message) {
-            //_log.Info($"Received message: {message.Payload}");
+            _log.Debug($"Received message: {message.Payload}");
         }
 
         private void OnOpenCallback() {
@@ -164,90 +164,6 @@ namespace ScoreSaber.Core.Services {
             _log.Info("Rich presence service disposed.");
         }
     }
-
-
-    public class MenuPresencePatches : IAffinity {
-
-        [Inject] private readonly ScoreSaberRichPresenceService _richPresenceService = null;
-        [Inject] private readonly SiraLog _log = null;
-
-        [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "HandleStandardLevelDidFinish")]
-        [AffinityPostfix]
-        public void HandleStopStandardLevelPostfix() {
-            var jsonObject = new SceneChangeEvent() {
-                Timestamp = _richPresenceService.TimeRightNow,
-                Scene = Scene.menu
-            };
-
-            _richPresenceService.SendUserProfileChannel("scene_change", jsonObject);
-            _log.Notice("Sent scene change event to rich presence service");
-        }
-
-        [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), nameof(SinglePlayerLevelSelectionFlowCoordinator.StartLevel))]
-        [AffinityPostfix]
-        public void HandleStartLevelPostfix(SinglePlayerLevelSelectionFlowCoordinator __instance, Action beforeSceneSwitchCallback, bool practice) {
-
-            string hash = string.Empty;
-
-            if (!__instance.selectedBeatmapLevel.levelID.StartsWith("custom_level_")) {
-                hash = "#" + __instance.selectedBeatmapLevel.levelID;
-            } else {
-                hash = __instance.selectedBeatmapLevel.levelID.Split('_')[2];
-            }
-
-            bool isPractice = practice;
-            Services.GameMode gameMode = Services.GameMode.solo;
-
-            if (isPractice) {
-                gameMode = Services.GameMode.practice;
-
-                var songeventSilly = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
-                                    "HYPER SONIC MEGA DEATH **** CORE",
-                                    string.Empty,
-                                    "oce v...",
-                                    "echelon#6295",
-                                    "Standard",
-                                    "A297DECDFB0B3FE6F14F0BEF788AEBAC978E825E",
-                                    (int)2000000000,
-                                    ((1 + 1 - 1) * 0) + 1, // those who know 💀💀💀 🥭🥭🥭
-                                    0,
-                                    1);
-
-                _richPresenceService.SendUserProfileChannel("start_song", songeventSilly);
-                return;
-            }
-
-            var songevent = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
-                                                __instance.selectedBeatmapLevel.songName,
-                                                __instance.selectedBeatmapLevel.songSubName,
-                                                __instance.selectedBeatmapLevel.allMappers.Join().ToString(),
-                                                __instance.selectedBeatmapLevel.songAuthorName,
-                                                "Standard",
-                                                hash,
-                                                (int)__instance.selectedBeatmapLevel.songDuration,
-                                                ((int)__instance.selectedBeatmapKey.difficulty * 2) + 1,
-                                                0,
-                                                1);
-
-            _richPresenceService.SendUserProfileChannel("start_song", songevent);
-        }
-    }
-
-    public class GamePresencePatches : IAffinity {
-
-        [AffinityPatch(typeof(GamePause), nameof(GamePause.Pause))]
-        [AffinityPostfix]
-        public void HandlePausePostfix() {
-            // send rich presence message that the level has been paused
-        }
-
-        [AffinityPatch(typeof(GamePause), nameof(GamePause.Resume))]
-        [AffinityPostfix]
-        public void HandleResumePostfix() {
-            // send rich presence message that the level has been resumed
-        }
-    }
-
 
     public sealed class WebsocketSharpAdapter : IWebsocket {
         private readonly WebsocketConfiguration _config;

@@ -7,6 +7,7 @@ using System.Threading;
 using ScoreSaber.UI.Leaderboard;
 using BeatSaberMarkupLanguage;
 using UnityEngine;
+using IPA.Utilities.Async;
 
 namespace ScoreSaber.UI.Elements.Leaderboard {
     internal class MapInfoView {
@@ -63,8 +64,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             _mapNameText.text = "Loading...";
         }
 
-        public void SetImage(BeatmapLevel level) {
-            _mapInfoPicture.sprite = level.previewMediaData.GetCoverSpriteAsync().Result;
+        public async void SetImage(BeatmapLevel level) {
+            _mapInfoPicture.sprite = await level.previewMediaData.GetCoverSpriteAsync();
         }
 
         internal string GetMapStatusString() {
@@ -79,10 +80,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 return $"Qualified - (<size=75%><color=#a6a6a6>{(_currentMapInfo.qualifiedDate.HasValue ? _currentMapInfo.qualifiedDate.Value.ToString("dd/MM/yy") : string.Empty)}</color></size>)";
             else if (isLoved)
                 return $"Loved - (<size=75%><color=#a6a6a6>{(_currentMapInfo.lovedDate.HasValue ? _currentMapInfo.lovedDate.Value.ToString("dd/MM/yy") : string.Empty)}</color></size>)";
-            else if (isUnranked)
-                return $"Unranked";
             else
-                return string.Empty;
+                return $"Unranked";
         }
 
         public void SetScoreInfo(LeaderboardInfo mapInfo) {
@@ -90,7 +89,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             try {
                 _currentMapInfo = mapInfo;
                 _mapNameText.text = $"{mapInfo.songName}";
-                SetImage(_currentMap);
+                UnityMainThreadTaskScheduler.Factory.StartNew(() => SetImage(_currentMap));
                 _mapAuthorText.text = $"Mapped By {mapInfo.levelAuthorName}";
                 _mapUploadDateText.SetFancyText("Uploaded", $"{mapInfo.createdDate:dd/MM/yy}");
                 _mapPlaysText.SetFancyText("Plays", $"{mapInfo.plays} ({mapInfo.dailyPlays} Last 24h)");

@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Core.Data;
+using SiraUtil.Tools.FPFC;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [Inject] private readonly VRInputModule _inputModule = null;
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null;
         [Inject] private readonly ImberScrubber _imberScrubber = null;
+        [Inject] private readonly PauseMenuManager _pauseMenuManager = null;
 
         private EventSystem originalEventSystem;
         private EventSystem imberEventSystem;
@@ -153,25 +155,28 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
 
         private void RecursivelyDisableItalics(GameObject obj) {
+            TextMeshProUGUI[] textMeshProUGUIs = obj.GetComponentsInChildren<TextMeshProUGUI>();
             var textComponent = obj.GetComponent<TextMeshProUGUI>();
             if (textComponent != null) {
                 textComponent.fontStyle = FontStyles.Normal;
             }
 
-            foreach (Transform child in obj.transform) {
-                RecursivelyDisableItalics(child.gameObject);
+            foreach (var textMeshProUGUI in textMeshProUGUIs) {
+                textMeshProUGUI.fontStyle = FontStyles.Normal;
             }
         }
 
         private void RecursivelyUnskewImageViews(GameObject obj) {
+            ImageView[] imageViews = obj.GetComponentsInChildren<ImageView>();
             var imageView = obj.GetComponent<ImageView>();
             if (imageView != null) {
                 imageView.SetField("_skew", 0f);
                 imageView.__Refresh();
             }
 
-            foreach (Transform child in obj.transform) {
-                RecursivelyUnskewImageViews(child.gameObject);
+            foreach (var imageView2 in imageViews) {
+                imageView2.SetField("_skew", 0f);
+                imageView2.__Refresh();
             }
         }
 
@@ -192,8 +197,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         [Inject]
         protected void Construct() {
-
-            if (!Environment.GetCommandLineArgs().Contains("fpfc")) return;
+            if (!Plugin.FPFC) return;
             GameObject inputOBJ;
 
             var canvasGameObj = new GameObject();
@@ -242,7 +246,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
 
         public void Dispose() {
-            if (!Environment.GetCommandLineArgs().Contains("fpfc")) return;
+            if (!Plugin.FPFC) return;
             //EventSystem.current = originalEventSystem;
             Cursor.visible = false;
         }
@@ -328,7 +332,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [UIAction("exit-replay")]
         protected void ExitReplay() {
 
-            Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault().MenuButtonPressed();
+            _pauseMenuManager.MenuButtonPressed();
         }
 
         private string FloatToTimeStamp(float timeInSeconds) {
@@ -347,130 +351,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             float timebarActiveX = Mathf.Lerp(-19, 19, progressPercentage);
             timebarActive.rectTransform.anchoredPosition = new Vector2(timebarActiveX, 0);
-        }
-
-        public class ProgressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler {
-
-            public ImageView timebarActive;
-            public ImageView timebarBackground;
-
-            public event Action<float> OnProgressUpdated;
-
-            public delegate void upClickEvent();
-            public event upClickEvent upClick;
-
-            public delegate void downClickEvent();
-            public event downClickEvent downClick;
-
-            private bool isDragging = false;
-            private float minX = -19f;
-            private float maxX = 19f;
-
-            private Vector3 originalScale;
-            private Vector3 hoverScale;
-            private float scaleSpeed = 0.1f;
-
-            public void UpdateProgress(float progress) {
-                OnProgressUpdated?.Invoke(progress);
-            }
-
-            private void Start() {
-                originalScale = timebarActive.transform.localScale;
-                hoverScale = new Vector3(originalScale.x, originalScale.y * 1.2f, originalScale.z);
-            }
-
-            public void OnPointerClick(PointerEventData eventData) {
-                UpdateTimebarPosition(eventData);
-            }
-
-            public void OnPointerDown(PointerEventData eventData) {
-                isDragging = true;
-                downClick?.Invoke();
-                UpdateTimebarPosition(eventData);
-            }
-
-            public void OnPointerUp(PointerEventData eventData) {
-                isDragging = false;
-                upClick?.Invoke();
-                UpdateTimebarPosition(eventData);
-            }
-
-            public void OnDrag(PointerEventData eventData) {
-                if (isDragging) {
-                    UpdateTimebarPosition(eventData);
-                }
-            }
-
-            public void OnPointerEnter(PointerEventData eventData) {
-                StopAllCoroutines();
-                StartCoroutine(LerpScale(timebarActive.transform, hoverScale));
-            }
-
-            public void OnPointerExit(PointerEventData eventData) {
-                StopAllCoroutines();
-                StartCoroutine(LerpScale(timebarActive.transform, originalScale));
-            }
-
-            private void UpdateTimebarPosition(PointerEventData eventData) {
-                RectTransform timebarRect = timebarBackground.rectTransform;
-                Vector2 localPoint;
-
-                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(timebarRect, eventData.position, eventData.pressEventCamera, out localPoint)) {
-                    float clampedX = Mathf.Clamp(localPoint.x, minX, maxX);
-
-                    timebarActive.rectTransform.anchoredPosition = new Vector2(clampedX, 0);
-
-                    float progress = Mathf.InverseLerp(minX, maxX, clampedX);
-
-                    OnProgressUpdated?.Invoke(progress);
-                }
-            }
-
-            private IEnumerator LerpScale(Transform target, Vector3 targetScale) {
-                while (Vector3.Distance(target.localScale, targetScale) > 0.01f) {
-                    target.localScale = Vector3.Lerp(target.localScale, targetScale, scaleSpeed);
-                    yield return null;
-                }
-                target.localScale = targetScale;
-            }
-        }
-
-        public class TimebarBackgroundHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler {
-
-            public ProgressHandler progressHandler;
-
-            private float minX = -19f;
-            private float maxX = 19f;
-
-            public delegate void upClickEvent();
-            public event upClickEvent upClick;
-
-            public delegate void downClickEvent();
-            public event downClickEvent downClick;
-
-            public void OnDrag(PointerEventData eventData) {
-                OnPointerDown(eventData);
-            }
-
-            public void OnPointerDown(PointerEventData eventData) {
-                RectTransform timebarRect = GetComponent<RectTransform>();
-                Vector2 localPoint;
-
-                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(timebarRect, eventData.position, eventData.pressEventCamera, out localPoint)) {
-                    float clampedX = Mathf.Clamp(localPoint.x, minX, maxX);
-
-                    progressHandler.timebarActive.rectTransform.anchoredPosition = new Vector2(clampedX, 0);
-
-                    float progress = Mathf.InverseLerp(minX, maxX, clampedX);
-
-                    progressHandler.UpdateProgress(progress);
-                }
-                downClick?.Invoke();
-            }
-
-            public void OnPointerUp(PointerEventData eventData) {
-                upClick?.Invoke();
-            }
         }
     }
 }

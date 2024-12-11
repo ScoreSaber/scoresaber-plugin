@@ -47,20 +47,6 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIComponent("prompt-loader")]
         protected readonly ImageView _promptLoader = null;
 
-        //[UIComponent("playerPFP")]
-        //protected readonly ImageView _playerPFP = null;
-
-        //private string _usernameText = "Loading...";
-
-        //[UIValue("usernameText")]
-        //protected string usernameText {
-        //    get => _usernameText;
-        //    set {
-        //        _usernameText = value;
-        //        NotifyPropertyChanged();
-        //    }
-        //}
-
         private string _globalLeaderboardRanking = "<b><color=#FFDE1A>Global Ranking: </color></b> Loading...";
         [UIValue("global-leaderboard-ranking")]
         protected string globalLeaderboardRanking {

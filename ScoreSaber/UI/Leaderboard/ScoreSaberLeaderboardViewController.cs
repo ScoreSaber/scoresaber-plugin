@@ -38,8 +38,6 @@ using UnityEngine.Diagnostics;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
-using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Button = UnityEngine.UI.Button;
 
 namespace ScoreSaber.UI.Leaderboard {
@@ -49,8 +47,6 @@ namespace ScoreSaber.UI.Leaderboard {
     internal class ScoreSaberLeaderboardViewController : BSMLAutomaticViewController, INotifyLeaderboardSet, IInitializable {
 
         // TODO: Put both of these somewhere nicer?
-#pragma warning disable CS0169 // The field 'ScoreSaberLeaderboardViewController.headerText' is never used
-#pragma warning disable CS0649 // Field 'ScoreSaberLeaderboardViewController.myHeader' is never assigned to, and will always have its default value null
 
         public enum ScoreSaberScoresScope {
             Global,
@@ -78,19 +74,19 @@ namespace ScoreSaber.UI.Leaderboard {
         internal readonly Transform leaderboardTransform = null;
 
         [UIComponent("myHeader")]
-        private readonly Backgroundable myHeader;
+        private readonly Backgroundable myHeader = null;
 
         [UIComponent("headerText")]
-        private readonly TextMeshProUGUI headerText;
+        private readonly TextMeshProUGUI headerText = null;
 
         [UIObject("headerSTATIC")]
-        private readonly GameObject headerSTATIC;
+        private readonly GameObject headerSTATIC = null;
 
         [UIComponent("headerTextSTATIC")]
-        private readonly TextMeshProUGUI headerTextSTATIC;
+        private readonly TextMeshProUGUI headerTextSTATIC = null;
 
         [UIComponent("errorText")]
-        private readonly TextMeshProUGUI _errorText;
+        private readonly TextMeshProUGUI _errorText = null;
 
         [UIValue("imageHolders")]
         [Inject] internal List<ProfilePictureView> _ImageHolders = null;
@@ -108,16 +104,16 @@ namespace ScoreSaber.UI.Leaderboard {
         protected readonly ProfileDetailView _profileDetailView = null;
 
         [UIComponent("up_button")]
-        private readonly Button _upButton;
+        private readonly Button _upButton = null;
 
         [UIComponent("down_button")]
-        private readonly Button _downButton;
+        private readonly Button _downButton = null;
 
         [UIObject("loadingLB")]
-        private readonly GameObject loadingLB;
+        private readonly GameObject loadingLB = null;
 
         [UIObject("starRatingBox")]
-        private readonly GameObject starRatingBox;
+        private readonly GameObject starRatingBox = null;
 
         [UIValue("map-info-view")]
         protected MapInfoView _mapInfoView = null;
@@ -143,21 +139,20 @@ namespace ScoreSaber.UI.Leaderboard {
         Color _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
 
 
-        [Inject] private readonly PanelView _panelView;
-        [Inject] private readonly SiraLog _log;
-        [Inject] private readonly DiContainer _container;
-        [Inject] private readonly IUploadDaemon _uploadDaemon;
-        [Inject] private readonly ReplayLoader _replayLoader;
-        [Inject] private readonly PlayerService _playerService;
-        [Inject] private readonly LeaderboardService _leaderboardService;
-        [Inject] private readonly PlayerDataModel _playerDataModel;
-        [Inject] internal readonly PlatformLeaderboardViewController _platformLeaderboardViewController;
-        [Inject] internal readonly ScoreSaberRichPresenceService _scoresaberRichPresence;
-        [Inject] private readonly MaxScoreCache _maxScoreCache;
-        [Inject] private readonly PlatformLeaderboardViewController _plvc;
-        [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel;
-        [Inject] private readonly TweeningService _tweeningService;
-        [Inject] private readonly PromoBanner.PromoBanner _promoBanner;
+        [Inject] private readonly PanelView _panelView = null;
+        [Inject] private readonly SiraLog _log = null;
+        [Inject] private readonly DiContainer _container = null;
+        [Inject] private readonly IUploadDaemon _uploadDaemon = null;
+        [Inject] private readonly ReplayLoader _replayLoader = null;
+        [Inject] private readonly PlayerService _playerService = null;
+        [Inject] private readonly LeaderboardService _leaderboardService = null;
+        [Inject] private readonly PlayerDataModel _playerDataModel = null;
+        [Inject] internal readonly PlatformLeaderboardViewController _platformLeaderboardViewController = null;
+        [Inject] internal readonly ScoreSaberRichPresenceService _scoresaberRichPresence = null;
+        [Inject] private readonly MaxScoreCache _maxScoreCache = null;
+        [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel = null;
+        [Inject] private readonly TweeningService _tweeningService = null;
+        [Inject] private readonly PromoBanner.PromoBanner _promoBanner = null;
 
         private void infoButtons_infoButtonClicked(int index) {
             if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
@@ -356,7 +351,7 @@ namespace ScoreSaber.UI.Leaderboard {
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (!base.isActiveAndEnabled) return;
-            if (!_plvc) return;
+            if (!_platformLeaderboardViewController) return;
             if (firstActivation) {
                 _panelView.statusWasSelected = delegate () {
                     if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
@@ -378,8 +373,8 @@ namespace ScoreSaber.UI.Leaderboard {
                 _promoBanner._floatingScreen.gameObject.SetActive(true);
                 _promoBanner._promoBannerView.GetComponent<CanvasGroup>().alpha = 1;
             }
-            Transform header = _plvc.transform.Find("HeaderPanel");
-            _plvc.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
+            Transform header = _platformLeaderboardViewController.transform.Find("HeaderPanel");
+            _platformLeaderboardViewController.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
             myHeader.gameObject.SetActive(true);
         }
 
@@ -397,10 +392,10 @@ namespace ScoreSaber.UI.Leaderboard {
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
-            if (!_plvc || !_plvc.isActivated) return;
-            _plvc.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;
+            if (!_platformLeaderboardViewController || !_platformLeaderboardViewController.isActivated) return;
+            _platformLeaderboardViewController.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;
             myHeader.gameObject.SetActive(false);
-            if (!_plvc.isActivated) return;
+            if (!_platformLeaderboardViewController.isActivated) return;
             if (_scoreDetailView.detailModalRoot != null) _scoreDetailView.detailModalRoot.Hide(false);
             if (_profileDetailView.profileModalRoot != null) _profileDetailView.profileModalRoot.Hide(false);
         }
@@ -511,7 +506,7 @@ namespace ScoreSaber.UI.Leaderboard {
                         }
                         ByeImages();
                     }
-                    PatchLeaderboardTableView(tableView, leaderboardData.scores, cancellationToken.Token);
+                    PrettifyLeaderboardTableView(tableView, leaderboardData.scores, cancellationToken.Token);
                 }
             } catch (HttpErrorException httpError) {
                 SetErrorState(tableView, ref loadingControl, httpError);
@@ -633,7 +628,7 @@ namespace ScoreSaber.UI.Leaderboard {
         private bool obtainedAnchor = false;
         private Vector2 normalAnchor = Vector2.zero;
 
-        void PatchLeaderboardTableView(LeaderboardTableView tableView, ScoreMap[] leaderboardInfo, CancellationToken cancellationToken) {
+        void PrettifyLeaderboardTableView(LeaderboardTableView tableView, ScoreMap[] leaderboardInfo, CancellationToken cancellationToken) {
             LeaderboardTableCell[] cells = tableView.GetComponentsInChildren<LeaderboardTableCell>();
 
             for (int i = 0; i < cells.Length; i++) {
@@ -711,28 +706,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 RefreshLeaderboard(beatmapLevel, beatmapKey, leaderboardTableView, currentScoreScope, loadingLB, Guid.NewGuid().ToString()).RunTask();
             } catch(Exception ex) { Plugin.Log.Error(ex.Message); }
         }
-
-        internal static class BeatmapDataCache {
-            internal static Dictionary<string, Sprite> cachedSprites = new Dictionary<string, Sprite>();
-            private static int MaxSpriteCacheSize = 150;
-            internal static Queue<string> spriteCacheQueue = new Queue<string>();
-            internal static void MaintainSpriteCache() {
-                while (cachedSprites.Count > MaxSpriteCacheSize) {
-                    string oldestUrl = spriteCacheQueue.Dequeue();
-                    cachedSprites.Remove(oldestUrl);
-                    
-                }
-            }
-
-            internal static void AddSpriteToCache(string url, Sprite sprite) {
-                if (cachedSprites.ContainsKey(url)) {
-                    return;
-                }
-                cachedSprites.Add(url, sprite);
-                spriteCacheQueue.Enqueue(url);
-            }
-        }
-
 
         // probably a better place to put this
         public class CellClicker : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {

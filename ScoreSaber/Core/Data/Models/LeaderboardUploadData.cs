@@ -64,7 +64,7 @@ namespace ScoreSaber.Core.Data.Models {
             data.songName = beatmapLevel.songName;
             data.songSubName = beatmapLevel.songSubName;
             data.songAuthorName = beatmapLevel.songAuthorName;
-            data.levelAuthorName = friendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters);
+            data.levelAuthorName = FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters);
             data.bpm = Convert.ToInt32(beatmapLevel.beatsPerMinute);
 
             data.playerName = playerInfo.playerName;
@@ -84,7 +84,7 @@ namespace ScoreSaber.Core.Data.Models {
             return data;
         }
 
-        static string friendlyLevelAuthorName(string[] mappers, string[] lighters) {
+        public static string FriendlyLevelAuthorName(string[] mappers, string[] lighters) {
             List<string> mappersAndLighters = new List<string>();
             mappersAndLighters.AddRange(mappers);
             mappersAndLighters.AddRange(lighters);

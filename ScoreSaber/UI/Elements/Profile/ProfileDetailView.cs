@@ -17,11 +17,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 using static BeatSaberMarkupLanguage.Components.KEYBOARD;
+using static IPA.Logging.Logger;
 
 namespace ScoreSaber.UI.Elements.Profile {
 
@@ -195,10 +197,6 @@ namespace ScoreSaber.UI.Elements.Profile {
         private Sprite _onlineSprite = null;
         private Sprite onlineSprite {
             get {
-                if (_onlineSprite == null) {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    _onlineSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Online.png");
-                }
                 return _onlineSprite;
             }
         }
@@ -206,13 +204,9 @@ namespace ScoreSaber.UI.Elements.Profile {
         private Sprite _offlineSprite = null;
         private Sprite offlineSprite {
             get {
-                if (_offlineSprite == null) {
-                    _offlineSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.Offline.png");
-                }
                 return _offlineSprite;
             }
         }
-
 
         [Inject]
         private void Construct(PlayerService playerService, BeatmapLevelsModel beatmapLevelsModel, SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator, PanelView panelView, ScoreSaberLeaderboardViewController scoreSaberLeaderboardViewController) {
@@ -221,6 +215,10 @@ namespace ScoreSaber.UI.Elements.Profile {
             _soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
             _panelView = panelView;
             _scoreSaberLeaderboardViewController = scoreSaberLeaderboardViewController;
+
+            // set them on construct so they are loaded before the view is shown
+            Task.Run(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Online.png")).ContinueWith(x => { _onlineSprite = x.Result; });
+            Task.Run(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Offline.png")).ContinueWith(x => { _offlineSprite = x.Result; });
         }
 
         [UIAction("profile-url-click")]
@@ -331,6 +329,11 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
 
         private async Task DownloadOrOpenMap(string hash, int diff) {
+            if(hash.ToCharArray().Length != 40) {
+                Plugin.Log.Error("Hash is not 40 characters long");
+                OpenOSTDLCMap(hash, diff);
+                return;
+            }
             if (_beatmapLevelsModel.GetBeatmapLevel("custom_level_" + hash) != null) {
                 _ = UnityMainThreadTaskScheduler.Factory.StartNew(() => OpenMap(hash, diff));
             } else {
@@ -366,18 +369,37 @@ namespace ScoreSaber.UI.Elements.Profile {
             }
 
             diff = (diff - 1) / 2;
-            BeatmapKey key = level.GetBeatmapKeys().FirstOrDefault(x => diff == (int)x.difficulty);
+            BeatmapKey key = level.GetBeatmapKeys().LastOrDefault(x => diff == (int)x.difficulty);
             if (key == null) {
                 Plugin.Log.Error($"Difficulty {diff} not found for level {hash}");
                 return;
             }
             LevelSelectionFlowCoordinator.State state = new LevelSelectionFlowCoordinator.State(SelectLevelCategoryViewController.LevelCategory.All,
-                                                                                                SongCore.Loader.CustomLevelsPack,
+                                                                                                _beatmapLevelsModel.GetLevelPackForLevelId(hash),
                                                                                                 in key,
                                                                                                 level);
-            //Plugin.Log.Notice($"Opening level {hash} with base game diff {diff}");
-            
-            
+
+            var favouriteids = _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView._favoriteLevelIds;
+            var levelcollection = _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController;
+            levelcollection._levelCollectionTableView.SetData(new List<BeatmapLevel>() { level }, favouriteids, false, false);
+            levelcollection.SelectLevel(level);
+        }
+
+        private void OpenOSTDLCMap(string id, int diff) {
+
+            BeatmapLevel level = _beatmapLevelsModel.GetBeatmapLevel(id);
+
+            diff = (diff - 1) / 2;
+            BeatmapKey key = level.GetBeatmapKeys().LastOrDefault(x => diff == (int)x.difficulty);
+            if (key == null) {
+                Plugin.Log.Error($"Difficulty {diff} not found for level {id}");
+                return;
+            }
+            LevelSelectionFlowCoordinator.State state = new LevelSelectionFlowCoordinator.State(SelectLevelCategoryViewController.LevelCategory.All,
+                                                                                                SongCore.Loader.CustomLevelsPack,
+            in key,
+                                                                                                level);
+
             _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView.SetData(new List<BeatmapLevel>() { level }, _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView._favoriteLevelIds, false, false);
             _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController.SelectLevel(level);
         }
@@ -436,23 +458,26 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
 
         private void SetRichStatus(Scene scene) {
+            const string online = "ScoreSaber.Resources.Online.png";
+            const string offline = "ScoreSaber.Resources.Offline.png";
+
             switch (scene) {
                 case Scene.offline:
-                    profilePrefixPicture = "ScoreSaber.Resources.Offline.png";
+                    profilePrefixPicture = offline;
                     break;
                 case Scene.online:
-                    profilePrefixPicture = "ScoreSaber.Resources.Online.png";
+                    profilePrefixPicture = online;
                     break;
                 case Scene.menu:
-                    profilePrefixPicture = "ScoreSaber.Resources.Online.png";
+                    profilePrefixPicture = online;
                     break;
                 case Scene.playing:
-                    profilePrefixPicture = "ScoreSaber.Resources.Online.png";
+                    profilePrefixPicture = online;
                     break;
                 default:
+                    profilePrefixPicture = offline;
                     break;
             }
-            Plugin.Log.Notice("Setting online image prefix");
         }
 
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") {

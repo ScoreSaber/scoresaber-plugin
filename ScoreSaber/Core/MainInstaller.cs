@@ -1,4 +1,5 @@
-﻿using ScoreSaber.Core.Daemons;
+﻿using ScoreSaber.Core.AffinityPatches;
+using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.UI;
@@ -15,7 +16,6 @@ using ScoreSaber.UI.Multiplayer;
 using ScoreSaber.UI.PromoBanner;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Zenject;
 
 namespace ScoreSaber.Core {

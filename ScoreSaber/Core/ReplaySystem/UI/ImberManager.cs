@@ -31,25 +31,25 @@ namespace ScoreSaber.Core.ReplaySystem.UI
 
         public ImberManager(ReplayFile file, IGamePause gamePause, ImberScrubber imberScrubber, ImberSpecsReporter imberSpecsReporter, MainImberPanelView mainImberPanelView, SpectateAreaController spectateAreaController,
                             AudioTimeSyncController audioTimeSyncController, ReplayTimeSyncController replayTimeSyncController, ImberUIPositionController imberUIPositionController, AudioTimeSyncController.InitData initData, PosePlayer posePlayer, DesktopMainImberPanelView desktopMainImberPanelView,
-            TweeningService tweeningService){ 
+                            TweeningService tweeningService){ 
 
-                _gamePause = gamePause;
-                _posePlayer = posePlayer;
-                _imberScrubber = imberScrubber;
-                _imberSpecsReporter = imberSpecsReporter;
-                _mainImberPanelView = mainImberPanelView;
-                _spectateAreaController = spectateAreaController;
-                _audioTimeSyncController = audioTimeSyncController;
-                _replayTimeSyncController = replayTimeSyncController;
-                _imberUIPositionController = imberUIPositionController;
-                _desktopMainImberPanelView = desktopMainImberPanelView;
-                _tweeningService = tweeningService;
+            _gamePause = gamePause;
+            _posePlayer = posePlayer;
+            _imberScrubber = imberScrubber;
+            _imberSpecsReporter = imberSpecsReporter;
+            _mainImberPanelView = mainImberPanelView;
+            _spectateAreaController = spectateAreaController;
+            _audioTimeSyncController = audioTimeSyncController;
+            _replayTimeSyncController = replayTimeSyncController;
+            _imberUIPositionController = imberUIPositionController;
+            _desktopMainImberPanelView = desktopMainImberPanelView;
+            _tweeningService = tweeningService;
 
-                _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
-                _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
-                _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
-                _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
-                _desktopMainImberPanelView.Setup(1f, 90);
+            _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
+            _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
+            _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
+            _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
+            _desktopMainImberPanelView.Setup(1f, 90);
         }
 
         public void Initialize() {
@@ -79,11 +79,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             if (!Plugin.Settings.hasOpenedReplayUI) {
                 CreateWatermark();
             }
-
-            var containerRect = _desktopMainImberPanelView.gameObject.transform.Find("Contents").GetComponent<RectTransform>();
+            var contents = _desktopMainImberPanelView.gameObject.transform.Find("Contents");
+            var containerRect = contents.GetComponent<RectTransform>();
             containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
             containerRect.anchorMin = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
-            _desktopMainImberPanelView.gameObject.transform.Find("Contents").localScale = new Vector2(Plugin.Settings.replayUISize, Plugin.Settings.replayUISize);
+            contents.localScale = new Vector2(Plugin.Settings.replayUISize, Plugin.Settings.replayUISize);
             //_desktopMainImberPanelView.gameObject.transform.Find("Contents").gameObject.AddComponent<DesktopMainImberPanelView.DraggableViewController>();
             if(Plugin.Settings.startReplayUIHidden) {
                 _desktopMainImberPanelView.gameObject.SetActive(false);

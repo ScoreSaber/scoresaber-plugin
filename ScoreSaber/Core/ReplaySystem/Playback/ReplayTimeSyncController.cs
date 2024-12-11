@@ -1,5 +1,6 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.UI;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using UnityEngine;
@@ -62,19 +63,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 OverrideTime(audioTimeSyncController.songLength * (index * 0.1f));
             }
 
-            // too annoying to keep the desktop ui in sync when you can change it elsewhere
-            //if (Input.GetKeyDown(KeyCode.Minus)) {
-            //    if (audioTimeSyncController.timeScale > 0.1f) {
-            //        OverrideTimeScale(audioTimeSyncController.timeScale - 0.1f);
-            //    }
-            //}
-
-            //if (Input.GetKeyDown(KeyCode.Equals)) {
-            //    if (audioTimeSyncController.timeScale < 2.0f) {
-            //        OverrideTimeScale(audioTimeSyncController.timeScale + 0.1f);
-            //    }
-            //}
-
             if (Input.GetKeyDown(KeyCode.R)) {
                 OverrideTime(0f);
             }
@@ -102,8 +90,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 scroller.TimeUpdate(audioTimeSyncController.songTime);
         }
 
-        public void OverrideTime(float time) {
-
+        internal void OverrideTime(float time) {
             if (float.IsInfinity(time) || float.IsNaN(time) || Mathf.Abs(time - audioTimeSyncController._songTime) < 0.001f) return;
             time = Mathf.Clamp(time, audioTimeSyncController._startSongTime, audioTimeSyncController.songEndTime);
 
@@ -125,8 +112,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             _audioTimeSyncController._prevAudioSamplePos = -1;
             audioTimeSyncController.SeekTo(time / audioTimeSyncController.timeScale);
             _beatmapObjectCallbackController._prevSongTime = float.MinValue;
+
+            var beatmapDataCache = LocateBeatmapData(time);
+
             foreach (var callback in _beatmapObjectCallbackController._callbacksInTimes) {
-                callback.Value.lastProcessedNode = LocateBeatmapData(time);
+                callback.Value.lastProcessedNode = beatmapDataCache;
             }
 
             if (previousState == AudioTimeSyncController.State.Playing)
@@ -138,24 +128,23 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             UpdateTimes();
         }
 
+        private LinkedListNode<BeatmapDataItem> _lastLocatedNode = null;
+
         private LinkedListNode<BeatmapDataItem> LocateBeatmapData(float targetTime) {
-            LinkedListNode<BeatmapDataItem> currentNode = null;
-            var startTime = _callbackInitData.startFilterTime;
+            _lastLocatedNode ??= _beatmapData.allBeatmapDataItems.First;
 
-            var beatmapNode = _beatmapData.allBeatmapDataItems.First;
-            while (beatmapNode != null) {
-                float beatmapItemTime = beatmapNode.Value.time;
-
-                if (beatmapItemTime >= startTime && beatmapItemTime >= targetTime) {
-                    break;
-                }
-
-                currentNode = beatmapNode;
-                beatmapNode = beatmapNode.Next;
+            while (_lastLocatedNode != null && _lastLocatedNode.Value.time < targetTime) {
+                _lastLocatedNode = _lastLocatedNode.Next;
             }
 
-            return currentNode;
+            while (_lastLocatedNode != null && _lastLocatedNode.Value.time > targetTime) {
+                _lastLocatedNode = _lastLocatedNode.Previous;
+            }
+
+            return _lastLocatedNode;
         }
+
+
 
 
         public void OverrideTimeScale(float newScale) {

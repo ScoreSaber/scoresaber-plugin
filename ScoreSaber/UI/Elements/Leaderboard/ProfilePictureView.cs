@@ -14,7 +14,6 @@ using Tweening;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
-#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace ScoreSaber.UI.Elements.Leaderboard {
     internal class ProfilePictureView {
@@ -46,7 +45,6 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
         [UIAction("#post-parse")]
         public void Parsed() {
-            //profileImage.sprite = nullSprite;
             profileImage.material = Plugin.NoGlowMatRound;
             profileImage.gameObject.SetActive(true);
             loadingIndicator.gameObject.SetActive(false);

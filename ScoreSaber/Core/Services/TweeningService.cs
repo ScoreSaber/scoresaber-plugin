@@ -116,9 +116,9 @@ namespace ScoreSaber.Core.Services {
             float endAlpha = fadeIn ? 1f : 0f;
 
             List<CanvasRenderer> canvasRenderers = new List<CanvasRenderer>();
-            GetCanvasRenderersRecursively(layoutGroup.transform, canvasRenderers);
+            canvasRenderers = layoutGroup.transform.GetComponentsInChildren<CanvasRenderer>().ToList();
             if(gameobjecttodisable != null) {
-                GetCanvasRenderersRecursively(gameobjecttodisable.transform, canvasRenderers);
+                canvasRenderers.AddRange(gameobjecttodisable.GetComponentsInChildren<CanvasRenderer>().ToList());
             }
 
             foreach (CanvasRenderer canvasRenderer in canvasRenderers) {
@@ -145,17 +145,6 @@ namespace ScoreSaber.Core.Services {
 
             layoutGroup.gameObject.SetActive(true);
             _tweeningManager.AddTween(tween, layoutGroup);
-        }
-
-        private void GetCanvasRenderersRecursively(Transform parent, List<CanvasRenderer> canvasRenderers) {
-            foreach (Transform child in parent) {
-                CanvasRenderer canvasRenderer = child.GetComponent<CanvasRenderer>();
-                if (canvasRenderer != null) {
-                    canvasRenderers.Add(canvasRenderer);
-                }
-
-                GetCanvasRenderersRecursively(child, canvasRenderers);
-            }
         }
     }
 }
