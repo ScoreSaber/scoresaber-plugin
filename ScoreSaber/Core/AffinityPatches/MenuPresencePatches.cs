@@ -32,7 +32,7 @@ namespace ScoreSaber.Core.AffinityPatches {
 
             string hash = string.Empty;
 
-            if (!__instance.selectedBeatmapLevel.hasPrecalculatedData) {
+            if (__instance.selectedBeatmapLevel.hasPrecalculatedData) {
                 hash = "#" + __instance.selectedBeatmapLevel.levelID;
             } else {
                 hash = __instance.selectedBeatmapLevel.levelID.Split('_')[2];
@@ -45,15 +45,15 @@ namespace ScoreSaber.Core.AffinityPatches {
                 gameMode = Services.GameMode.practice;
 
                 // this is to privatise the practice mode song, as it would be exposed in the rich presence, still not shown in UI though.
-                var songeventPrivate = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
-                                    "HYPER SONIC MEGA DEATH **** CORE",
+                var songeventPrivate = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
+                                    "PRACTICE",
                                     string.Empty,
-                                    "oce v...",
-                                    "echelon#6295",
+                                    "PRACTICE AUTHOR",
+                                    "PRACTICE MAPPER",
                                     "Standard",
-                                    "A297DECDFB0B3FE6F14F0BEF788AEBAC978E825E",
+                                    "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
                                     (int)2000000000,
-                                    ((1 + 1 - 1) * 0) + 1, // those who know 💀💀💀 🥭🥭🥭
+                                    1,
                                     0,
                                     1);
 
@@ -87,7 +87,7 @@ namespace ScoreSaber.Core.AffinityPatches {
             _richPresenceService.SendUserProfileChannel("start_song", songevent);
         }
 
-        private SongStartEvent CreateSongStartEvent(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers gameplayModifiers, int startTime, GameMode gameMode) {
+        private SongRichPresenceInfo CreateSongStartEvent(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers gameplayModifiers, int startTime, GameMode gameMode) {
             
             string hash = string.Empty;
 
@@ -98,7 +98,7 @@ namespace ScoreSaber.Core.AffinityPatches {
             }
 
 
-            var songevent = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
+            var songevent = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
                                     beatmapLevel.songName,
                                     beatmapLevel.songSubName,
                                     BeatmapUtils.FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters),

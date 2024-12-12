@@ -265,7 +265,7 @@ namespace ScoreSaber.Core.Services {
         practice
     }
 
-    public class SongStartEvent {
+    public class SongRichPresenceInfo {
         [JsonProperty("timestamp")]
         public string Timestamp { get; set; } = string.Empty;
 
@@ -304,7 +304,7 @@ namespace ScoreSaber.Core.Services {
         public double? PlaySpeed { get; set; } // Playback speed, from either practice mode or speed modifies
 
 
-        public SongStartEvent(string timestamp, GameMode mode, string name, string subName, string authorName, string artist, string type, string hash, int duration, int difficulty, int? startTime, double? playSpeed) {
+        public SongRichPresenceInfo(string timestamp, GameMode mode, string name, string subName, string authorName, string artist, string type, string hash, int duration, int difficulty, int? startTime, double? playSpeed) {
             Timestamp = timestamp;
             Mode = mode;
             Name = name;
@@ -353,6 +353,6 @@ namespace ScoreSaber.Core.Services {
         public Scene Scene { get; set; } = Scene.menu;
 
         [JsonProperty("currentMap")]
-        public SongStartEvent currentMap { get; set; }
+        public SongRichPresenceInfo currentMap { get; set; }
     }
 }

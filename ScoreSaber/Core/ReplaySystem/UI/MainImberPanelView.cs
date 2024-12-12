@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
+using SiraUtil.Tools.FPFC;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -127,8 +128,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         protected readonly CurvedTextMeshPro rightSpeedText = null;
 
         [Inject]
-        protected void Construct() {
-            if(Plugin.FPFC) return;
+        protected void Construct(IFPFCSettings fPFCSettings) {
+            if(fPFCSettings.Enabled) return;
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(60f, 45f), false, defaultPosition.position, defaultPosition.rotation);
             _floatingScreen.GetComponent<Canvas>().sortingOrder = 31;
             _floatingScreen.name = "Imber Replay Panel (Screen)";

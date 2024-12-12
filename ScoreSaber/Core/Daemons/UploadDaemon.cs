@@ -165,7 +165,7 @@ namespace ScoreSaber.Core.Daemons {
                 UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Checking leaderboard ranked status...");
 
                 bool ranked = true;
-                Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(beatmapKey);
+                Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(beatmapKey, beatmapLevel);
 
                 if (currentLeaderboard != null) {
                     ranked = currentLeaderboard.leaderboardInfo.ranked;

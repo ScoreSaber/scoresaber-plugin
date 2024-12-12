@@ -184,9 +184,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             UnskewImageViews(_container.gameObject);
         }
 
+        [Inject] private IFPFCSettings _fpfcSettings = null;
+
         [Inject]
         protected void Construct() {
-            if (!Plugin.FPFC) return;
+            if (!_fpfcSettings.Enabled) return;
             GameObject inputOBJ;
 
             var canvasGameObj = new GameObject();
@@ -235,7 +237,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
 
         public void Dispose() {
-            if (!Plugin.FPFC) return;
+            if (!_fpfcSettings.Enabled) return;
             //EventSystem.current = originalEventSystem;
             Cursor.visible = false;
         }

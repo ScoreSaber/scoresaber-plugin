@@ -27,7 +27,6 @@ namespace ScoreSaber {
 
         internal static ReplayState ReplayState { get; set; }
         internal static Recorder ReplayRecorder { get; set; }
-        internal static bool FPFC { get; set; } = false;
         internal static IPALogger Log { get; private set; }
         internal static Plugin Instance { get; private set; }
 
@@ -51,8 +50,6 @@ namespace ScoreSaber {
             Log = logger;
             Instance = this;
             Metadata = metadata;
-
-            FPFC = Environment.GetCommandLineArgs().Contains("fpfc");
 
             zenjector.UseLogger(logger);
             zenjector.Expose<ComboUIController>("Environment");

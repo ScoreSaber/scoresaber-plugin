@@ -257,6 +257,9 @@ namespace ScoreSaber.UI.Leaderboard {
         private void SetPanelStatus(LeaderboardInfoMap leaderboardInfoMap = null) {
             bool fromCached = true;
             if(leaderboardInfoMap == null) {
+                if(_leaderboardService.currentLoadedLeaderboard == null) {
+                    return;
+                }
                 leaderboardInfoMap = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap;
                 fromCached = false;
             }
@@ -478,14 +481,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 if (_playerService.loginStatus != PlayerService.LoginStatus.Success) {
                     return;
                 }
-
-                if(!beatmapKey.levelId.Contains("custom_level_")) {
-                    SetErrorState(tableView, ref loadingControl, null, null, "This is not a custom level", false);
-                    ByeImages();
-                    SetPanelStatus();
-                    return;
-                } 
-
                 await Task.Delay(500); // Delay before doing anything to prevent leaderboard spam
 
                 if (_currentLeaderboardRefreshId == refreshId) {

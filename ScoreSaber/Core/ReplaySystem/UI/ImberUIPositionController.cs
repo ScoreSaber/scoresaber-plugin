@@ -1,5 +1,6 @@
 ﻿using HMUI;
 using ScoreSaber.Core.Data;
+using SiraUtil.Tools.FPFC;
 using System;
 using System.Collections;
 using System.Linq;
@@ -34,6 +35,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private readonly Canvas _canvas;
         private Vector3 _controllerOffset;
 
+        [Inject] private readonly IFPFCSettings _fpfcSettings = null;
 
         public ImberUIPositionController(IGamePause gamePause, ImberScrubber imberScrubber, PauseMenuManager pauseMenuManager, MainImberPanelView mainImberPanelView, VRControllerAccessor vrControllerAccessor) {
 
@@ -78,7 +80,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         }
 
         public void Tick() {
-            if(Plugin.FPFC) {
+            if(_fpfcSettings.Enabled) {
                 return;
             }
             VRController controller = _handTrack == XRNode.LeftHand ? _vrControllerAccessor.leftController : _vrControllerAccessor.rightController;

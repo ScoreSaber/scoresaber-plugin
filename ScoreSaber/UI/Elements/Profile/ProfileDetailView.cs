@@ -466,13 +466,11 @@ namespace ScoreSaber.UI.Elements.Profile {
                 case Scene.offline:
                     profilePrefixPicture = offline;
                     break;
-                case Scene.online:
-                    profilePrefixPicture = online;
-                    break;
                 case Scene.menu:
-                    profilePrefixPicture = online;
-                    break;
+                    goto case Scene.online;
                 case Scene.playing:
+                    goto case Scene.online;
+                case Scene.online:
                     profilePrefixPicture = online;
                     break;
                 default:

@@ -20,7 +20,7 @@ namespace ScoreSaber.Core.Services {
 
         public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings) {
 
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, scope, page);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, beatmapLevel, scope, page);
             if (leaderboardUrl == null) {
                 currentLoadedLeaderboard = null;
                 return null;
@@ -34,9 +34,9 @@ namespace ScoreSaber.Core.Services {
             return currentLoadedLeaderboard;
         }
 
-        public async Task<Leaderboard> GetCurrentLeaderboard(BeatmapKey beatmapKey) {
+        public async Task<Leaderboard> GetCurrentLeaderboard(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel) {
 
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global, 1);
+            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, beatmapLevel, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global, 1);
 
             int attempts = 0;
             while (attempts < 4) {
@@ -52,14 +52,18 @@ namespace ScoreSaber.Core.Services {
             return null;
         }
       
-        private string GetLeaderboardUrl(BeatmapKey beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page) {
+        private string GetLeaderboardUrl(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page) {
             
-            if(!beatmapKey.levelId.Contains("custom_level_")) {
-                return null;
+            string url = "/game/leaderboard";
+
+            string leaderboardId = string.Empty;
+
+            if (beatmapLevel.hasPrecalculatedData) {
+                leaderboardId = beatmapLevel.levelID;
+            } else {
+                leaderboardId = beatmapKey.levelId.Split('_')[2];
             }
 
-            string url = "/game/leaderboard";
-            string leaderboardId = beatmapKey.levelId.Split('_')[2];
             string gameMode = $"Solo{beatmapKey.beatmapCharacteristic.serializedName}";
             string difficulty = BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty).ToString();
 

@@ -16,11 +16,6 @@ namespace ScoreSaber.UI.Leaderboard {
         private readonly PlayerService _playerService;
 
         public override bool ShowForLevel(BeatmapKey? selectedLevel) {
-            if (selectedLevel.HasValue) {
-                if (!selectedLevel.Value.levelId.Contains("custom_level_")) {
-                    return false;
-                }
-            }
             return true;
         }
         protected override string leaderboardId => "ScoreSaber";
