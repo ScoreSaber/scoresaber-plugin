@@ -331,7 +331,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         private async Task DownloadOrOpenMap(string hash, int diff) {
             if(hash.ToCharArray().Length != 40) {
-                Plugin.Log.Error("Hash is not 40 characters long");
+                Plugin.Log.Info("Hash is not 40 characters long, Attempting to open DLC / OST Map");
                 OpenOSTDLCMap(hash, diff);
                 return;
             }
@@ -370,11 +370,7 @@ namespace ScoreSaber.UI.Elements.Profile {
             }
 
             diff = (diff - 1) / 2;
-            BeatmapKey key = level.GetBeatmapKeys().LastOrDefault(x => diff == (int)x.difficulty);
-            if (key == null) {
-                Plugin.Log.Error($"Difficulty {diff} not found for level {hash}");
-                return;
-            }
+            BeatmapKey key = GetBeatmapKey(level, diff);
             LevelSelectionFlowCoordinator.State state = new LevelSelectionFlowCoordinator.State(SelectLevelCategoryViewController.LevelCategory.All,
                                                                                                 _beatmapLevelsModel.GetLevelPackForLevelId(hash),
                                                                                                 in key,
@@ -391,18 +387,22 @@ namespace ScoreSaber.UI.Elements.Profile {
             BeatmapLevel level = _beatmapLevelsModel.GetBeatmapLevel(id);
 
             diff = (diff - 1) / 2;
-            BeatmapKey key = level.GetBeatmapKeys().LastOrDefault(x => diff == (int)x.difficulty);
-            if (key == null) {
-                Plugin.Log.Error($"Difficulty {diff} not found for level {id}");
-                return;
-            }
+            BeatmapKey key = GetBeatmapKey(level, diff);
             LevelSelectionFlowCoordinator.State state = new LevelSelectionFlowCoordinator.State(SelectLevelCategoryViewController.LevelCategory.All,
                                                                                                 SongCore.Loader.CustomLevelsPack,
-            in key,
+                                                                                                in key,
                                                                                                 level);
 
             _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView.SetData(new List<BeatmapLevel>() { level }, _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView._favoriteLevelIds, false, false);
             _soloFreePlayFlowCoordinator.levelSelectionNavigationController._levelCollectionNavigationController._levelCollectionViewController.SelectLevel(level);
+        }
+
+        private BeatmapKey GetBeatmapKey(BeatmapLevel level, int newdiff) {
+            BeatmapKey key = level.GetBeatmapKeys().LastOrDefault(x => newdiff == (int)x.difficulty);
+            if (key == null || key == default) {
+                Plugin.Log.Error($"Difficulty {newdiff} not found for level {level.levelID}");
+            }
+            return key;
         }
 
         public void SetProfileBadges(Tuple<string, string>[] imageNameGroup) {

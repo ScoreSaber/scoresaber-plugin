@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ScoreSaber.Core.Services;
+using ScoreSaber.Core.Utils;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System;
@@ -13,7 +14,6 @@ namespace ScoreSaber.Core.AffinityPatches {
     public class MenuPresencePatches : IAffinity {
 
         [Inject] private readonly ScoreSaberRichPresenceService _richPresenceService = null;
-        [Inject] private readonly SiraLog _log = null;
 
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "HandleStandardLevelDidFinish")]
         [AffinityPostfix]
@@ -24,7 +24,6 @@ namespace ScoreSaber.Core.AffinityPatches {
             };
 
             _richPresenceService.SendUserProfileChannel("scene_change", jsonObject);
-            _log.Notice("Sent scene change event to rich presence service");
         }
 
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), nameof(SinglePlayerLevelSelectionFlowCoordinator.StartLevel))]
@@ -46,7 +45,7 @@ namespace ScoreSaber.Core.AffinityPatches {
                 gameMode = Services.GameMode.practice;
 
                 // this is to privatise the practice mode song, as it would be exposed in the rich presence, still not shown in UI though.
-                var songeventSilly = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
+                var songeventPrivate = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
                                     "HYPER SONIC MEGA DEATH **** CORE",
                                     string.Empty,
                                     "oce v...",
@@ -58,7 +57,7 @@ namespace ScoreSaber.Core.AffinityPatches {
                                     0,
                                     1);
 
-                _richPresenceService.SendUserProfileChannel("start_song", songeventSilly);
+                _richPresenceService.SendUserProfileChannel("start_song", songeventPrivate);
                 return;
             }
 
@@ -68,17 +67,7 @@ namespace ScoreSaber.Core.AffinityPatches {
                 startTime = (int)__instance._practiceViewController._practiceSettings.startSongTime;
             }
 
-            var songevent = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
-                                                __instance.selectedBeatmapLevel.songName,
-                                                __instance.selectedBeatmapLevel.songSubName,
-                                                Data.Models.ScoreSaberUploadData.FriendlyLevelAuthorName(__instance.selectedBeatmapLevel.allMappers, __instance.selectedBeatmapLevel.allLighters),
-                                                __instance.selectedBeatmapLevel.songAuthorName,
-                                                __instance.selectedBeatmapKey.beatmapCharacteristic.SerializedName(),
-                                                hash,
-                                                (int)__instance.selectedBeatmapLevel.songDuration,
-                                                ((int)__instance.selectedBeatmapKey.difficulty * 2) + 1,
-                                                startTime,
-                                                gameplayModifiers.songSpeedMul);
+            var songevent = CreateSongStartEvent(__instance.selectedBeatmapLevel, __instance.selectedBeatmapKey, gameplayModifiers, startTime, gameMode);
 
             _richPresenceService.SendUserProfileChannel("start_song", songevent);
         }
@@ -87,33 +76,41 @@ namespace ScoreSaber.Core.AffinityPatches {
         [AffinityPostfix]
         public void HandleMultiplayerGameStartPostfix(MultiplayerLevelSelectionFlowCoordinator __instance, ILevelGameplaySetupData levelGameplaySetupData) {
 
-            string hash = string.Empty;
-
-            if (!levelGameplaySetupData.beatmapKey.levelId.StartsWith("custom_level_")) {
-                hash = "#" + __instance.selectedBeatmapLevel.levelID;
-            } else {
-                hash = __instance.selectedBeatmapLevel.levelID.Split('_')[2];
-            }
-
-            // i dont like this, but i have to do it
+            // i dont like this, but i have to do it, just in case the users selected level doesnt match what the game started with
             BeatmapLevel beatmapLevel = SongCore.Loader.GetLevelByHash(levelGameplaySetupData.beatmapKey.levelId);
 
             GameplayModifiers gameplayModifiers = levelGameplaySetupData.gameplayModifiers;
             int startTime = 0;
 
-            var songevent = new SongStartEvent(_richPresenceService.TimeRightNow, GameMode.multiplayer,
-                                                beatmapLevel.songName,
-                                                beatmapLevel.songSubName,
-                                                beatmapLevel.allMappers.Join().ToString(),
-                                                beatmapLevel.songAuthorName,
-                                                levelGameplaySetupData.beatmapKey.beatmapCharacteristic.SerializedName(),
-                                                hash,
-                                                (int)beatmapLevel.songDuration,
-                                                ((int)levelGameplaySetupData.beatmapKey.difficulty * 2) + 1,
-                                                startTime,
-                                                gameplayModifiers.songSpeedMul);
+            var songevent = CreateSongStartEvent(beatmapLevel, levelGameplaySetupData.beatmapKey, gameplayModifiers, startTime, GameMode.multiplayer);
 
             _richPresenceService.SendUserProfileChannel("start_song", songevent);
+        }
+
+        private SongStartEvent CreateSongStartEvent(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers gameplayModifiers, int startTime, GameMode gameMode) {
+            
+            string hash = string.Empty;
+
+            if (!beatmapLevel.levelID.StartsWith("custom_level_")) {
+                hash = "#" + beatmapLevel.levelID;
+            } else {
+                hash = beatmapLevel.levelID.Split('_')[2];
+            }
+
+
+            var songevent = new SongStartEvent(_richPresenceService.TimeRightNow, gameMode,
+                                    beatmapLevel.songName,
+                                    beatmapLevel.songSubName,
+                                    BeatmapUtils.FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters),
+                                    beatmapLevel.songAuthorName,
+                                    beatmapKey.beatmapCharacteristic.SerializedName(),
+                                    hash,
+                                    (int)beatmapLevel.songDuration,
+                                    ((int)beatmapKey.difficulty * 2) + 1,
+                                    startTime,
+                                    gameplayModifiers.songSpeedMul);
+
+            return songevent;
         }
     }
 }

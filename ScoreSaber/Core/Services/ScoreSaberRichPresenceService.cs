@@ -51,7 +51,6 @@ namespace ScoreSaber.Core.Services {
                 }, socketFactory, socketOptions);
 
                 _socket.OnOpen += OnOpenCallback;
-                _socket.OnMessage += OnMessageCallback;
                 _socket.OnClose += OnCloseCallback;
                 _socket.Connect();
                 _log.Notice("Rich presence service initialized.");
@@ -81,7 +80,6 @@ namespace ScoreSaber.Core.Services {
             if (_socket != null) {
                 _socket.Disconnect();
                 _socket.OnOpen -= OnOpenCallback;
-                _socket.OnMessage -= OnMessageCallback;
                 _socket.OnClose -= OnCloseCallback;
                 _socket = null;
                 _userProfileChannel = null;
@@ -130,10 +128,6 @@ namespace ScoreSaber.Core.Services {
             }
 
             _userProfileChannel.Push(@event, message, timeSpan);
-        }
-
-        private void OnMessageCallback(Message message) {
-            _log.Debug($"Received message: {message.Payload}");
         }
 
         private void OnOpenCallback() {

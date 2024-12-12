@@ -72,7 +72,6 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             bool isRanked = _currentMapInfo.ranked;
             bool isQualified = _currentMapInfo.qualified;
             bool isLoved = _currentMapInfo.loved;
-            bool isUnranked = !isRanked && !isQualified && !isLoved;
 
             if (isRanked)
                 return $"Ranked - (<size=75%><color=#a6a6a6>{(_currentMapInfo.rankedDate.HasValue ? _currentMapInfo.rankedDate.Value.ToString("dd/MM/yy") : string.Empty)}</color></size>) - {_currentMapInfo.stars}<size=70%>★</size>";

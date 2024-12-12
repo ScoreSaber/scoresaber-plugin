@@ -93,7 +93,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         internal void OverrideTime(float time) {
             if (float.IsInfinity(time) || float.IsNaN(time) || Mathf.Abs(time - audioTimeSyncController._songTime) < 0.001f) return;
             time = Mathf.Clamp(time, audioTimeSyncController._startSongTime, audioTimeSyncController.songEndTime);
-            
+
             var _audioTimeSyncController = audioTimeSyncController; // UMBRAMEGALUL
             HarmonyPatches.CutSoundEffectOverride.Buffer = true;
             CancelAllHitSounds();
@@ -130,29 +130,38 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private LinkedListNode<BeatmapDataItem> _lastLocatedNode = null;
 
-        private List<BeatmapDataItem> _beatmapDataItemsCache;
+        private List<KeyValuePair<float, LinkedListNode<BeatmapDataItem>>> _beatmapDataItemsCache;
 
+
+        // O(n), for the first call
         private void CacheBeatmapData() {
-            _beatmapDataItemsCache ??= _beatmapData.allBeatmapDataItems.ToList();
+            if (_beatmapDataItemsCache == null) {
+                _beatmapDataItemsCache = new List<KeyValuePair<float, LinkedListNode<BeatmapDataItem>>>();
+                var currentNode = _beatmapData.allBeatmapDataItems.First;
+                while (currentNode != null) {
+                    _beatmapDataItemsCache.Add(new KeyValuePair<float, LinkedListNode<BeatmapDataItem>>(currentNode.Value.time, currentNode));
+                    currentNode = currentNode.Next;
+                }
+            }
         }
 
-
-        // O(log n) search for the closest beatmap data item to the target time
+        // O(log n), for calls after the first time cache is built
         private LinkedListNode<BeatmapDataItem> LocateBeatmapData(float targetTime) {
             CacheBeatmapData();
 
             int low = 0, high = _beatmapDataItemsCache.Count - 1;
             while (low <= high) {
                 int mid = (low + high) / 2;
-                if (_beatmapDataItemsCache[mid].time < targetTime)
+                if (_beatmapDataItemsCache[mid].Key < targetTime)
                     low = mid + 1;
                 else
                     high = mid - 1;
             }
 
-            _lastLocatedNode = _beatmapData.allBeatmapDataItems.Find(_beatmapDataItemsCache[Math.Max(0, high)]);
+            _lastLocatedNode = _beatmapDataItemsCache[Math.Max(0, high)].Value;
             return _lastLocatedNode;
         }
+
 
         public void OverrideTimeScale(float newScale) {
 

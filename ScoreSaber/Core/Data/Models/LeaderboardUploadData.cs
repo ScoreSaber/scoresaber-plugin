@@ -64,7 +64,7 @@ namespace ScoreSaber.Core.Data.Models {
             data.songName = beatmapLevel.songName;
             data.songSubName = beatmapLevel.songSubName;
             data.songAuthorName = beatmapLevel.songAuthorName;
-            data.levelAuthorName = FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters);
+            data.levelAuthorName = BeatmapUtils.FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters);
             data.bpm = Convert.ToInt32(beatmapLevel.beatsPerMinute);
 
             data.playerName = playerInfo.playerName;
@@ -82,17 +82,6 @@ namespace ScoreSaber.Core.Data.Models {
             data.deviceControllerLeftIdentifier = VRDevices.GetDeviceControllerLeft();
             data.deviceControllerRightIdentifier = VRDevices.GetDeviceControllerRight();
             return data;
-        }
-
-        public static string FriendlyLevelAuthorName(string[] mappers, string[] lighters) {
-            List<string> mappersAndLighters = new List<string>();
-            mappersAndLighters.AddRange(mappers);
-            mappersAndLighters.AddRange(lighters);
-
-            if(mappersAndLighters.Count <= 1) {
-                return mappersAndLighters.FirstOrDefault();
-            }
-            return $"{string.Join(", ", mappersAndLighters.Take(mappersAndLighters.Count - 1))} & {mappersAndLighters.Last()}";
         }
     }
 }

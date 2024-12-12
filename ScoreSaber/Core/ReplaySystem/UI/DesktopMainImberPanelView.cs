@@ -152,27 +152,16 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [UIComponent("tooltipHeader")]
         public VerticalLayoutGroup tooltipHeader = null;
 
-
-
-        private void RecursivelyDisableItalics(GameObject obj) {
+        private void DisableItalics(GameObject obj) {
             TextMeshProUGUI[] textMeshProUGUIs = obj.GetComponentsInChildren<TextMeshProUGUI>();
-            var textComponent = obj.GetComponent<TextMeshProUGUI>();
-            if (textComponent != null) {
-                textComponent.fontStyle = FontStyles.Normal;
-            }
 
             foreach (var textMeshProUGUI in textMeshProUGUIs) {
                 textMeshProUGUI.fontStyle = FontStyles.Normal;
             }
         }
 
-        private void RecursivelyUnskewImageViews(GameObject obj) {
+        private void UnskewImageViews(GameObject obj) {
             ImageView[] imageViews = obj.GetComponentsInChildren<ImageView>();
-            var imageView = obj.GetComponent<ImageView>();
-            if (imageView != null) {
-                imageView.SetField("_skew", 0f);
-                imageView.__Refresh();
-            }
 
             foreach (var imageView2 in imageViews) {
                 imageView2.SetField("_skew", 0f);
@@ -181,7 +170,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         }
 
         public void SetupObjects() {
-            RecursivelyDisableItalics(_container.gameObject);
+            DisableItalics(_container.gameObject);
             foreach(Transform child in tabSelector.transform) {
                 var x = child.gameObject.transform.Find("BG").gameObject.GetComponent<ImageView>();
                 x.SetField("_skew", 0f);
@@ -192,7 +181,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 y.transform.localPosition = new Vector3(0, -0.25f, 0);
             }
             tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
-            RecursivelyUnskewImageViews(_container.gameObject);
+            UnskewImageViews(_container.gameObject);
         }
 
         [Inject]
