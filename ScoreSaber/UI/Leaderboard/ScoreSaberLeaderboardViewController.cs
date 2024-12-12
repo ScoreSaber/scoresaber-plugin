@@ -118,6 +118,9 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIValue("map-info-view")]
         protected MapInfoView _mapInfoView = null;
 
+        [UIValue("yes-or-no-modal")]
+        protected GenericYesOrNoModal _genericYesOrNoModal = null;
+
         [UIAction("OnPageUp")] private void UpButtonClicked() => UpdatePageChanged(-1);
         [UIAction("OnPageDown")] private void DownButtonClicked() => UpdatePageChanged(1);
 
@@ -347,7 +350,23 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        private void ShowRichPresenceDisclaimer() {
+            var info = new GenericYesOrNoModal.YesOrNoModalInfo("Rich Presence", delegate () {
+                Plugin.Settings.enableRichPresence = true;
+                Plugin.Settings.hasAcceptedRichPresenceDisclaimer = true;
+                _scoresaberRichPresence.Initialize();
+                _parserParams.EmitEvent("close-modals");
+            }, delegate () {
+                Plugin.Settings.enableRichPresence = false;
+                Plugin.Settings.hasAcceptedRichPresenceDisclaimer = true;
+                _parserParams.EmitEvent("close-modals");
+
+            }, "Rich Presence is a feature that allows you to show your current status in Beat Saber to your friends. Would you like to enable this?\n(You can turn it off anytime in the ScoreSaber settings menu)");
+            _genericYesOrNoModal.Show(info);
+            _parserParams.EmitEvent("present-yes-no-modal");
+        }
+
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) { 
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (!base.isActiveAndEnabled) return;
             if (!_platformLeaderboardViewController) return;
@@ -372,6 +391,14 @@ namespace ScoreSaber.UI.Leaderboard {
                 _promoBanner._floatingScreen.gameObject.SetActive(true);
                 _promoBanner._promoBannerView.GetComponent<CanvasGroup>().alpha = 1;
             }
+
+            UnityMainThreadTaskScheduler.Factory.StartNew(async () => {
+                if (!Plugin.Settings.hasAcceptedRichPresenceDisclaimer) {
+                    await Task.Delay(500);
+                    ShowRichPresenceDisclaimer();
+                }
+            });
+
             Transform header = _platformLeaderboardViewController.transform.Find("HeaderPanel");
             _platformLeaderboardViewController.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
             myHeader.gameObject.SetActive(true);
@@ -677,6 +704,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _infoButtons = new EntryHolder();
             _scoreDetailView = new ScoreDetailView();
             _mapInfoView = new MapInfoView();
+            _genericYesOrNoModal = new GenericYesOrNoModal();
             _scoreDetailView.showProfile += scoreDetailView_showProfile;
             _scoreDetailView.startReplay += scoreDetailView_startReplay;
             _playerService.LoginStatusChanged += playerService_LoginStatusChanged;

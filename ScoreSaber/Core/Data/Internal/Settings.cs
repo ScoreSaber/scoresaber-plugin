@@ -41,6 +41,7 @@ namespace ScoreSaber.Core.Data
         public bool startReplayUIHidden { get; set; }
         public bool hideWatermarkIfUsersReplay { get; set; }
         public bool enableRichPresence { get; set; }
+        public bool hasAcceptedRichPresenceDisclaimer { get; set; }
 
         internal static string dataPath => "UserData";
         internal static string configPath => dataPath + @"\ScoreSaber";
@@ -74,7 +75,8 @@ namespace ScoreSaber.Core.Data
             replayUISize = 1.25f;
             startReplayUIHidden = false;
             hideWatermarkIfUsersReplay = false;
-            enableRichPresence = true;
+            enableRichPresence = false;
+            hasAcceptedRichPresenceDisclaimer = false;
             SetDefaultSpectatorPositions();
         }
 
@@ -127,7 +129,8 @@ namespace ScoreSaber.Core.Data
                         decoded.replayUIPosition = new Vec2(new Vector2(0.12f, 0.14f));
                         decoded.replayUISize = 1.25f;
                         decoded.startReplayUIHidden = false;
-                        decoded.enableRichPresence = true;
+                        decoded.enableRichPresence = false;
+                        decoded.hasAcceptedRichPresenceDisclaimer = false;
                         decoded.hideWatermarkIfUsersReplay = false;
                     }
                     SaveSettings(decoded);
