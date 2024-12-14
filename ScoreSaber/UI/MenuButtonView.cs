@@ -48,7 +48,7 @@ namespace ScoreSaber.UI.ViewControllers {
         }
 		
 		private void PresentScoreSaberFlow() {
-            _scoreSaberFlowCoordinator.ShowMainFlowCoordinator(true);
+            _scoreSaberFlowCoordinator.ShowMainFlowCoordinator();
 		}
 
 		public void Dispose() {

@@ -141,8 +141,13 @@ namespace ScoreSaber.UI.Leaderboard {
         Color pink = new Color(235 / 255f, 73 / 255f, 232 / 255f);
         Color _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
 
-        private const string _leaderboardUrl = "https://scoresaber.com/leaderboard/";
+        Color easyDiffColour => UIUtils.HexToColor("#50c17b");
+        Color normalDiffColour => UIUtils.HexToColor("#65aafb");
+        Color hardDiffColour => UIUtils.HexToColor("#f18e40");
+        Color expertDiffColour => UIUtils.HexToColor("#e44f5b");
+        Color expertPlusDiffColour => UIUtils.HexToColor("#a266dd");
 
+        private const string _leaderboardUrl = "https://scoresaber.com/leaderboard/";
 
         [Inject] private readonly PanelView _panelView = null;
         [Inject] private readonly DiContainer _container = null;
@@ -257,9 +262,10 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
         private void SetPanelStatus(LeaderboardInfoMap leaderboardInfoMap = null) {
+
             bool fromCached = true;
-            if(leaderboardInfoMap == null) {
-                if(_leaderboardService.currentLoadedLeaderboard == null) {
+            if (leaderboardInfoMap == null) {
+                if (_leaderboardService.currentLoadedLeaderboard == null) {
                     return;
                 }
                 leaderboardInfoMap = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap;
@@ -277,6 +283,7 @@ namespace ScoreSaber.UI.Leaderboard {
             bool qualified = leaderboardInfoMap.leaderboardInfo.qualified;
             bool loved = leaderboardInfoMap.leaderboardInfo.loved;
 
+
             if (leaderboardInfoMap.leaderboardInfo.stars != 0) {
                 starRatingBox.gameObject.SetActive(true);
                 headerText.text = $"<size=70%> </size>{leaderboardInfoMap.leaderboardInfo.stars.ToString().Replace(".", ". ")}<size=70%>★</size>";
@@ -286,8 +293,8 @@ namespace ScoreSaber.UI.Leaderboard {
                 starRatingBox.gameObject.SetActive(false);
                 headerSTATIC.gameObject.SetActive(true);
             }
-           
-            if(!ranked && !qualified && !loved) {
+
+            if (!ranked && !qualified && !loved) {
                 _tweeningUtils.LerpColor(_headerBackground, grey);
                 headerTextSTATIC.text = "UNRANKED";
                 if (!fromCached) {
@@ -296,7 +303,7 @@ namespace ScoreSaber.UI.Leaderboard {
             }
 
             if (ranked) {
-                _tweeningUtils.LerpColor(_headerBackground, yellow);
+                GetSSDifficultyColour(leaderboardInfoMap.beatmapKey.difficulty);
             }
 
             if (qualified) {
@@ -313,6 +320,28 @@ namespace ScoreSaber.UI.Leaderboard {
                 if (!fromCached) {
                     _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
                 }
+            }
+        }
+
+        private void GetSSDifficultyColour(BeatmapDifficulty beatmapDifficulty) {
+            switch (beatmapDifficulty) {
+                case BeatmapDifficulty.Easy:
+                    _tweeningUtils.LerpColor(_headerBackground, easyDiffColour);
+                    break;
+                case BeatmapDifficulty.Normal:
+                    _tweeningUtils.LerpColor(_headerBackground, normalDiffColour);
+                    break;
+                case BeatmapDifficulty.Hard:
+                    _tweeningUtils.LerpColor(_headerBackground, hardDiffColour);
+                    break;
+                case BeatmapDifficulty.Expert:
+                    _tweeningUtils.LerpColor(_headerBackground, expertDiffColour);
+                    break;
+                case BeatmapDifficulty.ExpertPlus:
+                    _tweeningUtils.LerpColor(_headerBackground, expertPlusDiffColour);
+                    break;
+                default:
+                    break;
             }
         }
 
