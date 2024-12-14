@@ -18,7 +18,7 @@ namespace ScoreSaber.Core.Services {
             Plugin.Log.Debug("LeaderboardService Setup");
         }
 
-        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings) {
+        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings) {
 
             string leaderboardUrl = GetLeaderboardUrl(beatmapKey, beatmapLevel, scope, page);
             if (leaderboardUrl == null) {
@@ -54,12 +54,12 @@ namespace ScoreSaber.Core.Services {
       
         private string GetLeaderboardUrl(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page) {
             
-            string url = "/game/leaderboard";
+            string url = "/api/game/leaderboard";
 
             string leaderboardId = string.Empty;
 
             if (beatmapLevel.hasPrecalculatedData) {
-                leaderboardId = beatmapLevel.levelID;
+                leaderboardId = "ost_" + beatmapLevel.levelID;
             } else {
                 leaderboardId = beatmapKey.levelId.Split('_')[2];
             }

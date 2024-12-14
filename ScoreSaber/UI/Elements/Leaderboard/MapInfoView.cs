@@ -89,7 +89,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 _currentMapInfo = mapInfo;
                 _mapNameText.text = $"{mapInfo.songName}";
                 UnityMainThreadTaskScheduler.Factory.StartNew(() => SetImage(_currentMap));
-                _mapAuthorText.text = $"Mapped By {mapInfo.levelAuthorName}";
+                _mapAuthorText.text = _currentMap.hasPrecalculatedData ? "Mapped by Beat Games" : "Mapped by " + $"{mapInfo.levelAuthorName}";
                 _mapUploadDateText.SetFancyText("Uploaded", $"{mapInfo.createdDate:dd/MM/yy}");
                 _mapPlaysText.SetFancyText("Plays", $"{mapInfo.plays} ({mapInfo.dailyPlays} Last 24h)");
                 _mapStatusDateText.SetFancyText("Status", $"{GetMapStatusString()}");

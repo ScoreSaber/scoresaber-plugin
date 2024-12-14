@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.FloatingScreen;
 using IPA.Utilities;
 using ScoreSaber.Core.Services;
+using ScoreSaber.Core.Utils;
 using ScoreSaber.UI.Leaderboard;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace ScoreSaber.UI.PromoBanner {
 
         [Inject] private readonly PhysicsRaycasterWithCache _physicsRaycasterWithCache = null;
 
-        [Inject] private readonly TweeningService _tweeningService = null;
+        [Inject] private readonly TweeningUtils _tweeningUtils = null;
 
         public Action<bool> ShowBanner;
 
@@ -39,7 +40,7 @@ namespace ScoreSaber.UI.PromoBanner {
 
         public void Show(bool show) {
             if (Dismissed) return;
-            _tweeningService.FadeLayoutGroup(_promoBannerView.container, show, 0.2f);
+            _tweeningUtils.FadeLayoutGroup(_promoBannerView.container, show, 0.2f);
         }
 
         public void DismissBanner() {

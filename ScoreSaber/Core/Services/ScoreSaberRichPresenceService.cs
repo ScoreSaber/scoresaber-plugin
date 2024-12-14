@@ -12,6 +12,8 @@ using Socket = Phoenix.Socket;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Linq;
+using ScoreSaber.Core.Phoenix;
+using ScoreSaber.Core.Data.Models;
 
 namespace ScoreSaber.Core.Services {
     internal class ScoreSaberRichPresenceService : IDisposable {
@@ -25,6 +27,8 @@ namespace ScoreSaber.Core.Services {
 
         private const int MaxRetries = 5;
         private int _retryAttempt = 0;
+        private const string _protocolAndSubdomain = "wss://realtime.";
+        private const string _socketAddress = "/socket"; // change to scoresaber subdomain once ready. wss://realtime.scoresaber.com/socket
 
         public string TimeRightNow => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
 
@@ -43,7 +47,7 @@ namespace ScoreSaber.Core.Services {
 
             try {
                 var socketOptions = new Socket.Options(new JsonMessageSerializer());
-                var socketAddress = "wss://ssrt.bzaz.au/socket"; // change to scoresaber subdomain once ready.
+                var socketAddress = _protocolAndSubdomain + Plugin.HttpInstance.options.baseURL + _socketAddress;
                 var socketFactory = new WebsocketSharpFactory();
                 _socket = new Socket(socketAddress, new System.Collections.Generic.Dictionary<string, string>
                 {
@@ -157,202 +161,5 @@ namespace ScoreSaber.Core.Services {
             DisconnectSocket();
             _log.Info("Rich presence service disposed.");
         }
-    }
-
-    public sealed class WebsocketSharpAdapter : IWebsocket {
-        private readonly WebsocketConfiguration _config;
-
-        private readonly WebSocket _ws;
-
-        public WebsocketSharpAdapter(WebSocket ws, WebsocketConfiguration config) {
-            _ws = ws;
-            _config = config;
-
-            ws.OnOpen += OnWebsocketOpen;
-            ws.OnClose += OnWebsocketClose;
-            ws.OnError += OnWebsocketError;
-            ws.OnMessage += OnWebsocketMessage;
-        }
-
-        public WebsocketState State {
-            get {
-                switch (_ws.ReadyState) {
-                    case WebSocketState.Connecting:
-                        return WebsocketState.Connecting;
-                    case WebSocketState.Open:
-                        return WebsocketState.Open;
-                    case WebSocketState.Closing:
-                        return WebsocketState.Closing;
-                    case WebSocketState.Closed:
-                        return WebsocketState.Closed;
-                    default:
-                        throw new NotImplementedException();
-
-                }
-            }
-        }
-
-        public void Connect() {
-            _ws.Connect();
-        }
-
-        public void Send(string message) {
-            _ws.Send(message);
-        }
-
-        public void Close(ushort? code = null, string message = null) {
-            _ws.Close();
-        }
-
-        private void OnWebsocketOpen(object sender, EventArgs args) {
-            _config.onOpenCallback(this);
-        }
-
-        private void OnWebsocketClose(object sender, CloseEventArgs args) {
-            _config.onCloseCallback(this, args.Code, args.Reason);
-        }
-
-        private void OnWebsocketError(object sender, ErrorEventArgs args) {
-            _config.onErrorCallback(this, args.Message);
-        }
-
-        private void OnWebsocketMessage(object sender, MessageEventArgs args) {
-            _config.onMessageCallback(this, args.Data);
-        }
-    }
-
-    public sealed class WebsocketSharpFactory : IWebsocketFactory {
-        public IWebsocket Build(WebsocketConfiguration config) {
-            var socket = new WebSocket(config.uri.AbsoluteUri);
-            socket.SslConfiguration.EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-            return new WebsocketSharpAdapter(socket, config);
-        }
-    }
-
-    public enum Scene {
-        [JsonProperty("offline")]
-        offline,
-        [JsonProperty("online")]
-        online,
-        [JsonProperty("menu")]
-        menu,
-        [JsonProperty("playing")]
-        playing
-    }
-
-    /// <summary>
-    /// Unix timestamp serialized to a string
-    /// </summary>
-    public class Timestamp {
-        public string Value { get; set; } = string.Empty;
-    }
-
-    public class SceneChangeEvent {
-        [JsonProperty("timestamp")]
-        public string Timestamp { get; set; } = string.Empty;
-
-        [JsonProperty("scene")]
-        [JsonConverter(typeof(StringEnumConverter))]
-        public Scene Scene { get; set; }
-    }
-
-    public enum GameMode {
-        [JsonProperty("solo")]
-        solo,
-        [JsonProperty("multi")]
-        multiplayer,
-        [JsonProperty("practice")]
-        practice
-    }
-
-    public class SongRichPresenceInfo {
-        [JsonProperty("timestamp")]
-        public string Timestamp { get; set; } = string.Empty;
-
-        [JsonProperty("mode")]
-        [JsonConverter(typeof(StringEnumConverter))]
-        public GameMode Mode { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; } = string.Empty;
-
-        [JsonProperty("subName")]
-        public string SubName { get; set; } = string.Empty;
-
-        [JsonProperty("authorName")]
-        public string AuthorName { get; set; } = string.Empty;
-
-        [JsonProperty("artist")]
-        public string Artist { get; set; } = string.Empty;
-
-        [JsonProperty("type")]
-        public string Type { get; set; } = string.Empty; // Standard, Lawless, OneSaber etc
-
-        [JsonProperty("hash")]
-        public string Hash { get; set; } = string.Empty;
-
-        [JsonProperty("duration")]
-        public int Duration { get; set; } // Song duration in seconds
-
-        [JsonProperty("difficulty")]
-        public int Difficulty { get; set; } = -1; // Difficulty, 0-9, odd numba
-
-        [JsonProperty("startTime", NullValueHandling = NullValueHandling.Ignore)]
-        public int? StartTime { get; set; } // Start time if in practice mode
-
-        [JsonProperty("playSpeed", NullValueHandling = NullValueHandling.Ignore)]
-        public double? PlaySpeed { get; set; } // Playback speed, from either practice mode or speed modifies
-
-
-        public SongRichPresenceInfo(string timestamp, GameMode mode, string name, string subName, string authorName, string artist, string type, string hash, int duration, int difficulty, int? startTime, double? playSpeed) {
-            Timestamp = timestamp;
-            Mode = mode;
-            Name = name;
-            SubName = subName;
-            AuthorName = authorName;
-            Artist = artist;
-            Type = type;
-            Hash = hash;
-            Duration = duration;
-            Difficulty = difficulty;
-            StartTime = startTime;
-            PlaySpeed = playSpeed;
-        }
-    }
-
-    public enum PauseType {
-        [JsonProperty("pause")]
-        Pause,
-        [JsonProperty("unpause")]
-        Unpause
-    }
-
-    public class PauseUnpauseEvent {
-        [JsonProperty("timestamp")]
-        public string Timestamp { get; set; } = string.Empty;
-
-        [JsonProperty("songTime")]
-        public double SongTime { get; set; } // Time since start of song in seconds
-
-        [JsonProperty("eventType")]
-        [JsonConverter(typeof(StringEnumConverter))]
-        public PauseType EventType { get; set; }
-    }
-
-
-    public class RichPresenceResponse {
-        [JsonProperty("id")]
-        public string Id { get; set; } = string.Empty;
-
-        [JsonProperty("state")]
-        public State state { get; set; }
-    }
-
-    public class State {
-        [JsonProperty("scene")]
-        public Scene Scene { get; set; } = Scene.menu;
-
-        [JsonProperty("currentMap")]
-        public SongRichPresenceInfo currentMap { get; set; }
     }
 }

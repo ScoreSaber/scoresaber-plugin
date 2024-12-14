@@ -12,8 +12,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace ScoreSaber.Core.Services {
-    internal class TweeningService {
+namespace ScoreSaber.Core.Utils {
+    internal class TweeningUtils {
         [Inject] private TimeTweeningManager _tweeningManager = null;
         private HashSet<Transform> activeRotationTweens = new HashSet<Transform>();
 
@@ -117,7 +117,7 @@ namespace ScoreSaber.Core.Services {
 
             List<CanvasRenderer> canvasRenderers = new List<CanvasRenderer>();
             canvasRenderers = layoutGroup.transform.GetComponentsInChildren<CanvasRenderer>().ToList();
-            if(gameobjecttodisable != null) {
+            if (gameobjecttodisable != null) {
                 canvasRenderers.AddRange(gameobjecttodisable.GetComponentsInChildren<CanvasRenderer>().ToList());
             }
 

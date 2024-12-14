@@ -68,8 +68,22 @@ namespace ScoreSaber
             }
         }
 
-        internal async Task<string> GetRawAsync(string url) {
+        internal async Task<string> GetRawAsync(string url, string protocolAndSubdomain = "https://") {
 
+            using (UnityWebRequest request = UnityWebRequest.Get(protocolAndSubdomain + url)) {
+                request.timeout = 5;
+                await SendHttpAsyncRequest(request);
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) {
+                    throw ThrowHttpException(request);
+                } else {
+                    return Encoding.UTF8.GetString(request.downloadHandler.data);
+                }
+            }
+        }
+
+        internal async Task<string> GetAsync(string url, string protocolAndSubdomain = "https://") {
+
+            url = $"{protocolAndSubdomain}{options.baseURL}{url}";
             using (UnityWebRequest request = UnityWebRequest.Get(url)) {
                 request.timeout = 5;
                 await SendHttpAsyncRequest(request);
@@ -81,23 +95,9 @@ namespace ScoreSaber
             }
         }
 
-        internal async Task<string> GetAsync(string url) {
+        internal async Task<byte[]> DownloadAsync(string url, string protocolAndSubdomain = "https://") {
 
-            url = $"{options.baseURL}{url}";
-            using (UnityWebRequest request = UnityWebRequest.Get(url)) {
-                request.timeout = 5;
-                await SendHttpAsyncRequest(request);
-                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) {
-                    throw ThrowHttpException(request);
-                } else {
-                    return Encoding.UTF8.GetString(request.downloadHandler.data);
-                }
-            }
-        }
-
-        internal async Task<byte[]> DownloadAsync(string url) {
-
-            url = $"{options.baseURL}{url}";
+            url = $"{protocolAndSubdomain}{options.baseURL}{url}";
             using (UnityWebRequest request = UnityWebRequest.Get(url)) {
                 await SendHttpAsyncRequest(request);
                 if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError) {
@@ -108,9 +108,9 @@ namespace ScoreSaber
             }
         }
 
-        internal async Task<string> PostAsync(string url, WWWForm form) {
+        internal async Task<string> PostAsync(string url, WWWForm form, string protocolAndSubdomain = "https://") {
 
-            url = $"{options.baseURL}{url}";
+            url = $"{protocolAndSubdomain}{options.baseURL}{url}";
             using (UnityWebRequest request = UnityWebRequest.Post(url, form)) {
                 request.timeout = 120;
                 await SendHttpAsyncRequest(request);

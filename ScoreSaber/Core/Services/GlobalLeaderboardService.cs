@@ -30,7 +30,7 @@ namespace ScoreSaber.Core.Services {
 
         private string BuildUrl(GlobalPlayerScope scope, int page) {
 
-            string url = "/game/players";
+            string url = "/api/game/players";
             switch (scope) {
                 case GlobalPlayerScope.Global:
                     url = $"{url}?page={page}";

@@ -23,6 +23,8 @@ namespace ScoreSaber.Core.Services {
             Success = 3
         }
 
+        private string RichPresenceUrl = "https://realtime." + Plugin.HttpInstance.options.baseURL + "/user/"; // https://realtime.scoresaber.com
+
         public PlayerService() {
             Plugin.Log.Debug("PlayerService Setup!");
         }
@@ -114,7 +116,7 @@ namespace ScoreSaber.Core.Services {
             form.AddField("name", playerInfo.playerName);
 
             try {
-                string response = await Plugin.HttpInstance.PostAsync("/game/auth", form);
+                string response = await Plugin.HttpInstance.PostAsync("/api/game/auth", form);
                 var authResponse = JsonConvert.DeserializeObject<AuthResponse>(response);
                 playerInfo.playerKey = authResponse.a;
                 playerInfo.serverKey = authResponse.e;
@@ -129,7 +131,7 @@ namespace ScoreSaber.Core.Services {
 
         public async Task<PlayerInfo> GetPlayerInfo(string playerId, bool full) {
 
-            string url = $"/player/{playerId}";
+            string url = $"/api/player/{playerId}";
 
             if (full) {
                 url += "/full";
@@ -144,8 +146,8 @@ namespace ScoreSaber.Core.Services {
 
         public async Task<RichPresenceResponse> GetRichPresence(string playerId) {
 
-            string response = await Plugin.HttpInstance.GetRawAsync($"https://ssrt.bzaz.au/user/{playerId}");
-            if(response == null) {
+            string response = await Plugin.HttpInstance.GetRawAsync($"{RichPresenceUrl}{playerId}");
+            if (response == null) {
                 return null;
             }
             var richPresence = JsonConvert.DeserializeObject<RichPresenceResponse>(response);
@@ -164,7 +166,7 @@ namespace ScoreSaber.Core.Services {
                 }
             }
 
-            byte[] response = await Plugin.HttpInstance.DownloadAsync($"/game/telemetry/downloadReplay?playerId={scoreMap.score.leaderboardPlayerInfo.id}&leaderboardId={leaderboardId}");
+            byte[] response = await Plugin.HttpInstance.DownloadAsync($"/api/game/telemetry/downloadReplay?playerId={scoreMap.score.leaderboardPlayerInfo.id}&leaderboardId={leaderboardId}");
 
             if (response != null) {
                 return response;

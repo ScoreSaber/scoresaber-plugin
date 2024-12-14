@@ -184,11 +184,12 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             UnskewImageViews(_container.gameObject);
         }
 
-        [Inject] private IFPFCSettings _fpfcSettings = null;
+        [InjectOptional] private IFPFCSettings _fpfcSettings = null;
 
         [Inject]
         protected void Construct() {
-            if (!_fpfcSettings.Enabled) return;
+            if (_fpfcSettings == null) return;
+            if (!_fpfcSettings.Enabled && !Environment.GetCommandLineArgs().Contains("fpfc")) return; // fpfcSettings is being inconsistent?
             GameObject inputOBJ;
 
             var canvasGameObj = new GameObject();
@@ -233,6 +234,13 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             timebarActive.material = Plugin.NoGlowMatRound;
             timebarbg.material = Plugin.NoGlowMatRound;
+
+
+            var contents = this.gameObject.transform.Find("Contents");
+            var containerRect = contents.GetComponent<RectTransform>();
+            containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
+            containerRect.anchorMin = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
+            contents.localScale = new Vector2(Plugin.Settings.replayUISize, Plugin.Settings.replayUISize);
         }
 
 

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Core.Utils;
 using SiraUtil.Affinity;
@@ -39,10 +40,10 @@ namespace ScoreSaber.Core.AffinityPatches {
             }
 
             bool isPractice = practice;
-            Services.GameMode gameMode = Services.GameMode.solo;
+            GameMode gameMode = GameMode.solo;
 
             if (isPractice) {
-                gameMode = Services.GameMode.practice;
+                gameMode = GameMode.practice;
 
                 // this is to privatise the practice mode song, as it would be exposed in the rich presence, still not shown in UI though.
                 var songeventPrivate = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
@@ -82,9 +83,9 @@ namespace ScoreSaber.Core.AffinityPatches {
             GameplayModifiers gameplayModifiers = levelGameplaySetupData.gameplayModifiers;
             int startTime = 0;
 
-            var songevent = CreateSongStartEvent(beatmapLevel, levelGameplaySetupData.beatmapKey, gameplayModifiers, startTime, GameMode.multiplayer);
+            var songEvent = CreateSongStartEvent(beatmapLevel, levelGameplaySetupData.beatmapKey, gameplayModifiers, startTime, GameMode.multiplayer);
 
-            _richPresenceService.SendUserProfileChannel("start_song", songevent);
+            _richPresenceService.SendUserProfileChannel("start_song", songEvent);
         }
 
         private SongRichPresenceInfo CreateSongStartEvent(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers gameplayModifiers, int startTime, GameMode gameMode) {
@@ -98,7 +99,7 @@ namespace ScoreSaber.Core.AffinityPatches {
             }
 
 
-            var songevent = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
+            var songEvent = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
                                     beatmapLevel.songName,
                                     beatmapLevel.songSubName,
                                     BeatmapUtils.FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters),
@@ -110,7 +111,7 @@ namespace ScoreSaber.Core.AffinityPatches {
                                     startTime,
                                     gameplayModifiers.songSpeedMul);
 
-            return songevent;
+            return songEvent;
         }
     }
 }

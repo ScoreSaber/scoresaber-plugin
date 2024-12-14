@@ -31,7 +31,7 @@ namespace ScoreSaber.Core {
 
             Container.BindInterfacesTo<ScoreSaberLeaderboard>().AsSingle();
 
-            Container.Bind<TweeningService>().AsSingle();
+            Container.Bind<TweeningUtils>().AsSingle();
 
             Container.Bind<ReplayLoader>().AsSingle().NonLazy();
             Container.BindInterfacesTo<ResultsViewReplayButtonController>().AsSingle();

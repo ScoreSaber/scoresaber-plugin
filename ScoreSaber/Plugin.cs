@@ -63,7 +63,7 @@ namespace ScoreSaber {
             zenjector.UseAutoBinder();
 
             LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            HttpInstance = new Http(new HttpOptions() { baseURL = "https://scoresaber.com/api", applicationName = "ScoreSaber-PC", version = LibVersion });
+            HttpInstance = new Http(new HttpOptions() { baseURL = "scoresaber.com", applicationName = "ScoreSaber-PC", version = LibVersion });
             OpenXRManager.Initialize();
             SteamSettings.Initialize();
         }

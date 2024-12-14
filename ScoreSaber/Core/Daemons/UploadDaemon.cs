@@ -204,7 +204,7 @@ namespace ScoreSaber.Core.Daemons {
                     Plugin.Log.Info("Attempting score upload...");
                     UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Uploading score...");
                     try {
-                        response = await Plugin.HttpInstance.PostAsync("/game/upload", form);
+                        response = await Plugin.HttpInstance.PostAsync("/api/game/upload", form);
                     } catch (HttpErrorException httpException) {
                         if (httpException.isScoreSaberError) {
                             Plugin.Log.Error($"Failed to upload score: {httpException.scoreSaberError.errorMessage}:{httpException}");

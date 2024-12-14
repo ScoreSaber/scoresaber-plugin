@@ -141,6 +141,8 @@ namespace ScoreSaber.UI.Leaderboard {
         Color pink = new Color(235 / 255f, 73 / 255f, 232 / 255f);
         Color _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
 
+        private const string _leaderboardUrl = "https://scoresaber.com/leaderboard/";
+
 
         [Inject] private readonly PanelView _panelView = null;
         [Inject] private readonly DiContainer _container = null;
@@ -153,7 +155,7 @@ namespace ScoreSaber.UI.Leaderboard {
         [Inject] internal readonly ScoreSaberRichPresenceService _scoresaberRichPresence = null;
         [Inject] private readonly MaxScoreCache _maxScoreCache = null;
         [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel = null;
-        [Inject] private readonly TweeningService _tweeningService = null;
+        [Inject] private readonly TweeningUtils _tweeningUtils = null;
         [Inject] private readonly PromoBanner.PromoBanner _promoBanner = null;
 
         private void infoButtons_infoButtonClicked(int index) {
@@ -264,10 +266,10 @@ namespace ScoreSaber.UI.Leaderboard {
                 fromCached = false;
             }
 
-            if (leaderboardInfoMap == null) {
-                _tweeningService.LerpColor(_headerBackground, grey);
+            if (leaderboardInfoMap == null || leaderboardInfoMap.isOst) {
+                _tweeningUtils.LerpColor(_headerBackground, grey);
                 headerTextSTATIC.text = "OST";
-                _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
+                _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
                 return;
             }
 
@@ -286,37 +288,37 @@ namespace ScoreSaber.UI.Leaderboard {
             }
            
             if(!ranked && !qualified && !loved) {
-                _tweeningService.LerpColor(_headerBackground, grey);
+                _tweeningUtils.LerpColor(_headerBackground, grey);
                 headerTextSTATIC.text = "UNRANKED";
                 if (!fromCached) {
-                    _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
+                    _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
                 }
             }
 
             if (ranked) {
-                _tweeningService.LerpColor(_headerBackground, yellow);
+                _tweeningUtils.LerpColor(_headerBackground, yellow);
             }
 
             if (qualified) {
-                _tweeningService.LerpColor(_headerBackground, _scoreSaberBlue);
+                _tweeningUtils.LerpColor(_headerBackground, _scoreSaberBlue);
                 headerTextSTATIC.text = "QUALIFIED";
                 if (!fromCached) {
-                    _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
+                    _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
                 }
             }
 
             if (loved) {
-                _tweeningService.LerpColor(_headerBackground, pink);
+                _tweeningUtils.LerpColor(_headerBackground, pink);
                 headerTextSTATIC.text = "LOVED";
                 if (!fromCached) {
-                    _tweeningService.FadeText(headerTextSTATIC, true, 0.2f);
+                    _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
                 }
             }
         }
 
         [UIAction("OpenLeaderboardPage")]
         internal void OpenLeaderboardPage() {
-            Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
+            Application.OpenURL($"{_leaderboardUrl}{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
         }
 
         [UIAction("MapInfoClicked")]
@@ -377,7 +379,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 _panelView.statusWasSelected = delegate () {
                     if (_leaderboardService.currentLoadedLeaderboard == null) { return; }
                     _parserParams.EmitEvent("close-modals");
-                    Application.OpenURL($"https://scoresaber.com/leaderboard/{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
+                    Application.OpenURL($"{_leaderboardUrl}{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
                 };
 
                 _panelView.rankingWasSelected = delegate () {
@@ -395,9 +397,12 @@ namespace ScoreSaber.UI.Leaderboard {
                 _promoBanner._promoBannerView.GetComponent<CanvasGroup>().alpha = 1;
             }
 
-            UnityMainThreadTaskScheduler.Factory.StartNew(async () => {
+            UnityMainThreadTaskScheduler.Factory.StartNew(async() => {
                 if (!Plugin.Settings.hasAcceptedRichPresenceDisclaimer) {
-                    await Task.Delay(500);
+                    await Task.Yield();
+                    while (leaderboardTableView.gameObject.activeSelf) {
+                        await Task.Yield();
+                    }
                     ShowRichPresenceDisclaimer();
                 }
             });
@@ -463,7 +468,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     SetPanelStatus(_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey));
                     setPanelStatusFromCache = true;
                 } else {
-                    _tweeningService.LerpColor(_headerBackground, grey, 0.1f);
+                    _tweeningUtils.LerpColor(_headerBackground, grey, 0.1f);
                 }
 
                 if (cancellationToken != null) {
@@ -572,7 +577,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     Plugin.Log.Error(exception.ToString());
                 }
                 loadingControl.gameObject.SetActive(false);
-                _tweeningService.FadeText(_errorText, true, 0.2f);
+                _tweeningUtils.FadeText(_errorText, true, 0.2f);
                 _errorText.text = errorText;
                 tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
                 ByeImages();
@@ -688,7 +693,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     _playerNameText.rectTransform.anchoredPosition = newPosition;
 
                     tableCell.showSeparator = true;
-                    _tweeningService.FadeText(_playerNameText, true, 0.2f);
+                    _tweeningUtils.FadeText(_playerNameText, true, 0.2f);
                 }
             }
 

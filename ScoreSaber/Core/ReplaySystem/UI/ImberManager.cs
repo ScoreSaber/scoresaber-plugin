@@ -4,6 +4,7 @@ using ScoreSaber.Core.Data;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.ReplaySystem.Playback;
 using ScoreSaber.Core.Services;
+using ScoreSaber.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +26,13 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private readonly ReplayTimeSyncController _replayTimeSyncController;
         private readonly ImberUIPositionController _imberUIPositionController;
         private readonly DesktopMainImberPanelView _desktopMainImberPanelView;
-        private readonly TweeningService _tweeningService;
+        private readonly TweeningUtils _tweeningUtils;
 
         private readonly IEnumerable<string> _positions;
 
         public ImberManager(ReplayFile file, IGamePause gamePause, ImberScrubber imberScrubber, ImberSpecsReporter imberSpecsReporter, MainImberPanelView mainImberPanelView, SpectateAreaController spectateAreaController,
                             AudioTimeSyncController audioTimeSyncController, ReplayTimeSyncController replayTimeSyncController, ImberUIPositionController imberUIPositionController, AudioTimeSyncController.InitData initData, PosePlayer posePlayer, DesktopMainImberPanelView desktopMainImberPanelView,
-                            TweeningService tweeningService){ 
+                            TweeningUtils tweeningUtils){ 
 
             _gamePause = gamePause;
             _posePlayer = posePlayer;
@@ -43,7 +44,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _replayTimeSyncController = replayTimeSyncController;
             _imberUIPositionController = imberUIPositionController;
             _desktopMainImberPanelView = desktopMainImberPanelView;
-            _tweeningService = tweeningService;
+            _tweeningUtils = tweeningUtils;
 
             _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
             _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
@@ -79,12 +80,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             if (!Plugin.Settings.hasOpenedReplayUI) {
                 CreateWatermark();
             }
-            var contents = _desktopMainImberPanelView.gameObject.transform.Find("Contents");
-            var containerRect = contents.GetComponent<RectTransform>();
-            containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
-            containerRect.anchorMin = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
-            contents.localScale = new Vector2(Plugin.Settings.replayUISize, Plugin.Settings.replayUISize);
-            //_desktopMainImberPanelView.gameObject.transform.Find("Contents").gameObject.AddComponent<DesktopMainImberPanelView.DraggableViewController>();
+
             if(Plugin.Settings.startReplayUIHidden) {
                 _desktopMainImberPanelView.gameObject.SetActive(false);
             }
@@ -247,7 +243,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
                 Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
             }
             if (Input.GetKeyDown(KeyCode.I)) {
-                _tweeningService.FadeLayoutGroup(_desktopMainImberPanelView._container, !_desktopMainImberPanelView._container.gameObject.activeSelf, 0.1f, _desktopMainImberPanelView.tooltipHeader.gameObject);
+                _tweeningUtils.FadeLayoutGroup(_desktopMainImberPanelView._container, !_desktopMainImberPanelView._container.gameObject.activeSelf, 0.1f, _desktopMainImberPanelView.tooltipHeader.gameObject);
             }
         }
     }

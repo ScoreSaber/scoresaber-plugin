@@ -24,7 +24,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         public bool isLoading = false;
 
         private ICoroutineStarter coroutineStarter;
-        private TweeningService tweeningService;
+        private TweeningUtils _tweeningUtils;
 
         internal Sprite nullSprite => Utilities.ImageResources.BlankSprite;
 
@@ -33,9 +33,9 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
         }
 
         [Inject]
-        public void Init(ICoroutineStarter coroutineStarter, TweeningService tweeningService) {
+        public void Init(ICoroutineStarter coroutineStarter, TweeningUtils tweeningUtils) {
             this.coroutineStarter = coroutineStarter;
-            this.tweeningService = tweeningService;
+            this._tweeningUtils = tweeningUtils;
         }
 
         [UIComponent("profileImage")]
@@ -56,7 +56,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (SpriteCache.cachedSprites.ContainsKey(url)) {
                     profileImage.sprite = SpriteCache.cachedSprites[url];
-                    tweeningService.FadeImageView(profileImage, true, 0.2f);
+                    _tweeningUtils.FadeImageView(profileImage, true, 0.2f);
                     loadingIndicator.gameObject.SetActive(false);
                     return;
                 }
@@ -105,7 +105,7 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 }
             }
             profileImage.sprite = a;
-            tweeningService.FadeImageView(profileImage, true, 0.2f);
+            _tweeningUtils.FadeImageView(profileImage, true, 0.2f);
             loadingIndicator.gameObject.SetActive(false);
         }
 

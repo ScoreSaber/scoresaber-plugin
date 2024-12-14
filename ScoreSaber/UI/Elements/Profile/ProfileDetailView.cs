@@ -31,6 +31,10 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private const string MapCoverURL = "https://cdn.scoresaber.com/covers/";
+        private const string OnlineResource = "ScoreSaber.Resources.Online.png";
+        private const string OfflineResource = "ScoreSaber.Resources.Offline.png";
+
         #region BSML Components
         [UIParams]
         private BSMLParserParams _parserParams = null;
@@ -243,8 +247,8 @@ namespace ScoreSaber.UI.Elements.Profile {
                 Plugin.Log.Error($"BeatmapDownloader is null, install a mod to [APP] that injects IScoreSaberBeatmapDownloader");
             }
             // load sprites
-            UnityMainThreadTaskScheduler.Factory.StartNew(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Online.png")).ContinueWith(x => { _onlineSprite = x.Result.Result; });
-            UnityMainThreadTaskScheduler.Factory.StartNew(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync("ScoreSaber.Resources.Offline.png")).ContinueWith(x => { _offlineSprite = x.Result.Result; });
+            UnityMainThreadTaskScheduler.Factory.StartNew(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync(OnlineResource)).ContinueWith(x => { _onlineSprite = x.Result.Result; });
+            UnityMainThreadTaskScheduler.Factory.StartNew(() => BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync(OfflineResource)).ContinueWith(x => { _offlineSprite = x.Result.Result; });
         }
 
         protected void Awake() {
@@ -311,7 +315,7 @@ namespace ScoreSaber.UI.Elements.Profile {
                     mapTime = difference.ToNaturalTime(2, false) + " ago";
                     mapPresence.gameObject.SetActive(true);
                     mapPresenceTitle.gameObject.SetActive(true);
-                    mapImagePresence.SetImageAsync($"https://cdn.scoresaber.com/covers/{_richPresence.state.currentMap.Hash}.png").RunTask();
+                    mapImagePresence.SetImageAsync($"{MapCoverURL}{_richPresence.state.currentMap.Hash}.png").RunTask();
                 }
                 Plugin.Log.Notice(_richPresence.state.Scene.ToString());
                 if (_richPresence != null) {
@@ -459,22 +463,18 @@ namespace ScoreSaber.UI.Elements.Profile {
         }
 
         private void SetRichStatus(Scene scene) {
-            const string online = "ScoreSaber.Resources.Online.png";
-            const string offline = "ScoreSaber.Resources.Offline.png";
 
             switch (scene) {
                 case Scene.offline:
-                    profilePrefixPicture = offline;
+                    profilePrefixPicture = OfflineResource;
                     break;
                 case Scene.menu:
-                    goto case Scene.online;
                 case Scene.playing:
-                    goto case Scene.online;
                 case Scene.online:
-                    profilePrefixPicture = online;
+                    profilePrefixPicture = OnlineResource;
                     break;
                 default:
-                    profilePrefixPicture = offline;
+                    profilePrefixPicture = OfflineResource;
                     break;
             }
         }
