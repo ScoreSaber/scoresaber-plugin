@@ -14,6 +14,7 @@ using ScoreSaber.UI.Main.Settings.ViewControllers;
 using ScoreSaber.UI.Main.ViewControllers;
 using ScoreSaber.UI.Multiplayer;
 using ScoreSaber.UI.PromoBanner;
+using ScoreSaber.UI.ViewControllers;
 using System.Collections.Generic;
 using System.Linq;
 using Zenject;
@@ -25,6 +26,8 @@ namespace ScoreSaber.Core {
             Container.BindInstance(new object()).WithId("ScoreSaberUIBindings").AsCached();
 
             Container.BindInterfacesAndSelfTo<MenuPresencePatches>().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<MenuButtonView>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<PanelView>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<ScoreSaberLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
@@ -54,7 +57,7 @@ namespace ScoreSaber.Core {
             Container.BindInterfacesTo<ScoreSaberMultiplayerResultsLeaderboardFlowManager>().AsSingle();
             Container.BindInterfacesTo<ScoreSaberMultiplayerLevelSelectionLeaderboardFlowManager>().AsSingle();
 
-            Container.BindInterfacesTo<ScoreSaberFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.BindInterfacesAndSelfTo<ScoreSaberFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesTo<ScoreSaberSettingsFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 
             List<ProfilePictureView> Imageholder = Enumerable.Range(0, 10).Select(x => new ProfilePictureView(x)).ToList();

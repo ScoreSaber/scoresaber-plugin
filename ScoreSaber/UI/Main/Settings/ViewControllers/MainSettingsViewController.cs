@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.ViewControllers;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Services;
+using ScoreSaber.UI.ViewControllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
     internal class MainSettingsViewController : BSMLAutomaticViewController 
     {
         [Inject] private readonly ScoreSaberRichPresenceService _richPresenceService = null;
+        [Inject] private readonly MenuButtonView _menuButtonView = null;
 
         // NORMAL SETTINGS
         [UIValue("showScorePP")]
@@ -157,6 +159,15 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
             set {
                 Plugin.Settings.enableRichPresence = value;
                 _richPresenceService.ToggleRichPresence(value);
+            }
+        }
+
+        [UIValue("showMainMenuButton")]
+        public bool ShowMainMenuButton {
+            get => Plugin.Settings.showMainMenuButton;
+            set {
+                Plugin.Settings.showMainMenuButton = value;
+                _menuButtonView.MenuButtonVisibilityChanged?.Invoke(value);
             }
         }
     }

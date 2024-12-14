@@ -102,17 +102,19 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private PlayerService _playerService = null;
         private TimeTweeningManager _timeTweeningManager = null;
+        private ScoreSaberFlowCoordinator _scoresaberFlowCoordinator = null;
 
         private Color _scoreSaberBlue;
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
         internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
 
         [Inject]
-        protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager) {
+        protected void Construct(PlayerService playerService, TimeTweeningManager timeTweeningManager, ScoreSaberFlowCoordinator scoreSaberFlowCoordinator) {
             _scoreSaberBlue = new Color(0f, 0.4705882f, 0.7254902f);
             _theWilliamGradient = new Gradient { mode = GradientMode.Blend, colorKeys = new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(new Color(1f, 0.5f, 0f), 0.17f), new GradientColorKey(Color.yellow, 0.34f), new GradientColorKey(Color.green, 0.51f), new GradientColorKey(Color.blue, 0.68f), new GradientColorKey(new Color(0.5f, 0f, 0.5f), 0.85f), new GradientColorKey(Color.red, 1.15f) } };
             _playerService = playerService;
             _timeTweeningManager = timeTweeningManager;
+            _scoresaberFlowCoordinator = scoreSaberFlowCoordinator;
             Plugin.Log.Debug("PanelView Setup!");
         }
 
@@ -156,7 +158,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 Settings.SaveSettings(Plugin.Settings);
             }
             if (_playerService.loginStatus == PlayerService.LoginStatus.Success) {
-                ScoreSaberFlowCoordinator.ShowMainFlowCoordinator();
+                _scoresaberFlowCoordinator.ShowMainFlowCoordinator();
             }
         }
 

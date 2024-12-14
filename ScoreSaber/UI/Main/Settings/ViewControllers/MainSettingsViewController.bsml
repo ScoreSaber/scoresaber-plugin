@@ -4,6 +4,7 @@
 		<tab tab-name='Main' tags='tabs'>
 			<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
 				<toggle-setting text='Enable Rich Presence' id='enableRichPresenceSetting' value='enableRichPresence' bind-value='true' apply-on-change='true' />
+				<toggle-setting text='Show Main Menu Button' id='showMainMenuButtonSetting' value='showMainMenuButton' bind-value='true' apply-on-change='true' />
 			</modifier-container>
 		</tab>
 		<tab tab-name='Leaderboard' tags='tabs'>

@@ -46,7 +46,7 @@ namespace ScoreSaber.Core.AffinityPatches {
                 gameMode = GameMode.practice;
 
                 // this is to privatise the practice mode song, as it would be exposed in the rich presence, still not shown in UI though.
-                var songeventPrivate = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
+                var songEventPrivate = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
                                     "PRACTICE",
                                     string.Empty,
                                     "PRACTICE AUTHOR",
@@ -58,7 +58,7 @@ namespace ScoreSaber.Core.AffinityPatches {
                                     0,
                                     1);
 
-                _richPresenceService.SendUserProfileChannel("start_song", songeventPrivate);
+                _richPresenceService.SendUserProfileChannel("start_song", songEventPrivate);
                 return;
             }
 
@@ -68,9 +68,9 @@ namespace ScoreSaber.Core.AffinityPatches {
                 startTime = (int)__instance._practiceViewController._practiceSettings.startSongTime;
             }
 
-            var songevent = CreateSongStartEvent(__instance.selectedBeatmapLevel, __instance.selectedBeatmapKey, gameplayModifiers, startTime, gameMode);
+            var songEvent = CreateSongStartEvent(__instance.selectedBeatmapLevel, __instance.selectedBeatmapKey, gameplayModifiers, startTime, gameMode);
 
-            _richPresenceService.SendUserProfileChannel("start_song", songevent);
+            _richPresenceService.SendUserProfileChannel("start_song", songEvent);
         }
 
         [AffinityPatch(typeof(MultiplayerLevelSelectionFlowCoordinator), nameof(MultiplayerLevelSelectionFlowCoordinator.HandleLobbyGameStateControllerGameStarted))]

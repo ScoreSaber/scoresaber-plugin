@@ -3,6 +3,7 @@ using HMUI;
 using ScoreSaber.UI.Main.ViewControllers;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject; 
 
 namespace ScoreSaber.UI.Main
@@ -39,7 +40,7 @@ namespace ScoreSaber.UI.Main
             _lastFlowCoordinator.DismissFlowCoordinator(this);
         }
         
-        internal static void ShowMainFlowCoordinator() {
+        internal void ShowMainFlowCoordinator() {
 
             ScoreSaberFlowCoordinator flowCoordinator = Resources.FindObjectsOfTypeAll<ScoreSaberFlowCoordinator>().FirstOrDefault();
             if (flowCoordinator != null) {

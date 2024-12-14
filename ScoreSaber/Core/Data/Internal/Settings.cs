@@ -42,6 +42,7 @@ namespace ScoreSaber.Core.Data
         public bool hideWatermarkIfUsersReplay { get; set; }
         public bool enableRichPresence { get; set; }
         public bool hasAcceptedRichPresenceDisclaimer { get; set; }
+        public bool showMainMenuButton { get; set; }
 
         internal static string dataPath => "UserData";
         internal static string configPath => dataPath + @"\ScoreSaber";
@@ -77,6 +78,7 @@ namespace ScoreSaber.Core.Data
             hideWatermarkIfUsersReplay = false;
             enableRichPresence = false;
             hasAcceptedRichPresenceDisclaimer = false;
+            showMainMenuButton = true;
             SetDefaultSpectatorPositions();
         }
 
@@ -132,6 +134,7 @@ namespace ScoreSaber.Core.Data
                         decoded.enableRichPresence = false;
                         decoded.hasAcceptedRichPresenceDisclaimer = false;
                         decoded.hideWatermarkIfUsersReplay = false;
+                        decoded.showMainMenuButton = true;
                     }
                     SaveSettings(decoded);
                 }
