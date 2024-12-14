@@ -399,10 +399,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             UnityMainThreadTaskScheduler.Factory.StartNew(async() => {
                 if (!Plugin.Settings.hasAcceptedRichPresenceDisclaimer) {
-                    await Task.Yield();
-                    while (leaderboardTableView.gameObject.activeSelf) {
-                        await Task.Yield();
-                    }
+                    await Task.Delay(10); // seems to be consistent? // no idea exactly why // yield didnt work
                     ShowRichPresenceDisclaimer();
                 }
             });
