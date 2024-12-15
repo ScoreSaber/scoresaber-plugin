@@ -31,18 +31,20 @@ namespace ScoreSaber.Core.Daemons {
         private readonly PlayerService _playerService = null;
         private readonly ReplayService _replayService = null;
         private readonly LeaderboardService _leaderboardService = null;
+        private readonly ScoreSaberHttpClient _scoreSaberHttpClient = null;
 
         private readonly PlayerDataModel _playerDataModel = null;
         private readonly MaxScoreCache _maxScoreCache = null;
 
         private const string UPLOAD_SECRET = "f0b4a81c9bd3ded1081b365f7628781f";
 
-        public UploadDaemon(PlayerService playerService, LeaderboardService leaderboardService, ReplayService replayService, PlayerDataModel playerDataModel, MaxScoreCache maxScoreCache) {
+        public UploadDaemon(PlayerService playerService, LeaderboardService leaderboardService, ReplayService replayService, PlayerDataModel playerDataModel, MaxScoreCache maxScoreCache, ScoreSaberHttpClient scoreSaberHttpClient) {
             _playerService = playerService;
             _replayService = replayService;
             _leaderboardService = leaderboardService;
             _playerDataModel = playerDataModel;
             _maxScoreCache = maxScoreCache;
+            _scoreSaberHttpClient = scoreSaberHttpClient;
 
             SetupUploader();
             Plugin.Log.Debug("Upload service setup!");
@@ -207,7 +209,7 @@ namespace ScoreSaber.Core.Daemons {
                     Plugin.Log.Info("Attempting score upload...");
                     UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Uploading score...");
                     try {
-                        response = await Plugin.Client.PostAsync<UploadResponse>(new UploadRequest(), form);
+                        response = await _scoreSaberHttpClient.PostAsync<UploadResponse>(new UploadRequest(), form);
                     } catch (HttpRequestException httpException) {
                         if (httpException.IsScoreSaberError) {
                             Plugin.Log.Error($"Failed to upload score: {httpException.ScoreSaberError.errorMessage}:{httpException}");

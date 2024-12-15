@@ -4,9 +4,11 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using Newtonsoft.Json;
 using ScoreSaber.Core.Data.Models;
+using ScoreSaber.Core.Http;
 using ScoreSaber.UI.Elements.Team;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Zenject;
 
 namespace ScoreSaber.UI.Main.ViewControllers
 {
@@ -25,6 +27,8 @@ namespace ScoreSaber.UI.Main.ViewControllers
 
             _tabSelector.transform.localScale *= 0.75f;
         }
+
+        [Inject] ScoreSaberHttpClient _scoresaberHttpClient = null;
 
         protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
@@ -80,7 +84,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
 
         public async Task<ScoreSaberTeam> GetTeam() {
 
-            var response = await Plugin.Client.GetRawAsync("raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/team.json");
+            var response = await _scoresaberHttpClient.GetRawAsync("raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/team.json");
             var teamData = JsonConvert.DeserializeObject<ScoreSaberTeam>(response);
             return teamData;
         }

@@ -32,8 +32,6 @@ namespace ScoreSaber {
 
         internal static Settings Settings { get; private set; }
 
-        internal static ScoreSaberHttpClient Client { get; private set; }
-
         internal static Material Furry;
         internal static Material NonFurry;
         internal static Material NoGlowMatRound;
@@ -53,7 +51,7 @@ namespace ScoreSaber {
 
 
             LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            Client = new ScoreSaberHttpClient(new("ScoreSaber-PC", LibVersion, 5, 120));
+            
 
             zenjector.UseLogger(logger);
             zenjector.Expose<ComboUIController>("Environment");
