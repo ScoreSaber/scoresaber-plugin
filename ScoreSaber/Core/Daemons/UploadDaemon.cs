@@ -132,33 +132,31 @@ namespace ScoreSaber.Core.Daemons {
         //This starts the upload processs
         async void Six(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LevelCompletionResults levelCompletionResults) {
 
-            if (!beatmapLevel.hasPrecalculatedData) {
-                int maxScore = await _maxScoreCache.GetMaxScore(beatmapLevel, beatmapKey);
+            int maxScore = await _maxScoreCache.GetMaxScore(beatmapLevel, beatmapKey);
 
-                if (levelCompletionResults.multipliedScore > maxScore) {
-                    UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload (score was impossible)");
-                    Plugin.Log.Debug($"Score was better than possible, not uploading!");
-                    return;
-                }
+            if (levelCompletionResults.multipliedScore > maxScore) {
+                UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload (score was impossible)");
+                Plugin.Log.Debug($"Score was better than possible, not uploading!");
+                return;
+            }
 
-                try {
-                    UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging score...");
-                    ScoreSaberUploadData data = ScoreSaberUploadData.Create(beatmapLevel, beatmapKey, levelCompletionResults, _playerService.localPlayerInfo, GetVersionHash());
-                    string scoreData = JsonConvert.SerializeObject(data);
+            try {
+                UploadStatusChanged?.Invoke(UploadStatus.Packaging, "Packaging score...");
+                ScoreSaberUploadData data = ScoreSaberUploadData.Create(beatmapLevel, beatmapKey, levelCompletionResults, _playerService.localPlayerInfo, GetVersionHash());
+                string scoreData = JsonConvert.SerializeObject(data);
 
-                    // TODO: Simplify now that we're open source
-                    byte[] encodedPassword = new UTF8Encoding().GetBytes($"{UPLOAD_SECRET}-{_playerService.localPlayerInfo.playerKey}-{_playerService.localPlayerInfo.playerId}-{UPLOAD_SECRET}");
-                    byte[] keyHash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
-                    string key = BitConverter.ToString(keyHash)
-                          .Replace("-", string.Empty)
-                          .ToLower();
+                // TODO: Simplify now that we're open source
+                byte[] encodedPassword = new UTF8Encoding().GetBytes($"{UPLOAD_SECRET}-{_playerService.localPlayerInfo.playerKey}-{_playerService.localPlayerInfo.playerId}-{UPLOAD_SECRET}");
+                byte[] keyHash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string key = BitConverter.ToString(keyHash)
+                        .Replace("-", string.Empty)
+                        .ToLower();
 
-                    string scoreDataHex = BitConverter.ToString(Swap(Encoding.UTF8.GetBytes(scoreData), Encoding.UTF8.GetBytes(key))).Replace("-", "");
-                    Seven(data, scoreDataHex, beatmapLevel, beatmapKey, levelCompletionResults).RunTask();
-                } catch (Exception ex) {
-                    UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score, error written to log.");
-                    Plugin.Log.Error($"Failed to upload score: {ex}");
-                }
+                string scoreDataHex = BitConverter.ToString(Swap(Encoding.UTF8.GetBytes(scoreData), Encoding.UTF8.GetBytes(key))).Replace("-", "");
+                Seven(data, scoreDataHex, beatmapLevel, beatmapKey, levelCompletionResults).RunTask();
+            } catch (Exception ex) {
+                UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload score, error written to log.");
+                Plugin.Log.Error($"Failed to upload score: {ex}");
             }
         }
 
@@ -205,11 +203,11 @@ namespace ScoreSaber.Core.Daemons {
                 // Start upload process
                 while (!done) {
                     uploading = true;
-                    UploadResponse response = null;
+                    string response = null;
                     Plugin.Log.Info("Attempting score upload...");
                     UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Uploading score...");
                     try {
-                        response = await _scoreSaberHttpClient.PostAsync<UploadResponse>(new UploadRequest(), form);
+                        response = await _scoreSaberHttpClient.PostRawAsync(new UploadRequest().BuildUrl(), form); // this endpoint doesnt give back json, just a raw string, so we have to use PostRawAsync
                     } catch (HttpRequestException httpException) {
                         if (httpException.IsScoreSaberError) {
                             Plugin.Log.Error($"Failed to upload score: {httpException.ScoreSaberError.errorMessage}:{httpException}");
@@ -220,11 +218,11 @@ namespace ScoreSaber.Core.Daemons {
                         Plugin.Log.Error($"Failed to upload score: {ex.ToString()}");
                     }
 
-                    if (!string.IsNullOrEmpty(response.Message)) {
-                        if (response.Message.Contains("uploaded")) {
+                    if (!string.IsNullOrEmpty(response)) {
+                        if (response.Contains("uploaded")) {
                             done = true;
                         } else {
-                            if (response.Message == "banned") {
+                            if (response == "banned") {
                                 UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload (banned)");
                                 done = true;
                                 failed = true;
