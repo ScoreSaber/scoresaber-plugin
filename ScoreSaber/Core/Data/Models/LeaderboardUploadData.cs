@@ -68,7 +68,7 @@ namespace ScoreSaber.Core.Data.Models {
             data.songName = beatmapLevel.songName;
             data.songSubName = beatmapLevel.songSubName;
             data.songAuthorName = beatmapLevel.songAuthorName;
-            data.levelAuthorName = BeatmapUtils.FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters);
+            data.levelAuthorName = BeatmapUtils.FriendlyLevelAuthorName(beatmapLevel.allMappers, beatmapLevel.allLighters) ?? "";
             data.bpm = Convert.ToInt32(beatmapLevel.beatsPerMinute);
 
             data.playerName = playerInfo.playerName;
