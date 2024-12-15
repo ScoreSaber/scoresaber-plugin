@@ -6,6 +6,10 @@ using IPA.Config.Data;
 using IPA.Utilities;
 using IPA.Utilities.Async;
 using ScoreSaber.Core.Data.Models;
+using ScoreSaber.Core.Http;
+using ScoreSaber.Core.Http.Configuration;
+using ScoreSaber.Core.Http.Endpoints.CDN;
+using ScoreSaber.Core.Http.Endpoints.Web;
 using ScoreSaber.Core.Services;
 using ScoreSaber.Core.Utils;
 using ScoreSaber.Extensions;
@@ -31,7 +35,6 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private const string MapCoverURL = "https://cdn.scoresaber.com/covers/";
         private const string OnlineResource = "ScoreSaber.Resources.Online.png";
         private const string OfflineResource = "ScoreSaber.Resources.Offline.png";
 
@@ -225,7 +228,7 @@ namespace ScoreSaber.UI.Elements.Profile {
 
         [UIAction("profile-url-click")]
         private void ProfileURLClicked() {
-            Application.OpenURL($"https://scoresaber.com/u/{_playerInfo.id}");
+            Application.OpenURL(new WebUser(_playerInfo.id).BuildUrl());
         }
 
         [UIAction("#post-parse")]
@@ -315,13 +318,13 @@ namespace ScoreSaber.UI.Elements.Profile {
                     mapTime = difference.ToNaturalTime(2, false) + " ago";
                     mapPresence.gameObject.SetActive(true);
                     mapPresenceTitle.gameObject.SetActive(true);
-                    mapImagePresence.SetImageAsync($"{MapCoverURL}{_richPresence.state.currentMap.Hash}.png").RunTask();
+                    mapImagePresence.SetImageAsync(new SongCover(_richPresence.state.currentMap.Hash).BuildUrl()).RunTask();
                 }
                 Plugin.Log.Notice(_richPresence.state.Scene.ToString());
                 if (_richPresence != null) {
                     SetRichStatus(_richPresence.state.Scene);
                 }
-            } catch(HttpErrorException ex) {
+            } catch(HttpRequestException ex) {
                 Plugin.Log.Error(ex.Message);
             }
         }

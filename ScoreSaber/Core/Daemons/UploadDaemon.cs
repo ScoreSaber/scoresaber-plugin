@@ -15,6 +15,9 @@ using UnityEngine;
 using ScoreSaber.Core.Utils;
 using static ScoreSaber.UI.Leaderboard.ScoreSaberLeaderboardViewController;
 using System.Threading;
+using ScoreSaber.Core.Http;
+using ScoreSaber.Core.Http.Configuration;
+using ScoreSaber.Core.Http.Endpoints.API;
 
 namespace ScoreSaber.Core.Daemons {
 
@@ -200,26 +203,26 @@ namespace ScoreSaber.Core.Daemons {
                 // Start upload process
                 while (!done) {
                     uploading = true;
-                    string response = null;
+                    UploadResponse response = null;
                     Plugin.Log.Info("Attempting score upload...");
                     UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Uploading score...");
                     try {
-                        response = await Plugin.HttpInstance.PostAsync("/api/game/upload", form);
-                    } catch (HttpErrorException httpException) {
-                        if (httpException.isScoreSaberError) {
-                            Plugin.Log.Error($"Failed to upload score: {httpException.scoreSaberError.errorMessage}:{httpException}");
+                        response = await Plugin.Client.PostAsync<UploadResponse>(new UploadRequest(), form);
+                    } catch (HttpRequestException httpException) {
+                        if (httpException.IsScoreSaberError) {
+                            Plugin.Log.Error($"Failed to upload score: {httpException.ScoreSaberError.errorMessage}:{httpException}");
                         } else {
-                            Plugin.Log.Error($"Failed to upload score: {httpException.isNetworkError}:{httpException.isHttpError}:{httpException}");
+                            Plugin.Log.Error($"Failed to upload score: {httpException.IsNetworkError}:{httpException.IsHttpError}:{httpException}");
                         }
                     } catch (Exception ex) {
                         Plugin.Log.Error($"Failed to upload score: {ex.ToString()}");
                     }
 
-                    if (!string.IsNullOrEmpty(response)) {
-                        if (response.Contains("uploaded")) {
+                    if (!string.IsNullOrEmpty(response.Message)) {
+                        if (response.Message.Contains("uploaded")) {
                             done = true;
                         } else {
-                            if (response == "banned") {
+                            if (response.Message == "banned") {
                                 UploadStatusChanged?.Invoke(UploadStatus.Error, "Failed to upload (banned)");
                                 done = true;
                                 failed = true;

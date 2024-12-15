@@ -1,6 +1,7 @@
 ﻿using System;
 using HarmonyLib;
 using Newtonsoft.Json.Converters;
+#nullable enable
 using Newtonsoft.Json;
 using Phoenix;
 using SiraUtil.Affinity;
@@ -14,16 +15,17 @@ using System.Threading.Tasks;
 using System.Linq;
 using ScoreSaber.Core.Phoenix;
 using ScoreSaber.Core.Data.Models;
+using ScoreSaber.Core.Http;
 
 namespace ScoreSaber.Core.Services {
-    internal class ScoreSaberRichPresenceService : IDisposable {
-        [Inject] private readonly SiraLog _log = null;
-        [Inject] private readonly PlayerService _playerService = null;
-
-        private Socket _socket;
+    internal class RichPresenceService : IDisposable {
+        private readonly SiraLog _log;
+        private readonly PlayerService _playerService;
+        private readonly ScoreSaberHttpClient _client;
+        private Socket? _socket;
         private bool _isDisposed;
         private bool _isEnabled = true;
-        private Channel _userProfileChannel;
+        private Channel? _userProfileChannel;
 
         private const int MaxRetries = 5;
         private int _retryAttempt = 0;
@@ -31,6 +33,16 @@ namespace ScoreSaber.Core.Services {
         private const string _socketAddress = "/socket"; // change to scoresaber subdomain once ready. wss://realtime.scoresaber.com/socket
 
         public string TimeRightNow => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+
+        public RichPresenceService(
+    SiraLog log,
+    PlayerService playerService,
+    ScoreSaberHttpClient client) {
+            _log = log;
+            _playerService = playerService;
+            _client = client;
+        }
+
 
         public void Initialize() {
             if (_socket != null) {
@@ -40,19 +52,20 @@ namespace ScoreSaber.Core.Services {
 
             DisconnectSocket();
 
-            if (Plugin.Settings.enableRichPresence == false) {
+            if (!Plugin.Settings.enableRichPresence) {
                 _log.Warn("Rich presence is disabled in settings.");
                 return;
             }
 
             try {
                 var socketOptions = new Socket.Options(new JsonMessageSerializer());
-                var socketAddress = _protocolAndSubdomain + Plugin.HttpInstance.options.baseURL + _socketAddress;
                 var socketFactory = new WebsocketSharpFactory();
-                _socket = new Socket(socketAddress, new System.Collections.Generic.Dictionary<string, string>
-                {
-                { "sid", _playerService.localPlayerInfo.serverKey }
-                }, socketFactory, socketOptions);
+                _socket = new Socket(
+                    new Http.Endpoints.Realtime.SocketPath().BuildUrl(),
+                    new System.Collections.Generic.Dictionary<string, string>(),
+                    socketFactory,
+                    socketOptions
+                );
 
                 _socket.OnOpen += OnOpenCallback;
                 _socket.OnClose += OnCloseCallback;

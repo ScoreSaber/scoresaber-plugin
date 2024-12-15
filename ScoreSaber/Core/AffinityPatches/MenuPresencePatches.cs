@@ -14,7 +14,7 @@ using Zenject;
 namespace ScoreSaber.Core.AffinityPatches {
     public class MenuPresencePatches : IAffinity {
 
-        [Inject] private readonly ScoreSaberRichPresenceService _richPresenceService = null;
+        [Inject] private readonly RichPresenceService _richPresenceService = null;
 
         [AffinityPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "HandleStandardLevelDidFinish")]
         [AffinityPostfix]

@@ -1,11 +1,14 @@
 ﻿using Newtonsoft.Json;
 using ScoreSaber.Core.Data.Models;
+using ScoreSaber.Core.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ScoreSaber.Core.Services {
 
     internal class GlobalLeaderboardService {
+
+        private readonly ScoreSaberHttpClient client;
 
         public enum GlobalPlayerScope {
             Global,
@@ -15,41 +18,14 @@ namespace ScoreSaber.Core.Services {
             Region
         }
 
-        public GlobalLeaderboardService() {
+        public GlobalLeaderboardService(ScoreSaberHttpClient scoreSaberHttpClient) {
+            client = scoreSaberHttpClient;
             Plugin.Log.Debug("GlobalLeaderboardService Setup");
         }
 
         public async Task<PlayerInfo[]> GetPlayerList(GlobalPlayerScope scope, int page) {
-
-            string url = BuildUrl(scope, page);
-
-            var response = await Plugin.HttpInstance.GetAsync(url);
-            var globalLeaderboardData = JsonConvert.DeserializeObject<PlayerCollection>(response);
-            return globalLeaderboardData.players;
+            var response = await client.GetAsync<PlayerCollection>(new Http.Endpoints.API.GlobalLeaderboardRequest(scope, page));
+            return response.players;
         }
-
-        private string BuildUrl(GlobalPlayerScope scope, int page) {
-
-            string url = "/api/game/players";
-            switch (scope) {
-                case GlobalPlayerScope.Global:
-                    url = $"{url}?page={page}";
-                    break;
-                case GlobalPlayerScope.AroundPlayer:
-                    url = $"{url}/around-player";
-                    break;
-                case GlobalPlayerScope.Friends:
-                    url = $"{url}/around-friends?page={page}";
-                    break;
-                case GlobalPlayerScope.Country:
-                    url = $"{url}/around-country?page={page}";
-                    break;
-                case GlobalPlayerScope.Region:
-                    url = $"{url}/around-region?page={page}";
-                    break;
-            }
-            return url;
-        }
-
     }
 }

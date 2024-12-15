@@ -20,6 +20,7 @@ using IPA.Config.Data;
 using TMPro;
 using ScoreSaber.UI.Elements.Leaderboard;
 using System.Threading;
+using ScoreSaber.Core.Http;
 
 namespace ScoreSaber.UI.Leaderboard {
     [HotReload]
@@ -365,13 +366,13 @@ namespace ScoreSaber.UI.Leaderboard {
                     SetCountryRanking("Hidden", _currentPlayerInfo.country);
                 }
                 Loaded(true);
-            } catch (HttpErrorException ex) {
-                if (ex.isScoreSaberError) {
-                    if (ex.scoreSaberError.errorMessage == "Player not found") {
+            } catch (HttpRequestException ex) {
+                if (ex.IsScoreSaberError) {
+                    if (ex.ScoreSaberError.errorMessage == "Player not found") {
                         SetGlobalRanking("Welcome to ScoreSaber! Set a score to create a profile", false);
                         SetCountryRanking("", _currentPlayerInfo.country, false);
                     } else {
-                        SetGlobalRanking($"Failed to load player ranking: {ex.scoreSaberError.errorMessage}", false);
+                        SetGlobalRanking($"Failed to load player ranking: {ex.ScoreSaberError.errorMessage}", false);
                         SetCountryRanking("", _currentPlayerInfo.country, false);
                     }
                 } else {

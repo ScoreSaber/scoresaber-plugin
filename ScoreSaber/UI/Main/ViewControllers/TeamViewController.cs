@@ -80,7 +80,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
 
         public async Task<ScoreSaberTeam> GetTeam() {
 
-            var response = await Plugin.HttpInstance.GetRawAsync("raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/team.json");
+            var response = await Plugin.Client.GetRawAsync("raw.githubusercontent.com/Umbranoxio/ScoreSaber-Team/main/team.json");
             var teamData = JsonConvert.DeserializeObject<ScoreSaberTeam>(response);
             return teamData;
         }

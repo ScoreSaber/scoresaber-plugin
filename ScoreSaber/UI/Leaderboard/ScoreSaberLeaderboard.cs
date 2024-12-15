@@ -26,7 +26,7 @@ namespace ScoreSaber.UI.Leaderboard {
             _manager = customLeaderboardManager;
             _manager.Register(this);
             _playerService = playerService;
-            _playerService.GetLocalPlayerInfo();
+            _playerService.SignIn();
         }
 
         protected override ViewController panelViewController { get; }

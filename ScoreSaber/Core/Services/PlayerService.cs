@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿#nullable enable
+using Newtonsoft.Json;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
+using ScoreSaber.Core.Http;
 using ScoreSaber.Extensions;
 using System;
 using System.IO;
@@ -13,9 +15,10 @@ using UnityEngine;
 namespace ScoreSaber.Core.Services {
     internal class PlayerService {
 
-        public LocalPlayerInfo localPlayerInfo { get; set; }
+        private readonly ScoreSaberHttpClient client;
+        public LocalPlayerInfo? localPlayerInfo { get; set; }
         public LoginStatus loginStatus { get; set; }
-        public event Action<LoginStatus, string> LoginStatusChanged;
+        public event Action<LoginStatus, string>? LoginStatusChanged;
         public enum LoginStatus {
             None = 0,
             InProgress = 1,
@@ -23,9 +26,8 @@ namespace ScoreSaber.Core.Services {
             Success = 3
         }
 
-        private string RichPresenceUrl = "https://realtime." + Plugin.HttpInstance.options.baseURL + "/user/"; // https://realtime.scoresaber.com
-
-        public PlayerService() {
+        public PlayerService(ScoreSaberHttpClient scoreSaberHttpClient) {
+            this.client = scoreSaberHttpClient;
             Plugin.Log.Debug("PlayerService Setup!");
         }
 
@@ -35,162 +37,101 @@ namespace ScoreSaber.Core.Services {
             LoginStatusChanged?.Invoke(loginStatus, status);
         }
 
-        public void GetLocalPlayerInfo() {
-
-            if (localPlayerInfo == null) {
-                SignIn().RunTask();
-            }
+        public void SignIn() {
+            if (localPlayerInfo != null) return;
+            SignInTask().RunTask();
         }
 
-        private async Task SignIn() {
-
-            if (loginStatus == LoginStatus.InProgress)
-                return;
-
+        private async Task SignInTask() {
+            if (loginStatus == LoginStatus.InProgress) return;
             ChangeLoginStatus(LoginStatus.InProgress, "Signing into ScoreSaber...");
-
             var platformUserModel = Plugin.Container.TryResolve<IPlatformUserModel>();
-            var authToken = await platformUserModel.GetUserAuthToken();
             var userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
-
-            var nonce = string.Empty;
-            var platform = string.Empty;
-
-            switch (userInfo.platform) {
-                case UserInfo.Platform.Steam:
-                    nonce = authToken.token;
-                    platform = "0";
-                    break;
-                case UserInfo.Platform.Oculus:
-                    nonce = authToken.token + "," + (await platformUserModel.RequestXPlatformAccessToken(CancellationToken.None)).token;
-                    platform = "1";
-                    break;
+            var authToken = await platformUserModel.GetUserAuthToken();
+            var (nonce, platform) = userInfo.platform switch {
+                UserInfo.Platform.Steam => (authToken.token, "0"),
+                UserInfo.Platform.Oculus => ($"{authToken.token},{(await platformUserModel.RequestXPlatformAccessToken(CancellationToken.None)).token}", "1"),
+                _ => (string.Empty, string.Empty)
+            };
+            if (string.IsNullOrEmpty(nonce) || string.IsNullOrEmpty(platform)) {
+                ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber: Invalid platform");
+                return;
             }
-
-            var playerId = userInfo.platformUserId;
-            var playerName = userInfo.userName;
             var friendIds = await platformUserModel.GetUserFriendsUserIds(false);
-            var friends = string.Join(",", friendIds.Where(x => x != "0"));
-
-            var playerInfo = new LocalPlayerInfo(playerId, playerName, friends, platform, nonce);
-
-            int attempts = 1;
-
-            while (attempts < 4) {
-
-                var authenticated = await AuthenticateWithScoreSaber(playerInfo);
-
-                if (authenticated) {
+            var playerInfo = new LocalPlayerInfo(
+                userInfo.platformUserId,
+                userInfo.userName,
+                string.Join(",", friendIds.Where(x => x != "0")),
+                platform,
+                nonce
+            );
+            for (int attempt = 1; attempt <= 3; attempt++) {
+                if (await AuthenticateWithScoreSaber(playerInfo)) {
                     localPlayerInfo = playerInfo;
-                    string successText = "Successfully signed into ScoreSaber!";
-                    if (localPlayerInfo.playerId == PlayerIDs.Denyah)
-                        successText = "Wagwan piffting wots ur bbm pin?";
-
+                    var successText = localPlayerInfo.playerId == PlayerIDs.Denyah
+                        ? "Wagwan piffting wots ur bbm pin?"
+                        : "Successfully signed into ScoreSaber!";
                     ChangeLoginStatus(LoginStatus.Success, successText);
-                    break;
-                } else {
-                    ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempts} of 3 tries...)");
-                    attempts++;
-                    await Task.Delay(4000);
+                    return;
                 }
-
+                ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempt} of 3 tries...)");
+                await Task.Delay(4000);
             }
-
-            if (loginStatus != LoginStatus.Success) {
-                ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
-            }
+            ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
         }
 
         private async Task<bool> AuthenticateWithScoreSaber(LocalPlayerInfo playerInfo) {
-
-
-            if (Plugin.HttpInstance.PersistentRequestHeaders.ContainsKey("Cookies")) {
-                Plugin.HttpInstance.PersistentRequestHeaders.Remove("Cookies");
-            }
-
-            WWWForm form = new WWWForm();
-            form.AddField("at", playerInfo.authType);
-            form.AddField("playerId", playerInfo.playerId);
-            form.AddField("nonce", playerInfo.playerNonce);
-            form.AddField("friends", playerInfo.playerFriends);
-            form.AddField("name", playerInfo.playerName);
-
             try {
-                string response = await Plugin.HttpInstance.PostAsync("/api/game/auth", form);
-                var authResponse = JsonConvert.DeserializeObject<AuthResponse>(response);
-                playerInfo.playerKey = authResponse.a;
-                playerInfo.serverKey = authResponse.e;
-
-                Plugin.HttpInstance.PersistentRequestHeaders.Add("Cookies", $"connect.sid={playerInfo.serverKey}");
-                return true;
+                var request = new Http.Endpoints.API.Player.AuthenticateRequest(
+                    playerId: playerInfo.playerId,
+                    authType: playerInfo.authType,
+                    nonce: playerInfo.playerNonce,
+                    friends: playerInfo.playerFriends,
+                    name: playerInfo.playerName
+                );
+                var response = await client.PostAsync<AuthResponse>(request, request.Form);
+                if (response != null) {
+                    playerInfo.playerKey = response.a;
+                    playerInfo.serverKey = response.e;
+                    client.SetCookie($"connect.sid={playerInfo.serverKey}");
+                    return true;
+                }
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed user authentication: {ex.Message}");
-                return false;
             }
+            return false;
         }
 
         public async Task<PlayerInfo> GetPlayerInfo(string playerId, bool full) {
-
-            string url = $"/api/player/{playerId}";
-
-            if (full) {
-                url += "/full";
-            } else {
-                url += "/basic";
-            }
-
-            var response = await Plugin.HttpInstance.GetAsync(url);
-            var playerStats = JsonConvert.DeserializeObject<PlayerInfo>(response);
-            return playerStats;
+            var request = new Http.Endpoints.API.Player.ProfileRequest(playerId, full);
+            return await client.GetAsync<PlayerInfo>(request);
         }
-
-        public async Task<RichPresenceResponse> GetRichPresence(string playerId) {
-
-            string response = await Plugin.HttpInstance.GetRawAsync($"{RichPresenceUrl}{playerId}");
-            if (response == null) {
+        public async Task<RichPresenceResponse?> GetRichPresence(string playerId) {
+            try {
+                var request = new Http.Endpoints.Realtime.UserRequest(playerId);
+                return await client.GetAsync<RichPresenceResponse>(request);
+            } catch {
                 return null;
             }
-            var richPresence = JsonConvert.DeserializeObject<RichPresenceResponse>(response);
-            if (richPresence == null) {
-                return null;
-            }
-            return richPresence;
         }
 
         public async Task<byte[]> GetReplayData(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, int leaderboardId, ScoreMap scoreMap) {
-
             if (scoreMap.hasLocalReplay) {
-                string replayPath = GetReplayPath(scoreMap.parent.songHash, beatmapKey.difficulty.SerializedName(), beatmapKey.beatmapCharacteristic.serializedName, scoreMap.score.leaderboardPlayerInfo.id, beatmapLevel.songName);
-                if (replayPath != null) {
-                    return File.ReadAllBytes(replayPath);
-                }
+                var replayPath = GetReplayPath(scoreMap.parent.songHash, beatmapKey.difficulty.SerializedName(),
+                    beatmapKey.beatmapCharacteristic.serializedName, scoreMap.score.leaderboardPlayerInfo.id, beatmapLevel.songName);
+                if (replayPath != null) return File.ReadAllBytes(replayPath);
             }
-
-            byte[] response = await Plugin.HttpInstance.DownloadAsync($"/api/game/telemetry/downloadReplay?playerId={scoreMap.score.leaderboardPlayerInfo.id}&leaderboardId={leaderboardId}");
-
-            if (response != null) {
-                return response;
-            } else {
-                throw new Exception("Failed to download replay");
-            }
+            var response = await client.DownloadAsync(new Http.Endpoints.API.Player.ReplayRequest(scoreMap.score.leaderboardPlayerInfo.id, leaderboardId.ToString()));
+            if (response != null) return response;
+            throw new Exception("Failed to download replay");
         }
 
-        private string GetReplayPath(string levelId, string difficultyName, string characteristic, string playerId, string songName) {
-
-            songName = songName.ReplaceInvalidChars().Truncate(155);
-
-            string path = $@"{Settings.replayPath}\{playerId}-{songName}-{difficultyName}-{characteristic}-{levelId}.dat";
-            if (File.Exists(path)) {
-                return path;
-            }
-
-            string legacyPath = $@"{Settings.replayPath}\{playerId}-{songName}-{levelId}.dat";
-            if (File.Exists(legacyPath)) {
-                return legacyPath;
-            }
-
-            return null;
+        private string? GetReplayPath(string levelId, string difficultyName, string characteristic, string playerId, string songName) {
+            var sanitizedSongName = songName.ReplaceInvalidChars().Truncate(155);
+            var fullPath = $@"{Settings.replayPath}\{playerId}-{sanitizedSongName}-{difficultyName}-{characteristic}-{levelId}.dat";
+            if (File.Exists(fullPath)) return fullPath;
+            var legacyPath = $@"{Settings.replayPath}\{playerId}-{sanitizedSongName}-{levelId}.dat";
+            return File.Exists(legacyPath) ? legacyPath : null;
         }
-
     }
 }

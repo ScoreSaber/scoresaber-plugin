@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿#nullable enable
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using ScoreSaber.Core.Data.Wrappers;
 using ScoreSaber.Core.Data.Models;
@@ -6,100 +7,65 @@ using System;
 using System.Linq;
 using ScoreSaber.UI.Leaderboard;
 using System.Collections.Generic;
+using ScoreSaber.Core.Http;
 
 namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
 
-        public LeaderboardMap currentLoadedLeaderboard = null;
-        public CustomLevelLoader customLevelLoader = null;
-        public BeatmapDataLoader beatmapDataLoader = null;
+        private readonly ScoreSaberHttpClient client;
+        public LeaderboardMap? currentLoadedLeaderboard;
+        public CustomLevelLoader? customLevelLoader = null;
+        public BeatmapDataLoader? beatmapDataLoader = null;
 
-        public LeaderboardService() {
+        public LeaderboardService(ScoreSaberHttpClient client) {
+            this.client = client;
             Plugin.Log.Debug("LeaderboardService Setup");
         }
 
-        public async Task<LeaderboardMap> GetLeaderboardData(int maxMultipliedScore, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page, PlayerSpecificSettings playerSpecificSettings) {
-
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, beatmapLevel, scope, page);
-            if (leaderboardUrl == null) {
-                currentLoadedLeaderboard = null;
-                return null;
-            }
-            string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
-            Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
-
+        public async Task<LeaderboardMap> GetLeaderboardData(
+            int maxMultipliedScore,
+            BeatmapLevel beatmapLevel,
+            BeatmapKey beatmapKey,
+            ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope,
+            int page) {
+            var leaderboardData = await client.GetAsync<Leaderboard>(new Http.Endpoints.API.LeaderboardRequest(
+                leaderboardId: beatmapLevel.hasPrecalculatedData
+                    ? "ost_" + beatmapLevel.levelID
+                    : beatmapKey.levelId.Split('_')[2],
+                gameMode: $"Solo{beatmapKey.beatmapCharacteristic.serializedName}",
+                difficulty: BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty).ToString(),
+                scope: scope,
+                page: page,
+                hideNA: Plugin.Settings.hideNAScoresFromLeaderboard
+            ));
             Plugin.Log.Debug($"Current leaderboard set to: {beatmapKey.levelId}:{beatmapLevel.songName}");
             currentLoadedLeaderboard = new LeaderboardMap(leaderboardData, beatmapLevel, beatmapKey, maxMultipliedScore);
             AddLeaderboardInfoMapToCache(currentLoadedLeaderboard.leaderboardInfoMap.beatmapKey, currentLoadedLeaderboard.leaderboardInfoMap);
             return currentLoadedLeaderboard;
         }
 
-        public async Task<Leaderboard> GetCurrentLeaderboard(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel) {
 
-            string leaderboardUrl = GetLeaderboardUrl(beatmapKey, beatmapLevel, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global, 1);
-
-            int attempts = 0;
-            while (attempts < 4) {
+        public async Task<Leaderboard?> GetCurrentLeaderboard(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel) {
+            const int maxAttempts = 4;
+            const int retryDelayMs = 1000;
+            var request = new Http.Endpoints.API.LeaderboardRequest(
+                leaderboardId: beatmapLevel.hasPrecalculatedData
+                    ? "ost_" + beatmapLevel.levelID
+                    : beatmapKey.levelId.Split('_')[2],
+                gameMode: $"Solo{beatmapKey.beatmapCharacteristic.serializedName}",
+                difficulty: BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty).ToString(),
+                scope: ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global
+            );
+            for (int attempt = 0; attempt < maxAttempts; attempt++) {
                 try {
-                    string leaderboardRawData = await Plugin.HttpInstance.GetAsync(leaderboardUrl);
-                    Leaderboard leaderboardData = JsonConvert.DeserializeObject<Leaderboard>(leaderboardRawData);
-                    return leaderboardData;
+                    return await client.GetAsync<Leaderboard>(request);
                 } catch (Exception) {
+                    if (attempt < maxAttempts - 1) {
+                        await Task.Delay(retryDelayMs);
+                    }
                 }
-                attempts++;
-                await Task.Delay(1000);
             }
             return null;
-        }
-      
-        private string GetLeaderboardUrl(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel, ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope, int page) {
-            
-            string url = "/api/game/leaderboard";
-
-            string leaderboardId = string.Empty;
-
-            if (beatmapLevel.hasPrecalculatedData) {
-                leaderboardId = "ost_" + beatmapLevel.levelID;
-            } else {
-                leaderboardId = beatmapKey.levelId.Split('_')[2];
-            }
-
-            string gameMode = $"Solo{beatmapKey.beatmapCharacteristic.serializedName}";
-            string difficulty = BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty).ToString();
-
-            bool hasPage = true;
-
-            switch (scope) {
-                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global:
-                    url = $"{url}/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                    break;
-                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Player:
-                    url = $"{url}/around-player/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}";
-                    hasPage = false;
-                    break;
-                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Friends:
-                    url = $"{url}/around-friends/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                    break;
-                case ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Area:
-                    if (Plugin.Settings.locationFilterMode.ToLower() == "region") {
-                        url = $"{url}/around-region/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                    } else if (Plugin.Settings.locationFilterMode.ToLower() == "country") {
-                        url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                    } else {
-                        Plugin.Log.Error("Invalid location filter mode, falling back to country");
-                        url = $"{url}/around-country/{leaderboardId}/mode/{gameMode}/difficulty/{difficulty}?page={page}";
-                    }
-                    break;
-            }
-
-            if (Plugin.Settings.hideNAScoresFromLeaderboard) {
-                if (hasPage)
-                    url = $"{url}&hideNA=1";
-                else 
-                    url = $"{url}?hideNA=1";
-            }
-
-            return url;
         }
 
         internal Dictionary<BeatmapKey, LeaderboardInfoMap> cachedLeaderboardInfoMaps = new Dictionary<BeatmapKey, LeaderboardInfoMap>();
@@ -107,7 +73,7 @@ namespace ScoreSaber.Core.Services {
         internal Queue<BeatmapKey> LBInfoCacheQueue = new Queue<BeatmapKey>();
         internal void MaintainLeaderboardInfoMapCache() {
             while (cachedLeaderboardInfoMaps.Count > MaxLBInfoCacheSize) {
-                BeatmapKey oldestUrl = LBInfoCacheQueue.Dequeue();
+                var oldestUrl = LBInfoCacheQueue.Dequeue();
                 cachedLeaderboardInfoMaps.Remove(oldestUrl);
             }
         }
@@ -121,11 +87,8 @@ namespace ScoreSaber.Core.Services {
             MaintainLeaderboardInfoMapCache();
         }
 
-        internal LeaderboardInfoMap GetLeaderboardInfoMapFromCache(BeatmapKey url) {
-            if (cachedLeaderboardInfoMaps.ContainsKey(url)) {
-                return cachedLeaderboardInfoMaps[url];
-            }
-            return null;
+        internal LeaderboardInfoMap? GetLeaderboardInfoMapFromCache(BeatmapKey url) {
+            return cachedLeaderboardInfoMaps.TryGetValue(url, out var map) ? map : null;
         }
     }
 }

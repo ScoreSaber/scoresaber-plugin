@@ -24,7 +24,7 @@ namespace ScoreSaber.UI.Multiplayer {
 
         private void GameServerLobbyFlowCoordinator_didSetupEvent() {
 
-            _playerService.GetLocalPlayerInfo();
+            _playerService.SignIn();
             _scoreSaberLeaderboardViewController.AllowReplayWatching(false);
         }
 

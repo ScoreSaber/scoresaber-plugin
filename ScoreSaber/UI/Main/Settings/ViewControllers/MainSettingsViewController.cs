@@ -14,7 +14,7 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
     [HotReload(RelativePathToLayout = @"./MainSettingsViewController.bsml")]
     internal class MainSettingsViewController : BSMLAutomaticViewController 
     {
-        [Inject] private readonly ScoreSaberRichPresenceService _richPresenceService = null;
+        [Inject] private readonly RichPresenceService _richPresenceService = null;
         [Inject] private readonly MenuButtonView _menuButtonView = null;
 
         // NORMAL SETTINGS

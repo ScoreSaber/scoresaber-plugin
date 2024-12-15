@@ -19,7 +19,7 @@ using UnityEngine.SceneManagement;
 using Zenject;
 using IPALogger = IPA.Logging.Logger;
 using ScoreSaber.Core.Utils;
-using System;
+using ScoreSaber.Core.Http;
 
 namespace ScoreSaber {
     [Plugin(RuntimeOptions.DynamicInit)]
@@ -32,7 +32,7 @@ namespace ScoreSaber {
 
         internal static Settings Settings { get; private set; }
 
-        internal static Http HttpInstance { get; private set; }
+        internal static ScoreSaberHttpClient Client { get; private set; }
 
         internal static Material Furry;
         internal static Material NonFurry;
@@ -51,6 +51,10 @@ namespace ScoreSaber {
             Instance = this;
             Metadata = metadata;
 
+
+            LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            Client = new ScoreSaberHttpClient(new("ScoreSaber-PC", LibVersion, 5, 120));
+
             zenjector.UseLogger(logger);
             zenjector.Expose<ComboUIController>("Environment");
             zenjector.Expose<GameEnergyUIPanel>("Environment");
@@ -62,8 +66,6 @@ namespace ScoreSaber {
             zenjector.Install<RecordInstaller, MultiplayerLocalActivePlayerInstaller>();
             zenjector.UseAutoBinder();
 
-            LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            HttpInstance = new Http(new HttpOptions() { baseURL = "scoresaber.com", applicationName = "ScoreSaber-PC", version = LibVersion });
             OpenXRManager.Initialize();
             SteamSettings.Initialize();
         }

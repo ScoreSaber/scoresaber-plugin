@@ -13,6 +13,9 @@ using ScoreSaber.Core.Daemons;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.Data.Models;
 using ScoreSaber.Core.Data.Wrappers;
+using ScoreSaber.Core.Http;
+using ScoreSaber.Core.Http.Configuration;
+using ScoreSaber.Core.Http.Endpoints.Web;
 using ScoreSaber.Core.ReplaySystem;
 using ScoreSaber.Core.ReplaySystem.Data;
 using ScoreSaber.Core.Services;
@@ -155,9 +158,8 @@ namespace ScoreSaber.UI.Leaderboard {
         [Inject] private readonly ReplayLoader _replayLoader = null;
         [Inject] private readonly PlayerService _playerService = null;
         [Inject] private readonly LeaderboardService _leaderboardService = null;
-        [Inject] private readonly PlayerDataModel _playerDataModel = null;
         [Inject] internal readonly PlatformLeaderboardViewController _platformLeaderboardViewController = null;
-        [Inject] internal readonly ScoreSaberRichPresenceService _scoresaberRichPresence = null;
+        [Inject] internal readonly RichPresenceService _scoresaberRichPresence = null;
         [Inject] private readonly MaxScoreCache _maxScoreCache = null;
         [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel = null;
         [Inject] private readonly TweeningUtils _tweeningUtils = null;
@@ -344,10 +346,10 @@ namespace ScoreSaber.UI.Leaderboard {
                     break;
             }
         }
-
+        
         [UIAction("OpenLeaderboardPage")]
         internal void OpenLeaderboardPage() {
-            Application.OpenURL($"{_leaderboardUrl}{_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id}");
+            Application.OpenURL(new WebLeaderboard(_leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap.leaderboardInfo.id.ToString()).BuildUrl());
         }
 
         [UIAction("MapInfoClicked")]
@@ -395,7 +397,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 Plugin.Settings.hasAcceptedRichPresenceDisclaimer = true;
                 _parserParams.EmitEvent("close-modals");
 
-            }, "Rich Presence is a feature that allows you to show your current status in Beat Saber to your friends. Would you like to enable this?\n(You can turn it off anytime in the ScoreSaber settings menu)");
+            }, "Rich Presence is a feature that allows you to display your current status in Beat Saber on your profile. Would you like to enable this?\n(You can turn it off anytime in the ScoreSaber settings menu)");
             _genericYesOrNoModal.Show(info);
             _parserParams.EmitEvent("present-yes-no-modal");
         }
@@ -516,7 +518,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
                 if (_currentLeaderboardRefreshId == refreshId) {
                     int maxMultipliedScore = await _maxScoreCache.GetMaxScore(beatmapLevel, beatmapKey);
-                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(maxMultipliedScore, beatmapLevel, beatmapKey, scope, leaderboardPage, _playerDataModel.playerData.playerSpecificSettings);
+                    LeaderboardMap leaderboardData = await _leaderboardService.GetLeaderboardData(maxMultipliedScore, beatmapLevel, beatmapKey, scope, leaderboardPage);
 
                     if (_currentLeaderboardRefreshId != refreshId) {
                         return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
@@ -560,7 +562,7 @@ namespace ScoreSaber.UI.Leaderboard {
                     }
                     PrettifyLeaderboardTableView(tableView, leaderboardData.scores, cancellationToken.Token);
                 }
-            } catch (HttpErrorException httpError) {
+            } catch (HttpRequestException httpError) {
                 SetErrorState(tableView, ref loadingControl, httpError);
             } catch (Exception exception) {
                 SetErrorState(tableView, ref loadingControl, null, exception);
@@ -581,16 +583,16 @@ namespace ScoreSaber.UI.Leaderboard {
             _scoreDetailView.AllowReplayWatching(value);
         }
 
-        private void SetErrorState(LeaderboardTableView tableView, ref GameObject loadingControl, HttpErrorException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
+        private void SetErrorState(LeaderboardTableView tableView, ref GameObject loadingControl, HttpRequestException httpErrorException = null, Exception exception = null, string errorText = "Failed to load leaderboard, score won't upload", bool showRefreshButton = true) {
             try {
                 SetClickersOff();
                 if (httpErrorException != null) {
-                    if (httpErrorException.isNetworkError) {
+                    if (httpErrorException.IsNetworkError) {
                         errorText = "Failed to load leaderboard due to a network error, score won't upload";
                         _leaderboardService.currentLoadedLeaderboard = null;
                     }
-                    if (httpErrorException.isScoreSaberError) {
-                        errorText = httpErrorException.scoreSaberError.errorMessage;
+                    if (httpErrorException.IsScoreSaberError) {
+                        errorText = httpErrorException.ScoreSaberError.errorMessage;
                         if (errorText == "Leaderboard not found") {
                             _leaderboardService.currentLoadedLeaderboard = null;
                         }
