@@ -101,7 +101,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             var previousState = audioTimeSyncController.state;
 
             _beatmapCallbacksUpdater.Pause();
-
             _basicBeatmapObjectManager._basicGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._burstSliderHeadGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._burstSliderGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
@@ -122,8 +121,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             if (previousState == AudioTimeSyncController.State.Playing)
                 audioTimeSyncController.Resume();
 
-            _beatmapCallbacksUpdater.Resume();
             _beatmapCallbacksUpdater.LateUpdate();
+            _beatmapCallbacksUpdater.Resume();
 
             UpdateTimes();
         }
