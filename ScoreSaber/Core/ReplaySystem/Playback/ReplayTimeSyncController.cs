@@ -93,29 +93,27 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         internal void OverrideTime(float time) {
             if (float.IsInfinity(time) || float.IsNaN(time) || Mathf.Abs(time - audioTimeSyncController._songTime) < 0.001f) return;
             time = Mathf.Clamp(time, audioTimeSyncController._startSongTime, audioTimeSyncController.songEndTime);
+            var previousState = audioTimeSyncController.state;
+
+            _beatmapCallbacksUpdater.Pause();
+            audioTimeSyncController.Pause();
 
             var _audioTimeSyncController = audioTimeSyncController; // UMBRAMEGALUL
             HarmonyPatches.CutSoundEffectOverride.Buffer = true;
             CancelAllHitSounds();
 
-            var previousState = audioTimeSyncController.state;
-
-            _beatmapCallbacksUpdater.Pause();
             _basicBeatmapObjectManager._basicGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._burstSliderHeadGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._burstSliderGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._bombNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._obstaclePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
 
-            audioTimeSyncController.Pause();
             _audioTimeSyncController._prevAudioSamplePos = -1;
             audioTimeSyncController.SeekTo(time / audioTimeSyncController.timeScale);
             _beatmapObjectCallbackController._prevSongTime = float.MinValue;
 
-            var beatmapDataCache = LocateBeatmapData(time);
-
             foreach (var callback in _beatmapObjectCallbackController._callbacksInTimes) {
-                callback.Value.lastProcessedNode = beatmapDataCache;
+                callback.Value.lastProcessedNode = LocateBeatmapData(time);
             }
 
             if (previousState == AudioTimeSyncController.State.Playing)

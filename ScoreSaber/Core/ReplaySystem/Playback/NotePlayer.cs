@@ -114,7 +114,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                 _noteCutInfoCache[activeEvent.NoteID] = noteCutInfo;
             }
 
-            _recognizedNoteCutInfos.Add(noteCutInfo, activeEvent);
+            if(!_recognizedNoteCutInfos.ContainsKey(noteCutInfo)) {
+                _recognizedNoteCutInfos.Add(noteCutInfo, activeEvent);
+            }
+
             noteController.SendNoteWasCutEvent(noteCutInfo);
             return true;
         }

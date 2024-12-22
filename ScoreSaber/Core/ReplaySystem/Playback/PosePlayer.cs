@@ -19,6 +19,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private readonly IFPFCSettings _fpfcSettings;
         private readonly SettingsManager _settingsManager;
         private readonly IReturnToMenuController _returnToMenuController;
+        private readonly PauseController _pauseController;
         public event Action<VRPoseGroup> DidUpdatePose;
         private PlayerTransforms _playerTransforms;
         private Camera _spectatorCamera;
@@ -28,7 +29,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private bool initialFPFCState;
 
-        public PosePlayer(ReplayFile file, MainCamera mainCamera, SaberManager saberManager, IReturnToMenuController returnToMenuController, IFPFCSettings fpfcSettings, PlayerTransforms playerTransforms, SettingsManager settingsManager) {
+        public PosePlayer(ReplayFile file, MainCamera mainCamera, SaberManager saberManager, IReturnToMenuController returnToMenuController, IFPFCSettings fpfcSettings, PlayerTransforms playerTransforms, SettingsManager settingsManager, PauseController pauseController) {
 
             _fpfcSettings = fpfcSettings;
             initialFPFCState = fpfcSettings.Enabled;
@@ -41,6 +42,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             _spectatorOffset = new Vector3(0f, 0f, -2f);
             _settingsManager = settingsManager;
             _playerTransforms = playerTransforms;
+            _pauseController = pauseController;
         }
 
         public void Initialize() {
@@ -104,11 +106,19 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             }
         }
 
+        private bool _replayReachedEnd = false;
+
         public void Tick() {
 
             if (ReachedEnd()) {
-                _returnToMenuController.ReturnToMenu();
+                _replayReachedEnd = true;
+                _pauseController.Pause();
                 return;
+            } else {
+                if (_replayReachedEnd) {
+                    _pauseController._gamePause.Resume();
+                    _replayReachedEnd = false;
+                }
             }
 
             bool foundPoseThisFrame = false;
