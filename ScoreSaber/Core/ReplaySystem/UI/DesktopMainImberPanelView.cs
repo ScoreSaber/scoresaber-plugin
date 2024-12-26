@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Core.Data;
+using SiraUtil.Affinity;
 using SiraUtil.Tools.FPFC;
 using System;
 using System.Collections;
@@ -22,7 +23,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
     [HotReload(RelativePathToLayout = @"desktop-imber-panel.bsml")]
     [ViewDefinition("ScoreSaber.Core.ReplaySystem.UI.desktop-imber-panel.bsml")]
-    internal class DesktopMainImberPanelView : BSMLAutomaticViewController, IDisposable {
+    internal class DesktopMainImberPanelView : BSMLAutomaticViewController, IAffinity, IDisposable {
 
         public event Action<XRNode> HandDidSwitchEvent;
         public event Action<float> DidTimeSyncChange;
@@ -330,6 +331,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         [UIAction("exit-replay")]
         protected void ExitReplay() {
+            _shouldReturnToMenu = true;
 
             _pauseMenuManager.MenuButtonPressed();
         }
@@ -350,6 +352,17 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
             float timebarActiveX = Mathf.Lerp(-19, 19, progressPercentage);
             timebarActive.rectTransform.anchoredPosition = new Vector2(timebarActiveX, 0);
+        }
+
+        private bool _shouldReturnToMenu = false;
+
+        [AffinityPrefix, AffinityPatch(typeof(GameSongController), nameof(GameSongController.SendSongDidFinishEvent))]
+        private bool StartLevelFinished() {
+            if (_shouldReturnToMenu) {
+                _shouldReturnToMenu = false;
+                return true;
+            }
+            return false;
         }
     }
 }

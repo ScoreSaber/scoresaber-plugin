@@ -22,7 +22,7 @@ using ScoreSaber.Core.Utils;
 using ScoreSaber.Core.Http;
 
 namespace ScoreSaber {
-    [Plugin(RuntimeOptions.DynamicInit)]
+    [Plugin(RuntimeOptions.SingleStartInit), NoEnableDisable]
     public class Plugin {
 
         internal static ReplayState ReplayState { get; set; }
@@ -49,9 +49,7 @@ namespace ScoreSaber {
             Instance = this;
             Metadata = metadata;
 
-
             LibVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            
 
             zenjector.UseLogger(logger);
             zenjector.Expose<ComboUIController>("Environment");
@@ -63,22 +61,14 @@ namespace ScoreSaber {
             zenjector.Install<RecordInstaller, StandardGameplayInstaller>();
             zenjector.Install<RecordInstaller, MultiplayerLocalActivePlayerInstaller>();
             zenjector.UseAutoBinder();
-
+            harmony = new Harmony("com.umbranox.BeatSaber.ScoreSaber");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
             OpenXRManager.Initialize();
             SteamSettings.Initialize();
-        }
-
-        [OnEnable]
-        public void OnEnable() {
             SceneManager.sceneLoaded += SceneLoaded;
             BeatSaberMarkupLanguage.Util.MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             Settings = Settings.LoadSettings();
             ReplayState = new ReplayState();
-            if (!Settings.disableScoreSaber) {
-                harmony = new Harmony("com.umbranox.BeatSaber.ScoreSaber");
-                harmony.PatchAll(Assembly.GetExecutingAssembly());
-                PlayerPrefs.SetInt("lbPatched", 1);
-            }
         }
 
         private void MainMenuInit() {
@@ -97,13 +87,6 @@ namespace ScoreSaber {
 
             yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<PlatformLeaderboardViewController>().Any());
             NoGlowMatRound = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "UINoGlowRoundEdge").First();
-        }
-
-
-        [OnDisable]
-        public void OnDisable() {
-
-            SceneManager.sceneLoaded -= SceneLoaded;
         }
 
         private static bool _scoreSubmission = true;

@@ -16,6 +16,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         private readonly SiraLog _siraLog;
         private readonly SaberManager _saberManager;
         private readonly NoteEvent[] _sortedNoteEvents;
+        private readonly NoteID[] _sortedNoteIDs;
         private readonly MemoryPoolContainer<GameNoteController> _gameNotePool;
         private readonly MemoryPoolContainer<GameNoteController> _burstSliderHeadNotePool;
         private readonly MemoryPoolContainer<BurstSliderGameNoteController> _burstSliderNotePool;
@@ -33,6 +34,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             _burstSliderNotePool = basicBeatmapObjectManager._burstSliderGameNotePoolContainer;
             _bombNotePool = basicBeatmapObjectManager._bombNotePoolContainer;
             _sortedNoteEvents = file.noteKeyframes.OrderBy(nk => nk.Time).ToArray();
+            _sortedNoteIDs = _sortedNoteEvents.Select(ne => ne.NoteID).ToArray();
         }
 
         public void Tick() {
@@ -84,32 +86,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
         private bool HandleEvent(NoteEvent activeEvent, NoteController noteController) {
             if (!_noteCutInfoCache.TryGetValue(activeEvent.NoteID, out NoteCutInfo noteCutInfo)) {
-                    
-                Saber correctSaber = noteController.noteData.colorType == ColorType.ColorA ? _saberManager.leftSaber : _saberManager.rightSaber;
-                var noteTransform = noteController.noteTransform;
 
-                noteCutInfo = new NoteCutInfo(noteController.noteData,
-                    activeEvent.SaberSpeed > 2f,
-                    activeEvent.DirectionOK,
-                    activeEvent.SaberType == (int)correctSaber.saberType,
-                    false,
-                    activeEvent.SaberSpeed,
-                    activeEvent.SaberDirection.Convert(),
-                    noteController.noteData.colorType == ColorType.ColorA ? SaberType.SaberA : SaberType.SaberB,
-                    noteController.noteData.time - activeEvent.Time,
-                    activeEvent.CutDirectionDeviation,
-                    activeEvent.CutPoint.Convert(),
-                    activeEvent.CutNormal.Convert(),
-                    activeEvent.CutDistanceToCenter,
-                    activeEvent.CutAngle,
-
-                    noteController.worldRotation,
-                    noteController.inverseWorldRotation,
-                    noteTransform.rotation,
-                    noteTransform.position,
-
-                    correctSaber.movementDataForLogic
-                );
+                noteCutInfo = GetNoteCutInfoFromNoteController(noteController, activeEvent);
 
                 _noteCutInfoCache[activeEvent.NoteID] = noteCutInfo;
             }
@@ -120,6 +98,38 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
             noteController.SendNoteWasCutEvent(noteCutInfo);
             return true;
+        }
+
+        NoteCutInfo GetNoteCutInfoFromNoteController(NoteController noteController, NoteEvent activeEvent) {
+
+            Saber correctSaber = noteController.noteData.colorType == ColorType.ColorA ? _saberManager.leftSaber : _saberManager.rightSaber;
+            var noteTransform = noteController.noteTransform;
+
+            var noteCutInfo = new NoteCutInfo(noteController.noteData,
+                activeEvent.SaberSpeed > 2f,
+                activeEvent.DirectionOK,
+                activeEvent.SaberType == (int)correctSaber.saberType,
+                false,
+                activeEvent.SaberSpeed,
+                activeEvent.SaberDirection.Convert(),
+                noteController.noteData.colorType == ColorType.ColorA ? SaberType.SaberA : SaberType.SaberB,
+                noteController.noteData.time - activeEvent.Time,
+                activeEvent.CutDirectionDeviation,
+                activeEvent.CutPoint.Convert(),
+                activeEvent.CutNormal.Convert(),
+                activeEvent.CutDistanceToCenter,
+                activeEvent.CutAngle,
+
+                noteController.worldRotation,
+                noteController.inverseWorldRotation,
+                noteTransform.rotation,
+                noteTransform.position,
+
+                correctSaber.movementDataForLogic
+            );
+
+            return noteCutInfo;
+
         }
 
         bool DoesNoteMatchID(NoteID id, NoteData noteData) {
@@ -164,6 +174,21 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                 element.isFinished = true;
             }
         }
+
+        [AffinityPrefix, AffinityPatch(typeof(GameNoteController), nameof(GameNoteController.NoteDidPassMissedMarker))]
+        protected bool HandleGhostMissesIfNeeded(GameNoteController __instance) {
+            foreach (var noteEvent in _sortedNoteEvents) {
+                if (DoesNoteMatchID(noteEvent.NoteID, __instance.noteData)) {
+                    if (noteEvent.EventType == NoteEventType.Miss) return true;
+                    _siraLog.Warn("CATCHING MISSED NOTE");
+                    NoteCutInfo noteCutInfo = GetNoteCutInfoFromNoteController(__instance, noteEvent);
+                    __instance.SendNoteWasCutEvent(noteCutInfo);
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         public void TimeUpdate(float newTime) {
             for (int c = 0; c < _sortedNoteEvents.Length; c++) {

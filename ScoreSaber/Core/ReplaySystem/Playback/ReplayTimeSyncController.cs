@@ -1,5 +1,6 @@
 ﻿using IPA.Utilities;
 using ScoreSaber.Core.ReplaySystem.UI;
+using SiraUtil.Affinity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,9 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         }
 
         public void Tick() {
+            if(audioTimeSyncController.songTime >= audioTimeSyncController.songEndTime) {
+                return;
+            }
             int index = -1;
             if (Input.GetKeyDown(KeyCode.Alpha1))
                 index = 0;
@@ -87,10 +91,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private void UpdateTimes() {
             foreach (var scroller in _scrollers)
-                scroller.TimeUpdate(audioTimeSyncController.songTime);
+                scroller.TimeUpdate(audioTimeSyncController.songTime >= audioTimeSyncController.songEndTime ? audioTimeSyncController.songEndTime : audioTimeSyncController.songTime);
         }
 
         internal void OverrideTime(float time) {
+            if(time >= audioTimeSyncController.songEndTime) time = audioTimeSyncController.songEndTime;
             if (float.IsInfinity(time) || float.IsNaN(time) || Mathf.Abs(time - audioTimeSyncController._songTime) < 0.001f) return;
             time = Mathf.Clamp(time, audioTimeSyncController._startSongTime, audioTimeSyncController.songEndTime);
             var previousState = audioTimeSyncController.state;
@@ -102,6 +107,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             HarmonyPatches.CutSoundEffectOverride.Buffer = true;
             CancelAllHitSounds();
 
+
+
             _basicBeatmapObjectManager._basicGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._burstSliderHeadGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
             _basicBeatmapObjectManager._burstSliderGameNotePoolContainer.activeItems.ForEach(x => _basicBeatmapObjectManager.Despawn(x));
@@ -112,8 +119,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             audioTimeSyncController.SeekTo(time / audioTimeSyncController.timeScale);
             _beatmapObjectCallbackController._prevSongTime = float.MinValue;
 
+
+            var locatedNode = LocateBeatmapData(time);
             foreach (var callback in _beatmapObjectCallbackController._callbacksInTimes) {
-                callback.Value.lastProcessedNode = LocateBeatmapData(time);
+                callback.Value.lastProcessedNode = locatedNode;
             }
 
             if (previousState == AudioTimeSyncController.State.Playing)

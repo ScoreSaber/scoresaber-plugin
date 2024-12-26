@@ -106,37 +106,38 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             }
         }
 
-        private bool _replayReachedEnd = false;
+        public bool _replayReachedEnd = false;
 
         public void Tick() {
-
-            if (ReachedEnd()) {
-                _replayReachedEnd = true;
-                _pauseController.Pause();
-                return;
-            } else {
-                if (_replayReachedEnd) {
-                    _pauseController._gamePause.Resume();
-                    _replayReachedEnd = false;
-                }
-            }
-
             bool foundPoseThisFrame = false;
-            while (audioTimeSyncController.songTime >= _sortedPoses[_nextIndex].Time) {
+
+            while (_nextIndex < _sortedPoses.Count() && audioTimeSyncController.songTime >= _sortedPoses[_nextIndex].Time) {
                 foundPoseThisFrame = true;
                 VRPoseGroup activePose = _sortedPoses[_nextIndex++];
 
-                if (ReachedEnd())
-                    return;
-
-                VRPoseGroup nextPose = _sortedPoses[_nextIndex];
-                UpdatePoses(activePose, nextPose);
+                if (_nextIndex < _sortedPoses.Count()) {
+                    VRPoseGroup nextPose = _sortedPoses[_nextIndex];
+                    UpdatePoses(activePose, nextPose);
+                }
             }
+
             if (foundPoseThisFrame) {
                 return;
-            } else if (_nextIndex > 0 && !ReachedEnd()) {
+            } else if (_nextIndex > 0 && _nextIndex < _sortedPoses.Count() && !ReachedEnd()) {
                 VRPoseGroup previousGroup = _sortedPoses[_nextIndex - 1];
-                UpdatePoses(previousGroup, _sortedPoses[_nextIndex]);
+                VRPoseGroup nextGroup = _sortedPoses[_nextIndex];
+                UpdatePoses(previousGroup, nextGroup);
+            }
+
+            if (ReachedEnd()) {
+                _replayReachedEnd = true;
+                audioTimeSyncController.Pause();
+                return;
+            } else {
+                if (_replayReachedEnd) {
+                    audioTimeSyncController.Resume();
+                    _replayReachedEnd = false;
+                }
             }
         }
 
@@ -187,7 +188,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         }
 
         private bool ReachedEnd() {
-            return _nextIndex >= _sortedPoses.Length;
+            return _nextIndex >= _sortedPoses.Length; 
         }
 
         public void TimeUpdate(float newTime) {

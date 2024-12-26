@@ -1,4 +1,5 @@
 ﻿using HMUI;
+using ScoreSaber.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +23,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
 
         private void CreateReplayUI() {
 
-            string replayText = string.Format("REPLAY MODE - Watching {0} play {1} - {2} ({3})", Plugin.ReplayState.CurrentPlayerName, 
-                Plugin.ReplayState.CurrentBeatmapLevel.songAuthorName, Plugin.ReplayState.CurrentBeatmapLevel.songName,
-              Enum.GetName(typeof(BeatmapDifficulty), Plugin.ReplayState.CurrentBeatmapKey.difficulty).Replace("ExpertPlus", "Expert+"));
+            string replayText = string.Format("<color=yellow>REPLAY</color>   <i>{0}</i> playing ({1} - {2}) [<color=#59cf59>{3}</color>]", Plugin.ReplayState.CurrentPlayerName, 
+                Plugin.ReplayState.CurrentBeatmapLevel.songAuthorName, Plugin.ReplayState.CurrentBeatmapLevel.songName, BeatmapUtils.FriendlyLevelAuthorName(Plugin.ReplayState.CurrentBeatmapLevel.allMappers, Plugin.ReplayState.CurrentBeatmapLevel.allLighters));
             float timeScale = 1f;
 
             if (!Plugin.ReplayState.IsLegacyReplay) {
@@ -37,7 +37,7 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
             }
             string friendlyMods = GetFriendlyModifiers(Plugin.ReplayState.CurrentModifiers);
             if (friendlyMods != string.Empty) {
-                replayText += string.Format(" [{0}]", friendlyMods);
+                replayText += string.Format(" <color=grey>[{0}]</color>", friendlyMods);
             }
             GameObject _watermarkCanvas = new GameObject("InGameReplayUI");
 
