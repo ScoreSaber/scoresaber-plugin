@@ -22,9 +22,8 @@ namespace ScoreSaber.Core.ReplaySystem.Legacy.UI
         }
 
         private void CreateReplayUI() {
-
-            string replayText = string.Format("<color=yellow>REPLAY</color>   <i>{0}</i> playing ({1} - {2}) [<color=#59cf59>{3}</color>]", Plugin.ReplayState.CurrentPlayerName, 
-                Plugin.ReplayState.CurrentBeatmapLevel.songAuthorName, Plugin.ReplayState.CurrentBeatmapLevel.songName, BeatmapUtils.FriendlyLevelAuthorName(Plugin.ReplayState.CurrentBeatmapLevel.allMappers, Plugin.ReplayState.CurrentBeatmapLevel.allLighters));
+            string replayTextTitle = Plugin.ReplayState.IsLegacyReplay ? "LEGACY REPLAY" : "REPLAY";
+            string replayText = $"<color=yellow>{replayTextTitle}</color>   <i>{Plugin.ReplayState.CurrentPlayerName}</i> playing ({Plugin.ReplayState.CurrentBeatmapLevel.songAuthorName} - {Plugin.ReplayState.CurrentBeatmapLevel.songName}) [<color=#59cf59>{BeatmapUtils.FriendlyLevelAuthorName(Plugin.ReplayState.CurrentBeatmapLevel.allMappers, Plugin.ReplayState.CurrentBeatmapLevel.allLighters)}</color>]";
             float timeScale = 1f;
 
             if (!Plugin.ReplayState.IsLegacyReplay) {

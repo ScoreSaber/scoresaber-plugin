@@ -8,6 +8,7 @@ using System.Linq;
 using ScoreSaber.UI.Leaderboard;
 using System.Collections.Generic;
 using ScoreSaber.Core.Http;
+using ScoreSaber.Core.Utils;
 
 namespace ScoreSaber.Core.Services {
     internal class LeaderboardService {
@@ -29,9 +30,7 @@ namespace ScoreSaber.Core.Services {
             ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope,
             int page) {
             var leaderboardData = await client.GetAsync<Leaderboard>(new Http.Endpoints.API.LeaderboardRequest(
-                leaderboardId: beatmapLevel.hasPrecalculatedData
-                    ? "ost_" + beatmapLevel.levelID
-                    : beatmapKey.levelId.Split('_')[2],
+                leaderboardId: BeatmapUtils.GetHashFromLevelID(beatmapKey.levelId, out _),
                 gameMode: $"Solo{beatmapKey.beatmapCharacteristic.serializedName}",
                 difficulty: BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty).ToString(),
                 scope: scope,
@@ -49,9 +48,7 @@ namespace ScoreSaber.Core.Services {
             const int maxAttempts = 4;
             const int retryDelayMs = 1000;
             var request = new Http.Endpoints.API.LeaderboardRequest(
-                leaderboardId: beatmapLevel.hasPrecalculatedData
-                    ? "ost_" + beatmapLevel.levelID
-                    : beatmapKey.levelId.Split('_')[2],
+                leaderboardId: BeatmapUtils.GetHashFromLevelID(beatmapKey, out _),
                 gameMode: $"Solo{beatmapKey.beatmapCharacteristic.serializedName}",
                 difficulty: BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty).ToString(),
                 scope: ScoreSaberLeaderboardViewController.ScoreSaberScoresScope.Global

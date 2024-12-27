@@ -13,7 +13,7 @@ namespace ScoreSaber.Core {
 
             Container.Bind<ReplayService>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<RichPresenceService>().AsSingle();
-            Container.Bind<ScoreSaberHttpClient>().FromInstance(new ScoreSaberHttpClient(new("ScoreSaber-PC", Plugin.Instance.LibVersion, 5, 120))).AsSingle();
+            Container.Bind<ScoreSaberHttpClient>().FromInstance(new ScoreSaberHttpClient(new HttpClientOptions(applicationName: "ScoreSaber-PC", version: Plugin.Instance.LibVersion, defaultTimeout: 5, uploadTimeout: 120))).AsSingle();
         }
     }
 }

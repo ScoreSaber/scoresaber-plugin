@@ -47,7 +47,7 @@ namespace ScoreSaber.Core.ReplaySystem.Recorders
             };
 
             return new Metadata() {
-                Version = "3.0.0",
+                Version = "3.0.1",
                 LevelID = _gameplayCoreSceneSetupData.beatmapLevel.levelID,
                 Difficulty = BeatmapDifficultyMethods.DefaultRating(_gameplayCoreSceneSetupData.beatmapKey.difficulty),
                 Characteristic = _gameplayCoreSceneSetupData.beatmapKey.beatmapCharacteristic.serializedName,

@@ -129,7 +129,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 UpdatePoses(previousGroup, nextGroup);
             }
 
-            if (ReachedEnd()) {
+            if (ReachedSongEnd()) {
                 _replayReachedEnd = true;
                 audioTimeSyncController.Pause();
                 return;
@@ -188,7 +188,11 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         }
 
         private bool ReachedEnd() {
-            return _nextIndex >= _sortedPoses.Length; 
+            return _nextIndex >= _sortedPoses.Length;
+        }
+
+        private bool ReachedSongEnd() {
+            return audioTimeSyncController.songTime >= audioTimeSyncController.songEndTime - 0.1; // check before end
         }
 
         public void TimeUpdate(float newTime) {

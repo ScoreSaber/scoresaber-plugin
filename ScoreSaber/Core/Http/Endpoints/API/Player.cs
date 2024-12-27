@@ -4,12 +4,12 @@ using System.Net;
 using UnityEngine;
 namespace ScoreSaber.Core.Http.Endpoints.API.Player {
     internal class AuthenticateRequest : Endpoint {
-        public AuthenticateRequest(
-            string playerId,
-            string authType,
-            string nonce,
-            string friends,
-            string name) : base(ApiConfig.UrlBases.APIv1) {
+        public AuthenticateRequest(string playerId,
+                                   string authType,
+                                   string nonce,
+                                   string friends,
+                                   string name) : base(ApiConfig.UrlBases.APIv1) {
+
             PathSegments.Add("auth");
             Form = new WWWForm();
             Form.AddField("at", authType);

@@ -13,7 +13,7 @@ namespace ScoreSaber.Core.Data
         public bool hideReplayUI = false;
 
         public int fileVersion { get; set; }
-        public bool disableScoreSaber { get; set; }
+        public bool disableScoreSaber { get; set; } // Unused
         public bool showLocalPlayerRank { get; set; }
         public bool showScorePP { get; set; }
         public bool showStatusText { get; set; }

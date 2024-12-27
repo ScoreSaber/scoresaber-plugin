@@ -31,14 +31,6 @@ namespace ScoreSaber.Core.AffinityPatches {
         [AffinityPostfix]
         public void HandleStartLevelPostfix(SinglePlayerLevelSelectionFlowCoordinator __instance, Action beforeSceneSwitchCallback, bool practice) {
 
-            string hash = string.Empty;
-
-            if (__instance.selectedBeatmapLevel.hasPrecalculatedData) {
-                hash = "#" + __instance.selectedBeatmapLevel.levelID;
-            } else {
-                hash = __instance.selectedBeatmapLevel.levelID.Split('_')[2];
-            }
-
             bool isPractice = practice;
             GameMode gameMode = GameMode.solo;
 
@@ -78,7 +70,7 @@ namespace ScoreSaber.Core.AffinityPatches {
         public void HandleMultiplayerGameStartPostfix(MultiplayerLevelSelectionFlowCoordinator __instance, ILevelGameplaySetupData levelGameplaySetupData) {
 
             // i dont like this, but i have to do it, just in case the users selected level doesnt match what the game started with
-            BeatmapLevel beatmapLevel = SongCore.Loader.GetLevelByHash(levelGameplaySetupData.beatmapKey.levelId);
+            BeatmapLevel beatmapLevel = SongCore.Loader.GetLevelById(levelGameplaySetupData.beatmapKey.levelId);
 
             GameplayModifiers gameplayModifiers = levelGameplaySetupData.gameplayModifiers;
             int startTime = 0;
@@ -89,15 +81,8 @@ namespace ScoreSaber.Core.AffinityPatches {
         }
 
         private SongRichPresenceInfo CreateSongStartEvent(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, GameplayModifiers gameplayModifiers, int startTime, GameMode gameMode) {
-            
-            string hash = string.Empty;
 
-            if (!beatmapLevel.levelID.StartsWith("custom_level_")) {
-                hash = "#" + beatmapLevel.levelID;
-            } else {
-                hash = beatmapLevel.levelID.Split('_')[2];
-            }
-
+            string hash = BeatmapUtils.GetHashFromLevelID(beatmapLevel, out bool isOst);
 
             var songEvent = new SongRichPresenceInfo(_richPresenceService.TimeRightNow, gameMode,
                                     beatmapLevel.songName,

@@ -3,13 +3,13 @@ using ScoreSaber.UI.Leaderboard;
 using System.Net;
 namespace ScoreSaber.Core.Http.Endpoints.API {
     internal class LeaderboardRequest : Endpoint {
-        public LeaderboardRequest(
-            string leaderboardId,
-            string gameMode,
-            string difficulty,
-            ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope,
-            int page = 1,
-            bool hideNA = false) : base(ApiConfig.UrlBases.APIv1) {
+        public LeaderboardRequest(string leaderboardId,
+                                string gameMode,
+                                string difficulty,
+                                ScoreSaberLeaderboardViewController.ScoreSaberScoresScope scope,
+                                int page = 1,
+                                bool hideNA = false) : base(ApiConfig.UrlBases.APIv1) {
+
             PathSegments.Add("leaderboard");
             // Add scope-specific path segments
             switch (scope) {

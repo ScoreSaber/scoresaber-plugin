@@ -32,12 +32,11 @@ namespace ScoreSaber.Core.Services {
         private const string _protocolAndSubdomain = "wss://realtime.";
         private const string _socketAddress = "/socket"; // change to scoresaber subdomain once ready. wss://realtime.scoresaber.com/socket
 
-        public string TimeRightNow => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+        public string TimeRightNow => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss zzz");
 
-        public RichPresenceService(
-    SiraLog log,
-    PlayerService playerService,
-    ScoreSaberHttpClient client) {
+        public RichPresenceService(SiraLog log,
+                                   PlayerService playerService,
+                                   ScoreSaberHttpClient client) {
             _log = log;
             _playerService = playerService;
             _client = client;

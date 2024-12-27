@@ -1,4 +1,5 @@
 ﻿using ScoreSaber.Core.Data.Models;
+using ScoreSaber.Core.Utils;
 
 namespace ScoreSaber.Core.Data.Wrappers {
     internal class LeaderboardInfoMap {
@@ -12,13 +13,8 @@ namespace ScoreSaber.Core.Data.Wrappers {
             this.beatmapLevel = beatmapLevel;
             this.beatmapKey = beatmapKey;
             this.leaderboardInfo = leaderboardInfo;
-            if (beatmapLevel.hasPrecalculatedData) {
-                this.songHash = "ost_" + beatmapLevel.levelID;
-                this.isOst = true;
-            } else {
-                this.songHash = beatmapKey.levelId.Split('_')[2];
-                this.isOst = false;
-            }
+            this.songHash = BeatmapUtils.GetHashFromLevelID(beatmapKey, out bool isOst);
+            this.isOst = isOst;
         }
     }
 }

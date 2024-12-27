@@ -68,14 +68,18 @@ namespace ScoreSaber.Core.Services {
             for (int attempt = 1; attempt <= 3; attempt++) {
                 if (await AuthenticateWithScoreSaber(playerInfo)) {
                     localPlayerInfo = playerInfo;
-                    var successText = localPlayerInfo.playerId == PlayerIDs.Denyah
-                        ? "Wagwan piffting wots ur bbm pin?"
-                        : "Successfully signed into ScoreSaber!";
+                    var successText = string.Empty;
+                    if (localPlayerInfo.playerId != PlayerIDs.Denyah) {
+                        successText = "Successfully signed into ScoreSaber!";
+                    } else {
+                        successText = "Wagwan piffting wots ur bbm pin?";
+                    }
                     ChangeLoginStatus(LoginStatus.Success, successText);
                     return;
                 }
                 ChangeLoginStatus(LoginStatus.Error, $"Failed, attempting again ({attempt} of 3 tries...)");
-                await Task.Delay(4000);
+                if (attempt < 3)
+                    await Task.Delay(4000);
             }
             ChangeLoginStatus(LoginStatus.Error, "Failed to authenticate with ScoreSaber! Please restart your game");
         }

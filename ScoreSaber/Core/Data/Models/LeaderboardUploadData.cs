@@ -60,11 +60,7 @@ namespace ScoreSaber.Core.Data.Models {
             data.gameMode = $"Solo{beatmapKey.beatmapCharacteristic.serializedName}";
             data.difficulty = BeatmapDifficultyMethods.DefaultRating(beatmapKey.difficulty);
             data.infoHash = infoHash;
-            if(beatmapLevel.hasPrecalculatedData) {
-                data.leaderboardId = "ost_" + beatmapLevel.levelID;
-            } else {
-                data.leaderboardId = levelInfo[2];
-            }
+            data.leaderboardId = BeatmapUtils.GetHashFromLevelID(beatmapKey, out bool isOst);
             data.songName = beatmapLevel.songName;
             data.songSubName = beatmapLevel.songSubName;
             data.songAuthorName = beatmapLevel.songAuthorName;

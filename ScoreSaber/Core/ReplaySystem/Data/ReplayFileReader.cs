@@ -54,7 +54,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                     multiplierKeyframes = ReadMultiplierEventList(ref pointers.multiplierKeyframes),
                     energyKeyframes = ReadEnergyEventList(ref pointers.energyKeyframes)
                 };
-            } else if (metadata.Version == "3.0.0") {
+            } else if (metadata.Version == "3.0.0" || metadata.Version == "3.0.1") {
                 return new ReplayFile() {
                     metadata = metadata,
                     poseKeyframes = ReadPoseGroupList(ref pointers.poseKeyframes),

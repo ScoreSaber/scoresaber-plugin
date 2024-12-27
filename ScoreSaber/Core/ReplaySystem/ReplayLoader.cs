@@ -73,7 +73,7 @@ namespace ScoreSaber.Core.ReplaySystem {
                     beatmapLevel: beatmapLevel,
                     overrideEnvironmentSettings: playerData.overrideEnvironmentSettings,
                     playerOverrideColorScheme: playerData.colorSchemesSettings.GetSelectedColorScheme(),
-                    playerOverrideLightshowColors: playerData.overrideEnvironmentSettings.overrideEnvironments,
+                    playerOverrideLightshowColors: playerData.colorSchemesSettings.ShouldOverrideLightshowColors(),
                     beatmapOverrideColorScheme: beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty),
                     gameplayModifiers: gameplayModifiers,
                     playerSpecificSettings: playerSettings,

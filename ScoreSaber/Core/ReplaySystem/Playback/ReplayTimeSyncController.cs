@@ -91,7 +91,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private void UpdateTimes() {
             foreach (var scroller in _scrollers)
-                scroller.TimeUpdate(audioTimeSyncController.songTime >= audioTimeSyncController.songEndTime ? audioTimeSyncController.songEndTime : audioTimeSyncController.songTime);
+                scroller.TimeUpdate(audioTimeSyncController.songTime);
         }
 
         internal void OverrideTime(float time) {
@@ -155,18 +155,38 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
         private LinkedListNode<BeatmapDataItem> LocateBeatmapData(float targetTime) {
             CacheBeatmapData();
 
-            int low = 0, high = _beatmapDataItemsCache.Count - 1;
-            while (low <= high) {
-                int mid = (low + high) / 2;
-                if (_beatmapDataItemsCache[mid].Key < targetTime)
-                    low = mid + 1;
-                else
-                    high = mid - 1;
+            if (_beatmapDataItemsCache.Count == 0) {
+                _lastLocatedNode = null;
+                return null;
             }
 
-            _lastLocatedNode = _beatmapDataItemsCache[Math.Max(0, high)].Value;
+            if (targetTime < _beatmapDataItemsCache[0].Value.Value.time) {
+                _lastLocatedNode = null;
+                return null;
+            }
+
+            int low = 0;
+            int high = _beatmapDataItemsCache.Count - 1;
+
+            while (low <= high) {
+                int mid = low + (high - low) / 2;
+                float midTime = _beatmapDataItemsCache[mid].Value.Value.time;
+                if (midTime <= targetTime) {
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
+                }
+            }
+
+            if (high < 0) {
+                _lastLocatedNode = null;
+                return null;
+            }
+
+            _lastLocatedNode = _beatmapDataItemsCache[high].Value;
             return _lastLocatedNode;
         }
+
 
 
         public void OverrideTimeScale(float newScale) {
