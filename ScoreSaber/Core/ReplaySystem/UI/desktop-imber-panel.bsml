@@ -39,8 +39,8 @@
         </vertical>
       </tab>
       <tab tags="page-tab" tab-name="TIME">
-        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize" pref-width="55">
-          <slider-setting id="TimeScaleGO" text="TIME SCALE" min="0.1" max="2" increment="0.05" value="time-sync" apply-on-change="true" formatter="format-time-percent" />
+        <vertical horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+          <slider-setting word-wrapping="false" preferred-width="55" id="TimeScaleGO" text="SPEED" min="0.1" max="2" increment="0.05" value="time-sync" apply-on-change="true" formatter="format-time-percent" />
         </vertical>
       </tab>
     </horizontal>
