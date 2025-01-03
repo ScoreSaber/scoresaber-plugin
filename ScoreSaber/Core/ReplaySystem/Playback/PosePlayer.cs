@@ -129,7 +129,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 UpdatePoses(previousGroup, nextGroup);
             }
 
-            if (ReachedSongEnd()) {
+            if (ReachedEnd()) {
                 _replayReachedEnd = true;
                 audioTimeSyncController.Pause();
                 return;
@@ -187,12 +187,9 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             DidUpdatePose?.Invoke(activePose);
         }
 
+        // intro skip doesnt skip to the end of the map, it gives a little time, so this is fine
         private bool ReachedEnd() {
             return _nextIndex >= _sortedPoses.Length;
-        }
-
-        private bool ReachedSongEnd() {
-            return audioTimeSyncController.songTime >= audioTimeSyncController.songEndTime - 0.1; // check before end
         }
 
         public void TimeUpdate(float newTime) {
