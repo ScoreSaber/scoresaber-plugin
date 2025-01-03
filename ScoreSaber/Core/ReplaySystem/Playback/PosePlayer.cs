@@ -132,11 +132,13 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             if (ReachedEnd()) {
                 _replayReachedEnd = true;
                 audioTimeSyncController.Pause();
+                Plugin.ReplayState.lockPause = true;
                 return;
             } else {
                 if (_replayReachedEnd) {
                     audioTimeSyncController.Resume();
                     _replayReachedEnd = false;
+                    Plugin.ReplayState.lockPause = false;
                 }
             }
         }

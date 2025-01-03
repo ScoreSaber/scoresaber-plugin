@@ -178,6 +178,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         [UIAction("pause-play")]
         protected void PausePlay() {
 
+            if(Plugin.ReplayState.lockPause) return;
             DidClickPausePlay?.Invoke();
         }
 

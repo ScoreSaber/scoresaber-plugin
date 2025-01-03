@@ -71,7 +71,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 OverrideTime(0f);
             }
 
-            if (Input.GetKeyDown(KeyCode.Space)) {
+            if (Input.GetKeyDown(KeyCode.Space) && !Plugin.ReplayState.lockPause) {
                 if (_paused) {
                     audioTimeSyncController.Resume();
                 } else {

@@ -11,6 +11,7 @@ namespace ScoreSaber.Core.ReplaySystem
         internal GameplayModifiers CurrentModifiers;
         internal string CurrentPlayerName;
         internal bool isUsersReplay;
+        internal bool lockPause = false;
 
         // Legacy 
         internal bool IsLegacyReplay;
