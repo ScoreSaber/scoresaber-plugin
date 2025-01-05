@@ -231,6 +231,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
 
         public void TimeUpdate(float newTime) {
+            DespawnAllObjectsPassedMissedPoint();
             for (int c = 0; c < _sortedNoteEvents.Length; c++) {
                 if (_sortedNoteEvents[c].Time > newTime) {
                     _nextIndex = c;
@@ -238,6 +239,42 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
                 }
             }
             _nextIndex = _sortedNoteEvents.Length;
+        }
+
+        // reduces need for note catching by despawning notes that are already past the missed point
+        // note catching can stay as a fallback
+        public void DespawnAllObjectsPassedMissedPoint() {
+            // Process game notes
+            foreach (var noteController in _gameNotePool.activeItems) {
+                if (noteController.noteData != null && 
+                    noteController.noteData.time - 0.015f < audioTimeSyncController.songTime) {
+                    _gameNotePool.Despawn(noteController);
+                }
+            }
+
+            // Process burst slider head notes
+            foreach (var noteController in _burstSliderHeadNotePool.activeItems) {
+                if (noteController.noteData != null && 
+                    noteController.noteData.time - 0.015f < audioTimeSyncController.songTime) {
+                    _burstSliderHeadNotePool.Despawn(noteController);
+                }
+            }
+
+            // Process burst slider notes
+            foreach (var noteController in _burstSliderNotePool.activeItems) {
+                if (noteController.noteData != null && 
+                    noteController.noteData.time - 0.015f < audioTimeSyncController.songTime) {
+                    _burstSliderNotePool.Despawn(noteController);
+                }
+            }
+
+            // Process bomb notes
+            foreach (var bombController in _bombNotePool.activeItems) {
+                if (bombController.noteData != null && 
+                    bombController.noteData.time - 0.015f < audioTimeSyncController.songTime) {
+                    _bombNotePool.Despawn(bombController);
+                }
+            }
         }
     }
 }
