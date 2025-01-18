@@ -106,7 +106,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
     }
 
     internal static class RelevantGameVersions {
-        public static readonly Hive.Versioning.Version Version_1_40 = new Hive.Versioning.Version("1.40");
+        public static readonly Hive.Versioning.Version Version_1_40 = new Hive.Versioning.Version("1.40.0");
     }
 
     internal struct NoteID : IEquatable<NoteID>
