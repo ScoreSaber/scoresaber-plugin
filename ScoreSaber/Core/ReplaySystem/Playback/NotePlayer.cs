@@ -117,7 +117,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
             if (id.GameplayType is int gameplayType && gameplayType != (int)noteData.gameplayType)
                 return false;
 
-            if (!id.MatchesScoringType(noteData.scoringType, _replayFile))
+            if (!id.MatchesScoringType(noteData.scoringType, _replayFile.metadata.GameVersion))
                 return false;
 
             if (id.CutDirectionAngleOffset is float cutDirectionAngleOffset && !Mathf.Approximately(cutDirectionAngleOffset, noteData.cutDirectionAngleOffset))

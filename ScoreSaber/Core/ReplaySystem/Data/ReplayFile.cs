@@ -141,9 +141,9 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             return this == other;
         }
 
-        internal bool MatchesScoringType(NoteData.ScoringType comparedScoringType, ReplayFile file) {
+        internal bool MatchesScoringType(NoteData.ScoringType comparedScoringType, Hive.Versioning.Version gameVersion) {
             if (ScoringType is int scoringType) {
-                if(file.metadata.GameVersion == null || file.metadata.GameVersion < RelevantGameVersions.Version_1_40) {
+                if(gameVersion == null || gameVersion < RelevantGameVersions.Version_1_40) {
                     switch((ScoringType_pre1_40)scoringType) {
                         case ScoringType_pre1_40.Ignore: return comparedScoringType == NoteData.ScoringType.Ignore;
                         case ScoringType_pre1_40.NoScore: return comparedScoringType == NoteData.ScoringType.NoScore;
