@@ -35,19 +35,25 @@ namespace ScoreSaber.Core.Http {
             using var request = UnityWebRequest.Get(url);
             request.timeout = options.DefaultTimeout;
             await SendRequestAsync(request);
-            return Encoding.UTF8.GetString(request.downloadHandler.data);
+            string toReturn = Encoding.UTF8.GetString(request.downloadHandler.data);
+            request.Dispose();
+            return toReturn;
         }
         public async Task<string> PostAsync(string url, WWWForm form) {
             using var request = UnityWebRequest.Post(url, form);
             request.timeout = options.UploadTimeout;
             await SendRequestAsync(request);
-            return Encoding.UTF8.GetString(request.downloadHandler.data);
+            string toReturn = Encoding.UTF8.GetString(request.downloadHandler.data);
+            request.Dispose();
+            return toReturn;
         }
         public async Task<byte[]> DownloadAsync(string url) {
             using var request = UnityWebRequest.Get(url);
             request.timeout = options.DefaultTimeout;
             await SendRequestAsync(request);
-            return request.downloadHandler.data;
+            byte[] toReturn = request.downloadHandler.data;
+            request.Dispose();
+            return toReturn;
         }
         public void SetHeader(string key, string value) {
             options.Headers[key] = value;

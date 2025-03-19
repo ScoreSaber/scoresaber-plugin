@@ -76,11 +76,13 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
             yield return www.SendWebRequest();
 
             while (!www.isDone) {
-                if (cancellationToken.IsCancellationRequested) {
-                    onFailure?.Invoke("Cancelled", pos, cancellationToken);
-                    yield break;
-                }
+
                 yield return null;
+            }
+
+            if (cancellationToken.IsCancellationRequested) {
+                onFailure?.Invoke("Cancelled", pos, cancellationToken);
+                yield break;
             }
 
             if (www.result == UnityWebRequest.Result.ProtocolError || www.result == UnityWebRequest.Result.ConnectionError) {
@@ -94,6 +96,8 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
 
             Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
             onSuccess?.Invoke(sprite, pos, url, cancellationToken);
+
+            www.Dispose();
             yield break;
         }
 

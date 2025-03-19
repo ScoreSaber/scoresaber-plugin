@@ -76,6 +76,7 @@ namespace ScoreSaber.UI.PromoBanner {
             Sprite sprite = Sprite.Create(handler.texture, new Rect(0, 0, handler.texture.width, handler.texture.height), Vector2.one * 0.5f);
             bannerImage.sprite = sprite;
             bannerLoading.SetActive(false);
+            www.Dispose();
             yield break;
         }
 
