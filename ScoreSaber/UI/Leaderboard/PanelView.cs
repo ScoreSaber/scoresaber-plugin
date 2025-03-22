@@ -49,7 +49,7 @@ namespace ScoreSaber.UI.Leaderboard {
         protected readonly ImageView _promptLoader = null;
 
         private string _globalLeaderboardRanking = "<b><color=#FFDE1A>Global Ranking: </color></b> Loading...";
-        [UIValue("global-leaderboard-ranking")]
+        [UIValue("leaderboard-ranking")]
         protected string globalLeaderboardRanking {
             get => _globalLeaderboardRanking;
             set {
@@ -58,12 +58,12 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        private string _countryLeaderboardRanking = "<b><color=#FFDE1A>Country Ranking: </color></b> Loading...";
-        [UIValue("country-leaderboard-ranking")]
-        protected string countryLeaderboardRanking {
-            get => _countryLeaderboardRanking;
+        private string _mapLeaderboardStatus = "<b><color=#FFDE1A>Map Status: </color></b> Loading...";
+        [UIValue("map-leaderboard-status")]
+        protected string mapLeaderboardStatus {
+            get => _mapLeaderboardStatus;
             set {
-                _countryLeaderboardRanking = value;
+                _mapLeaderboardStatus = value;
                 NotifyPropertyChanged();
             }
         }
@@ -172,6 +172,13 @@ namespace ScoreSaber.UI.Leaderboard {
         }
 
 
+        public Action mapStatusWasSelected;
+        [UIAction("clicked-map-status")]
+        protected void ClickedMapStatus() {
+            mapStatusWasSelected?.Invoke();
+        }
+
+
 
         private async Task BlinkLogo() {
 
@@ -186,21 +193,41 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        public void SetGlobalRanking(string globalRanking, bool withPrefix = true) {
-
-            if (withPrefix) {
-                globalLeaderboardRanking = $"<b><color=#FFDE1A>Global Ranking: </color></b>{globalRanking}";
-            } else {
-                globalLeaderboardRanking = globalRanking;
-            }
+        public void SetRanking() {
+            SetRanking(_currentPlayerInfo.rank.ToString(), _currentPlayerInfo.countryRank.ToString(), _currentPlayerInfo.country, _currentPlayerInfo.pp.ToString(), true);
         }
 
-        public void SetCountryRanking(string countryRanking, string countryCode, bool withPrefix = true) {
-            if(withPrefix) {
-                countryLeaderboardRanking = $"<b><color=#FFDE1A>{countryCode} Ranking: </color></b> {countryRanking}";
-            } else {
-                countryLeaderboardRanking = countryRanking;
+        public void SetRanking(string rawGlobal, string rawCountry, string countryPrefix, string rawPP, bool withPrefix = true) {
+            if (string.IsNullOrEmpty(rawGlobal)) {
+                globalLeaderboardRanking = "<b><color=#FFDE1A>Global Ranking: </color></b> Loading...";
+                return;
             }
+
+            string finalRankingString = "";
+
+            string prefix = $"<b><color=#FFDE1A>Global Ranking: </color></b>#{rawGlobal}";
+
+            if (!string.IsNullOrEmpty(rawCountry)) {
+                prefix += $" <size=85%>(<color=#D3D3D3>#{rawCountry} {countryPrefix}</color>)</size>";
+            }
+
+            if (!string.IsNullOrEmpty(rawPP)) {
+                prefix += $" : <size=85%><color=#6772E5>{rawPP}pp</color></size>";
+            }
+
+
+            if (withPrefix) {
+                finalRankingString += prefix;
+            } else {
+                finalRankingString += $"{rawGlobal}";
+            }
+
+            globalLeaderboardRanking = finalRankingString;
+        }
+
+        public void SetMapStatus(string mapStatus) {
+
+            mapLeaderboardStatus = $"<b><color=#FFDE1A>Map Status: </color></b>{mapStatus}";
         }
 
         public void SetPromptInfo(string status, bool showLoadingIndicator, float dismissTime = -1f) {
@@ -298,7 +325,7 @@ namespace ScoreSaber.UI.Leaderboard {
 
             while (true) {
                 await UpdateRank();
-                await Task.Delay(240000);
+                await Task.Delay(240000); // this is like potassium timer
             }
         }
 
@@ -359,25 +386,20 @@ namespace ScoreSaber.UI.Leaderboard {
                 Loaded(false);
                 _currentPlayerInfo = await _playerService.GetPlayerInfo(_playerService.localPlayerInfo.playerId, full: false);
                 if (Plugin.Settings.showLocalPlayerRank) {
-                    SetGlobalRanking($"#{string.Format("{0:n0}", _currentPlayerInfo.rank)}<size=75%> (<color=#6772E5>{string.Format("{0:n0}", _currentPlayerInfo.pp)}pp</color>)");
-                    SetCountryRanking($"#{string.Format("{0:n0}", _currentPlayerInfo.countryRank)}<size=75%>", _currentPlayerInfo.country);
+                    SetRanking(_currentPlayerInfo.rank.ToString(), _currentPlayerInfo.countryRank.ToString(), _currentPlayerInfo.country, _currentPlayerInfo.pp.ToString("F2"), true);
                 } else {
-                    SetGlobalRanking("Hidden");
-                    SetCountryRanking("Hidden", _currentPlayerInfo.country);
+                    SetRanking("Hidden", "", "", "", false);
                 }
                 Loaded(true);
             } catch (HttpRequestException ex) {
                 if (ex.IsScoreSaberError) {
                     if (ex.ScoreSaberError.errorMessage == "Player not found") {
-                        SetGlobalRanking("Welcome to ScoreSaber! Set a score to create a profile", false);
-                        SetCountryRanking("", _currentPlayerInfo.country, false);
+                        SetRanking("Welcome to ScoreSaber! Set a score to create a profile", "", "", "", false);
                     } else {
-                        SetGlobalRanking($"Failed to load player ranking: {ex.ScoreSaberError.errorMessage}", false);
-                        SetCountryRanking("", _currentPlayerInfo.country, false);
+                        SetRanking($"Failed to load player ranking: {ex.ScoreSaberError.errorMessage}", "", "", "", false);
                     }
                 } else {
-                    SetGlobalRanking("", false);
-                    SetCountryRanking("", _currentPlayerInfo.country, false);
+                    SetRanking("", "", "", "", false);
                     SetPromptError("Failed to update local player ranking", false, 1.5f);
                     Plugin.Log.Error("Failed to update local player ranking " + ex.ToString());
                 }

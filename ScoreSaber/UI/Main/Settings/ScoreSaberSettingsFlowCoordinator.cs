@@ -46,11 +46,9 @@ namespace ScoreSaber.UI.Main {
             _lastFlowCoordinator.DismissFlowCoordinator(this);
             _scoresaberLeaderboardViewController.RefreshLeaderboard();
             if (Plugin.Settings.showLocalPlayerRank) {
-                _panelView.SetGlobalRanking($"#{string.Format("{0:n0}", _panelView._currentPlayerInfo.rank)}<size=75%> (<color=#6772E5>{string.Format("{0:n0}", _panelView._currentPlayerInfo.pp)}pp</color>)");
-                _panelView.SetCountryRanking($"#{string.Format("{0:n0}", _panelView._currentPlayerInfo.countryRank)}<size=75%>", _panelView._currentPlayerInfo.country);
+                _panelView.SetRanking();
             } else {
-                _panelView.SetGlobalRanking("Hidden");
-                _panelView.SetCountryRanking("Hidden", _panelView._currentPlayerInfo.country);
+                _panelView.SetRanking("Hidden", "", "", "", false);
             }
         }
 

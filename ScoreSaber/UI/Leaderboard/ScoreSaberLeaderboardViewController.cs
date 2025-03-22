@@ -76,18 +76,6 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIComponent("leaderboardTableView")]
         internal readonly Transform leaderboardTransform = null;
 
-        [UIComponent("myHeader")]
-        private readonly Backgroundable myHeader = null;
-
-        [UIComponent("headerText")]
-        private readonly TextMeshProUGUI headerText = null;
-
-        [UIObject("headerSTATIC")]
-        private readonly GameObject headerSTATIC = null;
-
-        [UIComponent("headerTextSTATIC")]
-        private readonly TextMeshProUGUI headerTextSTATIC = null;
-
         [UIComponent("errorText")]
         private readonly TextMeshProUGUI _errorText = null;
 
@@ -114,9 +102,6 @@ namespace ScoreSaber.UI.Leaderboard {
 
         [UIObject("loadingLB")]
         private readonly GameObject loadingLB = null;
-
-        [UIObject("starRatingBox")]
-        private readonly GameObject starRatingBox = null;
 
         [UIValue("map-info-view")]
         protected MapInfoView _mapInfoView = null;
@@ -233,30 +218,21 @@ namespace ScoreSaber.UI.Leaderboard {
             }
         }
 
-        private ImageView _headerBackground;
-
         internal static readonly FieldAccessor<ImageView, float>.Accessor ImageSkew = FieldAccessor<ImageView, float>.GetAccessor("_skew");
         internal static readonly FieldAccessor<ImageView, bool>.Accessor ImageGradient = FieldAccessor<ImageView, bool>.GetAccessor("_gradient");
 
         [UIAction("#post-parse")]
         private void PostParse() {
-            myHeader.Background.material = Utilities.ImageResources.NoGlowMat;
             var loadingLB = leaderboardTransform.Find("LoadingControl").gameObject;
             Transform loadingContainer = loadingLB.transform.Find("LoadingContainer");
             loadingContainer.gameObject.SetActive(false);
             Destroy(loadingContainer.Find("Text").gameObject);
             Destroy(loadingLB.transform.Find("RefreshContainer").gameObject);
             Destroy(loadingLB.transform.Find("DownloadingContainer").gameObject);
-            _headerBackground = myHeader.Background as ImageView;
 
-            _headerBackground.color = grey;
-            _headerBackground.color0 = grey;
-            _headerBackground.color1 = grey;
-            ImageSkew(ref _headerBackground) = 0.18f;
-            ImageGradient(ref _headerBackground) = true;
             CheckPage();
             _ImageHolders.ForEach(holder => holder.ClearSprite());
-            myHeader.transform.SetParent(_platformLeaderboardViewController.transform.Find("HeaderPanel"), true);
+            _panelView.mapStatusWasSelected += () => MapInfoClicked();
         }
 
         public void CloseModals() {
@@ -265,19 +241,15 @@ namespace ScoreSaber.UI.Leaderboard {
 
         private void SetPanelStatus(LeaderboardInfoMap leaderboardInfoMap = null) {
 
-            bool fromCached = true;
             if (leaderboardInfoMap == null) {
                 if (_leaderboardService.currentLoadedLeaderboard == null) {
                     return;
                 }
                 leaderboardInfoMap = _leaderboardService.currentLoadedLeaderboard.leaderboardInfoMap;
-                fromCached = false;
             }
 
             if (leaderboardInfoMap == null || leaderboardInfoMap.isOst) {
-                _tweeningUtils.LerpColor(_headerBackground, grey);
-                headerTextSTATIC.text = "OST";
-                _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
+                _panelView.SetMapStatus($"OST");
                 return;
             }
 
@@ -285,65 +257,40 @@ namespace ScoreSaber.UI.Leaderboard {
             bool qualified = leaderboardInfoMap.leaderboardInfo.qualified;
             bool loved = leaderboardInfoMap.leaderboardInfo.loved;
 
+            bool positiveMods = leaderboardInfoMap.leaderboardInfo.positiveModifiers;
+
 
             if (leaderboardInfoMap.leaderboardInfo.stars != 0) {
-                starRatingBox.gameObject.SetActive(true);
-                headerText.text = $"<size=70%> </size>{leaderboardInfoMap.leaderboardInfo.stars.ToString().Replace(".", ". ")}<size=70%>★</size>";
-                headerText.richText = true;
-                headerSTATIC.gameObject.SetActive(false);
-            } else {
-                starRatingBox.gameObject.SetActive(false);
-                headerSTATIC.gameObject.SetActive(true);
+                _panelView.SetMapStatus($"Ranked: {leaderboardInfoMap.leaderboardInfo.stars}★" + (positiveMods ? ": <size=85%>[<color=#D3D3D3>FS,DA,GN</color>] Enabled</size>" : ""));
             }
 
             if (!ranked && !qualified && !loved) {
-                _tweeningUtils.LerpColor(_headerBackground, grey);
-                headerTextSTATIC.text = "UNRANKED";
-                if (!fromCached) {
-                    _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
-                }
-            }
-
-            if (ranked) {
-                GetSSDifficultyColour(leaderboardInfoMap.beatmapKey.difficulty);
+                _panelView.SetMapStatus("Unranked");
             }
 
             if (qualified) {
-                _tweeningUtils.LerpColor(_headerBackground, _scoreSaberBlue);
-                headerTextSTATIC.text = "QUALIFIED";
-                if (!fromCached) {
-                    _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
-                }
+                _panelView.SetMapStatus("Qualified");
             }
 
             if (loved) {
-                _tweeningUtils.LerpColor(_headerBackground, pink);
-                headerTextSTATIC.text = "LOVED";
-                if (!fromCached) {
-                    _tweeningUtils.FadeText(headerTextSTATIC, true, 0.2f);
-                }
+                _panelView.SetMapStatus("Loved");
             }
         }
 
-        private void GetSSDifficultyColour(BeatmapDifficulty beatmapDifficulty) {
+        private Color GetSSDifficultyColour(BeatmapDifficulty beatmapDifficulty) {
             switch (beatmapDifficulty) {
                 case BeatmapDifficulty.Easy:
-                    _tweeningUtils.LerpColor(_headerBackground, easyDiffColour);
-                    break;
+                    return easyDiffColour;
                 case BeatmapDifficulty.Normal:
-                    _tweeningUtils.LerpColor(_headerBackground, normalDiffColour);
-                    break;
+                    return normalDiffColour;
                 case BeatmapDifficulty.Hard:
-                    _tweeningUtils.LerpColor(_headerBackground, hardDiffColour);
-                    break;
+                    return hardDiffColour;
                 case BeatmapDifficulty.Expert:
-                    _tweeningUtils.LerpColor(_headerBackground, expertDiffColour);
-                    break;
+                    return expertDiffColour;
                 case BeatmapDifficulty.ExpertPlus:
-                    _tweeningUtils.LerpColor(_headerBackground, expertPlusDiffColour);
-                    break;
+                    return expertPlusDiffColour;
                 default:
-                    break;
+                    return Color.white;
             }
         }
         
@@ -355,12 +302,6 @@ namespace ScoreSaber.UI.Leaderboard {
         [UIAction("MapInfoClicked")]
         internal void MapInfoClicked() {
             _parserParams.EmitEvent("present-map-info");
-        }
-
-        [UIAction("clicked-status")]
-        protected void ClickedStatus() {
-
-            _panelView.statusWasSelected?.Invoke();
         }
 
         [UIAction("OnIconSelected")]
@@ -434,10 +375,6 @@ namespace ScoreSaber.UI.Leaderboard {
                     ShowRichPresenceDisclaimer();
                 }
             });
-
-            Transform header = _platformLeaderboardViewController.transform.Find("HeaderPanel");
-            _platformLeaderboardViewController.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0, 0, 0, 0);
-            myHeader.gameObject.SetActive(true);
         }
 
         public void OnEnable() {
@@ -455,8 +392,6 @@ namespace ScoreSaber.UI.Leaderboard {
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
             if (!_platformLeaderboardViewController || !_platformLeaderboardViewController.isActivated) return;
-            _platformLeaderboardViewController.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;
-            myHeader.gameObject.SetActive(false);
             if (!_platformLeaderboardViewController.isActivated) return;
             if (_scoreDetailView.detailModalRoot != null) _scoreDetailView.detailModalRoot.Hide(false);
             if (_profileDetailView.profileModalRoot != null) _profileDetailView.profileModalRoot.Hide(false);
@@ -473,7 +408,7 @@ namespace ScoreSaber.UI.Leaderboard {
                 SetErrorState(tableView, ref loadingControl, errorText: "");
                 tableView.SetScores(new List<LeaderboardTableView.ScoreData>(), -1);
                 SetClickersOff();
-                headerTextSTATIC.text = "";
+                _panelView.SetMapStatus("");
                 _currentLeaderboardRefreshId = refreshId;
                 if (_uploadDaemon.uploading) { return; }
                 if (!activated) { return; }
@@ -486,8 +421,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 ByeImages();
                 _errorText.gameObject.SetActive(false);
                 loadingControl.SetActive(true);
-                starRatingBox.gameObject.SetActive(false);
-                headerSTATIC.gameObject.SetActive(true);
                 _mapInfoView.ResetName();
                 _mapInfoView.mapInfoSetLoading.gameObject.SetActive(true);
                 _mapInfoView.mapInfoSet.SetActive(false);
@@ -495,8 +428,6 @@ namespace ScoreSaber.UI.Leaderboard {
                 if (_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey) != null) {
                     SetPanelStatus(_leaderboardService.GetLeaderboardInfoMapFromCache(beatmapKey));
                     setPanelStatusFromCache = true;
-                } else {
-                    _tweeningUtils.LerpColor(_headerBackground, grey, 0.1f);
                 }
 
                 if (cancellationToken != null) {

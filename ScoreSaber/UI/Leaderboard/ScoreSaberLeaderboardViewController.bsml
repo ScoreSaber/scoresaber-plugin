@@ -173,38 +173,5 @@
 			</horizontal>
 		</macro.for-each>
 	</vertical>
-
-
-	<horizontal pref-width="90"
-			pref-height="8"
-			anchor-pos-y="41.5"
-			id="myHeader"
-			horizontal-fit="PreferredSize"
-			background="round-rect-panel">
-		<stack>
-			<horizontal active="false" child-align="MiddleCenter" pad="2" bg="round-rect-panel" id="starRatingBox" bg-color="#000000EE" spacing="0.75" horizontal-fit="PreferredSize" preferred-width="18" size-delta-x="18" size-delta-y="7" preferred-height="7" vertical-fit="PreferredSize">
-				<clickable-text id="headerText"
-					  text="SCORESABER"
-					  font-size="5"
-					  on-click="MapInfoClicked"	
-					  align="Midline"
-					  italics="true"
-					  rich-text="true"
-					  active="true"
-					  />
-			</horizontal>
-			<horizontal id="headerSTATIC">
-				<clickable-text id="headerTextSTATIC"
-					text="UNRANKED"
-					font-size="6"
-					on-click="MapInfoClicked"
-					align="Midline"
-					italics="true"
-					rich-text="true"
-					/>
-			</horizontal>
-		</stack>
-	</horizontal>
-	
 	<ss-profile id="profile-detail-view" show-event="show-profile" loading="false" />
 </bg>
