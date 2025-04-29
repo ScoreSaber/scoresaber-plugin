@@ -44,7 +44,7 @@ jobs:
       run: mv Stripped/Versions/${{ steps.read-json.outputs.game_version }} Refs
       
     - name: Acquire mod references
-      uses: Goobwabber/download-beatmods-deps@1.2
+      uses: Goobwabber/download-beatmods-deps@1.3
       with:
         manifest: ${{github.workspace}}/ScoreSaber/manifest.json
         
