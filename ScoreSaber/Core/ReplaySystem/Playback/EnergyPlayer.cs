@@ -56,6 +56,14 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
                 director.Stop();
                 director.RebindPlayableGraphOutputs();
                 director.Evaluate();
+                if(!isFailingEnergy) {
+                    _gameEnergyUIPanel.transform.Find("Laser").gameObject.SetActive(false);
+                }
+                var fullIcon = _gameEnergyUIPanel.transform.Find("EnergyIconFull");
+                var emptyIcon = _gameEnergyUIPanel.transform.Find("EnergyIconEmpty");
+                fullIcon.transform.localPosition = new Vector3(59, 0);
+                emptyIcon.transform.localPosition = new Vector3(-59, 0);
+                _gameEnergyCounter.gameEnergyDidChangeEvent += _gameEnergyUIPanel.HandleGameEnergyDidChange;
                 _gameEnergyUIPanel._energyBar.enabled = !isFailingEnergy;
             }
             _gameEnergyUIPanel.RefreshEnergyUI(energy);
