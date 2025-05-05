@@ -48,7 +48,7 @@
 		  <horizontal horizontal-fit="Unconstrained" preferred-width="15" vertical-fit="PreferredSize">
 			  <text font-size="3" text="00:00" align="MidlineLeft" id="currentTimeText" word-wrapping="false" size-delta-x="5" outline-width="2" outline-color="black"/>
 		  </horizontal>
-		  <horizontal ignore-layout="true" anchored-position-x="7" child-align="MiddleLeft">
+		  <horizontal id="timebarHorizontal" ignore-layout="true" anchored-position-x="7" child-align="MiddleLeft">
 			  <image ignore-layout="true" preferred-height="3" id="timebarbg" src="ScoreSaber.Resources.pixel.png" size-delta-y="3" size-delta-x="40" preferred-width="40"/>
 			  <image anchor-pos-x="-19" ignore-layout="true" preferred-height="3" id="timebarActive" src="ScoreSaber.Resources.bluePixel.png" size-delta-y="3" size-delta-x="2"/>
 		  </horizontal>

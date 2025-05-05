@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Core.Data;
+using ScoreSaber.Core.ReplaySystem.Data;
 using SiraUtil.Affinity;
 using SiraUtil.Tools.FPFC;
 using System;
@@ -153,6 +154,9 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [UIComponent("tooltipHeader")]
         public VerticalLayoutGroup tooltipHeader = null;
 
+        [UIComponent("timebarHorizontal")]
+        public HorizontalLayoutGroup timebarHorizontal = null;
+
         private void DisableItalics(GameObject obj) {
             TextMeshProUGUI[] textMeshProUGUIs = obj.GetComponentsInChildren<TextMeshProUGUI>();
 
@@ -288,6 +292,56 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
             didParse = true;
         }
+
+        private Sprite _missSprite = null;
+        private Transform _timebarTransform = null;
+        public void SetupTimebarMissImages(NoteEvent[] noteEvents) {
+            if(noteEvents.All(x => x.EventType != NoteEventType.Miss && x.EventType != NoteEventType.BadCut)) return; // is this something to even check for :shrug:
+            if (_missSprite == null)
+#pragma warning disable CS0618 // Type or member is obsolete
+                _missSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.miss.png");
+#pragma warning restore CS0618 // Type or member is obsolete
+            if (_timebarTransform == null)
+                _timebarTransform = timebarHorizontal.transform;
+
+            Dictionary<int, int> missCountPerSecond = new();
+            List<GameObject> misses = new();
+
+            foreach (var noteEvent in noteEvents) {
+                if (noteEvent.EventType != NoteEventType.Miss && noteEvent.EventType != NoteEventType.BadCut) continue;
+
+                int second = Mathf.FloorToInt(noteEvent.Time);
+                if (missCountPerSecond.TryGetValue(second, out int count) && count >= 5) continue;
+
+                missCountPerSecond[second] = count + 1;
+
+                var go = GetMissImage();
+                var rect = go.GetComponent<RectTransform>();
+                rect.SetParent(_timebarTransform, false);
+                rect.anchoredPosition = new Vector2(Mathf.Lerp(-19, 19, noteEvent.Time / _audioTimeSyncController.songLength), 0);
+
+                if (timebarActive != null)
+                    go.transform.SetSiblingIndex(timebarActive.transform.GetSiblingIndex());
+
+                go.SetActive(true);
+                misses.Add(go);
+            }
+        }
+
+        private GameObject GetMissImage() {
+            var go = new GameObject("missImage");
+            var imageView = go.AddComponent<ImageView>();
+            imageView.sprite = _missSprite;
+            imageView.raycastTarget = false;
+            imageView.rectTransform.sizeDelta = new Vector2(1.5f, 1.5f);
+            imageView.transform.localScale = new Vector3(1.25f, 2f, 1f);
+
+            var layout = go.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+
+            return go;
+        }
+
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
 

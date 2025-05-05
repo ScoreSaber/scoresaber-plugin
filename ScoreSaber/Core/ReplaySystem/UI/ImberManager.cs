@@ -27,7 +27,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
         private readonly ImberUIPositionController _imberUIPositionController;
         private readonly DesktopMainImberPanelView _desktopMainImberPanelView;
         private readonly TweeningUtils _tweeningUtils;
-
+        public readonly NoteEvent[] noteEvents;
         private readonly IEnumerable<string> _positions;
 
         public ImberManager(ReplayFile file, IGamePause gamePause, ImberScrubber imberScrubber, ImberSpecsReporter imberSpecsReporter, MainImberPanelView mainImberPanelView, SpectateAreaController spectateAreaController,
@@ -45,12 +45,13 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _imberUIPositionController = imberUIPositionController;
             _desktopMainImberPanelView = desktopMainImberPanelView;
             _tweeningUtils = tweeningUtils;
-
+            noteEvents = file.noteKeyframes.ToArray();
             _positions = Plugin.Settings.spectatorPositions.Select(sp => sp.name);
             _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
             _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
             _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
             _desktopMainImberPanelView.Setup(1f, 90);
+            _desktopMainImberPanelView.SetupTimebarMissImages(noteEvents);
         }
 
         public void Initialize() {

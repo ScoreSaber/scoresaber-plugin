@@ -40,6 +40,7 @@
     <None Remove="Resources\globe.png" />
     <None Remove="Resources\grayPixel.png" />
     <None Remove="Resources\link.png" />
+    <None Remove="Resources\miss.png" />
     <None Remove="Resources\Offline.png" />
     <None Remove="Resources\Online.png" />
     <None Remove="Resources\Player.png" />
@@ -51,6 +52,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\bluePixel.png" />
     <EmbeddedResource Include="Resources\grayPixel.png" />
+    <EmbeddedResource Include="Resources\miss.png" />
     <EmbeddedResource Include="Resources\Offline.png" />
     <EmbeddedResource Include="Resources\Online.png" />
     <EmbeddedResource Include="Resources\PromoTest.png" />

@@ -36,6 +36,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         private void Start() {
             originalScale = timebarActive.transform.localScale;
+            timebarActive.color = new Color(timebarActive.color.r, timebarActive.color.g, timebarActive.color.b, 0.95f);
             hoverScale = new Vector3(originalScale.x, originalScale.y * 1.2f, originalScale.z);
         }
 
