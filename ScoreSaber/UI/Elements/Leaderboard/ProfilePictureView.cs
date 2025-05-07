@@ -56,7 +56,9 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (SpriteCache.cachedSprites.ContainsKey(url)) {
                     profileImage.sprite = SpriteCache.cachedSprites[url];
-                    _tweeningUtils.FadeImageView(profileImage, true, 0.2f);
+                    if (profileImage.isActiveAndEnabled) {
+                        _tweeningUtils.FadeImageView(profileImage, true, 0.2f);
+                    }
                     loadingIndicator.gameObject.SetActive(false);
                     return;
                 }
@@ -109,7 +111,9 @@ namespace ScoreSaber.UI.Elements.Leaderboard {
                 }
             }
             profileImage.sprite = a;
-            _tweeningUtils.FadeImageView(profileImage, true, 0.2f);
+            if (profileImage.isActiveAndEnabled) {
+                _tweeningUtils.FadeImageView(profileImage, true, 0.2f);
+            }
             loadingIndicator.gameObject.SetActive(false);
         }
 

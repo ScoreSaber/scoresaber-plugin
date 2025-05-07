@@ -57,7 +57,13 @@ namespace ScoreSaber.Core.Utils {
             float lerpDuration = 0.15f;
 
             StopAllCoroutines();
-            StartCoroutine(LerpColors(seperator, seperator.color, targetColor, seperator.color0, targetColor0, seperator.color1, targetColor1, lerpDuration));
+            if (seperator.isActiveAndEnabled) {
+                StartCoroutine(LerpColors(seperator, seperator.color, targetColor, seperator.color0, targetColor0, seperator.color1, targetColor1, lerpDuration));
+            } else {
+                seperator.color = targetColor;
+                seperator.color0 = targetColor0;
+                seperator.color1 = targetColor1;
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData) {
@@ -70,7 +76,13 @@ namespace ScoreSaber.Core.Utils {
             float lerpDuration = 0.05f;
 
             StopAllCoroutines();
-            StartCoroutine(LerpColors(seperator, seperator.color, origColour, seperator.color0, origColour0, seperator.color1, origColour1, lerpDuration));
+            if (seperator.isActiveAndEnabled) {
+                StartCoroutine(LerpColors(seperator, seperator.color, origColour, seperator.color0, origColour0, seperator.color1, origColour1, lerpDuration));
+            } else {
+                seperator.color = origColour;
+                seperator.color0 = origColour0;
+                seperator.color1 = origColour1;
+            }
         }
 
         public void ResetColourAndSize() {
