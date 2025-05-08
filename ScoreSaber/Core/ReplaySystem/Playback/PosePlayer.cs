@@ -137,19 +137,19 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
             float lerpTime = (audioTimeSyncController.songTime - activePose.Time) / Mathf.Max(0.000001f, nextPose.Time - activePose.Time);
 
-            //_mainCamera.transform.SetPositionAndRotation(activePose.Head.Position.Convert(), activePose.Head.Rotation.Convert());
-            Accessors.HeadTransform(ref _playerTransforms).SetPositionAndRotation(activePose.Head.Position.Convert(), activePose.Head.Rotation.Convert());
+
+            var originParentTransform = _playerTransforms._originParentTransform;
 
             if (_saberEnabled) {
 
                 _saberManager.leftSaber.OverridePositionAndRotation(
-                    Vector3.Lerp(activePose.Left.Position.Convert(), nextPose.Left.Position.Convert(), lerpTime),
-                    Quaternion.Lerp(activePose.Left.Rotation.Convert(), nextPose.Left.Rotation.Convert(), lerpTime)
+                    originParentTransform.TransformPoint(Vector3.Lerp(activePose.Left.Position.Convert(), nextPose.Left.Position.Convert(), lerpTime)),
+                    originParentTransform.rotation * Quaternion.Lerp(activePose.Left.Rotation.Convert(), nextPose.Left.Rotation.Convert(), lerpTime)
                 );
 
                 _saberManager.rightSaber.OverridePositionAndRotation(
-                    Vector3.Lerp(activePose.Right.Position.Convert(), nextPose.Right.Position.Convert(), lerpTime),
-                    Quaternion.Lerp(activePose.Right.Rotation.Convert(), nextPose.Right.Rotation.Convert(), lerpTime)
+                    originParentTransform.TransformPoint(Vector3.Lerp(activePose.Right.Position.Convert(), nextPose.Right.Position.Convert(), lerpTime)),
+                    originParentTransform.rotation * Quaternion.Lerp(activePose.Right.Rotation.Convert(), nextPose.Right.Rotation.Convert(), lerpTime)
                 );
             } else {
                 _saberManager.leftSaber.OverridePositionAndRotation(Vector3.zero, new Quaternion(0, 0, 0, 0));
@@ -157,8 +157,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             }
 
 
-            var pos = Vector3.Lerp(activePose.Head.Position.Convert(), nextPose.Head.Position.Convert(), lerpTime);
-            var rot = Quaternion.Lerp(activePose.Head.Rotation.Convert(), nextPose.Head.Rotation.Convert(), lerpTime);
+            var pos = originParentTransform.TransformPoint(Vector3.Lerp(activePose.Head.Position.Convert(), nextPose.Head.Position.Convert(), lerpTime));
+            var rot = originParentTransform.rotation * Quaternion.Lerp(activePose.Head.Rotation.Convert(), nextPose.Head.Rotation.Convert(), lerpTime);
+
+            _playerTransforms._headTransform.SetPositionAndRotation(pos, rot);
 
             var eulerAngles = rot.eulerAngles;
             Vector3 headRotationOffset = new Vector3(Plugin.Settings.replayCameraXRotation, Plugin.Settings.replayCameraYRotation, Plugin.Settings.replayCameraZRotation);
@@ -169,9 +171,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             pos.x += Plugin.Settings.replayCameraXOffset;
             pos.y += Plugin.Settings.replayCameraYOffset;
             pos.z += Plugin.Settings.replayCameraZOffset;
-            if (!_fpfcSettings.Enabled) {
-                _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
-            }
+
+            _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
 
             DidUpdatePose?.Invoke(activePose);
         }
