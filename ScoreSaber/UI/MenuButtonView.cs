@@ -23,7 +23,7 @@ namespace ScoreSaber.UI.ViewControllers {
 			_mainFlowCoordinator = mainFlowCoordinator;
 			_scoreSaberFlowCoordinator = scoreSaberFlowCoordinator;
             _menuButtons = menuButtons;
-            _scoresaberMenuButton = new MenuButton("<color=yellow>ScoreSaber</color>", "View the ScoreSaber Global Leaderboards, team members & more!", new Action(this.PresentScoreSaberFlow), true);
+            _scoresaberMenuButton = new MenuButton("ScoreSaber", "View the ScoreSaber Global Leaderboards, team members & more!", new Action(this.PresentScoreSaberFlow), true);
 		}
 
         public void Initialize() {

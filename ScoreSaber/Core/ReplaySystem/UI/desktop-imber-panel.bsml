@@ -50,7 +50,7 @@
 		  </horizontal>
 		  <horizontal id="timebarHorizontal" ignore-layout="true" anchored-position-x="7" child-align="MiddleLeft">
 			  <image ignore-layout="true" preferred-height="3" id="timebarbg" src="ScoreSaber.Resources.pixel.png" size-delta-y="3" size-delta-x="40" preferred-width="40"/>
-			  <image anchor-pos-x="-19" ignore-layout="true" preferred-height="3" id="timebarActive" src="ScoreSaber.Resources.bluePixel.png" size-delta-y="3" size-delta-x="2"/>
+			  <image anchor-pos-x="-19" ignore-layout="true" preferred-height="3" id="timebarActive" src="ScoreSaber.Resources.pixel.png" size-delta-y="3" size-delta-x="2"/>
 		  </horizontal>
 	  </horizontal>
   </vertical>

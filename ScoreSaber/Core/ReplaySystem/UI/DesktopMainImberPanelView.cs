@@ -237,8 +237,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             __Init(screen, parentViewController, containerViewController);
             screen.SetRootViewController(this, ViewController.AnimationType.None);
 
-            timebarActive.material = Plugin.NoGlowMatRound;
-            timebarbg.material = Plugin.NoGlowMatRound;
+            //timebarActive.material = Plugin.NoGlowMatRound;
+            //timebarbg.material = Plugin.NoGlowMatRound;
 
 
             var contents = this.gameObject.transform.Find("Contents");
@@ -276,6 +276,8 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                     _imberScrubber.MainNode_PositionDidChange(progress);
                 };
                 var y = timebarbg.gameObject.AddComponent<TimebarBackgroundHandler>();
+                timebarbg.color = new Color(1, 1f, 1f, 0.5f);
+
                 y.upClick += UpClick;
                 y.downClick += DownClick;
                 y.progressHandler = x;

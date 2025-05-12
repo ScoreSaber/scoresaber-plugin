@@ -29,7 +29,9 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private bool initialFPFCState;
 
-        public PosePlayer(ReplayFile file, MainCamera mainCamera, SaberManager saberManager, IReturnToMenuController returnToMenuController, IFPFCSettings fpfcSettings, PlayerTransforms playerTransforms, SettingsManager settingsManager, PauseController pauseController) {
+        private readonly DiContainer _diContainer;
+
+        public PosePlayer(ReplayFile file, MainCamera mainCamera, SaberManager saberManager, IReturnToMenuController returnToMenuController, IFPFCSettings fpfcSettings, PlayerTransforms playerTransforms, SettingsManager settingsManager, PauseController pauseController, DiContainer diContainer) {
 
             _fpfcSettings = fpfcSettings;
             initialFPFCState = fpfcSettings.Enabled;
@@ -43,6 +45,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             _settingsManager = settingsManager;
             _playerTransforms = playerTransforms;
             _pauseController = pauseController;
+            _diContainer = diContainer;
         }
 
         public void Initialize() {
@@ -87,10 +90,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             spectatorObject.transform.rotation = rotation;
             _spectatorCamera.stereoTargetEye = StereoTargetEyeMask.Both;
             _mainCamera.gameObject.GetComponent<TrackedPoseDriver>().CopyComponent<TrackedPoseDriver>(_spectatorCamera.gameObject);
-            
+
             // recreate the DepthTextureController since Instantiate seems to leave it wrongly initialized (i.e. without Zenject objects)
             Component.Destroy(_spectatorCamera.gameObject.GetComponent<DepthTextureController>());
-            _mainCamera.gameObject.GetComponent<DepthTextureController>().CopyComponent<DepthTextureController>(_spectatorCamera.gameObject);
+            _diContainer.InstantiateComponent<DepthTextureController>(_spectatorCamera.gameObject); // this creates it with the correct Zenject objects, instead of copying it from the main camera
 
             _spectatorCamera.gameObject.SetActive(true);
             _spectatorCamera.depth = 0;
@@ -150,19 +153,19 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
             float lerpTime = (audioTimeSyncController.songTime - activePose.Time) / Mathf.Max(0.000001f, nextPose.Time - activePose.Time);
 
-            //_mainCamera.transform.SetPositionAndRotation(activePose.Head.Position.Convert(), activePose.Head.Rotation.Convert());
-            _playerTransforms._headTransform.SetPositionAndRotation(activePose.Head.Position.Convert(), activePose.Head.Rotation.Convert());
+
+            var originParentTransform = _playerTransforms._originParentTransform;
 
             if (_saberEnabled) {
 
                 _saberManager.leftSaber.OverridePositionAndRotation(
-                    Vector3.Lerp(activePose.Left.Position.Convert(), nextPose.Left.Position.Convert(), lerpTime),
-                    Quaternion.Lerp(activePose.Left.Rotation.Convert(), nextPose.Left.Rotation.Convert(), lerpTime)
+                    originParentTransform.TransformPoint(Vector3.Lerp(activePose.Left.Position.Convert(), nextPose.Left.Position.Convert(), lerpTime)),
+                    originParentTransform.rotation * Quaternion.Lerp(activePose.Left.Rotation.Convert(), nextPose.Left.Rotation.Convert(), lerpTime)
                 );
 
                 _saberManager.rightSaber.OverridePositionAndRotation(
-                    Vector3.Lerp(activePose.Right.Position.Convert(), nextPose.Right.Position.Convert(), lerpTime),
-                    Quaternion.Lerp(activePose.Right.Rotation.Convert(), nextPose.Right.Rotation.Convert(), lerpTime)
+                    originParentTransform.TransformPoint(Vector3.Lerp(activePose.Right.Position.Convert(), nextPose.Right.Position.Convert(), lerpTime)),
+                    originParentTransform.rotation * Quaternion.Lerp(activePose.Right.Rotation.Convert(), nextPose.Right.Rotation.Convert(), lerpTime)
                 );
             } else {
                 _saberManager.leftSaber.OverridePositionAndRotation(Vector3.zero, new Quaternion(0, 0, 0, 0));
@@ -170,8 +173,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             }
 
 
-            var pos = Vector3.Lerp(activePose.Head.Position.Convert(), nextPose.Head.Position.Convert(), lerpTime);
-            var rot = Quaternion.Lerp(activePose.Head.Rotation.Convert(), nextPose.Head.Rotation.Convert(), lerpTime);
+            var pos = originParentTransform.TransformPoint(Vector3.Lerp(activePose.Head.Position.Convert(), nextPose.Head.Position.Convert(), lerpTime));
+            var rot = originParentTransform.rotation * Quaternion.Lerp(activePose.Head.Rotation.Convert(), nextPose.Head.Rotation.Convert(), lerpTime);
+
+            _playerTransforms._headTransform.SetPositionAndRotation(pos, rot);
 
             var eulerAngles = rot.eulerAngles;
             Vector3 headRotationOffset = new Vector3(Plugin.Settings.replayCameraXRotation, Plugin.Settings.replayCameraYRotation, Plugin.Settings.replayCameraZRotation);
@@ -182,9 +187,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             pos.x += Plugin.Settings.replayCameraXOffset;
             pos.y += Plugin.Settings.replayCameraYOffset;
             pos.z += Plugin.Settings.replayCameraZOffset;
-            if (!_fpfcSettings.Enabled) {
-                _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
-            }
+
+            _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
+            
+            _playerTransforms.Update();
 
             DidUpdatePose?.Invoke(activePose);
         }
