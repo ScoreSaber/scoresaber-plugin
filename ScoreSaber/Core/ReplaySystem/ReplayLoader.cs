@@ -67,6 +67,7 @@ namespace ScoreSaber.Core.ReplaySystem {
                     gameplayModifiers = new GameplayModifiers();
                 }
 
+                await IPA.Utilities.UnityGame.SwitchToMainThreadAsync();
                 _menuTransitionsHelper.StartStandardLevel(
                     gameMode: "Replay",
                     beatmapKey: beatmapKey,
@@ -125,7 +126,7 @@ namespace ScoreSaber.Core.ReplaySystem {
 
         private async Task StartReplay(ReplayFile replay, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey) {
 
-            await Task.Run(() => {
+            await Task.Run(async() => {
                 Plugin.ReplayState.IsLegacyReplay = false;
                 Plugin.ReplayState.IsPlaybackEnabled = true;
                 Plugin.ReplayState.LoadedReplayFile = replay;
@@ -142,7 +143,8 @@ namespace ScoreSaber.Core.ReplaySystem {
                     localPlayerSettings.headsetHapticIntensity);
 
                 _standardLevelScenesTransitionSetupDataSO.didFinishEvent -= UploadDaemonHelper.ThreeInstance;
-                
+
+                await IPA.Utilities.UnityGame.SwitchToMainThreadAsync();
                 _menuTransitionsHelper.StartStandardLevel(
                     gameMode: "Replay",
                     beatmapKey: beatmapKey,

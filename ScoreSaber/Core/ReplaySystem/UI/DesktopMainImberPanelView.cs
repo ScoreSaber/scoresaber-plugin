@@ -24,7 +24,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
     [HotReload(RelativePathToLayout = @"desktop-imber-panel.bsml")]
     [ViewDefinition("ScoreSaber.Core.ReplaySystem.UI.desktop-imber-panel.bsml")]
-    internal class DesktopMainImberPanelView : BSMLAutomaticViewController, IAffinity, IDisposable {
+    internal class DesktopMainImberPanelView : BSMLAutomaticViewController, IAffinity, IDisposable, IInitializable {
 
         public event Action<XRNode> HandDidSwitchEvent;
         public event Action<float> DidTimeSyncChange;
@@ -191,69 +191,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
         [InjectOptional] private IFPFCSettings _fpfcSettings = null;
 
-        [Inject]
-        protected void Construct() {
-            if (_fpfcSettings == null) return;
-            if (!_fpfcSettings.Enabled && !Environment.GetCommandLineArgs().Contains("fpfc")) return; // fpfcSettings is being inconsistent?
-            GameObject inputOBJ;
-
-            var canvasGameObj = new GameObject();
-            var canvas = canvasGameObj.AddComponent<Canvas>();
-
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            HMUI.Screen screen = canvasGameObj.AddComponent<HMUI.Screen>();
-            var canvasScaler = screen.gameObject.AddComponent<CanvasScaler>();
-            canvasScaler.referenceResolution = new Vector2(350, 300);
-            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-
-            canvasScaler.dynamicPixelsPerUnit = 3.44f;
-            canvasScaler.referencePixelsPerUnit = 10f;
-
-            canvas.name = "ScoreSaberDesktopImberUI";
-
-            canvasGameObj.SetActive(true);
-
-            canvas.sortingOrder = 1;
-            canvas.overrideSorting = true;
-
-            canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2;
-
-            var canvasGR = canvas.gameObject.AddComponent<GraphicRaycaster>();
-            gameObject.AddComponent<GraphicRaycaster>();
-
-            originalEventSystem = _inputModule.GetComponent<EventSystem>();
-
-            inputOBJ = new GameObject("ImberInputGO");
-            inputOBJ.AddComponent<StandaloneInputModule>();
-            Cursor.visible = true;
-
-            if(inputOBJ.GetComponent<EventSystem>() == null) {
-                imberEventSystem = inputOBJ.AddComponent<EventSystem>();
-            }
-
-            EventSystem.current = imberEventSystem;
-
-            gameObject.transform.SetParent(canvas.transform, false);
-            __Init(screen, parentViewController, containerViewController);
-            screen.SetRootViewController(this, ViewController.AnimationType.None);
-
-            //timebarActive.material = Plugin.NoGlowMatRound;
-            //timebarbg.material = Plugin.NoGlowMatRound;
-
-
-            var contents = this.gameObject.transform.Find("Contents");
-            var containerRect = contents.GetComponent<RectTransform>();
-            containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
-            containerRect.anchorMin = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
-            contents.localScale = new Vector2(Plugin.Settings.replayUISize, Plugin.Settings.replayUISize);
-        }
-
-
-        public void Dispose() {
-            if (!_fpfcSettings.Enabled) return;
-            //EventSystem.current = originalEventSystem;
-            Cursor.visible = false;
-        }
 
 
         public void Setup(float initialSongTime, int targetFramerate) {
@@ -289,8 +226,6 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                     }
                 };
                 SetupObjects();
-                
-
             }
             didParse = true;
         }
@@ -419,6 +354,64 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                 return true;
             }
             return false;
+        }
+
+        public void Initialize() {
+            if (_fpfcSettings == null) return;
+            if (!_fpfcSettings.Enabled && !Environment.GetCommandLineArgs().Contains("fpfc")) return; // fpfcSettings is being inconsistent?
+            GameObject inputOBJ;
+
+            var canvasGameObj = new GameObject();
+            var canvas = canvasGameObj.AddComponent<Canvas>();
+
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            HMUI.Screen screen = canvasGameObj.AddComponent<HMUI.Screen>();
+            var canvasScaler = screen.gameObject.AddComponent<CanvasScaler>();
+            canvasScaler.referenceResolution = new Vector2(350, 300);
+            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+
+            canvasScaler.dynamicPixelsPerUnit = 3.44f;
+            canvasScaler.referencePixelsPerUnit = 10f;
+
+            canvas.name = "ScoreSaberDesktopImberUI";
+
+            canvasGameObj.SetActive(true);
+
+            canvas.sortingOrder = 1;
+            canvas.overrideSorting = true;
+
+            canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2;
+
+            var canvasGR = canvas.gameObject.AddComponent<GraphicRaycaster>();
+            gameObject.AddComponent<GraphicRaycaster>();
+
+            originalEventSystem = _inputModule.GetComponent<EventSystem>();
+
+            inputOBJ = new GameObject("ImberInputGO");
+            inputOBJ.AddComponent<StandaloneInputModule>();
+            Cursor.visible = true;
+
+            if (inputOBJ.GetComponent<EventSystem>() == null) {
+                imberEventSystem = inputOBJ.AddComponent<EventSystem>();
+                imberEventSystem.name = "ImberEventSystem";
+                inputOBJ.name = "ImberInputModule";
+            }
+
+            gameObject.transform.SetParent(canvas.transform, false);
+            __Init(screen, parentViewController, containerViewController);
+            screen.SetRootViewController(this, ViewController.AnimationType.None);
+
+            var contents = this.gameObject.transform.Find("Contents");
+            var containerRect = contents.GetComponent<RectTransform>();
+            containerRect.anchorMax = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
+            containerRect.anchorMin = new Vector2(Plugin.Settings.replayUIPosition.x, Plugin.Settings.replayUIPosition.y);
+            contents.localScale = new Vector2(Plugin.Settings.replayUISize, Plugin.Settings.replayUISize);
+        }
+
+
+        public void Dispose() {
+            if (!_fpfcSettings.Enabled) return;
+            Cursor.visible = false;
         }
     }
 }
