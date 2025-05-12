@@ -18,7 +18,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         private readonly SaberManager _saberManager;
         private readonly NoteEvent[] _sortedNoteEvents;
         private readonly NoteID[] _sortedNoteIDs;
-
+        private readonly ReplayFile _replayFile;
         private readonly NoteEvent[] _sortedNotMissedNoteEvents;
         private readonly NoteID[] _sortedMissedNoteIDs;
 
@@ -29,14 +29,6 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
         private readonly Dictionary<NoteCutInfo, NoteEvent> _recognizedNoteCutInfos = new Dictionary<NoteCutInfo, NoteEvent>();
         private readonly Dictionary<NoteID, NoteCutInfo> _noteCutInfoCache = new Dictionary<NoteID, NoteCutInfo>();
-
-        private readonly Dictionary<string, Dictionary<int, List<int>>> versionConversion = new Dictionary<string, Dictionary<int, List<int>>>() {
-            { "3.0.0", new Dictionary<int, List<int>>() { // 3.0.0 -> latest
-                { 2, new List<int> { 2, 6 } }, // Scoring type 2 can be represented as 2 or 6
-                { 3, new List<int> { 3, 6 } }, // Scoring type 3 can be represented as 3 or 6
-                { 6, new List<int> { 6 } }      // Scoring type 6 can only be represented as 6
-            } }
-        };
 
         public NotePlayer(SiraLog siraLog, ReplayFile file, SaberManager saberManager, BasicBeatmapObjectManager basicBeatmapObjectManager) {
 
@@ -51,6 +43,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
 
             _sortedNotMissedNoteEvents = _sortedNoteEvents.Where(nk => nk.EventType != NoteEventType.Miss).ToArray();
             _sortedMissedNoteIDs = _sortedNotMissedNoteEvents.Select(ne => ne.NoteID).ToArray();
+            _replayFile = file;
         }
 
         public void Tick() {
@@ -149,26 +142,15 @@ namespace ScoreSaber.Core.ReplaySystem.Playback {
         }
 
         bool DoesNoteMatchID(NoteID id, NoteData noteData) {
+
             if (!Mathf.Approximately(id.Time, noteData.time) || id.LineIndex != noteData.lineIndex || id.LineLayer != (int)noteData.noteLineLayer || id.ColorType != (int)noteData.colorType || id.CutDirection != (int)noteData.cutDirection)
                 return false;
 
             if (id.GameplayType is int gameplayType && gameplayType != (int)noteData.gameplayType)
                 return false;
 
-            // check if we need to convert scoring type from a pre 1.40.0 replay
-            if (versionConversion.TryGetValue(Plugin.ReplayState.LoadedReplayFile.metadata.Version, out Dictionary<int, List<int>> ScoringTypeConversions)) {
-                if (id.ScoringType is int scoringType) {
-                    if (ScoringTypeConversions.TryGetValue(scoringType, out List<int> allowedConversions)) {
-                        if (!allowedConversions.Contains((int)noteData.scoringType)) {
-                            return false;
-                        }
-                    } else if (scoringType != (int)noteData.scoringType) {
-                        return false; // cant find conversion, strict matching
-                    }
-                }
-            }
-            else if (id.ScoringType is int scoringType && scoringType != (int)noteData.scoringType)
-            return false; // strict matching like normal
+            if (!id.MatchesScoringType(noteData.scoringType, _replayFile.metadata.GameVersion))
+                return false;
 
             if (id.CutDirectionAngleOffset is float cutDirectionAngleOffset && !Mathf.Approximately(cutDirectionAngleOffset, noteData.cutDirectionAngleOffset))
                 return false;

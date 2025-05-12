@@ -71,7 +71,7 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         private int WriteMetadata(Metadata metadata, MemoryStream outputStream) {
 
             int bytesWritten = 0;
-            bytesWritten += WriteString(metadata.Version, outputStream);
+            bytesWritten += WriteString(metadata.Version.ToString(), outputStream);
             bytesWritten += WriteString(metadata.LevelID, outputStream);
             bytesWritten += WriteInt(metadata.Difficulty, outputStream);
             bytesWritten += WriteString(metadata.Characteristic, outputStream);
