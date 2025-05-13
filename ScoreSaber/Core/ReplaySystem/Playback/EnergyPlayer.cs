@@ -3,6 +3,7 @@ using ScoreSaber.Core.ReplaySystem.Data;
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Zenject;
 
 namespace ScoreSaber.Core.ReplaySystem.Playback
@@ -11,11 +12,13 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
     {
         private GameEnergyCounter _gameEnergyCounter;
         private GameEnergyUIPanel _gameEnergyUIPanel;
+        private PlayerDataModel _playerDataModel;
         private readonly EnergyEvent[] _sortedEnergyEvents;
 
-        public EnergyPlayer(ReplayFile file, GameEnergyCounter gameEnergyCounter, DiContainer container) {
+        public EnergyPlayer(ReplayFile file, GameEnergyCounter gameEnergyCounter, PlayerDataModel playerDataModel, DiContainer container) {
 
             _gameEnergyCounter = gameEnergyCounter;
+            _playerDataModel = playerDataModel;
             _gameEnergyUIPanel = container.TryResolve<GameEnergyUIPanel>();
             _sortedEnergyEvents = file.energyKeyframes.ToArray();
         }
@@ -49,7 +52,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             Accessors.ActiveEnergy(ref _gameEnergyCounter, energy);
             Accessors.NoFailPropertyUpdater(ref _gameEnergyCounter, noFail);
 
-            if (_gameEnergyUIPanel != null) {
+            if (_gameEnergyUIPanel != null && !_playerDataModel.playerData.playerSpecificSettings.noTextsAndHuds) {
                 _gameEnergyUIPanel.Init();
                 var director = Accessors.Director(ref _gameEnergyUIPanel);
                 director.Stop();
