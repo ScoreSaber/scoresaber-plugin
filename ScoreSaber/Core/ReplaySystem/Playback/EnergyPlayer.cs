@@ -40,6 +40,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
 
         private void UpdateEnergy(float energy) {
 
+            if(_gameEnergyUIPanel || !_gameEnergyUIPanel.gameObject.activeSelf) {
+                return;
+            }
+
             bool isFailingEnergy = energy <= Mathf.Epsilon;
 
             bool noFail = _gameEnergyCounter.noFail;

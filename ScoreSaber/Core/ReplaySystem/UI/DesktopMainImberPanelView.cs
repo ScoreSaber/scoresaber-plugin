@@ -6,6 +6,7 @@ using HMUI;
 using IPA.Utilities;
 using ScoreSaber.Core.Data;
 using ScoreSaber.Core.ReplaySystem.Data;
+using ScoreSaber.Core.Utils;
 using SiraUtil.Affinity;
 using SiraUtil.Tools.FPFC;
 using System;
@@ -43,6 +44,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null;
         [Inject] private readonly ImberScrubber _imberScrubber = null;
         [Inject] private readonly PauseMenuManager _pauseMenuManager = null;
+        [Inject] private readonly TweeningUtils _tweeningUtils = null;
 
         private EventSystem originalEventSystem;
         private EventSystem imberEventSystem;
@@ -187,23 +189,27 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
             }
             tabSelector.transform.localScale = new Vector2(1.2f, 1.2f);
             UnskewImageViews(_container.gameObject);
+            SetupTimebarMissImages(_noteEvents);
         }
 
         [InjectOptional] private IFPFCSettings _fpfcSettings = null;
 
+        private NoteEvent[] _noteEvents = null;
 
-
-        public void Setup(float initialSongTime, int targetFramerate) {
+        public void Setup(float initialSongTime, int targetFramerate, NoteEvent[] noteEvents) {
 
             _initialTime = initialSongTime;
             _targetFPS = targetFramerate;
             _timeSync = initialSongTime;
+            _noteEvents = noteEvents;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
 
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (firstActivation) {
+                _container.gameObject.SetActive(false);
+                tooltipHeader.gameObject.SetActive(false);
                 var x = timebarActive.gameObject.AddComponent<ProgressHandler>();
                 x.timebarBackground = timebarbg;
                 x.timebarActive = timebarActive;
@@ -226,21 +232,19 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
                     }
                 };
                 SetupObjects();
+                _tweeningUtils.FadeLayoutGroup(_container, !ScoreSaber.Plugin.Settings.startReplayUIHidden, 0.1f, tooltipHeader.gameObject);
             }
             didParse = true;
         }
 
         private Sprite _missSprite = null;
-        private Transform _timebarTransform = null;
         public void SetupTimebarMissImages(NoteEvent[] noteEvents) {
             if(noteEvents.All(x => x.EventType != NoteEventType.Miss && x.EventType != NoteEventType.BadCut)) return; // is this something to even check for :shrug:
-            if (_missSprite == null)
+            if (_missSprite == null) {
 #pragma warning disable CS0618 // Type or member is obsolete
                 _missSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("ScoreSaber.Resources.miss.png");
 #pragma warning restore CS0618 // Type or member is obsolete
-            if (_timebarTransform == null)
-                _timebarTransform = timebarHorizontal.transform;
-
+            }
             Dictionary<int, int> missCountPerSecond = new();
             List<GameObject> misses = new();
 
@@ -254,7 +258,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI {
 
                 var go = GetMissImage();
                 var rect = go.GetComponent<RectTransform>();
-                rect.SetParent(_timebarTransform, false);
+                rect.SetParent(timebarHorizontal.transform, false);
                 rect.anchoredPosition = new Vector2(Mathf.Lerp(-19, 19, noteEvent.Time / _audioTimeSyncController.songLength), 0);
 
                 if (timebarActive != null)

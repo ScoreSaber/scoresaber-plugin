@@ -50,8 +50,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             _mainImberPanelView.Setup(initData.timeScale, 90, _positions.First(), _positions);
             _imberScrubber.Setup(file.metadata.FailTime, file.metadata.Modifiers.Contains("NF"));
             _initialTimeScale = file.noteKeyframes.FirstOrDefault().TimeSyncTimescale;
-            _desktopMainImberPanelView.Setup(1f, 90);
-            _desktopMainImberPanelView.SetupTimebarMissImages(noteEvents);
+            _desktopMainImberPanelView.Setup(1f, 90, noteEvents);
         }
 
         public void Initialize() {
@@ -83,7 +82,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             }
 
             if(Plugin.Settings.startReplayUIHidden) {
-                _desktopMainImberPanelView.gameObject.SetActive(false);
+                _tweeningUtils.FadeLayoutGroup(_desktopMainImberPanelView._container, false, 0.1f, _desktopMainImberPanelView.tooltipHeader.gameObject);
             }
         }
 

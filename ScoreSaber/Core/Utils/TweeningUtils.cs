@@ -134,6 +134,12 @@ namespace ScoreSaber.Core.Utils {
             tween.onCompleted = () => {
                 if (layoutGroup == null) return;
                 layoutGroup.gameObject.SetActive(fadeIn);
+                foreach (CanvasRenderer canvasRenderer in canvasRenderers) {
+                    canvasRenderer.SetAlpha(endAlpha);
+                }
+                if (gameobjecttodisable != null) {
+                    gameobjecttodisable.SetActive(fadeIn);
+                }
             };
             tween.onKilled = () => {
                 if (layoutGroup == null) return;
@@ -141,9 +147,13 @@ namespace ScoreSaber.Core.Utils {
                 foreach (CanvasRenderer canvasRenderer in canvasRenderers) {
                     canvasRenderer.SetAlpha(endAlpha);
                 }
+                if (gameobjecttodisable != null) {
+                    gameobjecttodisable.SetActive(fadeIn);
+                }
             };
 
             layoutGroup.gameObject.SetActive(true);
+            gameobjecttodisable?.SetActive(true);
             _tweeningManager.AddTween(tween, layoutGroup);
         }
     }
