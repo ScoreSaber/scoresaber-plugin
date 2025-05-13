@@ -12,7 +12,7 @@ namespace ScoreSaber.Core.ReplaySystem.HarmonyPatches
                 if (score == 0 && maxPossibleScore == 0) {
                     Accessors.RelativeScore(ref __instance, 1f);
                     Accessors.ImmediateRank(ref __instance, RankModel.Rank.SS);
-                    ___relativeScoreOrImmediateRankDidChangeEvent.Invoke();
+                    ___relativeScoreOrImmediateRankDidChangeEvent?.Invoke();
                     return false;
                 }
                 return true;
