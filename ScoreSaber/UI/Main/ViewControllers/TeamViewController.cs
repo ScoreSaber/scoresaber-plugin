@@ -31,7 +31,7 @@ namespace ScoreSaber.UI.Main.ViewControllers
         [Inject] ScoreSaberHttpClient _scoresaberHttpClient = null;
 
         protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-
+            await IPA.Utilities.UnityGame.SwitchToMainThreadAsync(); // it touches unity stuff so we need to be on the main thread
             if (firstActivation) {
 
                 _teamHosts.Clear();
@@ -39,8 +39,9 @@ namespace ScoreSaber.UI.Main.ViewControllers
 
                 foreach (KeyValuePair<TeamType, List<TeamMember>> member in team.TeamMembers) {
                     string teamName = member.Key.ToString();
-                    if (teamName == "RT") {
-                        teamName = " RT "; // this is to make the tab larger
+                    int length = teamName.Length;
+                    if(length < 4) {
+                        teamName = $" {teamName} "; // this is to make the tab larger and not hard coded
                     }
                     TeamHost host = TeamToProfileHost(member.Value, teamName);
                     _teamHosts.Add(host);

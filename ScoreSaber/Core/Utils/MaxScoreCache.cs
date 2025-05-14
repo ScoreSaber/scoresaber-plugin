@@ -25,6 +25,7 @@ namespace ScoreSaber.Core.Utils {
                 return cache[beatmapKey];
             }
 
+            await IPA.Utilities.UnityGame.SwitchToMainThreadAsync(); // it touches unity stuff so we need to be on the main thread
             var beatmapLevelDataVersion = await _beatmapLevelsEntitlementModel.GetLevelDataVersionAsync(beatmapKey.levelId, CancellationToken.None);
             var beatmapLevelData = (await _beatmapLevelLoader.LoadBeatmapLevelDataAsync(beatmapLevel, beatmapLevelDataVersion, CancellationToken.None)).beatmapLevelData;
             var beatmapData = await _beatmapDataLoader.LoadBeatmapDataAsync(beatmapLevelData: beatmapLevelData,

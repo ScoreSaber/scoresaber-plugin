@@ -188,8 +188,10 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             pos.y += Plugin.Settings.replayCameraYOffset;
             pos.z += Plugin.Settings.replayCameraZOffset;
 
-            _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
-            
+            if (!_fpfcSettings.Enabled) {
+                _desktopCamera.transform.SetPositionAndRotation(Vector3.Lerp(_desktopCamera.transform.position, pos, t2), Quaternion.Lerp(_desktopCamera.transform.rotation, rot, t2));
+            }
+
             _playerTransforms.Update();
 
             DidUpdatePose?.Invoke(activePose);
