@@ -189,6 +189,9 @@ namespace ScoreSaber.UI.Main.ViewControllers
             string localRequestId = Guid.NewGuid().ToString();
             _requestId = localRequestId;
             await Task.Delay(400);
+            if(_scope == GlobalPlayerScope.Region) {
+                _scope = GlobalPlayerScope.Country; // there is no around-region endpoint yet :( // remove when there is one
+            }
             PlayerInfo[] globalLeaderboardData = await _globalLeaderboardService.GetPlayerList(_scope, _page);
             if (localRequestId == _requestId && globalLeaderboardData != null) {
                 UpdateCells(globalLeaderboardData);
