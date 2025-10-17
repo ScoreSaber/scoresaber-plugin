@@ -27,6 +27,7 @@ namespace ScoreSaber.Patches {
         private readonly ScoreSaberLeaderboardViewController _scoresaberLeaderboardViewController;
         private readonly BeatmapLevelsModel _beatmapLevelsModel;
         private PlatformLeaderboardViewController _platformLeaderboardViewController;
+        private Sprite _countryIcon;
 
         private int _lastScopeIndex = -1;
 
@@ -138,12 +139,20 @@ namespace ScoreSaber.Patches {
         }
 
         internal void UpdateScopeControl(Sprite ____friendsLeaderboardIcon, Sprite ____globalLeaderboardIcon, Sprite ____aroundPlayerLeaderboardIcon, IconSegmentedControl ____scopeSegmentedControl) {
+            if(_countryIcon == null) {
+                _countryIcon = Utilities.ImageResources.BlankSprite;
+                Utilities.LoadSpriteFromAssemblyAsync(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png").ContinueWith(spriteTask => {
+                    _countryIcon = spriteTask.Result;
 
-            Texture2D countryTexture = new Texture2D(64, 64);
-            countryTexture.LoadImage(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.country.png"));
-            countryTexture.Apply();
-
-            Sprite _countryIcon = Sprite.Create(countryTexture, new Rect(0, 0, countryTexture.width, countryTexture.height), Vector2.zero);
+                    // update the segmented control now that we have the real icon
+                    ____scopeSegmentedControl.SetData(new DataItem[] {
+                        new DataItem(____globalLeaderboardIcon, "Global"),
+                        new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),
+                        new DataItem(____friendsLeaderboardIcon, "Friends"),
+                        Plugin.Settings.locationFilterMode.ToLower() == "country" ? new DataItem(_countryIcon, "Country") : Plugin.Settings.locationFilterMode.ToLower() == "region" ? new DataItem(_countryIcon, "Region") : new DataItem(_countryIcon, "Country")
+                    });
+                });
+            }
             ____scopeSegmentedControl.SetData(new DataItem[] {
                     new DataItem(____globalLeaderboardIcon, "Global"),
                     new DataItem(____aroundPlayerLeaderboardIcon, "Around You"),

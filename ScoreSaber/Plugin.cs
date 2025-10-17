@@ -141,9 +141,10 @@ namespace ScoreSaber {
         internal static async Task<Material> GetFurryMaterial() {
 
             if (Furry == null) {
+                var bundleResource = await Utilities.GetResourceAsync(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.cyanisa.furry");
                 AssetBundle bundle = null;
                 IEnumerator SeriouslyUnityMakeSomethingBetter() {
-                    var bundleContainer = AssetBundle.LoadFromMemoryAsync(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.cyanisa.furry"));
+                    var bundleContainer = AssetBundle.LoadFromMemoryAsync(bundleResource);
                     yield return bundleContainer;
                     bundle = bundleContainer.assetBundle;
                 }

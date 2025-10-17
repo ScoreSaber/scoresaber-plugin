@@ -110,7 +110,7 @@ namespace ScoreSaber.Core.ReplaySystem.UI
             ((RectTransform)canvas.transform).sizeDelta = new Vector2(100f, 50f);
             CurvedCanvasSettings curvedCanvasSettings = _watermarkObject.AddComponent<CurvedCanvasSettings>();
             curvedCanvasSettings.SetRadius(0f);
-            CurvedTextMeshPro curvedTextMeshPro = (CurvedTextMeshPro)BeatSaberUI.CreateText((RectTransform)canvas.transform, "Double click left trigger to open Replay menu", new Vector2(0f, 0f));
+            CurvedTextMeshPro curvedTextMeshPro = BeatSaberUI.CreateCurvedUIText((RectTransform)canvas.transform, "Double click left trigger to open Replay menu");
             curvedTextMeshPro.alignment = TMPro.TextAlignmentOptions.Center;
             curvedTextMeshPro.color = new Color(0.95f, 0.95f, 0.95f);
         }
@@ -158,11 +158,11 @@ namespace ScoreSaber.Core.ReplaySystem.UI
 
         private void MainImberPanelView_DidClickPausePlay() {
 
-            if (_audioTimeSyncController.state == AudioTimeSyncController.State.Playing) {
+            if (_audioTimeSyncController.state == IAudioTimeSource.State.Playing) {
                 _replayTimeSyncController.CancelAllHitSounds();
                 _mainImberPanelView.playPauseText = "PLAY";
                 _audioTimeSyncController.Pause();
-            } else if (_audioTimeSyncController.state == AudioTimeSyncController.State.Paused) {
+            } else if (_audioTimeSyncController.state == IAudioTimeSource.State.Paused) {
                 _mainImberPanelView.playPauseText = "PAUSE";
                 _audioTimeSyncController.Resume();
             }

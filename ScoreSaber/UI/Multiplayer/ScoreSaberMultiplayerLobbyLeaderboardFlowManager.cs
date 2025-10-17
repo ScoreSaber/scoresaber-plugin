@@ -88,11 +88,10 @@ namespace ScoreSaber.UI.Multiplayer {
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
             _container.InstantiateComponent<VRGraphicRaycaster>(gameObject);
 
-            var imgBytes = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.logo.png");
-#pragma warning disable CS0618 // Type or member is obsolete
-            image.sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(imgBytes);
-#pragma warning restore CS0618 // Type or member is obsolete
-            image.sprite.texture.wrapMode = TextureWrapMode.Clamp;
+            BeatSaberMarkupLanguage.Utilities.LoadSpriteFromAssemblyAsync(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.logo.png").ContinueWith(spriteTask => {
+                image.sprite = spriteTask.Result;
+                image.sprite.texture.wrapMode = TextureWrapMode.Clamp;
+            });
 
             return image;
         }

@@ -54,7 +54,7 @@ namespace ScoreSaber.Core.ReplaySystem
         internal static readonly FieldAccessor<BeatmapCallbacksController.InitData, float>.Accessor InitialStartFilterTime = FieldAccessor<BeatmapCallbacksController.InitData, float>.GetAccessor("startFilterTime");
         internal static readonly FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.Accessor NoteCutPool = FieldAccessor<NoteCutSoundEffectManager, MemoryPoolContainer<NoteCutSoundEffect>>.GetAccessor("_noteCutSoundEffectPoolContainer");
 
-        internal static readonly FieldAccessor<NoteCutSoundEffectManager, AudioManagerSO>.Accessor AudioManager = FieldAccessor<NoteCutSoundEffectManager, AudioManagerSO>.GetAccessor("_audioManager");
+        internal static readonly FieldAccessor<NoteCutSoundEffectManager, AudioManager>.Accessor AudioManager = FieldAccessor<NoteCutSoundEffectManager, AudioManager>.GetAccessor("_audioManager");
         internal static readonly FieldAccessor<AudioTimeSyncController, float>.Accessor AudioStartOffset = FieldAccessor<AudioTimeSyncController, float>.GetAccessor("_audioStartTimeOffsetSinceStart");
         internal static readonly FieldAccessor<AudioTimeSyncController, int>.Accessor AudioLoopIndex = FieldAccessor<AudioTimeSyncController, int>.GetAccessor("_playbackLoopIndex");
         internal static readonly FieldAccessor<AudioTimeSyncController, float>.Accessor AudioTimeScale = FieldAccessor<AudioTimeSyncController, float>.GetAccessor("_timeScale");

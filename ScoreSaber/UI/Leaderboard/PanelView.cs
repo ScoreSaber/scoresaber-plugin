@@ -135,11 +135,12 @@ namespace ScoreSaber.UI.Leaderboard {
                     return;
                 }
                 if (_denyahSprite == null) {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    _denyahSprite = Utilities.LoadSpriteRaw(Utilities.GetResource(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.bri-ish.png"));
-#pragma warning restore CS0618 // Type or member is obsolete
+                    Utilities.LoadSpriteFromAssemblyAsync(Assembly.GetExecutingAssembly(), "ScoreSaber.Resources.bri-ish.png").ContinueWith(spriteTask => {
+                        _denyahSprite = spriteTask.Result;
+                        if(_isDenyah) // check that we're still denyah
+                            _background.overrideSprite = _denyahSprite;
+                    });
                 }
-                _background.overrideSprite = _denyahSprite;
                 _isDenyah = value;
             }
         }

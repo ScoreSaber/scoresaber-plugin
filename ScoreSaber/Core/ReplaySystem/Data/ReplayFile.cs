@@ -104,9 +104,22 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         BurstSliderHead,
         BurstSliderElement
     }
+    internal enum ScoringType_pre1_40_9 {
+        Ignore = -1,
+        NoScore,
+        Normal,
+        ArcHead,
+        ArcTail,
+        ChainHead,
+        ChainLink,
+        ArcHeadArcTail,
+        ChainHeadArcTail,
+        ChainLinkArcHead,
+    }
 
     internal static class RelevantGameVersions {
         public static readonly Hive.Versioning.Version Version_1_40 = new Hive.Versioning.Version("1.40.0");
+        public static readonly Hive.Versioning.Version Version_1_40_9 = new Hive.Versioning.Version("1.40.9");
     }
 
     internal struct NoteID : IEquatable<NoteID>
@@ -162,6 +175,24 @@ namespace ScoreSaber.Core.ReplaySystem.Data
                         case ScoringType_pre1_40.BurstSliderElement:
                             if (comparedScoringType == NoteData.ScoringType.ChainLinkArcHead) return true;
                             return comparedScoringType == NoteData.ScoringType.ChainLink;
+                    }
+                } else if(gameVersion < RelevantGameVersions.Version_1_40_9) {
+                    switch((ScoringType_pre1_40_9)scoringType) {
+                        case ScoringType_pre1_40_9.Ignore: return comparedScoringType == NoteData.ScoringType.Ignore;
+                        case ScoringType_pre1_40_9.NoScore: return comparedScoringType == NoteData.ScoringType.NoScore;
+                        case ScoringType_pre1_40_9.Normal: return comparedScoringType == NoteData.ScoringType.Normal;
+                        case ScoringType_pre1_40_9.ArcHead:
+                            if (comparedScoringType == NoteData.ScoringType.ChainHeadArcHeadArcTail) return true;
+                            if (comparedScoringType == NoteData.ScoringType.ChainHeadArcHead) return true;
+                            return comparedScoringType == NoteData.ScoringType.ArcHead;
+                        case ScoringType_pre1_40_9.ArcTail: return comparedScoringType == NoteData.ScoringType.ArcTail;
+                        case ScoringType_pre1_40_9.ChainHead: return comparedScoringType == NoteData.ScoringType.ChainHead;
+                        case ScoringType_pre1_40_9.ChainLink: return comparedScoringType == NoteData.ScoringType.ChainLink;
+                        case ScoringType_pre1_40_9.ArcHeadArcTail: return comparedScoringType == NoteData.ScoringType.ArcHeadArcTail;
+                        case ScoringType_pre1_40_9.ChainHeadArcTail:
+                            if (comparedScoringType == NoteData.ScoringType.ChainHeadArcHeadArcTail) return true;
+                            return comparedScoringType == NoteData.ScoringType.ChainHeadArcTail;
+                        case ScoringType_pre1_40_9.ChainLinkArcHead: return comparedScoringType == NoteData.ScoringType.ChainLinkArcHead;
                     }
                 }
 

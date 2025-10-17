@@ -8,7 +8,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
     internal class ReplayTimeSyncController : TimeSynchronizer, ITickable
     {
         private readonly List<IScroller> _scrollers;
-        private readonly AudioManagerSO _audioManagerSO;
+        private readonly AudioManager _audioManager;
         private AudioTimeSyncController.InitData _audioInitData;
         private BasicBeatmapObjectManager _basicBeatmapObjectManager;
         private NoteCutSoundEffectManager _noteCutSoundEffectManager;
@@ -25,7 +25,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             _noteCutSoundEffectManager = noteCutSoundEffectManager;
             _beatmapObjectSpawnController = beatmapObjectSpawnController;
             _beatmapObjectCallbackController = beatmapObjectCallbackController;
-            _audioManagerSO = Accessors.AudioManager(ref noteCutSoundEffectManager);
+            _audioManager = Accessors.AudioManager(ref noteCutSoundEffectManager);
         }
 
         public void Tick() {
@@ -144,7 +144,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             audioTimeSyncController.Pause();
             audioTimeSyncController.SeekTo(time / audioTimeSyncController.timeScale);
 
-            if (previousState == AudioTimeSyncController.State.Playing)
+            if (previousState == IAudioTimeSource.State.Playing)
                 audioTimeSyncController.Resume();
 
             Accessors.InitialStartFilterTime(ref _callbackInitData) = time;
@@ -172,7 +172,7 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             Accessors.AudioStartOffset(ref _audioTimeSyncController)
                 = (Time.timeSinceLevelLoad * _audioTimeSyncController.timeScale) - (_audioTimeSyncController.songTime + _audioInitData.songTimeOffset);
 
-            _audioManagerSO.musicPitch = 1f / newScale;
+            _audioManager.musicPitch = 1f / newScale;
             _audioTimeSyncController.Update();
         }
 
