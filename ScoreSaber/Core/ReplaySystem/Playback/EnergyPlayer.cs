@@ -35,8 +35,8 @@ namespace ScoreSaber.Core.ReplaySystem.Playback
             }
             UpdateEnergy(0.5f);
             var lastEvent = _sortedEnergyEvents.LastOrDefault();
-            if (newTime >= lastEvent.Time && lastEvent.Energy <= Mathf.Epsilon) {
-                UpdateEnergy(0f);
+            if (newTime >= lastEvent.Time) {
+                UpdateEnergy(lastEvent.Energy);
             }
         }
 
