@@ -8,6 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Steamworks;
+using System.Reflection;
 using UnityEngine;
 
 namespace ScoreSaber.Core.Services {
@@ -47,30 +50,62 @@ namespace ScoreSaber.Core.Services {
 
             ChangeLoginStatus(LoginStatus.InProgress, "Signing into ScoreSaber...");
 
-            var platformUserModel = Plugin.Container.TryResolve<IPlatformUserModel>();
-            var authToken = await platformUserModel.GetUserAuthToken();
-            var userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
+            var userInfo = await BS_Utils.Gameplay.GetUserInfo.GetUserAsync();
+            var platform = BS_Utils.Gameplay.GetUserInfo.GetPlatformUserModel();
 
             var nonce = string.Empty;
-            var platform = string.Empty;
+            var platformString = string.Empty;
 
             switch (userInfo.platform) {
                 case UserInfo.Platform.Steam:
-                    nonce = authToken.token;
-                    platform = "0";
+                    nonce = await platform.user.GetAccessTokenAsync();
+                    platformString = "0";
                     break;
                 case UserInfo.Platform.Oculus:
-                    nonce = authToken.token + "," + (await platformUserModel.RequestXPlatformAccessToken(CancellationToken.None)).token;
-                    platform = "1";
+                    var accessToken = await platform.user.GetAccessTokenAsync();
+                    var xplatformToken = await platform.user.GetXPlatformAccessTokenAsync();
+                    nonce = accessToken + "," + xplatformToken;
+                    platformString = "1";
                     break;
             }
 
             var playerId = userInfo.platformUserId;
             var playerName = userInfo.userName;
-            var friendIds = await platformUserModel.GetUserFriendsUserIds(false);
-            var friends = string.Join(",", friendIds.Where(x => x != "0"));
+            
 
-            var playerInfo = new LocalPlayerInfo(playerId, playerName, friends, platform, nonce);
+
+            // Get friends list
+            var friends = string.Empty;
+            if (userInfo.platform == UserInfo.Platform.Steam) {
+                var friendDetailList = new List<string>();
+                int friendCount = SteamFriends.GetFriendCount(EFriendFlags.k_EFriendFlagAll);
+                for (int i = 0; i < friendCount; i++) {
+                    CSteamID friendSteamId = SteamFriends.GetFriendByIndex(i, EFriendFlags.k_EFriendFlagAll);
+                    friendDetailList.Add(friendSteamId.ToString());
+                }
+                friends = string.Join(",", friendDetailList);
+            }
+            else {
+                // Fallback for non-Steam platforms (e.g., Oculus)
+                 var platformNetworkPlayerModel = Resources.FindObjectsOfTypeAll<PlatformNetworkPlayerModel>().FirstOrDefault();
+                if (platformNetworkPlayerModel != null) {
+                    var friendIds = new List<string>();
+                    foreach (var friend in platformNetworkPlayerModel.friends) {
+                        var idProperty = friend.GetType().GetProperty("id");
+                        if (idProperty != null) {
+                            var idValue = idProperty.GetValue(friend);
+                            if (idValue != null) {
+                                friendIds.Add(idValue.ToString());
+                                continue;
+                            }
+                        }
+                        friendIds.Add(friend.userId);
+                    }
+                    friends = string.Join(",", friendIds);
+                }
+            }
+
+            var playerInfo = new LocalPlayerInfo(playerId, playerName, friends, platformString, nonce);
 
             int attempts = 1;
 
