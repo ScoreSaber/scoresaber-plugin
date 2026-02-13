@@ -11,7 +11,8 @@
     "BSIPA": "^4.3.6",
     "BeatSaberMarkupLanguage": "^1.12.0",
     "SiraUtil": "^3.1.11",
-    "SongCore": "^3.16.0"
+    "SongCore": "^3.16.0",
+    "BS_Utils": "^1.14.3"
   },
   "links": {
     "website": "https://scoresaber.com"
