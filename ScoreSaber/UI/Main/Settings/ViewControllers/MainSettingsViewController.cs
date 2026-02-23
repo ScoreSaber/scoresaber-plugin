@@ -62,6 +62,12 @@ namespace ScoreSaber.UI.Main.Settings.ViewControllers {
             set => Plugin.Settings.replayCameraSmoothing = value;
         }
 
+        [UIValue("replayOverrideHandedness")]
+        public bool replayOverrideHandedness {
+            get => Plugin.Settings.replayOverrideHandedness;
+            set => Plugin.Settings.replayOverrideHandedness = value;
+        }
+
         [UIValue("replayCameraFOV")]
         public float ReplayCameraFOV {
             get => Plugin.Settings.replayCameraFOV;

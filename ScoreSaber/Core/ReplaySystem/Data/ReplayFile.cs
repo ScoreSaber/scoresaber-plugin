@@ -25,6 +25,22 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             multiplierKeyframes = new List<MultiplierEvent>();
             energyKeyframes = new List<EnergyEvent>();
         }
+        internal void Mirror() {
+            // Note: do not change to .ForEach or try to simplify away the temporary assignment.
+            // We need to mirror the pose and note keyframes in place, and using .ForEach or [i].Mirror() directly on the list
+            // would create a copy of the struct and mirror that instead of the one in the list.
+            for (int i = 0; i < poseKeyframes.Count; ++i) {
+                var keyframe = poseKeyframes[i];
+                keyframe.Mirror();
+                poseKeyframes[i] = keyframe;
+            }
+            for(int i = 0; i < noteKeyframes.Count; ++i) {
+                var keyframe = noteKeyframes[i];
+                keyframe.Mirror();
+                noteKeyframes[i] = keyframe;
+            }
+            metadata.LeftHanded = !metadata.LeftHanded;
+        }
     }
 
     internal struct Metadata
@@ -84,6 +100,17 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal VRRotation? InverseWorldRotation;
         internal VRRotation? NoteRotation;
         internal VRPosition? NotePosition;
+
+        internal void Mirror() {
+            NoteID.Mirror();
+            CutPoint.Mirror();
+            CutNormal.Mirror();
+            SaberDirection.Mirror();
+            SaberType = 1 - SaberType;
+            CutAngle = -CutAngle;
+
+            // We only mirror what's needed to replay the event correctly, change this if any of the extra fields start being used.
+        }
     };
 
     internal enum NoteEventType
@@ -201,6 +228,24 @@ namespace ScoreSaber.Core.ReplaySystem.Data
             }
             return true;
         }
+
+        internal void Mirror() {
+            // we want to keep this file independent of the games files, so we work on the integers directly instead of using the enums.
+            LineIndex = 3 - LineIndex;
+            ColorType = 1 - ColorType;
+            switch (CutDirection) {
+                case 2: CutDirection = 3; break; // LEFT
+                case 3: CutDirection = 2; break; // RIGHT
+                case 4: CutDirection = 5; break; // UPLEFT
+                case 5: CutDirection = 4; break; // UPRIGHT
+                case 6: CutDirection = 7; break; // DOWNLEFT
+                case 7: CutDirection = 6; break; // DOWNRIGHT
+                default: break;
+            }
+            if (CutDirectionAngleOffset is float cutDirectionAngleOffset) {
+                CutDirectionAngleOffset = -cutDirectionAngleOffset;
+            }
+        }
     };
 
     internal struct EnergyEvent
@@ -229,12 +274,26 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal VRPose Right;
         internal int FPS;
         internal float Time;
+
+        internal void Mirror() {
+            Head.Mirror();
+
+            (Right, Left) = (Left, Right);
+
+            Left.Mirror();
+            Right.Mirror();
+        }
     };
 
     internal struct VRPose
     {
         internal VRPosition Position;
         internal VRRotation Rotation;
+
+        internal void Mirror() {
+            Position.Mirror();
+            Rotation.Mirror();
+        }
     };
 
     internal struct VRPosition
@@ -246,6 +305,10 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal static VRPosition None() {
             return new VRPosition() { X = 0, Y = 0, Z = 0 };
         }
+
+        internal void Mirror() {
+            X = -X;
+        }
     };
 
     internal struct VRRotation
@@ -254,5 +317,10 @@ namespace ScoreSaber.Core.ReplaySystem.Data
         internal float Y;
         internal float Z;
         internal float W;
+
+        internal void Mirror() {
+            Y = -Y;
+            Z = -Z;
+        }
     };
 }

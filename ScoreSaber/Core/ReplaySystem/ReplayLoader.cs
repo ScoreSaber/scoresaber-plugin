@@ -131,6 +131,11 @@ namespace ScoreSaber.Core.ReplaySystem {
                 Plugin.ReplayState.LoadedReplayFile = replay;
                 PlayerData playerData = _playerDataModel.playerData;
                 PlayerSpecificSettings localPlayerSettings = playerData.playerSpecificSettings;
+
+                if (Plugin.Settings.replayOverrideHandedness && replay.metadata.LeftHanded != localPlayerSettings.leftHanded) {
+                    replay.Mirror();
+                }
+
                 PlayerSpecificSettings playerSettings = new PlayerSpecificSettings(replay.metadata.LeftHanded, replay.metadata.InitialHeight,
                     replay.heightKeyframes.Count > 0, localPlayerSettings.sfxVolume, localPlayerSettings.reduceDebris,
                     localPlayerSettings.noTextsAndHuds, localPlayerSettings.noFailEffects, localPlayerSettings.advancedHud,

@@ -8,7 +8,7 @@ namespace ScoreSaber.Core.Data
 {
     internal class Settings
     {
-        private static int _currentVersion => 8;
+        private static int _currentVersion => 9;
 
         public bool hideReplayUI = false;
 
@@ -21,6 +21,7 @@ namespace ScoreSaber.Core.Data
         public bool enableCountryLeaderboards { get; set; }
         public string locationFilterMode { get; set; }
         public bool replayCameraSmoothing { get; set; }
+        public bool replayOverrideHandedness { get; set; }
         public float replayCameraFOV { get; set; }
         public float replayCameraXOffset { get; set; }
         public float replayCameraYOffset { get; set; }
@@ -51,6 +52,7 @@ namespace ScoreSaber.Core.Data
             enableCountryLeaderboards = true;
             locationFilterMode = "Country";
             replayCameraSmoothing = true;
+            replayOverrideHandedness = false;
             replayCameraFOV = 70f;
             replayCameraXOffset = 0.0f;
             replayCameraYOffset = 0.0f;
@@ -112,6 +114,9 @@ namespace ScoreSaber.Core.Data
                     }
                     if(decoded.fileVersion < 8) {
                         decoded.replayCameraSmoothing = true;
+                    }
+                    if(decoded.fileVersion < 9) {
+                        decoded.replayOverrideHandedness = false;
                     }
                     SaveSettings(decoded);
                 }
