@@ -75,18 +75,22 @@ namespace ScoreSaber.Core.ReplaySystem {
                     overrideEnvironmentSettings: playerData.overrideEnvironmentSettings,
                     playerOverrideColorScheme: playerData.colorSchemesSettings.GetOverrideColorScheme(),
                     playerOverrideLightshowColors: playerData.colorSchemesSettings.ShouldOverrideLightshowColors(),
-                    beatmapOverrideColorScheme: beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty),
                     gameplayModifiers: gameplayModifiers,
                     playerSpecificSettings: playerSettings,
                     practiceSettings: null,
                     environmentsListModel: _environmentsListModel,
-                    backButtonText: "Exit Replay",
-                    useTestNoteCutSoundEffects: false,
-                    startPaused: false,
+                    gameplayAdditionalInformation: new GameplayAdditionalInformation(
+                        backButtonText: "Exit Replay",
+                        useTestNoteCutSoundEffects: false,
+                        startPaused: false,
+                        playmodeOptions: PlaymodeOptions.Default,
+                        recordingRelativePath: null
+                    ),
                     beforeSceneSwitchToGameplayCallback: null,
                     afterSceneSwitchToGameplayCallback: null,
                     levelFinishedCallback: ReplayEnd,
-                    levelRestartedCallback: null
+                    levelRestartedCallback: null,
+                    beatmapLevelData: null
                 );
             });
         }
@@ -156,18 +160,22 @@ namespace ScoreSaber.Core.ReplaySystem {
                     overrideEnvironmentSettings: playerData.overrideEnvironmentSettings,
                     playerOverrideColorScheme: playerData.colorSchemesSettings.GetOverrideColorScheme(),
                     playerOverrideLightshowColors: playerData.colorSchemesSettings.ShouldOverrideLightshowColors(),
-                    beatmapOverrideColorScheme: beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty),
                     gameplayModifiers: LeaderboardUtils.GetModifierFromStrings(replay.metadata.Modifiers.ToArray(), false).gameplayModifiers,
                     playerSpecificSettings: playerSettings,
                     practiceSettings: null,
                     environmentsListModel: _environmentsListModel,
-                    backButtonText: "Exit Replay",
-                    useTestNoteCutSoundEffects: false,
-                    startPaused: false,
+                    gameplayAdditionalInformation: new GameplayAdditionalInformation(
+                        backButtonText: "Exit Replay",
+                        useTestNoteCutSoundEffects: false,
+                        startPaused: false,
+                        playmodeOptions: PlaymodeOptions.Default,
+                        recordingRelativePath: null
+                    ),
                     beforeSceneSwitchToGameplayCallback: null,
                     afterSceneSwitchToGameplayCallback: null,
                     levelFinishedCallback: ReplayEnd,
-                    levelRestartedCallback: null
+                    levelRestartedCallback: null,
+                    beatmapLevelData: null
                 );
             });
         }

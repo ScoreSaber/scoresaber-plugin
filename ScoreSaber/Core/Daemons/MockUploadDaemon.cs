@@ -45,17 +45,14 @@ namespace ScoreSaber.Core.Daemons {
         }
 
         public void FakeUpload(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO, LevelCompletionResults levelCompletionResults) {
-
-            ProcessUpload(standardLevelScenesTransitionSetupDataSO.gameMode, standardLevelScenesTransitionSetupDataSO.difficultyBeatmap, levelCompletionResults, standardLevelScenesTransitionSetupDataSO.practiceSettings != null);
+            ProcessUpload(standardLevelScenesTransitionSetupDataSO.gameMode, standardLevelScenesTransitionSetupDataSO.beatmapLevel, standardLevelScenesTransitionSetupDataSO.beatmapKey, levelCompletionResults, standardLevelScenesTransitionSetupDataSO.practiceSettings != null);
         }
-
 
         private void FakeMultiUpload(MultiplayerLevelScenesTransitionSetupDataSO multiplayerLevelScenesTransitionSetupDataSO, MultiplayerResultsData multiplayerResultsData) {
-
-            ProcessUpload(multiplayerLevelScenesTransitionSetupDataSO.gameMode, multiplayerLevelScenesTransitionSetupDataSO.difficultyBeatmap, multiplayerResultsData.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
+            ProcessUpload(multiplayerLevelScenesTransitionSetupDataSO.gameMode, multiplayerLevelScenesTransitionSetupDataSO.beatmapLevel, multiplayerLevelScenesTransitionSetupDataSO.beatmapKey, multiplayerResultsData.localPlayerResultData.multiplayerLevelCompletionResults.levelCompletionResults, false);
         }
 
-        private async void ProcessUpload(string gameMode, IDifficultyBeatmap difficultyBeatmap, LevelCompletionResults levelCompletionResults, bool practicing) {
+        private async void ProcessUpload(string gameMode, BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, LevelCompletionResults levelCompletionResults, bool practicing) {
 
             var practiceViewController = Resources.FindObjectsOfTypeAll<PracticeViewController>().FirstOrDefault();
             if (!practiceViewController.isInViewControllerHierarchy) {
@@ -77,9 +74,8 @@ namespace ScoreSaber.Core.Daemons {
                         return;
                     }
 
-                    
                     bool ranked = true;
-                    Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(difficultyBeatmap);
+                    Leaderboard currentLeaderboard = await _leaderboardService.GetCurrentLeaderboard(beatmapKey);
 
                     if (currentLeaderboard != null) {
                         ranked = currentLeaderboard.leaderboardInfo.ranked;
@@ -96,7 +92,7 @@ namespace ScoreSaber.Core.Daemons {
                     }
 
                     // We good, "upload" the score
-                    WriteReplay(difficultyBeatmap).RunTask();
+                    WriteReplay(beatmapLevel, beatmapKey).RunTask();
                 }
             } else {
                 // We still want to write a replay to memory if in practice mode
@@ -104,7 +100,7 @@ namespace ScoreSaber.Core.Daemons {
             }
         }
 
-        public async Task WriteReplay(IDifficultyBeatmap beatmap) {
+        public async Task WriteReplay(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey) {
 
             uploading = true;
             UploadStatusChanged?.Invoke(UploadStatus.Uploading, "Packaging replay...");
@@ -112,7 +108,7 @@ namespace ScoreSaber.Core.Daemons {
             byte[] serializedReplay = await _replayService.WriteSerializedReplay();
 
             if (Plugin.Settings.saveLocalReplays) {
-                string replayPath = $@"{Settings.replayPath}\{_playerService.localPlayerInfo.playerId}-{beatmap.level.songName.ReplaceInvalidChars().Truncate(155)}-{beatmap.difficulty.SerializedName()}-{beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName}-{beatmap.level.levelID}.dat";
+                string replayPath = $@"{Settings.replayPath}\{_playerService.localPlayerInfo.playerId}-{beatmapLevel.songName.ReplaceInvalidChars().Truncate(155)}-{beatmapKey.difficulty.SerializedName()}-{beatmapKey.beatmapCharacteristic.serializedName}-{beatmapLevel.levelID}.dat";
                 File.WriteAllBytes(replayPath, serializedReplay);
             }
             uploading = false;
